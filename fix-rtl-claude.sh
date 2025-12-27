@@ -3,7 +3,7 @@
 # Run this script after each Claude Code extension update
 
 RTL_CSS='*{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),li,ul,ol{direction:rtl;text-align:right;unicode-bidi:isolate}
+p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"]{direction:ltr!important;text-align:left!important}
 '
 

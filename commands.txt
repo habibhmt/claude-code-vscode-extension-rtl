@@ -1,8 +1,0 @@
-# Kill Claude zombie processes (copy & paste to terminal)
-ps aux | grep "claude-code.*native-binary/claude" | grep -v grep | awk '{print $2}' | xargs kill -9
-
-# Check CPU usage
-ps aux | grep -i claude | grep -v grep | sort -k3 -rn | head -5
-
-# Fix RTL after Claude Code update
-~/1-MY-WORK/136th-day-fix-rtl-claude/fix-rtl-claude.sh

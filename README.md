@@ -37,7 +37,7 @@ chmod +x fix-rtl-claude.sh
 ./fix-rtl-claude.sh
 ```
 
-### Options
+#### Options
 
 ```bash
 # Basic RTL support (no custom font)
@@ -50,12 +50,47 @@ chmod +x fix-rtl-claude.sh
 ./fix-rtl-claude.sh --help
 ```
 
+### Windows
+
+```powershell
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/claude-code-extension-rtl.git
+cd claude-code-extension-rtl
+
+# Run the script
+.\fix-rtl-claude.ps1
+```
+
+#### Options
+
+```powershell
+# Basic RTL support (no custom font)
+.\fix-rtl-claude.ps1
+
+# With Vazirmatn font (recommended for Persian/Arabic)
+.\fix-rtl-claude.ps1 -WithFont
+
+# Show help
+.\fix-rtl-claude.ps1 -Help
+```
+
+> **Note:** If you get an execution policy error, run PowerShell as Administrator and execute:
+> ```powershell
+> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+> ```
+
 ## After Claude Code Updates
 
 The extension updates may overwrite the CSS changes. Simply run the script again after each update:
 
+**macOS/Linux:**
 ```bash
 ./fix-rtl-claude.sh
+```
+
+**Windows:**
+```powershell
+.\fix-rtl-claude.ps1
 ```
 
 ## How It Works
@@ -72,11 +107,17 @@ A backup of the original CSS file is created automatically (`index.css.backup`).
 
 **No Claude Code extensions found**
 - Make sure Claude Code extension is installed in your IDE
-- The extension path should be: `~/.<ide-name>/extensions/anthropic.claude-code-*/webview/`
+- Extension paths:
+  - **macOS/Linux:** `~/.<ide-name>/extensions/anthropic.claude-code-*/webview/`
+  - **Windows:** `%USERPROFILE%\.<ide-name>\extensions\anthropic.claude-code-*\webview\`
 
 **Changes not visible**
 - Restart your IDE after running the script
 - Try closing and reopening the Claude Code panel
+
+**PowerShell execution policy error (Windows)**
+- Run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+- Or run the script with: `powershell -ExecutionPolicy Bypass -File .\fix-rtl-claude.ps1`
 
 ## Known Issues
 

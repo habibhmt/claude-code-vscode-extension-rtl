@@ -31,16 +31,39 @@ for arg in "$@"; do
 done
 
 # RTL CSS without font
-RTL_CSS_BASE='html,body{direction:rtl;text-align:right}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
-pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+RTL_CSS_BASE='
+html,body{direction:ltr!important;text-align:left!important}
+
+[class*="message"],[class*="content"],.markdown-body,p,span,li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{
+direction:rtl;
+text-align:right;
+unicode-bidi:isolate;
+}
+
+pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{
+direction:ltr!important;
+text-align:left!important;
+unicode-bidi:isolate;
+}
 '
 
 # RTL CSS with Vazirmatn font
-RTL_CSS_WITH_FONT='*{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
-html,body{direction:rtl;text-align:right}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
-pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+RTL_CSS_WITH_FONT='
+*{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
+
+html,body{direction:ltr!important;text-align:left!important}
+
+[class*="message"],[class*="content"],.markdown-body,p,span,li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{
+direction:rtl;
+text-align:right;
+unicode-bidi:isolate;
+}
+
+pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{
+direction:ltr!important;
+text-align:left!important;
+unicode-bidi:isolate;
+}
 '
 
 # Choose CSS based on font flag
@@ -82,6 +105,8 @@ patch_ide "VSCode" ~/.vscode/extensions/anthropic.claude-code-*/webview
 patch_ide "VSCode Insiders" ~/.vscode-insiders/extensions/anthropic.claude-code-*/webview
 patch_ide "VSCode Server" ~/.vscode-server/extensions/anthropic.claude-code-*/webview
 patch_ide "VSCode Server Insiders" ~/.vscode-server-insiders/extensions/anthropic.claude-code-*/webview
+patch_ide "Antigravity" ~/.antigravity/extensions/anthropic.claude-code-*/webview
+patch_ide "Antigravity Server" ~/.antigravity-server/extensions/anthropic.claude-code-*/webview
 patch_ide "Cursor" ~/.cursor/extensions/anthropic.claude-code-*/webview
 patch_ide "Windsurf" ~/.windsurf/extensions/anthropic.claude-code-*/webview
 patch_ide "Windsurf Next" ~/.windsurf-next/extensions/anthropic.claude-code-*/webview

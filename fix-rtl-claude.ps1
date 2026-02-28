@@ -19,18 +19,43 @@ if ($Help) {
 
 # RTL CSS without font
 $RTL_CSS_BASE = @"
-html,body{direction:rtl;text-align:right}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
-pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+html,body{direction:ltr!important;text-align:left!important}
+
+[class*="message"],[class*="content"],.markdown-body,
+p,span,li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{
+direction:rtl;
+text-align:right;
+unicode-bidi:isolate;
+}
+
+pre,code,[class*="diff"],[class*="Diff"],[class*="code"],
+[class*="Code"],[class*="monaco"],[class*="editor"]{
+direction:ltr!important;
+text-align:left!important;
+unicode-bidi:isolate;
+}
 "@
 
 # RTL CSS with Vazirmatn font
-$RTL_CSS_WITH_FONT = @"
+$RTL_CSS_WITH_FONT = @'
 *{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
-html,body{direction:rtl;text-align:right}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
-pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
-"@
+
+html,body{direction:ltr!important;text-align:left!important}
+
+[class*="message"],[class*="content"],.markdown-body,
+p,span,li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{
+direction:rtl;
+text-align:right;
+unicode-bidi:isolate;
+}
+
+pre,code,[class*="diff"],[class*="Diff"],[class*="code"],
+[class*="Code"],[class*="monaco"],[class*="editor"]{
+direction:ltr!important;
+text-align:left!important;
+unicode-bidi:isolate;
+}
+'@
 
 # Choose CSS based on font flag
 if ($WithFont) {
@@ -93,6 +118,8 @@ Patch-IDE -IdeName "VSCode" -ExtensionsPath "$userProfile\.vscode\extensions"
 Patch-IDE -IdeName "VSCode Insiders" -ExtensionsPath "$userProfile\.vscode-insiders\extensions"
 Patch-IDE -IdeName "VSCode Server" -ExtensionsPath "$env:USERPROFILE\.vscode-server\extensions"
 Patch-IDE -IdeName "VSCode Server Insiders" -ExtensionsPath "$env:USERPROFILE\.vscode-server-insiders\extensions"
+Patch-IDE -IdeName "Antigravity" -ExtensionsPath "$userProfile\.antigravity\extensions"
+Patch-IDE -IdeName "Antigravity Server" -ExtensionsPath "$userProfile\.antigravity-server\extensions"
 Patch-IDE -IdeName "Cursor" -ExtensionsPath "$userProfile\.cursor\extensions"
 Patch-IDE -IdeName "Windsurf" -ExtensionsPath "$userProfile\.windsurf\extensions"
 Patch-IDE -IdeName "Windsurf Next" -ExtensionsPath "$userProfile\.windsurf-next\extensions"

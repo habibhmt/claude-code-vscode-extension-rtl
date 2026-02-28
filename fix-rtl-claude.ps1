@@ -91,6 +91,8 @@ $userProfile = $env:USERPROFILE
 # Patch all supported IDEs
 Patch-IDE -IdeName "VSCode" -ExtensionsPath "$userProfile\.vscode\extensions"
 Patch-IDE -IdeName "VSCode Insiders" -ExtensionsPath "$userProfile\.vscode-insiders\extensions"
+Patch-IDE -IdeName "VSCode Server" -ExtensionsPath "$env:USERPROFILE\.vscode-server\extensions"
+Patch-IDE -IdeName "VSCode Server Insiders" -ExtensionsPath "$env:USERPROFILE\.vscode-server-insiders\extensions"
 Patch-IDE -IdeName "Cursor" -ExtensionsPath "$userProfile\.cursor\extensions"
 Patch-IDE -IdeName "Windsurf" -ExtensionsPath "$userProfile\.windsurf\extensions"
 Patch-IDE -IdeName "Windsurf Next" -ExtensionsPath "$userProfile\.windsurf-next\extensions"

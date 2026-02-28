@@ -80,6 +80,8 @@ echo ""
 # Patch all supported IDEs
 patch_ide "VSCode" ~/.vscode/extensions/anthropic.claude-code-*/webview
 patch_ide "VSCode Insiders" ~/.vscode-insiders/extensions/anthropic.claude-code-*/webview
+patch_ide "VSCode Server" ~/.vscode-server/extensions/anthropic.claude-code-*/webview
+patch_ide "VSCode Server Insiders" ~/.vscode-server-insiders/extensions/anthropic.claude-code-*/webview
 patch_ide "Cursor" ~/.cursor/extensions/anthropic.claude-code-*/webview
 patch_ide "Windsurf" ~/.windsurf/extensions/anthropic.claude-code-*/webview
 patch_ide "Windsurf Next" ~/.windsurf-next/extensions/anthropic.claude-code-*/webview

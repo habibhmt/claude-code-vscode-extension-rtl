@@ -78,11 +78,14 @@ echo "=== RTL Fix for Claude Code Extension ==="
 echo ""
 
 # Patch all supported IDEs
-patch_ide "VSCode" ~/.vscode/extensions/anthropic.claude-code-*/webview
-patch_ide "VSCode Insiders" ~/.vscode-insiders/extensions/anthropic.claude-code-*/webview
-patch_ide "Cursor" ~/.cursor/extensions/anthropic.claude-code-*/webview
-patch_ide "Windsurf" ~/.windsurf/extensions/anthropic.claude-code-*/webview
-patch_ide "Windsurf Next" ~/.windsurf-next/extensions/anthropic.claude-code-*/webview
+# NOTE: patterns are quoted so the glob expands inside patch_ide's own loop;
+# unquoted patterns get expanded by the shell at the call site, and any match
+# beyond the first is silently dropped since the function only reads $1/$2.
+patch_ide "VSCode" "$HOME/.vscode/extensions/anthropic.claude-code-*/webview"
+patch_ide "VSCode Insiders" "$HOME/.vscode-insiders/extensions/anthropic.claude-code-*/webview"
+patch_ide "Cursor" "$HOME/.cursor/extensions/anthropic.claude-code-*/webview"
+patch_ide "Windsurf" "$HOME/.windsurf/extensions/anthropic.claude-code-*/webview"
+patch_ide "Windsurf Next" "$HOME/.windsurf-next/extensions/anthropic.claude-code-*/webview"
 
 echo ""
 if [ $patched -eq 0 ]; then

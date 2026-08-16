@@ -1,9 +1,20 @@
 #!/bin/bash
 # RTL Fix for Claude Code Extension
-# Supports: VSCode, Cursor, Windsurf, Windsurf Next
+# Supports: VSCode, VSCode Insiders, Cursor, Windsurf, Windsurf Next, Devin
 # Works on: macOS and Linux
 
 set -e
+
+# Log rotation: keep autofix.log under 1MB, keep one previous copy
+LOG_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/autofix.log"
+LOG_MAX_BYTES=1048576
+if [ -f "$LOG_FILE" ]; then
+    log_size=$(wc -c < "$LOG_FILE" | tr -d ' ')
+    if [ "$log_size" -gt "$LOG_MAX_BYTES" ]; then
+        cp "$LOG_FILE" "$LOG_FILE.1"
+        : > "$LOG_FILE"   # truncate in place so launchd's open handle keeps working
+    fi
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -33,6 +44,8 @@ done
 # RTL CSS without font
 RTL_CSS_BASE='html,body{direction:rtl;text-align:right}
 p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
+table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important}
+td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
 '
 
@@ -40,6 +53,8 @@ pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*
 RTL_CSS_WITH_FONT='*{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
 html,body{direction:rtl;text-align:right}
 p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
+table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important}
+td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
 '
 
@@ -74,7 +89,7 @@ patch_ide() {
 }
 
 echo ""
-echo "=== RTL Fix for Claude Code Extension ==="
+echo "=== RTL Fix for Claude Code Extension === [$(date '+%Y-%m-%d %H:%M:%S')]"
 echo ""
 
 # Patch all supported IDEs
@@ -86,6 +101,7 @@ patch_ide "VSCode Insiders" "$HOME/.vscode-insiders/extensions/anthropic.claude-
 patch_ide "Cursor" "$HOME/.cursor/extensions/anthropic.claude-code-*/webview"
 patch_ide "Windsurf" "$HOME/.windsurf/extensions/anthropic.claude-code-*/webview"
 patch_ide "Windsurf Next" "$HOME/.windsurf-next/extensions/anthropic.claude-code-*/webview"
+patch_ide "Devin" "$HOME/.devin/extensions/anthropic.claude-code-*/webview"
 
 echo ""
 if [ $patched -eq 0 ]; then

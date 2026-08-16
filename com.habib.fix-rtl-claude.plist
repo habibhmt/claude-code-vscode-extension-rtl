@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.habib.fix-rtl-claude</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/fix-rtl-claude.sh</string>
+        <string>--with-font</string>
+    </array>
+
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/habib/.vscode/extensions</string>
+        <string>/Users/habib/.vscode-insiders/extensions</string>
+        <string>/Users/habib/.cursor/extensions</string>
+        <string>/Users/habib/.windsurf/extensions</string>
+        <string>/Users/habib/.windsurf-next/extensions</string>
+        <string>/Users/habib/.devin/extensions</string>
+    </array>
+
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/autofix.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/autofix.log</string>
+</dict>
+</plist>

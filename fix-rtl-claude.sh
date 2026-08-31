@@ -16,6 +16,9 @@ if [ -f "$LOG_FILE" ]; then
     fi
 fi
 
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -66,6 +69,15 @@ else
     RTL_CSS="$RTL_CSS_BASE"
 fi
 
+# UI compaction: thinner top header + thinner composer/attachment row
+UI_COMPACT_CSS='[class*="header_"],[class*="titlebar"],[class*="TitleBar"]{min-height:24px!important;height:auto!important;padding-top:0!important;padding-bottom:0!important}
+[class*="headerIcon"]{height:20px!important;width:18px!important;margin-left:4px!important}
+[class*="headerIcon"] svg,[class*="headerIcon"] img{width:13px!important;height:13px!important}
+[class*="headerTitle"]{font-size:11px!important;line-height:1.2!important}
+[class*="attachment"],[class*="Attachment"],[class*="chip"],[class*="Chip"],[class*="pill"],[class*="Pill"]{font-size:9px!important;padding:0 4px!important;line-height:1.2!important;max-height:16px!important}
+[class*="attachment"] img,[class*="Attachment"] img,[class*="thumb"],[class*="Thumb"],[class*="preview"] img{max-height:12px!important;max-width:12px!important}
+'
+
 # Counter for patched IDEs
 patched=0
 
@@ -80,8 +92,17 @@ patch_ide() {
             if [ ! -f "$ext_dir/index.css.backup" ]; then
                 cp "$ext_dir/index.css" "$ext_dir/index.css.backup"
             fi
-            # Apply RTL CSS
-            echo "$RTL_CSS" | cat - "$ext_dir/index.css.backup" > "$ext_dir/index.css"
+            # Apply RTL CSS + UI compaction
+            { echo "$RTL_CSS"; echo "$UI_COMPACT_CSS"; cat "$ext_dir/index.css.backup"; } > "$ext_dir/index.css"
+
+            # Inject the quick-command button bar into the webview bundle
+            if [ -f "$ext_dir/index.js" ] && [ -f "$BUTTONS_JS" ]; then
+                if [ ! -f "$ext_dir/index.js.backup" ]; then
+                    cp "$ext_dir/index.js" "$ext_dir/index.js.backup"
+                fi
+                { cat "$ext_dir/index.js.backup"; echo ""; echo ";"; cat "$BUTTONS_JS"; } > "$ext_dir/index.js"
+            fi
+
             echo -e "${GREEN}[OK]${NC} Patched $ide_name: $ext_dir"
             patched=$((patched + 1))
         fi

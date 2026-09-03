@@ -14,14 +14,14 @@
     { label: "reme",  text: "/remember:remember", side: "right", send: false },
     { label: "comp",  text: "/compact",           side: "right", send: false },
     { label: "use",   text: "/usage",             side: "right", send: false },
-    { label: "art",   text: "\u0627\u06cc\u0646 \u0631\u0648 \u0622\u0631\u062a\u06cc\u0641\u06a9\u062a \u06a9\u0646", side: "right", send: false },
+    { label: "cont",  text: "/context",            side: "right", send: false },
     { label: "focus", menu: "Focus view",         side: "right" },
     { label: "rew",   menu: "Rewind",             side: "right" },
+    { label: "art",   text: "\u0627\u06cc\u0646 \u0631\u0648 \u0622\u0631\u062a\u06cc\u0641\u06a9\u062a \u06a9\u0646", side: "left",  send: false },
     { label: "rev",   text: "/code-review",       side: "left",  send: false },
     { label: "clr",   text: "/clear",             side: "left",  send: false },
     { label: "btw",   text: "/btw ",              side: "left",  send: false },
-    { label: "rc",    text: "/remote-control",    side: "left",  send: false },
-    { label: "task",  text: "/tasks",             side: "left",  send: false }
+    { label: "rc",    text: "/remote-control",    side: "left",  send: false }
     // \u2190 \u0647\u0631 \u0686\u0642\u062f\u0631 \u062e\u0648\u0627\u0633\u062a\u06cc \u062e\u0637 \u062c\u062f\u06cc\u062f \u0627\u0636\u0627\u0641\u0647 \u06a9\u0646
   ];
 

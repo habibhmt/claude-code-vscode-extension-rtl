@@ -134,14 +134,28 @@ can be tuned live without touching any file. Click **`aA`** at the bottom edge.
 | جدول | horizontal scroll for wide tables and code instead of stretching the page |
 | دکمه‌ها: مخفی | hide the button columns — shortcut `Ctrl+Alt+B` |
 | لیست دکمه‌ها (JSON) | add, remove or rename the quick-command buttons in place |
+| شفافیت / رنگ | button opacity and an accent colour (empty = follow the theme) |
+| پروفایل | save the current settings under a name and switch between them |
+| جست‌وجو | find text in the conversation and step through hits — `Ctrl+Alt+F` |
+| کپی گفتگو | copy the whole conversation as Markdown |
+| `sel` | push the editor's current selection into the chat |
+| شمارنده | character count of the composer, plus the app's own usage line when it renders one |
 | `sav` | copy the current settings as JSON for `~/.claude-rtl-sizes.json` |
 | `rst` | back to defaults |
+
+A folded `Thinking` or tool-call block opens on hover, and a click pins it open.
 
 Drag a column by its `⋮⋮` grip to move it anywhere on screen.
 
 Settings live in the webview's `localStorage`. To make them the defaults for
 every IDE and every extension update, press `sav` and paste the JSON into
-`~/.claude-rtl-sizes.json` — the script seeds the panel from that file.
+`~/.claude-rtl-sizes.json` — the script seeds the panel from that file. See
+[`sizes.example.json`](sizes.example.json) for the shape. Keep that file in
+your dotfiles and symlink it to carry the same setup across machines:
+
+```bash
+ln -sf ~/dotfiles/claude-rtl-sizes.json ~/.claude-rtl-sizes.json
+```
 
 ## How It Works
 
@@ -161,6 +175,16 @@ rebuilt on every panel creation and is therefore never cached.
 Backups are created automatically the first time (`index.css.backup`,
 `index.js.backup`, `extension.js.backup`) and every run re-patches from those
 backups, so repeated runs never stack up. `--revert` restores them.
+
+Each patched folder gets a `.crtl-stamp` holding a hash of the injected
+payload. A run whose output would be byte-identical exits silently and writes
+nothing to the log — the launchd agent fires on every touch of the extensions
+folder, and re-patching each time was the only thing growing `autofix.log`.
+`--force` patches anyway.
+
+After patching, the script runs `node --check` on both injected files and
+confirms the panel marker is present. A file that fails is rolled back from its
+backup rather than left broken.
 
 ## Troubleshooting
 
@@ -193,10 +217,27 @@ This is a known bug in Claude Code itself (not related to this RTL fix):
 - [Issue #11615](https://github.com/anthropics/claude-code/issues/11615)
 - [Issue #11473](https://github.com/anthropics/claude-code/issues/11473)
 
-To kill zombie processes:
+To kill runaway processes:
+
 ```bash
-ps aux | grep "claude-code.*native-binary/claude" | grep -v grep | awk '{print $2}' | xargs kill -9
+# interactive: lists anything above 80% CPU, then asks
+./kill-claude-zombies.sh
+
+# unattended, higher bar
+./kill-claude-zombies.sh --yes --threshold 90
+
+# everything, no threshold
+./kill-claude-zombies.sh --all
 ```
+
+To reap them automatically every 10 minutes:
+
+```bash
+cp com.habib.kill-claude-zombies.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.habib.kill-claude-zombies.plist
+```
+
+The patcher can do it in the same pass with `./fix-rtl-claude.sh --kill-zombies`.
 
 ## License
 

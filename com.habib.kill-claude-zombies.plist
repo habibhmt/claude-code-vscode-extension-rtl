@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.habib.kill-claude-zombies</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/kill-claude-zombies.sh</string>
+        <string>--yes</string>
+        <string>--threshold</string>
+        <string>90</string>
+    </array>
+
+    <!-- every 10 minutes; only processes pinned above 90% CPU are reaped -->
+    <key>StartInterval</key>
+    <integer>600</integer>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/autofix.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/autofix.log</string>
+</dict>
+</plist>

@@ -1,0 +1,15 @@
+{
+  "chat": 15,
+  "code": 12,
+  "chrome": 10,
+  "btn": 10,
+  "lines": 1,
+  "side": "both",
+  "collapse": true,
+  "tableScroll": true,
+  "accent": "",
+  "opacity": 65,
+  "counter": true,
+  "profiles": {},
+  "commands": null
+}

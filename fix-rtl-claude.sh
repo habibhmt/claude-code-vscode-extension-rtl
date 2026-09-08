@@ -41,6 +41,8 @@ NC='\033[0m' # No Color
 # Parse arguments
 WITH_FONT=false
 REVERT=false
+KILL_ZOMBIES=false
+FORCE=false
 # Reload the IDE window only on an interactive run; the launchd agent must not
 # yank the window out from under whatever is running.
 if [ -t 1 ]; then RELOAD=true; else RELOAD=false; fi
@@ -52,6 +54,14 @@ for arg in "$@"; do
             ;;
         --revert)
             REVERT=true
+            shift
+            ;;
+        --kill-zombies)
+            KILL_ZOMBIES=true
+            shift
+            ;;
+        --force)
+            FORCE=true
             shift
             ;;
         --reload)
@@ -68,6 +78,12 @@ for arg in "$@"; do
             echo "Options:"
             echo "  --with-font    Include Vazirmatn font (for Persian/Arabic)"
             echo "  --revert       Restore every patched file from its .backup and exit"
+            echo "  --force        Re-patch even when the stamp says nothing changed"
+            echo "  --kill-zombies Also reap runaway claude native-binary processes"
+            echo ""
+            echo "Panel defaults are read from \$SIZES_FILE (default ~/.claude-rtl-sizes.json)."
+            echo "Press 'sav' in the panel to copy the current settings in that shape;"
+            echo "keep the file in your dotfiles and symlink it to share it across machines."
             echo "  --reload       Reload the IDE window when done (default on a terminal run)"
             echo "  --no-reload    Never reload the IDE window"
             echo "  --help, -h     Show this help message"
@@ -150,6 +166,12 @@ fi
 
 # Counter for patched IDEs
 patched=0
+skipped=0
+# Buffered so a run that changed nothing stays out of the log.
+OUT=""
+
+# One value that changes whenever the produced output would change.
+stamp="$(printf '%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" "$(cat "$BUTTONS_JS" 2>/dev/null)" | shasum | cut -d" " -f1)"
 
 # Function to patch an IDE
 patch_ide() {
@@ -158,6 +180,15 @@ patch_ide() {
 
     for ext_dir in $ext_pattern; do
         if [ -f "$ext_dir/index.css" ]; then
+            # Skip work that would produce byte-identical output. The launchd
+            # agent fires on every extensions-folder touch, and re-patching each
+            # time only grew autofix.log.
+            if [ "$FORCE" != true ] && [ -f "$ext_dir/.crtl-stamp" ] && \
+               [ "$(cat "$ext_dir/.crtl-stamp" 2>/dev/null)" = "$stamp" ] && \
+               grep -q 'crtl-panel' "$(dirname "$ext_dir")/extension.js" 2>/dev/null; then
+                skipped=$((skipped + 1))
+                continue
+            fi
             # Create backup if not exists
             if [ ! -f "$ext_dir/index.css.backup" ]; then
                 cp "$ext_dir/index.css" "$ext_dir/index.css.backup"
@@ -218,16 +249,33 @@ PYEOF
                 { cat "$ext_dir/index.js.backup"; echo ""; echo ";"; cat "$BUTTONS_JS"; } > "$ext_dir/index.js"
             fi
 
+            # Self-test: a broken injection would take the whole panel down,
+            # so refuse to leave a file that no longer parses.
+            ok=true
+            if command -v node >/dev/null 2>&1; then
+                node --check "$ext_dir/index.js" >/dev/null 2>&1 || ok=false
+                node --check "$(dirname "$ext_dir")/extension.js" >/dev/null 2>&1 || ok=false
+            fi
+            grep -q 'crtl-panel' "$(dirname "$ext_dir")/extension.js" 2>/dev/null || ok=false
+            if [ "$ok" != true ]; then
+                OUT="$OUT\n$(echo -e "${RED}[FAIL]${NC} self-test failed, rolling back: $ext_dir")"
+                for f in "$ext_dir/index.css" "$ext_dir/index.js" "$(dirname "$ext_dir")/extension.js"; do
+                    [ -f "$f.backup" ] && cp "$f.backup" "$f"
+                done
+                continue
+            fi
+            echo "$stamp" > "$ext_dir/.crtl-stamp"
+
             ver="$(basename "$(dirname "$ext_dir")")"
-            echo -e "${GREEN}[OK]${NC} Patched $ide_name ${ver#anthropic.claude-code-}: $ext_dir"
+            OUT="$OUT\n$(echo -e "${GREEN}[OK]${NC} Patched $ide_name ${ver#anthropic.claude-code-}: $ext_dir")"
             patched=$((patched + 1))
         fi
     done
 }
 
-echo ""
-echo "=== RTL Fix for Claude Code Extension === [$(date '+%Y-%m-%d %H:%M:%S')]"
-echo ""
+START_MSG="
+=== RTL Fix for Claude Code Extension === [$(date '+%Y-%m-%d %H:%M:%S')]
+"
 
 # Patch all supported IDEs
 # NOTE: patterns are quoted so the glob expands inside patch_ide's own loop;
@@ -240,7 +288,14 @@ patch_ide "Windsurf" "$HOME/.windsurf/extensions/anthropic.claude-code-*/webview
 patch_ide "Windsurf Next" "$HOME/.windsurf-next/extensions/anthropic.claude-code-*/webview"
 patch_ide "Devin" "$HOME/.devin/extensions/anthropic.claude-code-*/webview"
 
-echo ""
+if [ $patched -eq 0 ] && [ $skipped -gt 0 ]; then
+    # everything already carries the current stamp; say nothing
+    [ "$KILL_ZOMBIES" = true ] && "$REPO_DIR/kill-claude-zombies.sh" --yes
+    exit 0
+fi
+
+echo "$START_MSG"
+echo -e "$OUT"
 if [ $patched -eq 0 ]; then
     echo -e "${RED}No Claude Code extensions found.${NC}"
     echo "Make sure Claude Code extension is installed in your IDE."
@@ -258,6 +313,10 @@ else
             echo -e "${YELLOW}[WARN]${NC} unpatched extension version: $(basename "$(dirname "$d")")"
         fi
     done
+
+    if [ "$KILL_ZOMBIES" = true ]; then
+        "$REPO_DIR/kill-claude-zombies.sh" --yes
+    fi
 
     if [ "$RELOAD" = true ]; then
         osascript -e 'tell application "System Events" to tell process "Code" to keystroke "r" using command down' 2>/dev/null \

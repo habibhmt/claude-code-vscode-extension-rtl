@@ -40,7 +40,11 @@
     collapse: true,    // dim/shrink Thinking and tool-call blocks
     tableScroll: true,
     pos: {},           // { left: {x,y}, right: {x,y} } drag offsets
-    commands: null     // null = use DEFAULT_COMMANDS
+    commands: null,    // null = use DEFAULT_COMMANDS
+    accent: '',        // '' = inherit the theme's own colours
+    opacity: 65,       // resting opacity of the buttons, in percent
+    profiles: {},      // { name: settings snapshot }
+    counter: true      // show the composer character counter
   };
   var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20] };
   var PRESETS = {
@@ -78,7 +82,7 @@
     '.crtl-bar[data-side="left"]{left:4px;align-items:flex-start}',
     '.crtl-btn{font:var(--crtl-btn-size,10px)/1.3 system-ui,sans-serif;padding:1px 5px;border-radius:4px;',
     'border:1px solid rgba(127,127,127,.35);background:rgba(127,127,127,.14);',
-    'color:inherit;cursor:pointer;white-space:nowrap;opacity:.65;direction:ltr}',
+    'color:inherit;cursor:pointer;white-space:nowrap;opacity:var(--crtl-btn-opacity,.65);direction:ltr}',
     '.crtl-btn:hover{opacity:1;background:rgba(127,127,127,.3)}',
     '.crtl-grip{cursor:grab;opacity:.35;letter-spacing:2px}',
     '.crtl-grip:active{cursor:grabbing}',
@@ -101,7 +105,9 @@
     '.crtl-panel textarea{width:100%;height:110px;direction:ltr;text-align:left;font:10px/1.4 monospace;',
     'background:rgba(127,127,127,.12);border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit}',
     '.crtl-note{opacity:.55;font-size:10px}',
-    '.crtl-actions{display:flex;gap:4px;flex-wrap:wrap}'
+    '.crtl-actions{display:flex;gap:4px;flex-wrap:wrap}',
+    '.crtl-hit{background:rgba(255,200,0,.35)!important;border-radius:2px}',
+    '#crtl-count{opacity:.5;font-size:10px;padding:0 4px;white-space:nowrap;direction:rtl}'
   ].join('');
 
   function applyCss(s) {
@@ -112,7 +118,9 @@
       document.head.appendChild(el);
     }
     var out = [
-      ':root{--crtl-btn-size:' + s.btn + 'px}',
+      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + '}',
+      s.accent ? '.crtl-btn{border-color:' + s.accent + '!important;color:' + s.accent + '!important}' : '',
+      s.accent ? '.crtl-panel{border-color:' + s.accent + '!important}' : '',
       '[class*="messagesContainer_"]{font-size:' + s.chat + 'px!important;line-height:1.8!important}',
       '[class*="messagesContainer_"] p,[class*="messagesContainer_"] li,[class*="messagesContainer_"] [class*="markdown"]{font-size:' + s.chat + 'px!important;line-height:1.8!important}',
       '[class*="messagesContainer_"] pre,[class*="messagesContainer_"] code,[class*="messagesContainer_"] table{font-size:' + s.code + 'px!important;line-height:1.5!important}',
@@ -137,8 +145,15 @@
 
     // Thinking / tool-call chatter shrinks out of the way until hovered
     if (s.collapse) {
-      out.push('[class*="thinking"],[class*="Thinking"],[class*="toolCall"],[class*="ToolCall"],[class*="collapsible"]{opacity:.45!important;font-size:' + Math.max(8, s.chrome - 1) + 'px!important}');
-      out.push('[class*="thinking"]:hover,[class*="Thinking"]:hover,[class*="toolCall"]:hover,[class*="ToolCall"]:hover,[class*="collapsible"]:hover{opacity:1!important}');
+      // actually fold the block down to a couple of lines; hover or the
+      // per-block toggle opens it again
+      var noisy = '[class*="thinking"],[class*="Thinking"],[class*="toolCall"],[class*="ToolCall"]';
+      out.push(noisy.split(',').map(function (x) { return x + ':not(.crtl-open-block)'; }).join(',') +
+        '{max-height:' + (s.chrome * 2.6).toFixed(0) + 'px!important;overflow:hidden!important;opacity:.45!important;' +
+        'font-size:' + Math.max(8, s.chrome - 1) + 'px!important;cursor:zoom-in}');
+      out.push(noisy.split(',').map(function (x) { return x + ':not(.crtl-open-block):hover'; }).join(',') +
+        '{max-height:none!important;opacity:1!important}');
+      out.push('.crtl-open-block{max-height:none!important;opacity:1!important}');
     }
 
     if (s.hidden) out.push('.crtl-bar{display:none!important}');
@@ -276,6 +291,113 @@
     }, true);
   }
 
+  // Clicking a folded Thinking/tool-call block pins it open.
+  function wireBlocks() {
+    if (document.__crtlBlocksWired) return;
+    document.__crtlBlocksWired = true;
+    document.addEventListener('click', function (e) {
+      if (!load().collapse) return;
+      var n = e.target;
+      while (n && n !== document.body) {
+        var c = typeof n.className === 'string' ? n.className : '';
+        if (/thinking|Thinking|toolCall|ToolCall/.test(c)) {
+          n.classList.toggle('crtl-open-block');
+          return;
+        }
+        n = n.parentNode;
+      }
+    }, false);
+  }
+
+  /* ---------------- find in conversation ---------------- */
+  function findBar() {
+    var old = document.getElementById('crtl-find');
+    if (old) { old.remove(); clearMarks(); return; }
+    var box = document.createElement('div');
+    box.id = 'crtl-find';
+    box.className = 'crtl-panel crtl-open';
+    box.style.cssText = 'width:220px;top:8px;bottom:auto;left:50%;transform:translateX(-50%);right:auto';
+    var inp = document.createElement('input');
+    inp.type = 'text';
+    inp.placeholder = 'جست‌وجو در گفتگو…';
+    inp.style.cssText = 'width:100%;direction:rtl;background:rgba(127,127,127,.15);' +
+      'border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:2px 4px';
+    var info = document.createElement('div');
+    info.className = 'crtl-note';
+    var idx = 0, hits = [];
+    function run() {
+      clearMarks();
+      hits = [];
+      idx = 0;
+      var q = inp.value.trim();
+      if (!q) { info.textContent = ''; return; }
+      var root = document.querySelector('[class*="messagesContainer_"]');
+      if (!root) return;
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      var node;
+      while ((node = walker.nextNode())) {
+        if (node.nodeValue.toLowerCase().indexOf(q.toLowerCase()) !== -1 && node.parentNode) hits.push(node.parentNode);
+      }
+      hits.forEach(function (h) { h.classList.add('crtl-hit'); });
+      info.textContent = hits.length ? hits.length + ' مورد — Enter برای بعدی' : 'چیزی پیدا نشد';
+      if (hits.length) hits[0].scrollIntoView({ block: 'center' });
+    }
+    inp.addEventListener('input', run);
+    inp.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || !hits.length) return;
+      e.preventDefault();
+      idx = (idx + 1) % hits.length;
+      hits[idx].scrollIntoView({ block: 'center' });
+      info.textContent = (idx + 1) + '/' + hits.length;
+    });
+    box.appendChild(inp);
+    box.appendChild(info);
+    document.body.appendChild(box);
+    inp.focus();
+  }
+  function clearMarks() {
+    var m = document.querySelectorAll('.crtl-hit');
+    for (var i = 0; i < m.length; i++) m[i].classList.remove('crtl-hit');
+  }
+
+  /* ---------------- copy the conversation ---------------- */
+  function copyConversation() {
+    var root = document.querySelector('[class*="messagesContainer_"]');
+    if (!root) return 'گفتگویی پیدا نشد';
+    var parts = [];
+    root.querySelectorAll('[class*="message_"],[class*="userMessage_"]').forEach(function (n) {
+      var t = (n.innerText || '').trim();
+      if (!t) return;
+      var mine = typeof n.className === 'string' && n.className.indexOf('userMessage_') !== -1;
+      parts.push((mine ? '## من\n\n' : '## کلود\n\n') + t);
+    });
+    var md = parts.join('\n\n---\n\n');
+    if (navigator.clipboard) navigator.clipboard.writeText(md);
+    return parts.length + ' پیام کپی شد';
+  }
+
+  /* ---------------- composer counter ---------------- */
+  function wireCounter() {
+    if (document.__crtlCounterWired) return;
+    document.__crtlCounterWired = true;
+    setInterval(function () {
+      var tag = document.getElementById('crtl-count');
+      var s = load();
+      if (!tag) return;
+      if (!s.counter) { tag.textContent = ''; return; }
+      var el = input();
+      var txt = el ? (el.isContentEditable ? el.textContent : el.value) || '' : '';
+      // mirror whatever usage line the app itself renders, when there is one
+      var usage = '';
+      var nodes = document.querySelectorAll('[class*="usage"],[class*="Usage"],[class*="context"]');
+      for (var i = 0; i < nodes.length; i++) {
+        var t = (nodes[i].innerText || '').trim();
+        if (/%/.test(t) && t.length < 40) { usage = t.split('\n')[0]; break; }
+      }
+      tag.textContent = txt.length + ' نویسه' + (usage ? ' · ' + usage : '');
+    }, 1000);
+  }
+
   /* ---------------- dragging the button columns ---------------- */
   function applyPos(bar, s) {
     var p = s.pos[bar.dataset.side];
@@ -360,6 +482,9 @@
     panel.className = 'crtl-panel' + (wasOpen ? ' crtl-open' : '');
     panel.dataset.side = s.side === 'left' ? 'right' : 'left';
 
+    var note = document.createElement('div');
+    note.className = 'crtl-note';
+
     function set(field, value) {
       var cur = load();
       cur[field] = value;
@@ -384,6 +509,24 @@
     panel.appendChild(sizeRow('کد و جدول', 'code', s, set));
     panel.appendChild(sizeRow('حواشی', 'chrome', s, set));
     panel.appendChild(sizeRow('دکمه‌ها', 'btn', s, set));
+
+    var opa = document.createElement('input');
+    opa.type = 'range'; opa.min = 20; opa.max = 100; opa.value = s.opacity;
+    opa.addEventListener('input', function () { set('opacity', parseInt(opa.value, 10)); });
+    panel.appendChild(row('شفافیت', opa));
+
+    var color = document.createElement('input');
+    color.type = 'color';
+    color.value = s.accent || '#888888';
+    color.style.cssText = 'width:44px;height:20px;padding:0;border:0;background:none';
+    color.addEventListener('change', function () { set('accent', color.value); rerender(); });
+    var colorWrap = document.createElement('div');
+    colorWrap.className = 'crtl-actions';
+    colorWrap.appendChild(color);
+    colorWrap.appendChild(btn('بی‌رنگ', 'برگشت به رنگ خود تم', function () {
+      var cur = load(); cur.accent = ''; save(cur); applyCss(cur); rerender();
+    }));
+    panel.appendChild(row('رنگ', colorWrap));
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // user-message line count
@@ -428,9 +571,66 @@
     panel.appendChild(toggles);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
+    // profiles
+    var profRow = document.createElement('div');
+    profRow.className = 'crtl-actions';
+    var profSel = document.createElement('select');
+    var names = Object.keys(s.profiles || {});
+    var ph = document.createElement('option');
+    ph.textContent = names.length ? '— انتخاب —' : '— خالی —';
+    ph.value = '';
+    profSel.appendChild(ph);
+    names.forEach(function (n) {
+      var o = document.createElement('option');
+      o.textContent = n; o.value = n;
+      profSel.appendChild(o);
+    });
+    profSel.addEventListener('change', function () {
+      if (!profSel.value) return;
+      var cur = load();
+      var snap = cur.profiles[profSel.value] || {};
+      save(Object.assign(cur, snap));
+      applyCss(load()); rerender();
+    });
+    panel.appendChild(row('پروفایل', profSel));
+    profRow.appendChild(btn('ذخیرهٔ پروفایل', 'تنظیمات فعلی را با یک نام نگه دار', function () {
+      var name = prompt('نام پروفایل؟');
+      if (!name) return;
+      var cur = load();
+      cur.profiles[name] = {
+        chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
+        lines: cur.lines, side: cur.side, collapse: cur.collapse,
+        tableScroll: cur.tableScroll, accent: cur.accent, opacity: cur.opacity
+      };
+      save(cur); rerender();
+    }));
+    profRow.appendChild(btn('حذف پروفایل', 'پاک‌کردن پروفایل انتخاب‌شده', function () {
+      if (!profSel.value) return;
+      var cur = load();
+      delete cur.profiles[profSel.value];
+      save(cur); rerender();
+    }));
+    panel.appendChild(profRow);
+    panel.appendChild(document.createElement('div')).className = 'crtl-sep';
+
+    // conversation tools
+    var tools = document.createElement('div');
+    tools.className = 'crtl-actions';
+    tools.appendChild(btn('جست‌وجو', 'جست‌وجو در گفتگو — Ctrl+Alt+F', findBar));
+    tools.appendChild(btn('کپی گفتگو', 'کپی کل گفتگو به مارک‌داون', function () {
+      note.textContent = copyConversation();
+    }));
+    tools.appendChild(btn('sel', 'فرستادن متن انتخاب‌شدهٔ ادیتور به چت', function () {
+      clickMenu('Add selection');
+    }));
+    tools.appendChild(btn(s.counter ? 'شمارنده: روشن' : 'شمارنده: خاموش',
+      'شمارندهٔ نویسه و مصرف کانتکست', function () {
+        var cur = load(); cur.counter = !cur.counter; save(cur); rerender();
+      }));
+    panel.appendChild(tools);
+    panel.appendChild(document.createElement('div')).className = 'crtl-sep';
+
     // command list editor
-    var note = document.createElement('div');
-    note.className = 'crtl-note';
     note.textContent = 'لیست دکمه‌ها (JSON) — label / text یا menu / side / send';
     panel.appendChild(note);
     var ta = document.createElement('textarea');
@@ -462,7 +662,9 @@
       var cur = load();
       var out = { chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
                   lines: cur.lines, side: cur.side, collapse: cur.collapse,
-                  tableScroll: cur.tableScroll, commands: cur.commands };
+                  tableScroll: cur.tableScroll, accent: cur.accent,
+                  opacity: cur.opacity, counter: cur.counter,
+                  profiles: cur.profiles, commands: cur.commands };
       var txt = JSON.stringify(out, null, 2);
       if (navigator.clipboard) navigator.clipboard.writeText(txt);
       note.textContent = 'کپی شد — در ~/.claude-rtl-sizes.json بریز';
@@ -483,6 +685,9 @@
     wrap.className = 'crtl-bar crtl-gear';
     wrap.dataset.side = s.side === 'left' ? 'right' : 'left';
     wrap.style.zIndex = '2147483003';
+    var count = document.createElement('div');
+    count.id = 'crtl-count';
+    wrap.appendChild(count);
     wrap.appendChild(btn('aA', 'تنظیمات اندازه و دکمه‌ها', function () {
       var p = document.querySelector('.crtl-panel');
       if (p) p.classList.toggle('crtl-open');
@@ -505,12 +710,18 @@
     style.textContent = CSS;
     document.head.appendChild(style);
     wireExpand();
+    wireBlocks();
+    wireCounter();
     rerender();
 
     // Ctrl+Alt+B hides or shows the button columns
     document.addEventListener('keydown', function (e) {
       if (e.ctrlKey && e.altKey && (e.key === 'b' || e.key === 'B')) {
         var cur = load(); cur.hidden = !cur.hidden; save(cur); applyCss(cur); rerender();
+      }
+      if (e.ctrlKey && e.altKey && (e.key === 'f' || e.key === 'F')) {
+        e.preventDefault();
+        findBar();
       }
     });
   }

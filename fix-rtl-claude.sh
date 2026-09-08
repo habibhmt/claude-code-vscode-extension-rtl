@@ -19,6 +19,19 @@ fi
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
 
+# ============================================================
+#  تنظیمات اندازه — این عددها را خودت عوض کن و اسکریپت را دوباره اجرا کن
+# ============================================================
+# Settings written by the panel's "sav" button override the defaults below.
+SIZES_FILE="${SIZES_FILE:-$HOME/.claude-rtl-sizes.json}"
+
+CHAT_FONT_SIZE="${CHAT_FONT_SIZE:-15px}"     # اندازه متن اصلی گفتگو
+CHAT_LINE_HEIGHT="${CHAT_LINE_HEIGHT:-1.8}"  # فاصله خطوط متن گفتگو
+CODE_FONT_SIZE="${CODE_FONT_SIZE:-12px}"     # اندازه متن کد و جدول
+USER_MSG_LINES="${USER_MSG_LINES:-1}"        # پیام خودت چند خط دیده شود (0 = بدون محدودیت)
+SIDE_BTN_FONT="${SIDE_BTN_FONT:-9px}"        # اندازه دکمه‌های کناری
+CHROME_FONT_SIZE="${CHROME_FONT_SIZE:-10px}" # اندازه حواشی: هدر، نوار پایین، برچسب‌ها
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -27,10 +40,26 @@ NC='\033[0m' # No Color
 
 # Parse arguments
 WITH_FONT=false
+REVERT=false
+# Reload the IDE window only on an interactive run; the launchd agent must not
+# yank the window out from under whatever is running.
+if [ -t 1 ]; then RELOAD=true; else RELOAD=false; fi
 for arg in "$@"; do
     case $arg in
         --with-font)
             WITH_FONT=true
+            shift
+            ;;
+        --revert)
+            REVERT=true
+            shift
+            ;;
+        --reload)
+            RELOAD=true
+            shift
+            ;;
+        --no-reload)
+            RELOAD=false
             shift
             ;;
         --help|-h)
@@ -38,6 +67,9 @@ for arg in "$@"; do
             echo ""
             echo "Options:"
             echo "  --with-font    Include Vazirmatn font (for Persian/Arabic)"
+            echo "  --revert       Restore every patched file from its .backup and exit"
+            echo "  --reload       Reload the IDE window when done (default on a terminal run)"
+            echo "  --no-reload    Never reload the IDE window"
             echo "  --help, -h     Show this help message"
             exit 0
             ;;
@@ -78,6 +110,44 @@ UI_COMPACT_CSS='[class*="header_"],[class*="titlebar"],[class*="TitleBar"]{min-h
 [class*="attachment"] img,[class*="Attachment"] img,[class*="thumb"],[class*="Thumb"],[class*="preview"] img{max-height:12px!important;max-width:12px!important}
 '
 
+# Text sizing: big conversation text, small chrome (all values from the settings block above)
+if [ "$USER_MSG_LINES" = "0" ]; then
+    USER_MSG_CLAMP=''
+else
+    USER_MSG_CLAMP="[class*=\"userMessage_\"]{display:-webkit-box!important;-webkit-line-clamp:${USER_MSG_LINES}!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+[class*=\"userMessage_\"]:hover{-webkit-line-clamp:unset!important;display:block!important}"
+fi
+
+UI_SIZE_CSS="[class*=\"messagesContainer_\"]{font-size:${CHAT_FONT_SIZE}!important;line-height:${CHAT_LINE_HEIGHT}!important}
+[class*=\"messagesContainer_\"] p,[class*=\"messagesContainer_\"] li,[class*=\"messagesContainer_\"] [class*=\"markdown\"]{font-size:${CHAT_FONT_SIZE}!important;line-height:${CHAT_LINE_HEIGHT}!important}
+[class*=\"messagesContainer_\"] pre,[class*=\"messagesContainer_\"] code,[class*=\"messagesContainer_\"] table{font-size:${CODE_FONT_SIZE}!important;line-height:1.5!important}
+${USER_MSG_CLAMP}
+[class*=\"headerTitle\"],[class*=\"header_\"],[class*=\"footer\"],[class*=\"Footer\"],[class*=\"statusBar\"],[class*=\"toolbar\"],[class*=\"Toolbar\"],[class*=\"badge\"],[class*=\"Badge\"],[class*=\"label_\"],[class*=\"meta\"]{font-size:${CHROME_FONT_SIZE}!important}
+.crtl-btn{font-size:${SIDE_BTN_FONT}!important}
+"
+
+# Revert mode: put every backup back and stop.
+if [ "$REVERT" = true ]; then
+    reverted=0
+    for ext_dir in "$HOME"/.vscode/extensions/anthropic.claude-code-*/webview \
+                   "$HOME"/.vscode-insiders/extensions/anthropic.claude-code-*/webview \
+                   "$HOME"/.cursor/extensions/anthropic.claude-code-*/webview \
+                   "$HOME"/.windsurf/extensions/anthropic.claude-code-*/webview \
+                   "$HOME"/.windsurf-next/extensions/anthropic.claude-code-*/webview \
+                   "$HOME"/.devin/extensions/anthropic.claude-code-*/webview; do
+        [ -d "$ext_dir" ] || continue
+        for f in "$ext_dir/index.css" "$ext_dir/index.js" "$(dirname "$ext_dir")/extension.js"; do
+            if [ -f "$f.backup" ]; then
+                cp "$f.backup" "$f"
+                reverted=$((reverted + 1))
+            fi
+        done
+        echo -e "${GREEN}[REVERT]${NC} $ext_dir"
+    done
+    echo -e "${GREEN}Restored $reverted file(s) from backup.${NC}"
+    exit 0
+fi
+
 # Counter for patched IDEs
 patched=0
 
@@ -93,7 +163,52 @@ patch_ide() {
                 cp "$ext_dir/index.css" "$ext_dir/index.css.backup"
             fi
             # Apply RTL CSS + UI compaction
-            { echo "$RTL_CSS"; echo "$UI_COMPACT_CSS"; cat "$ext_dir/index.css.backup"; } > "$ext_dir/index.css"
+            { echo "$RTL_CSS"; echo "$UI_COMPACT_CSS"; echo "$UI_SIZE_CSS"; cat "$ext_dir/index.css.backup"; } > "$ext_dir/index.css"
+
+            # Inject the same CSS into extension.js's inline <style> as well.
+            # The webview's index.css URL has no cache-buster, so VSCode serves a
+            # stale copy after a plain window reload; the inline <style> is built
+            # fresh on every webview creation and is therefore never cached.
+            ext_js="$(dirname "$ext_dir")/extension.js"
+            if [ -f "$ext_js" ]; then
+                if [ ! -f "$ext_js.backup" ]; then
+                    cp "$ext_js" "$ext_js.backup"
+                fi
+                printf '%s\n%s\n' "$RTL_CSS" "$UI_COMPACT_CSS" > /tmp/.crtl-css.$$
+                echo "$UI_SIZE_CSS" >> /tmp/.crtl-css.$$
+                CRTL_CSS_FILE=/tmp/.crtl-css.$$ CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_SIZES_FILE="$SIZES_FILE" python3 - <<'PYEOF'
+import os, re
+css = open(os.environ['CRTL_CSS_FILE'], encoding='utf-8').read()
+path = os.environ['CRTL_EXT_JS']
+src = open(path + '.backup', encoding='utf-8').read()
+
+def esc(t):
+    # the HTML lives in a JS template literal, so backslashes, backticks and ${ must be escaped
+    return t.replace('\\', '\\\\').replace('`', '\\`').replace('${', '\\${')
+
+m = re.search(r'<link href="\$\{\w+\}" rel="stylesheet">', src)
+if m:
+    anchor = m.group(0)
+    block = anchor + '<style>' + esc(css) + '</style>'
+    # the buttons script must be inline too: index.js is cached by the webview,
+    # while this HTML is rebuilt on every panel creation. CSP needs the nonce.
+    js_path = os.environ.get('CRTL_BUTTONS_JS')
+    seed = ''
+    sizes_file = os.environ.get('CRTL_SIZES_FILE', '')
+    if sizes_file and os.path.exists(sizes_file):
+        try:
+            import json
+            seed = 'window.__CRTL_DEFAULTS=' + json.dumps(json.load(open(sizes_file, encoding='utf-8'))) + ';'
+        except Exception:
+            seed = ''
+    n = re.search(r"script-src 'nonce-\$\{(\w+)\}'", src)
+    if js_path and os.path.exists(js_path) and n:
+        js = open(js_path, encoding='utf-8').read()
+        block += '<script nonce="${' + n.group(1) + '}">' + esc(seed + js) + '</script>'
+    open(path, 'w', encoding='utf-8').write(src.replace(anchor, block, 1))
+PYEOF
+                rm -f /tmp/.crtl-css.$$
+            fi
 
             # Inject the quick-command button bar into the webview bundle
             if [ -f "$ext_dir/index.js" ] && [ -f "$BUTTONS_JS" ]; then
@@ -103,7 +218,8 @@ patch_ide() {
                 { cat "$ext_dir/index.js.backup"; echo ""; echo ";"; cat "$BUTTONS_JS"; } > "$ext_dir/index.js"
             fi
 
-            echo -e "${GREEN}[OK]${NC} Patched $ide_name: $ext_dir"
+            ver="$(basename "$(dirname "$ext_dir")")"
+            echo -e "${GREEN}[OK]${NC} Patched $ide_name ${ver#anthropic.claude-code-}: $ext_dir"
             patched=$((patched + 1))
         fi
     done
@@ -133,4 +249,19 @@ else
     echo -e "${GREEN}Patched $patched IDE(s) successfully.${NC}"
     echo ""
     echo "Restart your IDE to apply changes."
+
+    # Drift check: an IDE update installs a fresh extension folder, which
+    # silently drops the patch until the next run. Say so out loud.
+    for d in "$HOME"/.vscode/extensions/anthropic.claude-code-*/webview; do
+        [ -d "$d" ] || continue
+        if ! grep -q 'crtl-panel' "$(dirname "$d")/extension.js" 2>/dev/null; then
+            echo -e "${YELLOW}[WARN]${NC} unpatched extension version: $(basename "$(dirname "$d")")"
+        fi
+    done
+
+    if [ "$RELOAD" = true ]; then
+        osascript -e 'tell application "System Events" to tell process "Code" to keystroke "r" using command down' 2>/dev/null \
+            && echo "Reloaded the VSCode window." \
+            || echo -e "${YELLOW}Could not auto-reload (needs Accessibility permission). Press Cmd+R.${NC}"
+    fi
 fi

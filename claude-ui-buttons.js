@@ -44,7 +44,8 @@
     accent: '',        // '' = inherit the theme's own colours
     opacity: 65,       // resting opacity of the buttons, in percent
     profiles: {},      // { name: settings snapshot }
-    counter: true      // show the composer character counter
+    counter: true,     // show the composer character counter
+    quoteMenu: true    // right-click a selection to quote it into the composer
   };
   var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20] };
   var PRESETS = {
@@ -107,7 +108,14 @@
     '.crtl-note{opacity:.55;font-size:10px}',
     '.crtl-actions{display:flex;gap:4px;flex-wrap:wrap}',
     '.crtl-hit{background:rgba(255,200,0,.35)!important;border-radius:2px}',
-    '#crtl-count{opacity:.5;font-size:10px;padding:0 4px;white-space:nowrap;direction:rtl}'
+    '#crtl-count{opacity:.5;font-size:10px;padding:0 4px;white-space:nowrap;direction:rtl}',
+    '#crtl-ctx{position:fixed;z-index:2147483004;display:none;flex-direction:column;min-width:150px;',
+    'background:var(--app-input-background,rgba(30,30,30,.98));border:1px solid rgba(127,127,127,.4);',
+    'border-radius:6px;padding:3px;direction:rtl;text-align:right;font:11px/1.6 system-ui,sans-serif;',
+    'box-shadow:0 6px 22px rgba(0,0,0,.5)}',
+    '#crtl-ctx button{background:none;border:0;color:inherit;text-align:right;padding:4px 8px;',
+    'border-radius:4px;cursor:pointer;font:inherit;white-space:nowrap}',
+    '#crtl-ctx button:hover{background:rgba(127,127,127,.28)}'
   ].join('');
 
   function applyCss(s) {
@@ -376,6 +384,102 @@
     return parts.length + ' پیام کپی شد';
   }
 
+  /* ---------------- quote a selection into the composer ---------------- */
+  function quoteInto(text, asQuote) {
+    var el = input();
+    if (!el) return;
+    var body = asQuote ? text.split('\n').map(function (l) { return '> ' + l; }).join('\n') : text;
+    var cur = el.isContentEditable ? el.textContent : el.value;
+    // start the quote on its own line when the composer already has something
+    type(el, (cur && !/\n$/.test(cur) ? '\n' : '') + body + '\n\n');
+  }
+
+  function ctxMenu() {
+    var m = document.getElementById('crtl-ctx');
+    if (m) return m;
+    m = document.createElement('div');
+    m.id = 'crtl-ctx';
+    document.body.appendChild(m);
+    document.addEventListener('mousedown', function (e) {
+      if (!m.contains(e.target)) m.style.display = 'none';
+    }, true);
+    document.addEventListener('scroll', function () { m.style.display = 'none'; }, true);
+    return m;
+  }
+
+  function wireQuoteMenu() {
+    if (document.__crtlCtxWired) return;
+    document.__crtlCtxWired = true;
+
+    document.addEventListener('contextmenu', function (e) {
+      if (!load().quoteMenu) return;
+      var sel = window.getSelection();
+      var text = sel ? sel.toString().trim() : '';
+      if (!text) return;
+
+      // only for text picked out of the conversation, never the composer
+      var root = document.querySelector('[class*="messagesContainer_"]');
+      var node = sel.anchorNode;
+      var inside = false;
+      while (node) {
+        if (node === root) { inside = true; break; }
+        node = node.parentNode;
+      }
+      if (!inside) return;
+
+      e.preventDefault();
+      var m = ctxMenu();
+      m.textContent = '';
+      var short = text.length > 30 ? text.slice(0, 30) + '…' : text;
+
+      [
+        ['↩︎ نقل‌قول در چت', function () { quoteInto(text, true); }],
+        ['✎ بدون علامت نقل‌قول', function () { quoteInto(text, false); }],
+        ['⧉ کپی', function () { if (navigator.clipboard) navigator.clipboard.writeText(text); }],
+        ['🔍 جست‌وجوی همین متن', function () {
+          var box = document.getElementById('crtl-find');
+          if (!box) findBar();
+          var inp = document.querySelector('#crtl-find input');
+          if (inp) { inp.value = text.slice(0, 60); inp.dispatchEvent(new Event('input')); }
+        }],
+        ['؟ بپرس دربارهٔ «' + short + '»', function () {
+          quoteInto(text, true);
+          var el = input();
+          if (el) type(el, 'دربارهٔ این بخش توضیح بده: ');
+        }]
+      ].forEach(function (row) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = row[0];
+        b.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          m.style.display = 'none';
+          row[1]();
+        });
+        m.appendChild(b);
+      });
+
+      m.style.display = 'flex';
+      m.style.left = '0px';
+      m.style.top = '0px';
+      var r = m.getBoundingClientRect();
+      var x = Math.min(e.clientX, window.innerWidth - r.width - 6);
+      var y = Math.min(e.clientY, window.innerHeight - r.height - 6);
+      m.style.left = Math.max(4, x) + 'px';
+      m.style.top = Math.max(4, y) + 'px';
+    }, true);
+
+    // Ctrl+Alt+Q quotes the current selection without the menu
+    document.addEventListener('keydown', function (e) {
+      if (!(e.ctrlKey && e.altKey && (e.key === 'q' || e.key === 'Q'))) return;
+      var sel = window.getSelection();
+      var text = sel ? sel.toString().trim() : '';
+      if (!text) return;
+      e.preventDefault();
+      quoteInto(text, true);
+    });
+  }
+
   /* ---------------- composer counter ---------------- */
   function wireCounter() {
     if (document.__crtlCounterWired) return;
@@ -623,6 +727,10 @@
     tools.appendChild(btn('sel', 'فرستادن متن انتخاب‌شدهٔ ادیتور به چت', function () {
       clickMenu('Add selection');
     }));
+    tools.appendChild(btn(s.quoteMenu ? 'راست‌کلیک: روشن' : 'راست‌کلیک: خاموش',
+      'منوی نقل‌قول روی متن انتخاب‌شده — میانبر: Ctrl+Alt+Q', function () {
+        var cur = load(); cur.quoteMenu = !cur.quoteMenu; save(cur); rerender();
+      }));
     tools.appendChild(btn(s.counter ? 'شمارنده: روشن' : 'شمارنده: خاموش',
       'شمارندهٔ نویسه و مصرف کانتکست', function () {
         var cur = load(); cur.counter = !cur.counter; save(cur); rerender();
@@ -663,7 +771,7 @@
       var out = { chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
                   lines: cur.lines, side: cur.side, collapse: cur.collapse,
                   tableScroll: cur.tableScroll, accent: cur.accent,
-                  opacity: cur.opacity, counter: cur.counter,
+                  opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
                   profiles: cur.profiles, commands: cur.commands };
       var txt = JSON.stringify(out, null, 2);
       if (navigator.clipboard) navigator.clipboard.writeText(txt);
@@ -712,6 +820,7 @@
     wireExpand();
     wireBlocks();
     wireCounter();
+    wireQuoteMenu();
     rerender();
 
     // Ctrl+Alt+B hides or shows the button columns

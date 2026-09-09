@@ -145,6 +145,22 @@ can be tuned live without touching any file. Click **`aA`** at the bottom edge.
 
 A folded `Thinking` or tool-call block opens on hover, and a click pins it open.
 
+## Quoting a message
+
+Select any text in the conversation and right-click it:
+
+| Menu entry | What it does |
+|---|---|
+| ↩︎ نقل‌قول در چت | drops the selection into the composer as a `>` quote |
+| ✎ بدون علامت نقل‌قول | same, without the quote marker |
+| ⧉ کپی | plain copy |
+| 🔍 جست‌وجوی همین متن | opens the find bar preloaded with the selection |
+| ؟ بپرس دربارهٔ… | quotes it and starts a question about that passage |
+
+`Ctrl+Alt+Q` quotes the selection without opening the menu. The menu only
+appears over conversation text — the composer keeps VSCode's own context menu,
+and so does a right-click with nothing selected. Toggle it from the panel.
+
 Drag a column by its `⋮⋮` grip to move it anywhere on screen.
 
 Settings live in the webview's `localStorage`. To make them the defaults for

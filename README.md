@@ -50,7 +50,7 @@ chmod +x fix-rtl-claude.sh
 # Undo everything: restore every patched file from its .backup
 ./fix-rtl-claude.sh --revert
 
-# Reload the IDE window when done (default on an interactive run)
+# Reload the frontmost IDE window when done (default on an interactive run)
 ./fix-rtl-claude.sh --reload
 ./fix-rtl-claude.sh --no-reload
 
@@ -181,19 +181,25 @@ The script patches the Claude Code extension webview with RTL-specific CSS:
 - Preserves LTR for code blocks and diffs
 - Optionally adds Vazirmatn font for better Persian/Arabic rendering
 
-The CSS and the settings-panel script are injected **twice**: into
-`webview/index.css` / `webview/index.js`, and into the inline `<style>` /
-`<script nonce=...>` that `extension.js` builds for the webview HTML. The
-second copy matters — the webview resource URLs carry no cache-buster, so a
-plain window reload keeps serving the stale `index.css`, while the HTML is
-rebuilt on every panel creation and is therefore never cached.
+The CSS goes into `webview/index.css` **and** into the inline `<style>` that
+`extension.js` builds for the webview HTML. The second copy matters — the
+webview resource URLs carry no cache-buster, so a plain window reload keeps
+serving the stale `index.css`, while the HTML is rebuilt on every panel
+creation and is therefore never cached.
+
+The settings-panel script rides along in that same HTML, as an inline
+`<script nonce=...>`, and **only there**: appending it to `webview/index.js`
+as well would run the whole thing twice in one webview. `index.js` is only
+used as a fallback when `python3` is missing or its rewrite fails, in which
+case the run warns and carries on instead of dying half-patched.
 
 Backups are created automatically the first time (`index.css.backup`,
 `index.js.backup`, `extension.js.backup`) and every run re-patches from those
 backups, so repeated runs never stack up. `--revert` restores them.
 
 Each patched folder gets a `.crtl-stamp` holding a hash of the injected
-payload. A run whose output would be byte-identical exits silently and writes
+payload — CSS, the buttons script, and `~/.claude-rtl-sizes.json`, so editing
+the seed file is enough to trigger a re-patch. A run whose output would be byte-identical exits silently and writes
 nothing to the log — the launchd agent fires on every touch of the extensions
 folder, and re-patching each time was the only thing growing `autofix.log`.
 `--force` patches anyway.
@@ -245,6 +251,10 @@ To kill runaway processes:
 # everything, no threshold
 ./kill-claude-zombies.sh --all
 ```
+
+`--threshold` insists on a number: a missing or non-numeric value used to make
+awk compare against an empty string and match every process — a silent
+`--all`. It now exits with an error instead.
 
 To reap them automatically every 10 minutes:
 

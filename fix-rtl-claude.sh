@@ -19,6 +19,15 @@ fi
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
 
+# Scratch space for the CSS handed to python. A private directory keeps the
+# predictable /tmp path out of everyone else's reach.
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/crtl.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+# python3 does the extension.js rewrite. Without it the patch still applies —
+# index.css plus the buttons appended to index.js — so warn instead of dying.
+if command -v python3 >/dev/null 2>&1; then HAVE_PYTHON=true; else HAVE_PYTHON=false; fi
+
 # ============================================================
 #  تنظیمات اندازه — این عددها را خودت عوض کن و اسکریپت را دوباره اجرا کن
 # ============================================================
@@ -80,13 +89,14 @@ for arg in "$@"; do
             echo "  --revert       Restore every patched file from its .backup and exit"
             echo "  --force        Re-patch even when the stamp says nothing changed"
             echo "  --kill-zombies Also reap runaway claude native-binary processes"
+            echo "  --reload       Reload the frontmost IDE window when done (default on a terminal run)"
+            echo "  --no-reload    Never reload the IDE window"
+            echo "  --help, -h     Show this help message"
             echo ""
             echo "Panel defaults are read from \$SIZES_FILE (default ~/.claude-rtl-sizes.json)."
             echo "Press 'sav' in the panel to copy the current settings in that shape;"
             echo "keep the file in your dotfiles and symlink it to share it across machines."
-            echo "  --reload       Reload the IDE window when done (default on a terminal run)"
-            echo "  --no-reload    Never reload the IDE window"
-            echo "  --help, -h     Show this help message"
+            echo "Editing that file is enough to trigger a re-patch on the next run."
             exit 0
             ;;
     esac
@@ -170,8 +180,28 @@ skipped=0
 # Buffered so a run that changed nothing stays out of the log.
 OUT=""
 
-# One value that changes whenever the produced output would change.
-stamp="$(printf '%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" "$(cat "$BUTTONS_JS" 2>/dev/null)" | shasum | cut -d" " -f1)"
+# sha1 of stdin, whichever tool this machine happens to ship.
+hash_stdin() {
+    if command -v shasum >/dev/null 2>&1; then shasum
+    elif command -v sha1sum >/dev/null 2>&1; then sha1sum
+    elif command -v openssl >/dev/null 2>&1; then openssl dgst -sha1 | sed 's/^.*= //'
+    else cksum
+    fi | cut -d" " -f1
+}
+
+# One value that changes whenever the produced output would change. The seed
+# file is part of it: editing ~/.claude-rtl-sizes.json must not be skipped as
+# "nothing changed" the way it was before.
+stamp="$(printf '%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
+    "$(cat "$BUTTONS_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)" | hash_stdin)"
+
+# The buttons live inline in extension.js; older runs also appended them to
+# index.js, so accept either as proof that a webview folder is patched.
+is_patched() {
+    grep -q 'crtl-panel' "$(dirname "$1")/extension.js" 2>/dev/null && return 0
+    grep -q 'CLAUDE-RTL-UI-BUTTONS' "$1/index.js" 2>/dev/null && return 0
+    return 1
+}
 
 # Function to patch an IDE
 patch_ide() {
@@ -185,7 +215,7 @@ patch_ide() {
             # time only grew autofix.log.
             if [ "$FORCE" != true ] && [ -f "$ext_dir/.crtl-stamp" ] && \
                [ "$(cat "$ext_dir/.crtl-stamp" 2>/dev/null)" = "$stamp" ] && \
-               grep -q 'crtl-panel' "$(dirname "$ext_dir")/extension.js" 2>/dev/null; then
+               is_patched "$ext_dir"; then
                 skipped=$((skipped + 1))
                 continue
             fi
@@ -201,13 +231,18 @@ patch_ide() {
             # stale copy after a plain window reload; the inline <style> is built
             # fresh on every webview creation and is therefore never cached.
             ext_js="$(dirname "$ext_dir")/extension.js"
-            if [ -f "$ext_js" ]; then
+            inlined=false
+            if [ -f "$ext_js" ] && [ "$HAVE_PYTHON" = true ]; then
                 if [ ! -f "$ext_js.backup" ]; then
                     cp "$ext_js" "$ext_js.backup"
                 fi
-                printf '%s\n%s\n' "$RTL_CSS" "$UI_COMPACT_CSS" > /tmp/.crtl-css.$$
-                echo "$UI_SIZE_CSS" >> /tmp/.crtl-css.$$
-                CRTL_CSS_FILE=/tmp/.crtl-css.$$ CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_SIZES_FILE="$SIZES_FILE" python3 - <<'PYEOF'
+                css_tmp="$TMP_DIR/crtl-css.$$"
+                printf '%s\n%s\n' "$RTL_CSS" "$UI_COMPACT_CSS" > "$css_tmp"
+                echo "$UI_SIZE_CSS" >> "$css_tmp"
+                # `|| py_ok=false` keeps `set -e` from killing the run mid-patch:
+                # a python failure must fall through to the rollback below.
+                py_ok=true
+                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_SIZES_FILE="$SIZES_FILE" python3 - <<'PYEOF' || py_ok=false
 import os, re
 css = open(os.environ['CRTL_CSS_FILE'], encoding='utf-8').read()
 path = os.environ['CRTL_EXT_JS']
@@ -216,6 +251,11 @@ src = open(path + '.backup', encoding='utf-8').read()
 def esc(t):
     # the HTML lives in a JS template literal, so backslashes, backticks and ${ must be escaped
     return t.replace('\\', '\\\\').replace('`', '\\`').replace('${', '\\${')
+
+def esc_js(t):
+    # inside <script>…</script> the browser's HTML parser looks for "</script"
+    # before the JS parser sees anything, so that sequence must never appear
+    return esc(t).replace('</', '<\\/')
 
 m = re.search(r'<link href="\$\{\w+\}" rel="stylesheet">', src)
 if m:
@@ -235,18 +275,35 @@ if m:
     n = re.search(r"script-src 'nonce-\$\{(\w+)\}'", src)
     if js_path and os.path.exists(js_path) and n:
         js = open(js_path, encoding='utf-8').read()
-        block += '<script nonce="${' + n.group(1) + '}">' + esc(seed + js) + '</script>'
+        # only the seed is escaped that hard — it is the one part that comes
+        # from a file the script does not control, and "</" outside a string
+        # would be legal JS in the bundle itself
+        block += '<script nonce="${' + n.group(1) + '}">' + esc_js(seed) + esc(js) + '</script>'
     open(path, 'w', encoding='utf-8').write(src.replace(anchor, block, 1))
 PYEOF
-                rm -f /tmp/.crtl-css.$$
+                rm -f "$css_tmp"
+                if [ "$py_ok" = true ] && grep -q 'CLAUDE-RTL-UI-BUTTONS' "$ext_js" 2>/dev/null; then
+                    inlined=true
+                else
+                    # A failed rewrite leaves the previous run's copy in place;
+                    # combined with the index.js fallback that would load the
+                    # buttons twice, so put the pristine file back first.
+                    cp "$ext_js.backup" "$ext_js"
+                fi
             fi
 
-            # Inject the quick-command button bar into the webview bundle
+            # The buttons only need to load once. When extension.js carries them
+            # inline, index.js stays clean — appending them there too made the
+            # whole script run twice in the same webview.
             if [ -f "$ext_dir/index.js" ] && [ -f "$BUTTONS_JS" ]; then
                 if [ ! -f "$ext_dir/index.js.backup" ]; then
                     cp "$ext_dir/index.js" "$ext_dir/index.js.backup"
                 fi
-                { cat "$ext_dir/index.js.backup"; echo ""; echo ";"; cat "$BUTTONS_JS"; } > "$ext_dir/index.js"
+                if [ "$inlined" = true ]; then
+                    cp "$ext_dir/index.js.backup" "$ext_dir/index.js"
+                else
+                    { cat "$ext_dir/index.js.backup"; echo ""; echo ";"; cat "$BUTTONS_JS"; } > "$ext_dir/index.js"
+                fi
             fi
 
             # Self-test: a broken injection would take the whole panel down,
@@ -256,7 +313,7 @@ PYEOF
                 node --check "$ext_dir/index.js" >/dev/null 2>&1 || ok=false
                 node --check "$(dirname "$ext_dir")/extension.js" >/dev/null 2>&1 || ok=false
             fi
-            grep -q 'crtl-panel' "$(dirname "$ext_dir")/extension.js" 2>/dev/null || ok=false
+            is_patched "$ext_dir" || ok=false
             if [ "$ok" != true ]; then
                 OUT="$OUT\n$(echo -e "${RED}[FAIL]${NC} self-test failed, rolling back: $ext_dir")"
                 for f in "$ext_dir/index.css" "$ext_dir/index.js" "$(dirname "$ext_dir")/extension.js"; do
@@ -296,6 +353,11 @@ fi
 
 echo "$START_MSG"
 echo -e "$OUT"
+if [ "$HAVE_PYTHON" != true ]; then
+    echo -e "${YELLOW}[WARN]${NC} python3 not found — extension.js was left alone."
+    echo "        The buttons fall back to index.js, which the webview caches;"
+    echo "        install python3 for the cache-proof injection."
+fi
 if [ $patched -eq 0 ]; then
     echo -e "${RED}No Claude Code extensions found.${NC}"
     echo "Make sure Claude Code extension is installed in your IDE."
@@ -306,10 +368,16 @@ else
     echo "Restart your IDE to apply changes."
 
     # Drift check: an IDE update installs a fresh extension folder, which
-    # silently drops the patch until the next run. Say so out loud.
-    for d in "$HOME"/.vscode/extensions/anthropic.claude-code-*/webview; do
+    # silently drops the patch until the next run. Every supported IDE is
+    # checked — warning only about VSCode left Windsurf and Cursor silent.
+    for d in "$HOME"/.vscode/extensions/anthropic.claude-code-*/webview \
+             "$HOME"/.vscode-insiders/extensions/anthropic.claude-code-*/webview \
+             "$HOME"/.cursor/extensions/anthropic.claude-code-*/webview \
+             "$HOME"/.windsurf/extensions/anthropic.claude-code-*/webview \
+             "$HOME"/.windsurf-next/extensions/anthropic.claude-code-*/webview \
+             "$HOME"/.devin/extensions/anthropic.claude-code-*/webview; do
         [ -d "$d" ] || continue
-        if ! grep -q 'crtl-panel' "$(dirname "$d")/extension.js" 2>/dev/null; then
+        if ! is_patched "$d"; then
             echo -e "${YELLOW}[WARN]${NC} unpatched extension version: $(basename "$(dirname "$d")")"
         fi
     done
@@ -319,8 +387,18 @@ else
     fi
 
     if [ "$RELOAD" = true ]; then
-        osascript -e 'tell application "System Events" to tell process "Code" to keystroke "r" using command down' 2>/dev/null \
-            && echo "Reloaded the VSCode window." \
-            || echo -e "${YELLOW}Could not auto-reload (needs Accessibility permission). Press Cmd+R.${NC}"
+        # Reload whichever supported IDE is in front, not always "Code".
+        front="$(osascript -e 'tell application "System Events" to name of first process whose frontmost is true' 2>/dev/null || true)"
+        case "$front" in
+            Code|"Code - Insiders"|Cursor|Windsurf|"Windsurf Next"|Devin|Electron) ;;
+            *) front="" ;;
+        esac
+        if [ -z "$front" ]; then
+            echo -e "${YELLOW}No supported IDE in the foreground — press Cmd+R in the IDE yourself.${NC}"
+        elif osascript -e "tell application \"System Events\" to tell process \"$front\" to keystroke \"r\" using command down" 2>/dev/null; then
+            echo "Reloaded the $front window."
+        else
+            echo -e "${YELLOW}Could not auto-reload $front (needs Accessibility permission). Press Cmd+R.${NC}"
+        fi
     fi
 fi

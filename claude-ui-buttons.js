@@ -57,16 +57,29 @@
   // The script can seed defaults by defining window.__CRTL_DEFAULTS before this runs.
   if (window.__CRTL_DEFAULTS) { try { Object.assign(DEF, window.__CRTL_DEFAULTS); } catch (e) {} }
 
+  // Object.assign is shallow, so a settings object built straight from DEF
+  // would share DEF's own `pos` and `profiles` objects — dragging a column or
+  // saving a profile then wrote into the defaults themselves, and "rst" handed
+  // those same polluted objects back. Everything nested gets its own copy.
+  function fresh() {
+    var d = Object.assign({}, DEF);
+    try { d = JSON.parse(JSON.stringify(d)); } catch (e) { d.pos = {}; d.profiles = {}; }
+    if (!d.pos || typeof d.pos !== 'object') d.pos = {};
+    if (!d.profiles || typeof d.profiles !== 'object') d.profiles = {};
+    return d;
+  }
+
   function load() {
     var s;
-    try { s = Object.assign({}, DEF, JSON.parse(localStorage.getItem(KEY) || '{}')); }
-    catch (e) { s = Object.assign({}, DEF); }
+    try { s = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); }
+    catch (e) { s = fresh(); }
     Object.keys(LIMITS).forEach(function (k) {
       var lo = LIMITS[k][0], hi = LIMITS[k][1];
       if (typeof s[k] !== 'number' || isNaN(s[k])) s[k] = DEF[k];
       s[k] = Math.min(hi, Math.max(lo, s[k]));
     });
     if (!s.pos || typeof s.pos !== 'object') s.pos = {};
+    if (!s.profiles || typeof s.profiles !== 'object') s.profiles = {};
     return s;
   }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
@@ -125,10 +138,13 @@
       el.id = 'crtl-size-style';
       document.head.appendChild(el);
     }
+    // accent lands inside a stylesheet, so only a plain hex colour goes
+    // through: anything else could close the rule and append its own
+    var accent = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(s.accent || '') ? s.accent : '';
     var out = [
       ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + '}',
-      s.accent ? '.crtl-btn{border-color:' + s.accent + '!important;color:' + s.accent + '!important}' : '',
-      s.accent ? '.crtl-panel{border-color:' + s.accent + '!important}' : '',
+      accent ? '.crtl-btn{border-color:' + accent + '!important;color:' + accent + '!important}' : '',
+      accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
       '[class*="messagesContainer_"]{font-size:' + s.chat + 'px!important;line-height:1.8!important}',
       '[class*="messagesContainer_"] p,[class*="messagesContainer_"] li,[class*="messagesContainer_"] [class*="markdown"]{font-size:' + s.chat + 'px!important;line-height:1.8!important}',
       '[class*="messagesContainer_"] pre,[class*="messagesContainer_"] code,[class*="messagesContainer_"] table{font-size:' + s.code + 'px!important;line-height:1.5!important}',
@@ -221,11 +237,18 @@
     if (hit()) return;
     var el = input();
     if (!el) return;
-    var before = el.isContentEditable ? el.textContent : el.value;
+    function read() { return (el.isContentEditable ? el.textContent : el.value) || ''; }
+    var before = read();
     setValue(el, '/');
     setTimeout(function () {
       hit();
-      setTimeout(function () { setValue(el, before || ''); }, 120);
+      setTimeout(function () {
+        // Only clean up our own "/" — a menu item such as "Add selection"
+        // writes into the composer itself, and restoring `before` on top of
+        // that threw the item's own text away.
+        var now = read();
+        if (now === '/' || now === '') setValue(el, before);
+      }, 120);
     }, 350);
   }
 
@@ -279,6 +302,12 @@
     document.addEventListener('click', function (e) {
       var s = load();
       if (!s.lines) return;
+      // A click meant for a link, a button or a text selection must reach the
+      // app untouched — swallowing it stole the first click on anything
+      // interactive inside your own message.
+      if (e.target.closest && e.target.closest('a,button,input,textarea,select,[role="button"],[contenteditable="true"]')) return;
+      var sel = window.getSelection();
+      if (sel && String(sel).length) return;
       var node = e.target;
       while (node && node !== document.body) {
         if (node.className && typeof node.className === 'string' &&
@@ -481,25 +510,40 @@
   }
 
   /* ---------------- composer counter ---------------- */
-  function wireCounter() {
-    if (document.__crtlCounterWired) return;
-    document.__crtlCounterWired = true;
-    setInterval(function () {
-      var tag = document.getElementById('crtl-count');
-      var s = load();
-      if (!tag) return;
-      if (!s.counter) { tag.textContent = ''; return; }
-      var el = input();
-      var txt = el ? (el.isContentEditable ? el.textContent : el.value) || '' : '';
+  // The counter used to poll once a second forever — even switched off — and
+  // each tick swept the whole document. Now the timer only exists while the
+  // counter is on, and the expensive usage scan runs once every ten ticks.
+  var counterTimer = null, usageCache = '', usageTick = 0;
+
+  function counterTick() {
+    var tag = document.getElementById('crtl-count');
+    if (!tag) return;
+    var el = input();
+    var txt = el ? (el.isContentEditable ? el.textContent : el.value) || '' : '';
+    if (usageTick-- <= 0) {
+      usageTick = 10;
+      usageCache = '';
       // mirror whatever usage line the app itself renders, when there is one
-      var usage = '';
       var nodes = document.querySelectorAll('[class*="usage"],[class*="Usage"],[class*="context"]');
       for (var i = 0; i < nodes.length; i++) {
         var t = (nodes[i].innerText || '').trim();
-        if (/%/.test(t) && t.length < 40) { usage = t.split('\n')[0]; break; }
+        if (/%/.test(t) && t.length < 40) { usageCache = t.split('\n')[0]; break; }
       }
-      tag.textContent = txt.length + ' نویسه' + (usage ? ' · ' + usage : '');
-    }, 1000);
+    }
+    tag.textContent = txt.length + ' نویسه' + (usageCache ? ' · ' + usageCache : '');
+  }
+
+  function syncCounter(s) {
+    if (s.counter && !counterTimer) {
+      usageTick = 0;
+      counterTimer = setInterval(counterTick, 1000);
+      counterTick();
+    } else if (!s.counter && counterTimer) {
+      clearInterval(counterTimer);
+      counterTimer = null;
+      var tag = document.getElementById('crtl-count');
+      if (tag) tag.textContent = '';
+    }
   }
 
   /* ---------------- dragging the button columns ---------------- */
@@ -577,13 +621,18 @@
     });
   }
 
+  var draftCommands = null;   // unsaved text sitting in the JSON editor
+
   function renderPanel(s) {
-    var old = document.querySelector('.crtl-panel');
+    var old = document.getElementById('crtl-panel');
     var wasOpen = old && old.classList.contains('crtl-open');
     if (old) old.remove();
 
     var panel = document.createElement('div');
     panel.className = 'crtl-panel' + (wasOpen ? ' crtl-open' : '');
+    // the find bar borrows the .crtl-panel look, so the settings panel is
+    // addressed by id — a class lookup could hand back the wrong element
+    panel.id = 'crtl-panel';
     panel.dataset.side = s.side === 'left' ? 'right' : 'left';
 
     var note = document.createElement('div');
@@ -738,11 +787,13 @@
     panel.appendChild(tools);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
-    // command list editor
+    // command list editor. Every toggle in this panel rebuilds it from scratch,
+    // so an unsaved edit is parked in draftCommands and put back on the way in.
     note.textContent = 'لیست دکمه‌ها (JSON) — label / text یا menu / side / send';
     panel.appendChild(note);
     var ta = document.createElement('textarea');
-    ta.value = JSON.stringify(commands(s), null, 1);
+    ta.value = draftCommands !== null ? draftCommands : JSON.stringify(commands(s), null, 1);
+    ta.addEventListener('input', function () { draftCommands = ta.value; });
     panel.appendChild(ta);
 
     var acts = document.createElement('div');
@@ -751,14 +802,19 @@
       try {
         var parsed = JSON.parse(ta.value);
         if (!Array.isArray(parsed)) throw new Error('not an array');
-        var cur = load(); cur.commands = parsed; save(cur); rerender();
-        note.textContent = 'ذخیره شد ✓';
+        var cur = load(); cur.commands = parsed; save(cur);
+        draftCommands = null;
+        rerender();
+        var n = document.querySelector('#crtl-panel .crtl-note');
+        if (n) n.textContent = 'ذخیره شد ✓';
       } catch (err) {
         note.textContent = 'JSON نامعتبر: ' + err.message;
       }
     }));
     acts.appendChild(btn('لیست پیش‌فرض', 'برگشت لیست دکمه‌ها به حالت اولیه', function () {
-      var cur = load(); cur.commands = null; save(cur); rerender();
+      var cur = load(); cur.commands = null; save(cur);
+      draftCommands = null;
+      rerender();
     }));
     panel.appendChild(acts);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
@@ -777,8 +833,11 @@
       if (navigator.clipboard) navigator.clipboard.writeText(txt);
       note.textContent = 'کپی شد — در ~/.claude-rtl-sizes.json بریز';
     }));
-    acts2.appendChild(btn('rst', 'برگشت همه‌چیز به پیش‌فرض', function () {
-      save(Object.assign({}, DEF)); rerender();
+    acts2.appendChild(btn('rst', 'برگشت همه‌چیز به پیش‌فرض — شامل جای دکمه‌ها و پروفایل‌ها', function () {
+      draftCommands = null;
+      save(fresh());
+      applyCss(load());
+      rerender();
     }));
     panel.appendChild(acts2);
 
@@ -797,7 +856,7 @@
     count.id = 'crtl-count';
     wrap.appendChild(count);
     wrap.appendChild(btn('aA', 'تنظیمات اندازه و دکمه‌ها', function () {
-      var p = document.querySelector('.crtl-panel');
+      var p = document.getElementById('crtl-panel');
       if (p) p.classList.toggle('crtl-open');
     }));
     document.body.appendChild(wrap);
@@ -809,17 +868,17 @@
     renderBars(s);
     renderPanel(s);
     renderToggle(s);
+    syncCounter(s);   // renderToggle rebuilds #crtl-count, so this runs last
   }
 
   function build() {
-    if (document.querySelector('.crtl-panel')) return;
+    if (document.getElementById('crtl-panel')) return;
     if (!input()) return;
     var style = document.createElement('style');
     style.textContent = CSS;
     document.head.appendChild(style);
     wireExpand();
     wireBlocks();
-    wireCounter();
     wireQuoteMenu();
     rerender();
 
@@ -838,7 +897,7 @@
   var tries = 0;
   var timer = setInterval(function () {
     build();
-    if (document.querySelector('.crtl-panel') || ++tries > 60) clearInterval(timer);
+    if (document.getElementById('crtl-panel') || ++tries > 60) clearInterval(timer);
   }, 500);
   document.addEventListener('DOMContentLoaded', build);
 })();

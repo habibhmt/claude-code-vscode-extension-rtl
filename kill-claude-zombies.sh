@@ -12,20 +12,36 @@
 ASSUME_YES=false
 THRESHOLD=80
 
+usage() {
+    echo "Usage: ./kill-claude-zombies.sh [--yes] [--threshold N] [--all]"
+}
+
 while [ $# -gt 0 ]; do
     case $1 in
         --yes|-y)      ASSUME_YES=true; shift ;;
-        --threshold)   THRESHOLD="$2"; shift 2 ;;
+        --threshold)
+            # A missing or non-numeric value used to turn into an empty awk
+            # variable, which compares as a string and matched every process —
+            # i.e. a silent --all. Refuse instead.
+            case "$2" in
+                ''|*[!0-9.]*)
+                    echo "❌ --threshold needs a number, got '${2:-}'" >&2
+                    usage >&2
+                    exit 2 ;;
+            esac
+            THRESHOLD="$2"; shift 2 ;;
         --all)         THRESHOLD=0; shift ;;
-        --help|-h)
-            echo "Usage: ./kill-claude-zombies.sh [--yes] [--threshold N] [--all]"
-            exit 0 ;;
-        *) shift ;;
+        --help|-h)     usage; exit 0 ;;
+        *)
+            echo "❌ unknown argument: $1" >&2
+            usage >&2
+            exit 2 ;;
     esac
 done
 
+# +0 forces a numeric comparison even if the field arrives as a string.
 rows=$(ps aux | grep "claude-code.*native-binary/claude" | grep -v grep \
-       | awk -v t="$THRESHOLD" '$3 > t {print $2, $3}')
+       | awk -v t="$THRESHOLD" '$3+0 > t+0 {print $2, $3}')
 
 if [ -z "$rows" ]; then
     [ "$ASSUME_YES" = true ] || echo "✅ No Claude process above ${THRESHOLD}% CPU."

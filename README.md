@@ -193,6 +193,38 @@ as well would run the whole thing twice in one webview. `index.js` is only
 used as a fallback when `python3` is missing or its rewrite fails, in which
 case the run warns and carries on instead of dying half-patched.
 
+### The composer is two layers — do not style it
+
+Since 2.1.267 the message box is stacked: `.messageInput_*` holds the real text
+but paints it transparent (`color:#0000`, only the caret shows), and
+`.mentionMirror_*` is an absolutely positioned overlay that paints what you
+actually see, mention chips included.
+
+So the text you **see** and the text you **select** live in different elements.
+Any property set on one must be set identically on the other — font, size,
+line-height, letter-spacing, padding, direction, bidi — or the two drift and
+selections land in the wrong place. An earlier version of this patch shrank
+`inputMentionChip_*` to 9px because the class contains "Chip", which broke
+exactly that.
+
+The rule this patch follows: **do not style the composer subtree at all.**
+Every selector here excludes `[class*="messageInputContainer_"] *`, and the
+Vazirmatn override hands that subtree back to `var(--vscode-chat-font-family)`.
+2.1.267 also gave the composer `unicode-bidi:plaintext` — each line takes its
+direction from its own first strong character — which is the correct RTL
+behaviour and must not be overridden.
+
+Press `aA` → `تست` in the panel to print a computed-style comparison of the two
+layers; every row should read `ok`.
+
+### The launchd agent uses `--with-font`
+
+`com.habib.fix-rtl-claude.plist` runs the script with `--with-font`, so the CSS
+that actually lands on the machine is always the Vazirmatn variant. A plain
+`./fix-rtl-claude.sh` run produces *different* CSS and will be overwritten the
+next time the agent fires. **Test with `./fix-rtl-claude.sh --with-font`** so
+you are looking at what the agent will produce.
+
 Backups are created automatically the first time (`index.css.backup`,
 `index.js.backup`, `extension.js.backup`) and every run re-patches from those
 backups, so repeated runs never stack up. `--revert` restores them.

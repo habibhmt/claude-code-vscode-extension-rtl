@@ -16,6 +16,22 @@
  *  └──────────────────────────────────────────────┘
  */
 (function () {
+  // Anything this script throws is captured here so the panel's "تست" button
+  // can show it — a silent exception is what "it just stopped working" looks
+  // like from the outside.
+  var ERRORS = [];
+  window.__crtlLoaded = (window.__crtlLoaded || 0) + 1;
+  window.addEventListener('error', function (e) {
+    ERRORS.push((e.message || 'error') + ' @ ' + (e.filename || '?') + ':' + (e.lineno || '?'));
+    if (ERRORS.length > 6) ERRORS.shift();
+  });
+  function guard(name, fn) {
+    return function () {
+      try { return fn.apply(this, arguments); }
+      catch (err) { ERRORS.push(name + ': ' + (err && err.message ? err.message : err)); throw err; }
+    };
+  }
+
   var DEFAULT_COMMANDS = [
     { label: "reme",  text: "/remember:remember", side: "right", send: false },
     { label: "comp",  text: "/compact",           side: "right", send: false },
@@ -42,16 +58,18 @@
     pos: {},           // { left: {x,y}, right: {x,y} } drag offsets
     commands: null,    // null = use DEFAULT_COMMANDS
     accent: '',        // '' = inherit the theme's own colours
+    textColor: '',     // '' = the theme's own conversation text colour
+    lh: 16,            // conversation line height, in tenths (16 = 1.6)
     opacity: 65,       // resting opacity of the buttons, in percent
     profiles: {},      // { name: settings snapshot }
     counter: true,     // show the composer character counter
     quoteMenu: true    // right-click a selection to quote it into the composer
   };
-  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20] };
+  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], lh: [11, 24] };
   var PRESETS = {
-    compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  lines: 1 },
-    normal:  { chat: 15, code: 12, chrome: 10, btn: 10, lines: 1 },
-    large:   { chat: 19, code: 15, chrome: 12, btn: 12, lines: 2 }
+    compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  lines: 1, lh: 14 },
+    normal:  { chat: 15, code: 12, chrome: 10, btn: 10, lines: 1, lh: 16 },
+    large:   { chat: 19, code: 15, chrome: 12, btn: 12, lines: 2, lh: 17 }
   };
 
   // The script can seed defaults by defining window.__CRTL_DEFAULTS before this runs.
@@ -80,7 +98,15 @@
     });
     if (!s.pos || typeof s.pos !== 'object') s.pos = {};
     if (!s.profiles || typeof s.profiles !== 'object') s.profiles = {};
+    // Profiles seeded from ~/.claude-rtl-sizes.json are the shared base layer,
+    // so a profile saved in one IDE shows up in every other one after the next
+    // patch run. A local profile with the same name still wins.
+    var shared = (DEF.profiles && typeof DEF.profiles === 'object') ? DEF.profiles : {};
+    s.profiles = Object.assign({}, shared, s.profiles);
     return s;
+  }
+  function sharedProfileNames() {
+    return (DEF.profiles && typeof DEF.profiles === 'object') ? Object.keys(DEF.profiles) : [];
   }
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
   function commands(s) {
@@ -108,7 +134,15 @@
     '.crtl-panel[data-side="right"]{right:52px}',
     '.crtl-panel[data-side="left"]{left:52px}',
     '.crtl-panel.crtl-open{display:flex}',
-    '.crtl-row{display:flex;align-items:center;gap:6px;justify-content:space-between}',
+    /* an open panel shrinks the conversation instead of sitting on top of it */
+    /* the panel is fixed to one physical edge, so the room has to be made on
+       that same edge — and for the composer too, or the chat narrows while the
+       input stays full width and the gap reads as a broken layout. Padding on
+       the composer *container* shifts the input and its mirror together, so the
+       two layers stay aligned. */
+    'html.crtl-panel-right [class*="messagesContainer_"],html.crtl-panel-right [class*="messageInputContainer_"]{padding-right:244px!important}',
+    'html.crtl-panel-left [class*="messagesContainer_"],html.crtl-panel-left [class*="messageInputContainer_"]{padding-left:244px!important}',
+    '.crtl-row{display:flex;align-items:center;gap:6px;justify-content:space-between;flex-shrink:0}',
     '.crtl-row label{flex:0 0 auto;opacity:.75}',
     '.crtl-row input[type=range]{flex:1;min-width:0;direction:ltr}',
     '.crtl-row input[type=number]{width:44px;direction:ltr;text-align:center;',
@@ -116,10 +150,10 @@
     '.crtl-row select{flex:1;background:rgba(127,127,127,.15);border:1px solid rgba(127,127,127,.35);',
     'border-radius:4px;color:inherit;padding:1px 3px}',
     '.crtl-sep{height:1px;background:rgba(127,127,127,.25);margin:3px 0}',
-    '.crtl-panel textarea{width:100%;height:110px;direction:ltr;text-align:left;font:10px/1.4 monospace;',
+    '.crtl-panel textarea{width:100%;height:110px;flex-shrink:0;box-sizing:border-box;direction:ltr;text-align:left;font:10px/1.4 monospace;',
     'background:rgba(127,127,127,.12);border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit}',
     '.crtl-note{opacity:.55;font-size:10px}',
-    '.crtl-actions{display:flex;gap:4px;flex-wrap:wrap}',
+    '.crtl-actions{display:flex;gap:4px;flex-wrap:wrap;flex-shrink:0}',
     '.crtl-hit{background:rgba(255,200,0,.35)!important;border-radius:2px}',
     '#crtl-count{opacity:.5;font-size:10px;padding:0 4px;white-space:nowrap;direction:rtl}',
     '#crtl-ctx{position:fixed;z-index:2147483004;display:none;flex-direction:column;min-width:150px;',
@@ -140,24 +174,55 @@
     }
     // accent lands inside a stylesheet, so only a plain hex colour goes
     // through: anything else could close the rule and append its own
-    var accent = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(s.accent || '') ? s.accent : '';
+    function hex(v) { return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(v || '') ? v : ''; }
+    var accent = hex(s.accent);
+    var ink = hex(s.textColor);
+    var lh = (s.lh / 10).toFixed(2);
+    var msg = '[class*="messagesContainer_"]';
     var out = [
       ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + '}',
       accent ? '.crtl-btn{border-color:' + accent + '!important;color:' + accent + '!important}' : '',
       accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
-      '[class*="messagesContainer_"]{font-size:' + s.chat + 'px!important;line-height:1.8!important}',
-      '[class*="messagesContainer_"] p,[class*="messagesContainer_"] li,[class*="messagesContainer_"] [class*="markdown"]{font-size:' + s.chat + 'px!important;line-height:1.8!important}',
-      '[class*="messagesContainer_"] pre,[class*="messagesContainer_"] code,[class*="messagesContainer_"] table{font-size:' + s.code + 'px!important;line-height:1.5!important}',
+      // the conversation ink follows the theme unless a colour is picked; code
+      // keeps its own highlighting, so it is left out on purpose
+      ink ? msg + ',' + msg + ' p,' + msg + ' li,' + msg + ' span,' + msg + ' strong,' + msg + ' b,' +
+            msg + ' h1,' + msg + ' h2,' + msg + ' h3,' + msg + ' h4,' + msg + ' td,' + msg + ' th' +
+            '{color:' + ink + '!important}' : '',
+      msg + '{font-size:' + s.chat + 'px!important;line-height:' + lh + '!important}',
+      msg + ' p,' + msg + ' li,' + msg + ' [class*="markdown"]{font-size:' + s.chat + 'px!important;line-height:' + lh + '!important}',
+      msg + ' pre,' + msg + ' code,' + msg + ' table{font-size:' + s.code + 'px!important;line-height:1.5!important}',
+      // Headings and their margins are em-based upstream, so raising the chat
+      // size blew the gaps up with it. Cap them and tighten the rhythm.
+      msg + ' h1,' + msg + ' h2,' + msg + ' h3,' + msg + ' h4,' + msg + ' h5{' +
+        'font-size:' + (s.chat + 2) + 'px!important;line-height:1.35!important;' +
+        'margin:0.55em 0 0.25em!important;padding:0!important}',
+      msg + ' p,' + msg + ' ul,' + msg + ' ol{margin:0.3em 0!important}',
+      msg + ' li{margin:0.1em 0!important}',
+      msg + ' li>p{margin:0!important}',
+      msg + ' hr{margin:0.5em 0!important}',
+      msg + ' blockquote{margin:0.4em 0!important}',
+      msg + ' pre{margin:0.4em 0!important}',
+      msg + ' table{margin:0.4em 0!important}',
       '[class*="headerTitle"],[class*="footer"],[class*="Footer"],[class*="statusBar"],[class*="toolbar"],[class*="Toolbar"],[class*="badge"],[class*="Badge"]{font-size:' + s.chrome + 'px!important}'
     ];
 
     // user messages: clamp to N lines, expanded by hover or by click
+    // The visible text sits in .content_* inside .expandableContainer_*, and the
+    // app gives that element an inline max-height. Clamping the outer
+    // .userMessage_ only counted one block child, so "1 line" still showed the
+    // app's own two — the clamp has to land on .content_ and beat the inline
+    // max-height, which !important does.
+    var inner = '[class*="userMessage_"]:not(.crtl-expanded) [class*="content_"]';
     if (s.lines > 0) {
-      out.push('[class*="userMessage_"]:not(.crtl-expanded){display:-webkit-box!important;-webkit-line-clamp:' +
-        s.lines + '!important;-webkit-box-orient:vertical!important;overflow:hidden!important}');
-      out.push('[class*="userMessage_"]:not(.crtl-expanded):hover{-webkit-line-clamp:unset!important;display:block!important}');
+      out.push('[class*="userMessage_"]:not(.crtl-expanded){overflow:hidden!important}');
+      out.push(inner + '{display:-webkit-box!important;-webkit-line-clamp:' + s.lines +
+        '!important;-webkit-box-orient:vertical!important;overflow:hidden!important;max-height:none!important}');
+      out.push('[class*="userMessage_"]:not(.crtl-expanded) [class*="truncationGradient"]{display:none!important}');
+      out.push('[class*="userMessage_"]:not(.crtl-expanded):hover [class*="content_"]' +
+        '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
     } else {
-      out.push('[class*="userMessage_"]{display:block!important;-webkit-line-clamp:unset!important}');
+      out.push('[class*="userMessage_"] [class*="content_"]{display:block!important;' +
+        '-webkit-line-clamp:unset!important;max-height:none!important}');
     }
 
     // wide content scrolls inside its own box instead of stretching the page
@@ -381,16 +446,64 @@
     }
     inp.addEventListener('input', run);
     inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); closeFind(); return; }
       if (e.key !== 'Enter' || !hits.length) return;
       e.preventDefault();
       idx = (idx + 1) % hits.length;
       hits[idx].scrollIntoView({ block: 'center' });
       info.textContent = (idx + 1) + '/' + hits.length;
     });
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.textContent = '✕ بستن (Esc)';
+    close.className = 'crtl-btn';
+    close.addEventListener('click', closeFind);
     box.appendChild(inp);
     box.appendChild(info);
+    box.appendChild(close);
     document.body.appendChild(box);
     inp.focus();
+  }
+
+  // Escape has to reach this from anywhere: the app swallows keys inside the
+  // composer, so the listener sits on the document in the capture phase.
+  function closePanel() {
+    var p = document.getElementById('crtl-panel');
+    if (!p || !p.classList.contains('crtl-open')) return false;
+    p.classList.remove('crtl-open');
+    syncPanelRoom(p);
+    return true;
+  }
+
+  // Escape closes the find bar first, then the settings panel — the panel used
+  // to have no way out except the aA button, which is easy to lose.
+  function wirePanelDismiss() {
+    if (document.__crtlDismissWired) return;
+    document.__crtlDismissWired = true;
+    document.addEventListener('mousedown', function (e) {
+      var p = document.getElementById('crtl-panel');
+      if (!p || !p.classList.contains('crtl-open')) return;
+      if (p.contains(e.target)) return;
+      // the gear column carries the aA toggle; let it do its own toggling
+      if (e.target.closest && e.target.closest('.crtl-bar')) return;
+      closePanel();
+    }, true);
+  }
+
+  function closeFind() {
+    var box = document.getElementById('crtl-find');
+    if (!box) return false;
+    box.remove();
+    clearMarks();
+    return true;
+  }
+  function wireFindEscape() {
+    if (document.__crtlFindEscWired) return;
+    document.__crtlFindEscWired = true;
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape' && e.key !== 'Esc') return;
+      if (closeFind() || closePanel()) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
   }
   function clearMarks() {
     var m = document.querySelectorAll('.crtl-hit');
@@ -409,8 +522,10 @@
       parts.push((mine ? '## من\n\n' : '## کلود\n\n') + t);
     });
     var md = parts.join('\n\n---\n\n');
-    if (navigator.clipboard) navigator.clipboard.writeText(md);
-    return parts.length + ' پیام کپی شد';
+    var msg = parts.length + ' پیام کپی شد';
+    copyText(md, function () { panelNote(msg); },
+             function () { panelNote('کلیپ‌بورد اجازه نداد'); });
+    return msg;
   }
 
   /* ---------------- quote a selection into the composer ---------------- */
@@ -464,7 +579,7 @@
       [
         ['↩︎ نقل‌قول در چت', function () { quoteInto(text, true); }],
         ['✎ بدون علامت نقل‌قول', function () { quoteInto(text, false); }],
-        ['⧉ کپی', function () { if (navigator.clipboard) navigator.clipboard.writeText(text); }],
+        ['⧉ کپی', function () { copyText(text); }],
         ['🔍 جست‌وجوی همین متن', function () {
           var box = document.getElementById('crtl-find');
           if (!box) findBar();
@@ -582,6 +697,179 @@
     });
   }
 
+
+  /* ---------------- self-diagnosis ---------------- */
+  // "It stopped working" is unactionable from here, so the panel can report
+  // exactly which anchor the patch failed to find, plus any captured error.
+  function diagnose() {
+    function n(sel) { try { return document.querySelectorAll(sel).length; } catch (e) { return 'ERR'; } }
+    var st = document.getElementById('crtl-size-style');
+    var lsOK = 'yes';
+    try { localStorage.setItem('crtl-probe', '1'); localStorage.removeItem('crtl-probe'); }
+    catch (e) { lsOK = 'NO (' + (e && e.name) + ')'; }
+    var lines = [
+      'messagesContainer_ : ' + n('[class*="messagesContainer_"]'),
+      'userMessage_       : ' + n('[class*="userMessage_"]'),
+      'message_           : ' + n('[class*="message_"]'),
+      'thinking/toolCall  : ' + n('[class*="thinking"],[class*="Thinking"],[class*="toolCall"],[class*="ToolCall"]'),
+      'messageInput_      : ' + n('[class*="messageInput_"]'),
+      'composer found     : ' + (input() ? 'yes (' + (input().tagName || '?') + ')' : 'NO'),
+      'button bars        : ' + n('.crtl-bar:not(.crtl-gear)'),
+      'settings panels    : ' + n('#crtl-panel') + ' (class .crtl-panel: ' + n('.crtl-panel') + ')',
+      'size <style>       : ' + (st ? st.textContent.length + ' chars' : 'MISSING'),
+      'localStorage       : ' + lsOK,
+      'script copies      : ' + (window.__crtlLoaded || 1),
+      'file read (import) : ' + (typeof FileReader === 'function' ? 'yes' : 'NO'),
+      'copy (execCommand) : ' + (document.queryCommandSupported &&
+                                 document.queryCommandSupported('copy') ? 'yes' : 'NO'),
+      'copy (async API)   : ' + (navigator.clipboard && navigator.clipboard.writeText ? 'present' : 'absent'),
+      'errors             : ' + (ERRORS.length ? ERRORS.join(' | ') : 'none')
+    ];
+    return lines.concat(mirrorParity(), clampReport()).join('\n');
+  }
+
+  // How many lines a collapsed user message actually ends up showing.
+  function clampReport() {
+    var m = document.querySelector('[class*="userMessage_"]');
+    if (!m) return ['', 'user message      : none on screen'];
+    var c = m.querySelector('[class*="content_"]') || m;
+    var cs = getComputedStyle(c);
+    var lh = parseFloat(cs.lineHeight) || 0;
+    var shown = lh ? Math.round(c.clientHeight / lh * 10) / 10 : '?';
+    return ['', 'user message clamp:',
+      '  setting        ' + load().lines + ' line(s)',
+      '  target found   ' + (c === m ? 'content_ MISSING (fell back to userMessage_)' : 'content_'),
+      '  line-clamp     ' + (cs.webkitLineClamp || cs.getPropertyValue('-webkit-line-clamp') || 'none'),
+      '  rendered lines ' + shown];
+  }
+
+  // The composer paints its text transparent and shows an absolutely positioned
+  // mirror instead, so the two layers must agree on every metric. Any row that
+  // says MISMATCH is a caret landing in the wrong place.
+  function mirrorParity() {
+    var inp = document.querySelector('[class*="messageInput_"]');
+    var mir = document.querySelector('[class*="mentionMirror_"]');
+    if (!inp || !mir) return ['', 'input vs mirror   : ' + (inp ? 'mirror MISSING' : 'input MISSING')];
+    var a = getComputedStyle(inp), b = getComputedStyle(mir);
+    var props = ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing',
+                 'padding', 'direction', 'unicodeBidi', 'whiteSpace', 'wordBreak'];
+    var out = ['', 'input vs mirror:'];
+    props.forEach(function (k) {
+      var x = a[k] || '', y = b[k] || '';
+      var same = x === y;
+      out.push('  ' + (k + '            ').slice(0, 14) +
+               (x.length > 26 ? x.slice(0, 26) + '…' : x) + ' | ' +
+               (y.length > 26 ? y.slice(0, 26) + '…' : y) + '   ' + (same ? 'ok' : 'MISMATCH'));
+    });
+    return out;
+  }
+
+
+  // navigator.clipboard.writeText returns a Promise, so a try/catch around it
+  // never sees a rejection — which is how "کپی شد ✓" kept appearing while
+  // nothing was copied. In a webview iframe the async API is usually blocked by
+  // permissions policy anyway; the old execCommand path still works because it
+  // runs synchronously inside the click gesture. Both are tried, and failure is
+  // reported honestly.
+  function copyText(txt, onOK, onFail) {
+    var tmp = document.createElement('textarea');
+    tmp.value = txt;
+    tmp.setAttribute('readonly', '');
+    tmp.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+    document.body.appendChild(tmp);
+    var active = document.activeElement;
+    tmp.select();
+    tmp.setSelectionRange(0, txt.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    tmp.remove();
+    if (active && active.focus) { try { active.focus(); } catch (e) {} }
+    if (ok) { if (onOK) onOK(); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(
+        function () { if (onOK) onOK(); },
+        function () { if (onFail) onFail(); }
+      );
+      return;
+    }
+    if (onFail) onFail();
+  }
+
+  /* ---------------- settings as a portable file ---------------- */
+  // The webview cannot write to disk on its own, but it can hand the browser a
+  // file to save and read one the user picks — which is all that is needed to
+  // carry a profile from one IDE to another.
+  function exportable() {
+    var cur = load();
+    return { chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
+             lines: cur.lines, side: cur.side, collapse: cur.collapse,
+             tableScroll: cur.tableScroll, accent: cur.accent,
+             textColor: cur.textColor, lh: cur.lh,
+             opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
+             profiles: cur.profiles, commands: cur.commands };
+  }
+
+  function panelNote(msg) {
+    var n = document.querySelector('#crtl-panel .crtl-note');
+    if (n) n.textContent = msg;
+  }
+
+  var FILE_NAME = 'claude-rtl-settings.json';
+
+  // The webview CSP is `default-src 'none'`, so writing a file from here is
+  // impossible — no blob download, no save picker. The clipboard is the one
+  // channel that always works, so copy-here / paste-there is the main route.
+  function copySettings() {
+    var txt = JSON.stringify(exportable(), null, 2);
+    var ta = document.getElementById('crtl-io');
+    // the text lands in the visible box first, so a blocked clipboard still
+    // leaves something the user can select and copy by hand
+    if (ta) { ta.value = txt; }
+    copyText(txt,
+      function () { panelNote('کپی شد ✓ — در IDE دیگر داخل همین کادر پیست کن'); },
+      function () {
+        if (ta) { ta.focus(); ta.select(); }
+        panelNote('کلیپ‌بورد اجازه نداد — متن در کادر انتخاب شد، Cmd+C بزن');
+      });
+  }
+
+  function loadFromFile() {
+    var inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.json,application/json';
+    inp.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px';
+    inp.addEventListener('change', function () {
+      var f = inp.files && inp.files[0];
+      inp.remove();
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function () { applyImported(String(r.result), f.name); };
+      r.onerror = function () { panelNote('فایل خوانده نشد'); };
+      r.readAsText(f);
+    });
+    document.body.appendChild(inp);
+    inp.click();
+  }
+
+  function applyImported(txt, fileName) {
+    var incoming;
+    try { incoming = JSON.parse(txt); }
+    catch (e) { panelNote('این فایل JSON معتبر نیست'); return; }
+    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) {
+      panelNote('ساختار فایل درست نیست'); return;
+    }
+    var cur = load();
+    var mergedProfiles = Object.assign({}, cur.profiles, incoming.profiles || {});
+    var merged = Object.assign(cur, incoming);
+    merged.profiles = mergedProfiles;
+    save(merged);
+    draftCommands = null;
+    applyCss(load());
+    rerender();
+    panelNote('«' + (fileName || FILE_NAME) + '» خوانده شد ✓ — ' +
+              Object.keys(mergedProfiles).length + ' پروفایل');
+  }
+
   /* ---------------- rendering ---------------- */
   function sideOf(cmd, s) {
     if (s.side === 'left' || s.side === 'right') return s.side;
@@ -621,7 +909,8 @@
     });
   }
 
-  var draftCommands = null;   // unsaved text sitting in the JSON editor
+  var draftCommands = null;      // unsaved text sitting in the JSON editor
+  var draftProfileName = '';     // profile name typed but not saved yet
 
   function renderPanel(s) {
     var old = document.getElementById('crtl-panel');
@@ -663,6 +952,25 @@
     panel.appendChild(sizeRow('حواشی', 'chrome', s, set));
     panel.appendChild(sizeRow('دکمه‌ها', 'btn', s, set));
 
+    var lhRange = document.createElement('input');
+    lhRange.type = 'range';
+    lhRange.min = LIMITS.lh[0]; lhRange.max = LIMITS.lh[1]; lhRange.step = 1;
+    lhRange.value = s.lh;
+    var lhNum = document.createElement('span');
+    lhNum.className = 'crtl-note';
+    lhNum.style.cssText = 'min-width:26px;text-align:center;direction:ltr';
+    lhNum.textContent = (s.lh / 10).toFixed(1);
+    lhRange.addEventListener('input', function () {
+      var v = parseInt(lhRange.value, 10);
+      lhNum.textContent = (v / 10).toFixed(1);
+      set('lh', v);
+    });
+    var lhWrap = document.createElement('div');
+    lhWrap.className = 'crtl-row';
+    lhWrap.style.cssText = 'flex:1;gap:6px';
+    lhWrap.appendChild(lhRange); lhWrap.appendChild(lhNum);
+    panel.appendChild(row('فاصلهٔ خطوط', lhWrap));
+
     var opa = document.createElement('input');
     opa.type = 'range'; opa.min = 20; opa.max = 100; opa.value = s.opacity;
     opa.addEventListener('input', function () { set('opacity', parseInt(opa.value, 10)); });
@@ -679,7 +987,20 @@
     colorWrap.appendChild(btn('بی‌رنگ', 'برگشت به رنگ خود تم', function () {
       var cur = load(); cur.accent = ''; save(cur); applyCss(cur); rerender();
     }));
-    panel.appendChild(row('رنگ', colorWrap));
+    panel.appendChild(row('رنگ دکمه‌ها', colorWrap));
+
+    var ink = document.createElement('input');
+    ink.type = 'color';
+    ink.value = s.textColor || '#dddddd';
+    ink.style.cssText = 'width:44px;height:20px;padding:0;border:0;background:none';
+    ink.addEventListener('change', function () { set('textColor', ink.value); rerender(); });
+    var inkWrap = document.createElement('div');
+    inkWrap.className = 'crtl-actions';
+    inkWrap.appendChild(ink);
+    inkWrap.appendChild(btn('بی‌رنگ', 'برگشت به رنگ متن خود تم', function () {
+      var cur = load(); cur.textColor = ''; save(cur); applyCss(cur); rerender();
+    }));
+    panel.appendChild(row('رنگ متن', inkWrap));
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // user-message line count
@@ -733,9 +1054,11 @@
     ph.textContent = names.length ? '— انتخاب —' : '— خالی —';
     ph.value = '';
     profSel.appendChild(ph);
+    var fromFile = sharedProfileNames();
     names.forEach(function (n) {
       var o = document.createElement('option');
-      o.textContent = n; o.value = n;
+      o.textContent = n + (fromFile.indexOf(n) !== -1 ? '  ⇩' : '');
+      o.value = n;
       profSel.appendChild(o);
     });
     profSel.addEventListener('change', function () {
@@ -746,18 +1069,42 @@
       applyCss(load()); rerender();
     });
     panel.appendChild(row('پروفایل', profSel));
-    profRow.appendChild(btn('ذخیرهٔ پروفایل', 'تنظیمات فعلی را با یک نام نگه دار', function () {
-      var name = prompt('نام پروفایل؟');
-      if (!name) return;
+
+    // Electron never implemented window.prompt — it returns undefined, so the
+    // old `if (!name) return;` bailed out every single time and saving a
+    // profile silently did nothing. The name is typed right here instead.
+    var profName = document.createElement('input');
+    profName.type = 'text';
+    profName.placeholder = 'نام پروفایل…';
+    profName.value = draftProfileName;
+    profName.style.cssText = 'flex:1;min-width:70px;direction:rtl;text-align:right;' +
+      'background:rgba(127,127,127,.15);border:1px solid rgba(127,127,127,.35);' +
+      'border-radius:4px;color:inherit;padding:1px 4px;font:inherit';
+    profName.addEventListener('input', function () { draftProfileName = profName.value; });
+
+    function saveProfile() {
       var cur = load();
+      var name = (profName.value || '').trim() ||
+                 ('پروفایل ' + (Object.keys(cur.profiles).length + 1));
       cur.profiles[name] = {
         chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
         lines: cur.lines, side: cur.side, collapse: cur.collapse,
-        tableScroll: cur.tableScroll, accent: cur.accent, opacity: cur.opacity
+        tableScroll: cur.tableScroll, accent: cur.accent, opacity: cur.opacity,
+        textColor: cur.textColor, lh: cur.lh
       };
-      save(cur); rerender();
-    }));
-    profRow.appendChild(btn('حذف پروفایل', 'پاک‌کردن پروفایل انتخاب‌شده', function () {
+      save(cur);
+      draftProfileName = '';
+      rerender();
+      var n = document.querySelector('#crtl-panel .crtl-note');
+      if (n) n.textContent = 'پروفایل «' + name + '» ذخیره شد ✓';
+    }
+    profName.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); saveProfile(); }
+    });
+
+    profRow.appendChild(profName);
+    profRow.appendChild(btn('ذخیره', 'تنظیمات فعلی را با همین نام نگه دار (Enter هم کار می‌کند)', saveProfile));
+    profRow.appendChild(btn('حذف', 'پاک‌کردن پروفایل انتخاب‌شده', function () {
       if (!profSel.value) return;
       var cur = load();
       delete cur.profiles[profSel.value];
@@ -773,7 +1120,7 @@
     tools.appendChild(btn('کپی گفتگو', 'کپی کل گفتگو به مارک‌داون', function () {
       note.textContent = copyConversation();
     }));
-    tools.appendChild(btn('sel', 'فرستادن متن انتخاب‌شدهٔ ادیتور به چت', function () {
+    tools.appendChild(btn('sel', 'کدی که در ادیتور (فایل باز، نه چت) انتخاب کرده‌ای را به گفتگو اضافه می‌کند — همان Add selection در منوی /', function () {
       clickMenu('Add selection');
     }));
     tools.appendChild(btn(s.quoteMenu ? 'راست‌کلیک: روشن' : 'راست‌کلیک: خاموش',
@@ -789,8 +1136,13 @@
 
     // command list editor. Every toggle in this panel rebuilds it from scratch,
     // so an unsaved edit is parked in draftCommands and put back on the way in.
-    note.textContent = 'لیست دکمه‌ها (JSON) — label / text یا menu / side / send';
+    note.textContent = 'لیست دکمه‌ها به صورت JSON:';
+    var noteFields = document.createElement('div');
+    noteFields.className = 'crtl-note';
+    noteFields.style.cssText = 'direction:ltr;text-align:left';
+    noteFields.textContent = 'label, text | menu, side, send';
     panel.appendChild(note);
+    panel.appendChild(noteFields);
     var ta = document.createElement('textarea');
     ta.value = draftCommands !== null ? draftCommands : JSON.stringify(commands(s), null, 1);
     ta.addEventListener('input', function () { draftCommands = ta.value; });
@@ -820,18 +1172,48 @@
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // export / reset
+    // carrying the whole setup — profiles included — between IDEs
+    var ioLabel = document.createElement('div');
+    ioLabel.className = 'crtl-note';
+    ioLabel.textContent = 'انتقال تنظیمات و پروفایل‌ها بین IDEها:';
+    panel.appendChild(ioLabel);
+
+    var ioBox = document.createElement('textarea');
+    ioBox.id = 'crtl-io';
+    ioBox.placeholder = 'اینجا پیست کن…';
+    ioBox.style.height = '52px';
+    // pasting is the whole point, so it applies itself without another click
+    ioBox.addEventListener('paste', function () {
+      setTimeout(function () { if (ioBox.value.trim()) applyImported(ioBox.value, 'پیست'); }, 0);
+    });
+    panel.appendChild(ioBox);
+
+    var fileRow = document.createElement('div');
+    fileRow.className = 'crtl-actions';
+    fileRow.appendChild(btn('کپی تنظیمات', 'همهٔ تنظیمات و پروفایل‌ها را کپی کن', copySettings));
+    fileRow.appendChild(btn('اعمال', 'آنچه در کادر بالا پیست کرده‌ای را اعمال کن', function () {
+      if (!ioBox.value.trim()) { panelNote('کادر خالی است'); return; }
+      applyImported(ioBox.value, 'پیست');
+    }));
+    fileRow.appendChild(btn('از فایل', 'به‌جای پیست، یک فایل تنظیمات را باز کن', loadFromFile));
+    panel.appendChild(fileRow);
+
     var acts2 = document.createElement('div');
     acts2.className = 'crtl-actions';
-    acts2.appendChild(btn('sav', 'کپی تنظیمات برای ~/.claude-rtl-sizes.json', function () {
-      var cur = load();
-      var out = { chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
-                  lines: cur.lines, side: cur.side, collapse: cur.collapse,
-                  tableScroll: cur.tableScroll, accent: cur.accent,
-                  opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
-                  profiles: cur.profiles, commands: cur.commands };
-      var txt = JSON.stringify(out, null, 2);
-      if (navigator.clipboard) navigator.clipboard.writeText(txt);
-      note.textContent = 'کپی شد — در ~/.claude-rtl-sizes.json بریز';
+    acts2.appendChild(btn('تست', 'گزارش تشخیص — چه چیزی پیدا شد و چه خطایی رخ داده', function () {
+      var report = diagnose();
+      copyText(report);
+      var box = document.getElementById('crtl-diag');
+      if (!box) {
+        box = document.createElement('pre');
+        box.id = 'crtl-diag';
+        box.style.cssText = 'direction:ltr;text-align:left;font:10px/1.4 monospace;white-space:pre;' +
+          'overflow:auto;max-height:200px;flex-shrink:0;margin:4px 0 0;padding:4px;' +
+          'background:rgba(127,127,127,.12);border:1px solid rgba(127,127,127,.35);border-radius:4px';
+        panel.appendChild(box);
+      }
+      box.textContent = report;
+      note.textContent = 'گزارش در کلیپ‌بورد کپی شد';
     }));
     acts2.appendChild(btn('rst', 'برگشت همه‌چیز به پیش‌فرض — شامل جای دکمه‌ها و پروفایل‌ها', function () {
       draftCommands = null;
@@ -857,9 +1239,21 @@
     wrap.appendChild(count);
     wrap.appendChild(btn('aA', 'تنظیمات اندازه و دکمه‌ها', function () {
       var p = document.getElementById('crtl-panel');
-      if (p) p.classList.toggle('crtl-open');
+      if (!p) return;
+      p.classList.toggle('crtl-open');
+      syncPanelRoom(p);
     }));
     document.body.appendChild(wrap);
+  }
+
+  // The open panel is position:fixed, so the conversation has to be told to
+  // step aside; otherwise the panel simply sits on top of the text.
+  function syncPanelRoom(panel) {
+    var open = !!(panel && panel.classList.contains('crtl-open'));
+    var side = open ? (panel.dataset.side === 'left' ? 'left' : 'right') : '';
+    var root = document.documentElement;
+    root.classList.toggle('crtl-panel-right', side === 'right');
+    root.classList.toggle('crtl-panel-left', side === 'left');
   }
 
   function rerender() {
@@ -869,6 +1263,7 @@
     renderPanel(s);
     renderToggle(s);
     syncCounter(s);   // renderToggle rebuilds #crtl-count, so this runs last
+    syncPanelRoom(document.getElementById('crtl-panel'));
   }
 
   function build() {
@@ -880,6 +1275,8 @@
     wireExpand();
     wireBlocks();
     wireQuoteMenu();
+    wireFindEscape();
+    wirePanelDismiss();
     rerender();
 
     // Ctrl+Alt+B hides or shows the button columns

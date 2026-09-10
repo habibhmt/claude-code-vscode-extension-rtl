@@ -24,6 +24,23 @@ BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/crtl.XXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
+# Only one run at a time. The launchd agent watches the extensions folder, so
+# this script's own writes wake it up and a second copy starts patching the
+# same files mid-write — which showed up as random self-test failures and
+# rolled-back IDEs. mkdir is atomic, so it makes a usable lock.
+LOCK_DIR="${TMPDIR:-/tmp}/crtl-patch.lock"
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+    # A lock left behind by a killed run would block every future one, so an
+    # old one is taken over rather than trusted.
+    if [ -n "$(find "$LOCK_DIR" -maxdepth 0 -mmin +5 2>/dev/null)" ]; then
+        rmdir "$LOCK_DIR" 2>/dev/null || true
+        mkdir "$LOCK_DIR" 2>/dev/null || exit 0
+    else
+        exit 0   # another run is already doing exactly this work
+    fi
+fi
+trap 'rmdir "$LOCK_DIR" 2>/dev/null; rm -rf "$TMP_DIR"' EXIT
+
 # python3 does the extension.js rewrite. Without it the patch still applies —
 # index.css plus the buttons appended to index.js — so warn instead of dying.
 if command -v python3 >/dev/null 2>&1; then HAVE_PYTHON=true; else HAVE_PYTHON=false; fi
@@ -35,7 +52,7 @@ if command -v python3 >/dev/null 2>&1; then HAVE_PYTHON=true; else HAVE_PYTHON=f
 SIZES_FILE="${SIZES_FILE:-$HOME/.claude-rtl-sizes.json}"
 
 CHAT_FONT_SIZE="${CHAT_FONT_SIZE:-15px}"     # اندازه متن اصلی گفتگو
-CHAT_LINE_HEIGHT="${CHAT_LINE_HEIGHT:-1.8}"  # فاصله خطوط متن گفتگو
+CHAT_LINE_HEIGHT="${CHAT_LINE_HEIGHT:-1.6}"  # فاصله خطوط متن گفتگو
 CODE_FONT_SIZE="${CODE_FONT_SIZE:-12px}"     # اندازه متن کد و جدول
 USER_MSG_LINES="${USER_MSG_LINES:-1}"        # پیام خودت چند خط دیده شود (0 = بدون محدودیت)
 SIDE_BTN_FONT="${SIDE_BTN_FONT:-9px}"        # اندازه دکمه‌های کناری
@@ -52,6 +69,7 @@ WITH_FONT=false
 REVERT=false
 KILL_ZOMBIES=false
 FORCE=false
+IMPORT_SETTINGS=false
 # Reload the IDE window only on an interactive run; the launchd agent must not
 # yank the window out from under whatever is running.
 if [ -t 1 ]; then RELOAD=true; else RELOAD=false; fi
@@ -73,6 +91,10 @@ for arg in "$@"; do
             FORCE=true
             shift
             ;;
+        --import-clipboard|--import-settings)
+            IMPORT_SETTINGS=true
+            shift
+            ;;
         --reload)
             RELOAD=true
             shift
@@ -88,6 +110,9 @@ for arg in "$@"; do
             echo "  --with-font    Include Vazirmatn font (for Persian/Arabic)"
             echo "  --revert       Restore every patched file from its .backup and exit"
             echo "  --force        Re-patch even when the stamp says nothing changed"
+            echo "  --import-clipboard  Take the JSON on the clipboard (the panel's 'sav' button"
+            echo "                 puts it there), store it as the shared settings file and"
+            echo "                 re-patch every IDE, so profiles travel between them"
             echo "  --kill-zombies Also reap runaway claude native-binary processes"
             echo "  --reload       Reload the frontmost IDE window when done (default on a terminal run)"
             echo "  --no-reload    Never reload the IDE window"
@@ -102,21 +127,54 @@ for arg in "$@"; do
     esac
 done
 
+# Bring the clipboard JSON in as the shared settings file. The panel runs in a
+# sandboxed webview and cannot write to disk, so this is the hand-off: press
+# 'sav' there, run this here, and every IDE picks the profiles up on its next
+# patch — which the launchd agent triggers by itself.
+if [ "$IMPORT_SETTINGS" = true ]; then
+    if command -v pbpaste >/dev/null 2>&1; then clip="$(pbpaste)"
+    elif command -v wl-paste >/dev/null 2>&1; then clip="$(wl-paste)"
+    elif command -v xclip >/dev/null 2>&1; then clip="$(xclip -o -selection clipboard)"
+    else
+        echo -e "${RED}No clipboard tool found (pbpaste / wl-paste / xclip).${NC}" >&2
+        exit 1
+    fi
+    if ! printf '%s' "$clip" | python3 -c 'import json,sys; json.load(sys.stdin)' 2>/dev/null; then
+        echo -e "${RED}The clipboard does not hold valid JSON.${NC}" >&2
+        echo "Press 'sav' in the panel first, then run this again." >&2
+        exit 1
+    fi
+    printf '%s' "$clip" > "$SIZES_FILE"
+    echo -e "${GREEN}Saved the clipboard settings to $SIZES_FILE${NC}"
+    FORCE=true
+fi
+
+# INVARIANT — the composer is two stacked layers: .messageInput_ holds the real
+# text but paints it transparent (color:#0000), and .mentionMirror_ is an
+# absolutely positioned overlay that paints what you actually see. Anything set
+# on one MUST be set identically on the other — font, size, line-height,
+# padding, direction, bidi — or the text you see and the text you select drift
+# apart and selections land in the wrong place. Simplest safe rule: do not
+# style the composer subtree at all.
+
 # RTL CSS without font
 RTL_CSS_BASE='html,body{direction:rtl;text-align:right}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
+p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="messageInputContainer_"] *),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]):not([class*="messageInputContainer_"]):not([class*="messageInputContainer_"] *),li,ul,ol,input,textarea{direction:rtl;text-align:right;unicode-bidi:isolate}
 table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important}
 td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+[class*="messageInput_"],[class*="mentionMirror_"]{unicode-bidi:plaintext!important}
 '
 
 # RTL CSS with Vazirmatn font
 RTL_CSS_WITH_FONT='*{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
+[class*="messageInputContainer_"],[class*="messageInputContainer_"] *{font-family:var(--vscode-chat-font-family)!important}
 html,body{direction:rtl;text-align:right}
-p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]),li,ul,ol,input,textarea,[contenteditable],[contenteditable="true"]{direction:rtl;text-align:right;unicode-bidi:isolate}
+p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="messageInputContainer_"] *),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]):not([class*="messageInputContainer_"]):not([class*="messageInputContainer_"] *),li,ul,ol,input,textarea{direction:rtl;text-align:right;unicode-bidi:isolate}
 table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important}
 td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+[class*="messageInput_"],[class*="mentionMirror_"]{unicode-bidi:plaintext!important}
 '
 
 # Choose CSS based on font flag
@@ -132,24 +190,40 @@ UI_COMPACT_CSS='[class*="header_"],[class*="titlebar"],[class*="TitleBar"]{min-h
 [class*="headerIcon"]{height:20px!important;width:18px!important;margin-left:4px!important}
 [class*="headerIcon"] svg,[class*="headerIcon"] img{width:13px!important;height:13px!important}
 [class*="headerTitle"]{font-size:11px!important;line-height:1.2!important}
-[class*="attachment"],[class*="Attachment"],[class*="chip"],[class*="Chip"],[class*="pill"],[class*="Pill"]{font-size:9px!important;padding:0 4px!important;line-height:1.2!important;max-height:16px!important}
-[class*="attachment"] img,[class*="Attachment"] img,[class*="thumb"],[class*="Thumb"],[class*="preview"] img{max-height:12px!important;max-width:12px!important}
+[class*="attachedFilesContainer"] [class*="chip"],[class*="attachedFilesContainer"] [class*="Chip"],[class*="attachedFilesContainer"] [class*="pill"],[class*="attachedFilesContainer"] [class*="Pill"],[class*="header_"] [class*="chip"],[class*="header_"] [class*="Chip"]{font-size:9px!important;padding:0 4px!important;line-height:1.2!important;max-height:16px!important}
+[class*="attachedFilesContainer"] img,[class*="attachedFilesContainer"] [class*="thumb"],[class*="attachedFilesContainer"] [class*="preview"] img{max-height:12px!important;max-width:12px!important}
 '
 
 # Text sizing: big conversation text, small chrome (all values from the settings block above)
 if [ "$USER_MSG_LINES" = "0" ]; then
     USER_MSG_CLAMP=''
 else
-    USER_MSG_CLAMP="[class*=\"userMessage_\"]{display:-webkit-box!important;-webkit-line-clamp:${USER_MSG_LINES}!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
-[class*=\"userMessage_\"]:hover{-webkit-line-clamp:unset!important;display:block!important}"
+    # The text lives in .content_* inside .expandableContainer_*, and the app
+    # sets that element's max-height inline, so the clamp has to land there and
+    # beat the inline value. Clamping the outer .userMessage_ only counts one
+    # block child, which is why "1 line" still rendered the app's own 2 lines.
+    USER_MSG_CLAMP="[class*=\"userMessage_\"]{overflow:hidden!important}
+[class*=\"userMessage_\"] [class*=\"content_\"]{display:-webkit-box!important;-webkit-line-clamp:${USER_MSG_LINES}!important;-webkit-box-orient:vertical!important;overflow:hidden!important;max-height:none!important}
+[class*=\"userMessage_\"] [class*=\"truncationGradient\"]{display:none!important}
+[class*=\"userMessage_\"]:hover [class*=\"content_\"]{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}"
 fi
 
+# The button size is handed over as a CSS variable, not an !important rule:
+# the panel's own slider writes that same variable, and an !important
+# font-size here silently outranked it, so the slider did nothing.
 UI_SIZE_CSS="[class*=\"messagesContainer_\"]{font-size:${CHAT_FONT_SIZE}!important;line-height:${CHAT_LINE_HEIGHT}!important}
 [class*=\"messagesContainer_\"] p,[class*=\"messagesContainer_\"] li,[class*=\"messagesContainer_\"] [class*=\"markdown\"]{font-size:${CHAT_FONT_SIZE}!important;line-height:${CHAT_LINE_HEIGHT}!important}
 [class*=\"messagesContainer_\"] pre,[class*=\"messagesContainer_\"] code,[class*=\"messagesContainer_\"] table{font-size:${CODE_FONT_SIZE}!important;line-height:1.5!important}
+# Headings and their margins are em-based upstream, so a bigger chat font blew
+# the gaps up with it — especially around bold headings. Cap and tighten them.
+[class*=\"messagesContainer_\"] h1,[class*=\"messagesContainer_\"] h2,[class*=\"messagesContainer_\"] h3,[class*=\"messagesContainer_\"] h4,[class*=\"messagesContainer_\"] h5{font-size:calc(${CHAT_FONT_SIZE} + 2px)!important;line-height:1.35!important;margin:0.55em 0 0.25em!important;padding:0!important}
+[class*=\"messagesContainer_\"] p,[class*=\"messagesContainer_\"] ul,[class*=\"messagesContainer_\"] ol{margin:0.3em 0!important}
+[class*=\"messagesContainer_\"] li{margin:0.1em 0!important}
+[class*=\"messagesContainer_\"] li>p{margin:0!important}
+[class*=\"messagesContainer_\"] hr,[class*=\"messagesContainer_\"] blockquote,[class*=\"messagesContainer_\"] pre,[class*=\"messagesContainer_\"] table{margin:0.4em 0!important}
 ${USER_MSG_CLAMP}
 [class*=\"headerTitle\"],[class*=\"header_\"],[class*=\"footer\"],[class*=\"Footer\"],[class*=\"statusBar\"],[class*=\"toolbar\"],[class*=\"Toolbar\"],[class*=\"badge\"],[class*=\"Badge\"],[class*=\"label_\"],[class*=\"meta\"]{font-size:${CHROME_FONT_SIZE}!important}
-.crtl-btn{font-size:${SIDE_BTN_FONT}!important}
+:root{--crtl-btn-size:${SIDE_BTN_FONT}}
 "
 
 # Revert mode: put every backup back and stop.

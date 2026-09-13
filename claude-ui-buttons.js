@@ -218,7 +218,7 @@
       out.push(inner + '{display:-webkit-box!important;-webkit-line-clamp:' + s.lines +
         '!important;-webkit-box-orient:vertical!important;overflow:hidden!important;max-height:none!important}');
       out.push('[class*="userMessage_"]:not(.crtl-expanded) [class*="truncationGradient"]{display:none!important}');
-      out.push('[class*="userMessage_"]:not(.crtl-expanded):hover [class*="content_"]' +
+      out.push('[class*="userMessage_"]:not(.crtl-expanded).crtl-hovered [class*="content_"]' +
         '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
     } else {
       out.push('[class*="userMessage_"] [class*="content_"]{display:block!important;' +
@@ -382,6 +382,32 @@
     num.addEventListener('change', function () { commit(num.value); });
     wrap.appendChild(l); wrap.appendChild(range); wrap.appendChild(num);
     return wrap;
+  }
+
+  /* ---------------- hover-intent on user messages ---------------- */
+  // A plain :hover opened a collapsed message the instant the pointer crossed
+  // it on the way somewhere else. The message now opens only after the pointer
+  // has rested on it for HOVER_DELAY ms, and closes as soon as it leaves.
+  var HOVER_DELAY = 700;
+  function wireHoverIntent() {
+    if (document.__crtlHoverWired) return;
+    document.__crtlHoverWired = true;
+    var timer = null, pending = null;
+    function msgOf(node) {
+      while (node && node !== document.body) {
+        if (typeof node.className === 'string' && node.className.indexOf('userMessage_') !== -1) return node;
+        node = node.parentNode;
+      }
+      return null;
+    }
+    document.addEventListener('mouseover', function (e) {
+      var m = msgOf(e.target);
+      if (m === pending) return;
+      clearTimeout(timer);
+      if (pending && pending !== m) pending.classList.remove('crtl-hovered');
+      pending = m;
+      if (m) timer = setTimeout(function () { m.classList.add('crtl-hovered'); }, HOVER_DELAY);
+    }, true);
   }
 
   /* ---------------- click-to-expand on user messages ---------------- */
@@ -1297,6 +1323,7 @@
     style.textContent = CSS;
     document.head.appendChild(style);
     wireExpand();
+    wireHoverIntent();
     wireBlocks();
     wireQuoteMenu();
     wireFindEscape();

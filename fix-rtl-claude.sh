@@ -205,7 +205,7 @@ else
     USER_MSG_CLAMP="[class*=\"userMessage_\"]{overflow:hidden!important}
 [class*=\"userMessage_\"] [class*=\"content_\"]{display:-webkit-box!important;-webkit-line-clamp:${USER_MSG_LINES}!important;-webkit-box-orient:vertical!important;overflow:hidden!important;max-height:none!important}
 [class*=\"userMessage_\"] [class*=\"truncationGradient\"]{display:none!important}
-[class*=\"userMessage_\"]:hover [class*=\"content_\"]{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}"
+[class*=\"userMessage_\"].crtl-hovered [class*=\"content_\"]{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}"
 fi
 
 # The button size is handed over as a CSS variable, not an !important rule:

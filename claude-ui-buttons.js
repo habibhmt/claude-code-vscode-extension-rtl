@@ -257,9 +257,33 @@
         || document.querySelector('[contenteditable="true"]');
   }
 
+  // The composer is a contenteditable that treats a newline as its own editing
+  // operation: its keydown handler runs execCommand("insertLineBreak") for
+  // Shift+Enter. A "\n" smuggled inside one insertText call is not a line
+  // break to it, so a quote followed by typing ended up glued onto the quote's
+  // last line. Text goes in the same way the app puts it in: caret at the end,
+  // plain runs through insertText, every newline through insertLineBreak.
+  function caretToEnd(el) {
+    var sel = window.getSelection();
+    if (!sel) return;
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    r.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+
+  function insertLines(text) {
+    var parts = String(text).replace(/\r\n?/g, '\n').split('\n');
+    parts.forEach(function (run, i) {
+      if (i > 0) document.execCommand('insertLineBreak');
+      if (run) document.execCommand('insertText', false, run);
+    });
+  }
+
   function type(el, text) {
     el.focus();
-    if (el.isContentEditable) { document.execCommand('insertText', false, text); return; }
+    if (el.isContentEditable) { caretToEnd(el); insertLines(text); return; }
     var proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
     Object.getOwnPropertyDescriptor(proto.prototype, 'value').set
       .call(el, (el.value ? el.value + ' ' : '') + text);
@@ -278,7 +302,7 @@
     el.focus();
     if (el.isContentEditable) {
       document.execCommand('selectAll', false, null);
-      if (v) document.execCommand('insertText', false, v);
+      if (v) insertLines(v);
       else document.execCommand('delete', false, null);
       return;
     }

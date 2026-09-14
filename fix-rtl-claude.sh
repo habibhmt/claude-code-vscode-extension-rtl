@@ -164,6 +164,7 @@ table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;un
 td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
 [class*="messageInput_"],[class*="mentionMirror_"]{unicode-bidi:plaintext!important}
+[class*="messageInput_"],[class*="mentionMirror_"]{max-height:6em!important}
 '
 
 # RTL CSS with Vazirmatn font
@@ -175,6 +176,7 @@ table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;un
 td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
 [class*="messageInput_"],[class*="mentionMirror_"]{unicode-bidi:plaintext!important}
+[class*="messageInput_"],[class*="mentionMirror_"]{max-height:6em!important}
 '
 
 # Choose CSS based on font flag

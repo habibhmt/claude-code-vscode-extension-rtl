@@ -1,6 +1,6 @@
 #!/bin/bash
 # RTL + open-as-preview for the built-in Markdown preview, in every IDE.
-#  1. installs md-rtl-ext (a CSS-only extension: markdown.previewStyles) —
+#  1. installs md-rtl-ext (no activation code; previewStyles + previewScripts) —
 #     "markdown.styles" with an absolute path is refused by the preview webview
 #  2. maps *.md to the preview editor so a file opens already rendered
 # Called from fix-rtl-claude.sh; a run that changes nothing prints nothing.
@@ -11,16 +11,16 @@ EXT_ID="habib.markdown-rtl"
 command -v python3 >/dev/null 2>&1 || { echo "[WARN] md-preview: python3 not found"; exit 0; }
 
 # The installed copy is compared by content, so editing the CSS re-installs.
-SRC_HASH="$(cat "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" | shasum | cut -d' ' -f1)"
+SRC_HASH="$(cat "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$EXT_SRC/markdown-rtl.js" | shasum | cut -d' ' -f1)"
 
 build_vsix() {
     local out="$1" stage
     stage="$(mktemp -d)"
     mkdir -p "$stage/extension"
-    cp "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$stage/extension/"
+    cp "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$EXT_SRC/markdown-rtl.js" "$stage/extension/"
     cat > "$stage/[Content_Types].xml" <<'XML'
 <?xml version="1.0" encoding="utf-8"?>
-<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension=".json" ContentType="application/json"/><Default Extension=".css" ContentType="text/css"/><Default Extension=".vsixmanifest" ContentType="text/xml"/></Types>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension=".json" ContentType="application/json"/><Default Extension=".css" ContentType="text/css"/><Default Extension=".js" ContentType="application/javascript"/><Default Extension=".vsixmanifest" ContentType="text/xml"/></Types>
 XML
     cat > "$stage/extension.vsixmanifest" <<'XML'
 <?xml version="1.0" encoding="utf-8"?>
@@ -53,7 +53,7 @@ for row in "${IDES[@]}"; do
         have=""
         # the installer rewrites package.json (adds __metadata), so only the
         # installed CSS is compared, against the repo package.json
-        [ -n "$installed" ] && have="$(cat "$EXT_SRC/package.json" "$installed/markdown-rtl.css" 2>/dev/null | shasum | cut -d' ' -f1)"
+        [ -n "$installed" ] && have="$(cat "$EXT_SRC/package.json" "$installed/markdown-rtl.css" "$installed/markdown-rtl.js" 2>/dev/null | shasum | cut -d' ' -f1)"
         if [ "$have" != "$SRC_HASH" ]; then
             if [ -z "$VSIX" ]; then
                 VSIX="$(mktemp -d)/markdown-rtl.vsix"
@@ -98,4 +98,21 @@ PY
     esac
 done
 [ -n "$VSIX" ] && rm -rf "$(dirname "$VSIX")"
+
+# --- 3. Markdown Preview Enhanced ---------------------------------------------
+# MPE is kept alongside the built-in preview. Its user stylesheet is shared by
+# every IDE, so one marked block in style.less covers all of them.
+MPE_STYLE="$HOME/.local/state/crossnote/style.less"
+if compgen -G "$HOME/.*/extensions/shd101wyy.markdown-preview-enhanced-*" >/dev/null; then
+    mkdir -p "$(dirname "$MPE_STYLE")"; touch "$MPE_STYLE"
+    BEGIN="$(head -1 "$REPO_DIR/mpe-rtl.less")"; END="$(tail -1 "$REPO_DIR/mpe-rtl.less")"
+    current="$(awk -v b="$BEGIN" -v e="$END" '$0==b{f=1} f{print} $0==e{f=0}' "$MPE_STYLE")"
+    if [ "$current" != "$(cat "$REPO_DIR/mpe-rtl.less")" ]; then
+        tmp="$(mktemp)"
+        awk -v b="$BEGIN" -v e="$END" '$0==b{f=1;next} $0==e{f=0;next} !f' "$MPE_STYLE" > "$tmp"
+        cat "$REPO_DIR/mpe-rtl.less" >> "$tmp"
+        mv "$tmp" "$MPE_STYLE"
+        echo "[md-preview] MPE RTL style written"
+    fi
+fi
 exit 0

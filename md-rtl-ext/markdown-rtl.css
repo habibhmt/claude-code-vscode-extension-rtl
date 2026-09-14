@@ -1,20 +1,17 @@
-/* RTL for the built-in Markdown preview. Contributed via "markdown.previewStyles"; installed by
-   fix-rtl-md-preview.sh. The preview's body carries .vscode-body, not
-   .markdown-body (that one is GitHub's). */
+/* RTL for the built-in Markdown preview. Contributed via "markdown.previewStyles";
+   installed by fix-rtl-md-preview.sh. The preview's body carries .vscode-body,
+   not .markdown-body (that one is GitHub's). Per-block direction is set by
+   markdown-rtl.js as a dir attribute. */
 body.vscode-body {
   direction: rtl;
   font-family: 'Vazirmatn', 'Vazir', Tahoma, -apple-system, sans-serif;
 }
 
-/* Each block picks its direction from its own text, so English lines stay
-   left-aligned instead of being pushed right. */
-body.vscode-body :is(p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, dt, dd) {
-  unicode-bidi: plaintext;
-  text-align: start;
-}
+body.vscode-body [dir] { text-align: start; }
+body.vscode-body li[dir="rtl"], body.vscode-body ul, body.vscode-body ol { list-style-position: outside; }
 
-body.vscode-body :is(pre, code, .katex, .mermaid) {
+body.vscode-body :is(pre, .katex, .mermaid) {
   direction: ltr;
   text-align: left;
-  unicode-bidi: isolate;
 }
+body.vscode-body code { unicode-bidi: isolate; direction: ltr; }

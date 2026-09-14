@@ -1,0 +1,18 @@
+/* >>> fix-rtl-mpe */
+.markdown-preview.markdown-preview {
+  direction: rtl;
+  font-family: 'Vazirmatn', 'IranSans', -apple-system, 'Segoe UI', Tahoma, sans-serif;
+  // each paragraph picks its own direction: English lines stay left-aligned
+  p, li, h1, h2, h3, h4, h5, h6, td, th, blockquote, dt, dd {
+    unicode-bidi: plaintext;
+    text-align: start;
+  }
+  pre, code, .katex, .mermaid, svg {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+  }
+  ul, ol { padding-right: 2em; padding-left: 0; }
+  blockquote { border-left: none; border-right: 4px solid #ddd; }
+}
+/* <<< fix-rtl-mpe */

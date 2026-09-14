@@ -45,6 +45,10 @@ trap 'rmdir "$LOCK_DIR" 2>/dev/null; rm -rf "$TMP_DIR"' EXIT
 # index.css plus the buttons appended to index.js — so warn instead of dying.
 if command -v python3 >/dev/null 2>&1; then HAVE_PYTHON=true; else HAVE_PYTHON=false; fi
 
+# Built-in Markdown preview: RTL style + open .md as preview. Its own script so
+# a failure there never blocks the Claude Code patch.
+"$REPO_DIR/fix-rtl-md-preview.sh" || echo "[WARN] fix-rtl-md-preview.sh failed"
+
 # ============================================================
 #  تنظیمات اندازه — این عددها را خودت عوض کن و اسکریپت را دوباره اجرا کن
 # ============================================================

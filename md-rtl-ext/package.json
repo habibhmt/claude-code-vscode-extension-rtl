@@ -1,0 +1,12 @@
+{
+  "name": "markdown-rtl",
+  "displayName": "Markdown RTL (habib)",
+  "description": "RTL style for the built-in Markdown preview",
+  "version": "1.0.0",
+  "publisher": "habib",
+  "engines": { "vscode": "^1.60.0" },
+  "categories": ["Other"],
+  "contributes": {
+    "markdown.previewStyles": ["./markdown-rtl.css"]
+  }
+}

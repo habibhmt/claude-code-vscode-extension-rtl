@@ -18,6 +18,7 @@ fi
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
+HOST_HOOK_JS="$REPO_DIR/claude-host-hook.js"
 
 # Scratch space for the CSS handed to python. A private directory keeps the
 # predictable /tmp path out of everyone else's reach.
@@ -272,8 +273,18 @@ hash_stdin() {
 # One value that changes whenever the produced output would change. The seed
 # file is part of it: editing ~/.claude-rtl-sizes.json must not be skipped as
 # "nothing changed" the way it was before.
-stamp="$(printf '%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
-    "$(cat "$BUTTONS_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)" | hash_stdin)"
+# Variable glossary for the hover card, built from the shenasname files listed
+# in ~/.claude-rtl-glossary.json. Part of the stamp, so a new card re-patches.
+GLOSSARY_FILE="$TMP_DIR/glossary.json"
+if [ "$HAVE_PYTHON" = true ]; then
+    python3 "$REPO_DIR/build-glossary.py" > "$GLOSSARY_FILE" 2>>"$LOG_FILE" || echo '{}' > "$GLOSSARY_FILE"
+else
+    echo '{}' > "$GLOSSARY_FILE"
+fi
+
+stamp="$(printf '%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
+    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)" \
+    "$(cat "$GLOSSARY_FILE" 2>/dev/null)" | hash_stdin)"
 
 # The buttons live inline in extension.js; older runs also appended them to
 # index.js, so accept either as proof that a webview folder is patched.
@@ -322,7 +333,7 @@ patch_ide() {
                 # `|| py_ok=false` keeps `set -e` from killing the run mid-patch:
                 # a python failure must fall through to the rollback below.
                 py_ok=true
-                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_SIZES_FILE="$SIZES_FILE" python3 - <<'PYEOF' || py_ok=false
+                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_GLOSSARY_FILE="$GLOSSARY_FILE" python3 - <<'PYEOF' || py_ok=false
 import os, re
 css = open(os.environ['CRTL_CSS_FILE'], encoding='utf-8').read()
 path = os.environ['CRTL_EXT_JS']
@@ -352,6 +363,27 @@ if m:
             seed = 'window.__CRTL_DEFAULTS=' + json.dumps(json.load(open(sizes_file, encoding='utf-8'))) + ';'
         except Exception:
             seed = ''
+    # the IDE's own URL scheme (windsurf://, cursor://…): the glossary card opens
+    # a definition rendered through md-rtl-ext's handler at <scheme>://habib.markdown-rtl
+    import glob, json as _j
+    data_dir = path.split('/extensions/')[0].rsplit('/', 1)[-1]
+    scheme = ''
+    for prod in glob.glob('/Applications/*/Contents/Resources/app/product.json'):
+        try:
+            d = _j.load(open(prod, encoding='utf-8'))
+        except Exception:
+            continue
+        if d.get('dataFolderName') == data_dir and d.get('urlProtocol'):
+            scheme = d['urlProtocol']
+            break
+    seed += 'window.__CRTL_URL_SCHEME=' + _j.dumps(scheme) + ';'
+    gloss_file = os.environ.get('CRTL_GLOSSARY_FILE', '')
+    if gloss_file and os.path.exists(gloss_file):
+        try:
+            import json
+            seed += 'window.__CRTL_GLOSSARY=' + json.dumps(json.load(open(gloss_file, encoding='utf-8')), ensure_ascii=False) + ';'
+        except Exception:
+            pass
     n = re.search(r"script-src 'nonce-\$\{(\w+)\}'", src)
     if js_path and os.path.exists(js_path) and n:
         js = open(js_path, encoding='utf-8').read()
@@ -359,7 +391,13 @@ if m:
         # from a file the script does not control, and "</" outside a string
         # would be legal JS in the bundle itself
         block += '<script nonce="${' + n.group(1) + '}">' + esc_js(seed) + esc(js) + '</script>'
-    open(path, 'w', encoding='utf-8').write(src.replace(anchor, block, 1))
+    out = src.replace(anchor, block, 1)
+    # the host hook answers the aA panel's "which session am I" — it has to run
+    # before the bundle registers its webviews, so it goes at the very top
+    hook_path = os.environ.get('CRTL_HOST_HOOK_JS', '')
+    if hook_path and os.path.exists(hook_path):
+        out = open(hook_path, encoding='utf-8').read() + '\n' + out
+    open(path, 'w', encoding='utf-8').write(out)
 PYEOF
                 rm -f "$css_tmp"
                 if [ "$py_ok" = true ] && grep -q 'CLAUDE-RTL-UI-BUTTONS' "$ext_js" 2>/dev/null; then

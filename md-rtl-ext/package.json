@@ -17,5 +17,9 @@
     "markdown.previewScripts": [
       "./markdown-rtl.js"
     ]
-  }
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onUri"
+  ]
 }

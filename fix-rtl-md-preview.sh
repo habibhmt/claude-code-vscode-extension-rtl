@@ -1,6 +1,7 @@
 #!/bin/bash
 # RTL + open-as-preview for the built-in Markdown preview, in every IDE.
-#  1. installs md-rtl-ext (no activation code; previewStyles + previewScripts) —
+#  1. installs md-rtl-ext (previewStyles + previewScripts, and a URI handler that
+#     opens a file rendered at a given word/line for the chat glossary card) —
 #     "markdown.styles" with an absolute path is refused by the preview webview
 #  2. maps *.md to the preview editor so a file opens already rendered
 # Called from fix-rtl-claude.sh; a run that changes nothing prints nothing.
@@ -11,13 +12,13 @@ EXT_ID="habib.markdown-rtl"
 command -v python3 >/dev/null 2>&1 || { echo "[WARN] md-preview: python3 not found"; exit 0; }
 
 # The installed copy is compared by content, so editing the CSS re-installs.
-SRC_HASH="$(cat "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$EXT_SRC/markdown-rtl.js" | shasum | cut -d' ' -f1)"
+SRC_HASH="$(cat "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$EXT_SRC/markdown-rtl.js" "$EXT_SRC/extension.js" | shasum | cut -d' ' -f1)"
 
 build_vsix() {
     local out="$1" stage
     stage="$(mktemp -d)"
     mkdir -p "$stage/extension"
-    cp "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$EXT_SRC/markdown-rtl.js" "$stage/extension/"
+    cp "$EXT_SRC/package.json" "$EXT_SRC/markdown-rtl.css" "$EXT_SRC/markdown-rtl.js" "$EXT_SRC/extension.js" "$stage/extension/"
     cat > "$stage/[Content_Types].xml" <<'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension=".json" ContentType="application/json"/><Default Extension=".css" ContentType="text/css"/><Default Extension=".js" ContentType="application/javascript"/><Default Extension=".vsixmanifest" ContentType="text/xml"/></Types>
@@ -53,7 +54,7 @@ for row in "${IDES[@]}"; do
         have=""
         # the installer rewrites package.json (adds __metadata), so only the
         # installed CSS is compared, against the repo package.json
-        [ -n "$installed" ] && have="$(cat "$EXT_SRC/package.json" "$installed/markdown-rtl.css" "$installed/markdown-rtl.js" 2>/dev/null | shasum | cut -d' ' -f1)"
+        [ -n "$installed" ] && have="$(cat "$EXT_SRC/package.json" "$installed/markdown-rtl.css" "$installed/markdown-rtl.js" "$installed/extension.js" 2>/dev/null | shasum | cut -d' ' -f1)"
         if [ "$have" != "$SRC_HASH" ]; then
             if [ -z "$VSIX" ]; then
                 VSIX="$(mktemp -d)/markdown-rtl.vsix"

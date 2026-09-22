@@ -15,3 +15,9 @@ body.vscode-body :is(pre, .katex, .mermaid) {
   text-align: left;
 }
 body.vscode-body code { unicode-bidi: isolate; direction: ltr; }
+/* the line the editor cursor is on (the glossary card jumps there) */
+body.vscode-body .code-active-line {
+  background: rgba(232, 163, 61, .18);
+  outline: 1px solid rgba(232, 163, 61, .55);
+  border-radius: 3px;
+}

@@ -21,6 +21,60 @@
   // like from the outside.
   var ERRORS = [];
   window.__crtlLoaded = (window.__crtlLoaded || 0) + 1;
+
+  // acquireVsCodeApi() may be called only once per webview, and the app calls
+  // it. This inline script runs before the app's module, so wrap it and keep
+  // the handle: the glossary card uses it to ask the IDE to open a file.
+  if (typeof window.acquireVsCodeApi === 'function' && !window.acquireVsCodeApi.__crtl) {
+    var origAcquire = window.acquireVsCodeApi, vsApi = null;
+    window.acquireVsCodeApi = function () { return vsApi || (vsApi = origAcquire()); };
+    window.acquireVsCodeApi.__crtl = true;
+  }
+  /* ---------------- this chat's session name ---------------- */
+  // The CLI's own messages carry session_id; the latest one seen is this tab's
+  // session (it changes after /clear or a resume, hence "latest"). The host
+  // hook (claude-host-hook.js) turns it into the short name and the title.
+  var SESSION = { sid: '', name: '', title: '', pending: false };
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'crtl-session-info') {
+      if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.pending = !!d.pending; paintSession(); }
+      return;
+    }
+    var m = d.type === 'from-extension' && d.message;
+    var io = m && m.type === 'io_message' && m.message;
+    var sid = io && (io.session_id || io.sessionId);
+    if (typeof sid === 'string' && /^[0-9a-f-]{36}$/.test(sid)) SESSION.sid = sid;
+  });
+  // Right after a reload no CLI message has arrived yet, but the app keeps
+  // its own sessionID in the tab's vscode state — read it, never write it.
+  // vsApi exists only once the app has called acquireVsCodeApi; calling it
+  // here first would change the app's start-up order.
+  function sidFromState() {
+    try {
+      var st = vsApi && vsApi.getState ? vsApi.getState() : null;
+      var sid = st && st.sessionID;
+      return typeof sid === 'string' && /^[0-9a-f-]{36}$/.test(sid) ? sid : '';
+    } catch (e) { return ''; }
+  }
+  function askSession() {
+    if (!SESSION.sid) SESSION.sid = sidFromState();
+    SESSION.name = ''; SESSION.title = ''; SESSION.pending = true;
+    paintSession();
+    var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+    if (api && SESSION.sid) api.postMessage({ type: 'crtl-session-info', sid: SESSION.sid });
+  }
+  function paintSession() {
+    [['crtl-sess-title', SESSION.title], ['crtl-sess-name', SESSION.name], ['crtl-sess-id', SESSION.sid]].forEach(function (f) {
+      var el = document.getElementById(f[0]);
+      if (!el) return;
+      el.textContent = f[1] || (SESSION.sid && SESSION.pending ? 'در حال خواندن…' : 'نامشخص');
+      el.dataset.v = f[1] || '';
+      el.title = f[1] || '';
+    });
+  }
+
   window.addEventListener('error', function (e) {
     ERRORS.push((e.message || 'error') + ' @ ' + (e.filename || '?') + ':' + (e.lineno || '?'));
     if (ERRORS.length > 6) ERRORS.shift();
@@ -527,6 +581,178 @@
 
   // Escape closes the find bar first, then the settings panel — the panel used
   // to have no way out except the aA button, which is easy to lose.
+  /* ---------------- variable glossary on hover ---------------- */
+  // window.__CRTL_GLOSSARY is baked in by fix-rtl-claude.sh from each
+  // project's shenasname file ({name: [card, ...]}). Known names in the chat
+  // get a dotted underline; resting on one for GLOSS_DELAY ms opens its card.
+  // A new card shows up after the patch re-runs and the window reloads.
+  var GLOSS_DELAY = 600;
+  function wireGlossary() {
+    var G = window.__CRTL_GLOSSARY;
+    if (!G || document.__crtlGlossWired) return;
+    document.__crtlGlossWired = true;
+    var names = Object.keys(G);
+    if (!names.length) return;
+    // `_` counts as part of a word so post_buy_gate never lights up inside post_buy_gate_1_s
+    var RE = new RegExp('(^|[^A-Za-z0-9_])(' + names.sort(function (a, b) { return b.length - a.length; }).join('|') + ')(?![A-Za-z0-9_])', 'g');
+    var WORD = /[A-Za-z0-9_]/;
+    var SKIP = 'pre,textarea,input,script,style,#crtl-gloss,#crtl-panel,[class*="messageInputContainer_"],[contenteditable="true"]';
+
+    // INVARIANT — never add, remove or replace a node inside the chat. The
+    // messages are React's; rewriting a text node to wrap a match in a <span>
+    // made React lose track of its own children and the whole panel died with
+    // "Failed to execute 'insertBefore' on 'Node'". The underline is painted
+    // with the Highlight API, which takes ranges and leaves the DOM alone.
+    // window.CSS, not CSS: this file already has its own `CSS` (the panel's
+    // stylesheet string), which silently shadowed the browser's namespace
+    var HLS = window.CSS && window.CSS.highlights;
+    var HL = HLS ? new Highlight() : null;
+    var HL_PEND = HLS ? new Highlight() : null;
+    if (HL) { HLS.set('crtl-var', HL); HLS.set('crtl-var-pending', HL_PEND); }
+
+    function pending(name) {
+      return G[name].every(function (e) { return /پیشنهاد/.test(e.tayid || ''); });
+    }
+    function scan() {
+      queued = false;
+      if (!HL) return;
+      HL.clear(); HL_PEND.clear();
+      document.querySelectorAll('[class*="messagesContainer_"]').forEach(function (root) {
+        var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n;
+        while ((n = w.nextNode())) {
+          if (!n.nodeValue || n.nodeValue.length < 3) continue;
+          var p = n.parentElement;
+          if (!p || (p.closest && p.closest(SKIP))) continue;
+          var m; RE.lastIndex = 0;
+          while ((m = RE.exec(n.nodeValue))) {
+            var at = m.index + m[1].length;
+            var r = document.createRange();
+            r.setStart(n, at); r.setEnd(n, at + m[2].length);
+            (pending(m[2]) ? HL_PEND : HL).add(r);
+          }
+        }
+      });
+    }
+    var queued = false;
+    new MutationObserver(function () {
+      if (!queued) { queued = true; setTimeout(scan, 400); }
+    }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    scan();
+
+    // which variable, if any, sits under the pointer — read from the caret
+    // position, so no marker element has to exist in the page
+    function varAt(x, y) {
+      var pos = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
+      if (!pos || pos.startContainer.nodeType !== 3) return null;
+      var t = pos.startContainer, s = t.nodeValue || '', i = pos.startOffset;
+      var p = t.parentElement;
+      if (!p || !p.closest('[class*="messagesContainer_"]') || p.closest(SKIP)) return null;
+      var a = i, b = i;
+      while (a > 0 && WORD.test(s.charAt(a - 1))) a--;
+      while (b < s.length && WORD.test(s.charAt(b))) b++;
+      var word = s.slice(a, b);
+      if (!G[word]) return null;
+      var r = document.createRange();
+      r.setStart(t, a); r.setEnd(t, b);
+      return { name: word, rect: r.getBoundingClientRect() };
+    }
+
+    var st = document.createElement('style');
+    st.textContent =
+      '::highlight(crtl-var){text-decoration:underline dotted 1px;text-underline-offset:3px;text-decoration-color:var(--vscode-textLink-foreground,#4aa3ff)}' +
+      '::highlight(crtl-var-pending){text-decoration:underline dotted 1px;text-underline-offset:3px;text-decoration-color:#e8a33d}' +
+      '#crtl-gloss{position:fixed;z-index:99999;max-width:460px;max-height:60vh;overflow:auto;direction:rtl;text-align:right;' +
+      'background:var(--vscode-editorHoverWidget-background,#252526);color:var(--vscode-editorHoverWidget-foreground,#ddd);' +
+      'border:1px solid var(--vscode-editorHoverWidget-border,#555);border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.6;box-shadow:0 4px 16px rgba(0,0,0,.4)}' +
+      '#crtl-gloss .h{font-weight:bold;direction:ltr;text-align:left;font-family:monospace}' +
+      '#crtl-gloss .r{margin-top:4px}#crtl-gloss .k{opacity:.6}' +
+      '#crtl-gloss .l{direction:ltr;text-align:left;font-family:monospace;font-size:11px;opacity:.85}' +
+      '#crtl-gloss a{color:var(--vscode-textLink-foreground,#4aa3ff);text-decoration:none;cursor:pointer}#crtl-gloss a:hover{text-decoration:underline}#crtl-gloss .pend{color:#e8a33d}#crtl-gloss hr{border:0;border-top:1px solid rgba(127,127,127,.3);margin:6px 0}';
+    document.head.appendChild(st);
+
+    var box = null, timer = null, hideT = null, cur = null;
+    function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function row(k, v, cls) { return v ? '<div class="r"><span class="k">' + k + ':</span> <span class="' + (cls || '') + '">' + v + '</span></div>' : ''; }
+    function render(name) {
+      return G[name].map(function (e) {
+        var h = '<div class="h">' + esc(name) + '  <span class="k">(' + esc(e.p) + ')</span></div>';
+        h += row('یعنی', esc(e.yani));
+        if (e.val) h += row('مقدار فعلی در برگه', '<span dir="ltr">' + esc(e.val.v) + '</span>');
+        h += row('نویسنده', esc(e.ozv));
+        if (e.kh && e.kh.length) h += row('خواننده‌ها', esc(e.kh.join('، ')));
+        h += row('چرا', esc(e.chera));
+        h += row('تأیید', esc(e.tayid), /پیشنهاد/.test(e.tayid || '') ? 'pend' : '');
+        // "maghz/maghz.py:61,124" ⇒ a link that opens the file at line 61
+        if (e.loc && e.loc.length) h += '<div class="r"><span class="k">فایل:خط</span>' + e.loc.map(function (l) {
+          var m = /^(.*?):(\d+)/.exec(l), f = m ? m[1] : l;
+          return '<div class="l"><a href="#" data-f="' + esc(e.root + '/' + f) + '"' + (m ? ' data-line="' + m[2] + '"' : '') + '>' + esc(l) + '</a></div>';
+        }).join('') + '</div>';
+        // a definition file opens at the first place that names this variable
+        if (e.tarif && e.tarif.length) h += '<div class="r"><span class="k">تعریف کامل</span>' + e.tarif.map(function (t) {
+          return t.charAt(0) === '/'
+            ? '<div class="l"><a href="#" data-f="' + esc(t) + '" data-s="' + esc(name) + '">' + esc(t.split('/').pop()) + '</a></div>'
+            : '<div class="l">' + esc(t) + '</div>';
+        }).join('') + '</div>';
+        return h;
+      }).join('<hr>');
+    }
+    function show(hit) {
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'crtl-gloss';
+        box.addEventListener('mouseenter', function () { clearTimeout(hideT); });
+        box.addEventListener('mouseleave', hide);
+        box.addEventListener('click', function (ev) {
+          var a = ev.target.closest && ev.target.closest('a[data-f]');
+          if (!a) return;
+          ev.preventDefault();
+          var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+          if (!api) { ERRORS.push('glossary: no IDE handle to open ' + a.dataset.f); return; }
+          var req;
+          if (/\.md$/i.test(a.dataset.f) && window.__CRTL_URL_SCHEME) {
+            // a definition opens rendered, at the line naming this variable —
+            // md-rtl-ext's URI handler does that; open_file only shows the source
+            req = { type: 'open_url', url: window.__CRTL_URL_SCHEME + '://habib.markdown-rtl/open?file=' +
+              encodeURIComponent(a.dataset.f) + '&text=' + encodeURIComponent(a.dataset.s || '') +
+              (a.dataset.line ? '&line=' + a.dataset.line : '') };
+          } else {
+            var loc = a.dataset.line ? { startLine: +a.dataset.line } : (a.dataset.s ? { searchText: a.dataset.s } : undefined);
+            // the same request the chat's own file links send
+            req = { type: 'open_file', filePath: a.dataset.f, location: loc };
+          }
+          api.postMessage({ type: 'request', channelId: '', requestId: 'crtl-' + Date.now(), request: req });
+        });
+        document.body.appendChild(box);
+      }
+      box.innerHTML = render(hit.name);
+      box.style.display = 'block';
+      var r = hit.rect, bw = box.offsetWidth, bh = box.offsetHeight;
+      var top = r.bottom + 4;
+      if (top + bh > window.innerHeight - 4) top = Math.max(4, r.top - bh - 4);
+      box.style.top = top + 'px';
+      box.style.left = Math.max(4, Math.min(r.left, window.innerWidth - bw - 4)) + 'px';
+    }
+    function hide() {
+      clearTimeout(hideT);
+      hideT = setTimeout(function () { if (box) box.style.display = 'none'; cur = null; }, 200);
+    }
+    // the pointer is tracked instead of a hover on a marker element, because
+    // there is no marker element any more
+    document.addEventListener('mousemove', function (e) {
+      if (e.target.closest && e.target.closest('#crtl-gloss')) { clearTimeout(timer); return; }
+      var hit = varAt(e.clientX, e.clientY);
+      var name = hit && hit.name;
+      if (name === cur) return;
+      clearTimeout(timer);
+      cur = name;
+      if (hit) {
+        timer = setTimeout(function () { clearTimeout(hideT); show(hit); }, GLOSS_DELAY);
+      } else if (box && box.style.display === 'block') {
+        hide();
+      }
+    }, true);
+  }
+
   function wirePanelDismiss() {
     if (document.__crtlDismissWired) return;
     document.__crtlDismissWired = true;
@@ -984,6 +1210,36 @@
       applyCss(cur);
     }
 
+    // this chat's names — re-read every time the panel opens
+    [['اسم چت', 'crtl-sess-title', 'title'], ['اسم کوچک', 'crtl-sess-name', 'name'], ['کد سشن', 'crtl-sess-id', 'sid']].forEach(function (f) {
+      var val = document.createElement('span');
+      val.id = f[1];
+      val.dataset.v = SESSION[f[2]] || '';
+      val.textContent = SESSION[f[2]] || 'نامشخص';
+      val.title = SESSION[f[2]] || '';
+      val.className = 'crtl-note';
+      // one line, as much as fits; the copy button always gives the full value
+      val.style.cssText = 'flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:text' +
+        (f[2] === 'title' ? '' : ';direction:ltr');
+      if (f[2] === 'title') val.dir = 'auto';
+      var wrap = document.createElement('div');
+      wrap.className = 'crtl-actions';
+      // min-width:0 on this box too, or a long value widens it and pushes the
+      // copy button out of the panel instead of being cut with "…"
+      wrap.style.cssText = 'flex:1;min-width:0;gap:6px';
+      wrap.appendChild(val);
+      var cp = btn('کپی', 'کپی ' + f[0], function () {
+        var v = val.dataset.v;
+        if (!v) return;
+        copyText(v, function () { cp.textContent = '✓'; setTimeout(function () { cp.textContent = 'کپی'; }, 1200); },
+          function () { cp.textContent = '✗'; setTimeout(function () { cp.textContent = 'کپی'; }, 1200); });
+      });
+      cp.style.flex = 'none';
+      wrap.appendChild(cp);
+      panel.appendChild(row(f[0], wrap));
+    });
+    panel.appendChild(document.createElement('div')).className = 'crtl-sep';
+
     // presets
     var presetRow = document.createElement('div');
     presetRow.className = 'crtl-actions';
@@ -1291,6 +1547,7 @@
       var p = document.getElementById('crtl-panel');
       if (!p) return;
       p.classList.toggle('crtl-open');
+      if (p.classList.contains('crtl-open')) askSession(); else paintSession();
       syncPanelRoom(p);
     }));
     document.body.appendChild(wrap);
@@ -1327,6 +1584,7 @@
     wireBlocks();
     wireQuoteMenu();
     wireFindEscape();
+    guard('glossary', wireGlossary)();
     wirePanelDismiss();
     rerender();
 

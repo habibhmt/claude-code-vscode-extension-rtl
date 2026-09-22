@@ -20,6 +20,11 @@
         <string>/Users/habib/.windsurf/extensions</string>
         <string>/Users/habib/.windsurf-next/extensions</string>
         <string>/Users/habib/.devin/extensions</string>
+        <!-- glossary sources (~/.claude-rtl-glossary.json) -->
+        <string>/Users/habib/.claude-rtl-glossary.json</string>
+        <string>/Users/habib/1-MY-WORK/91th-minimal-2/doc/shenasname_motaghayerha.toml</string>
+        <string>/Users/habib/1-MY-WORK/91th-minimal-2/doc/vazhename_takhte.md</string>
+        <string>/Users/habib/1-MY-WORK/91th-minimal-2/barge/barge.toml</string>
     </array>
 
     <key>ThrottleInterval</key>

@@ -119,9 +119,11 @@
     profiles: {},      // { name: settings snapshot }
     counter: true,     // show the composer character counter
     quoteMenu: true,   // right-click a selection to quote it into the composer
-    extraText: '',     // custom text glued on by "copy with extra text"
-    extraPos: 'end',   // start | end — where that text goes
-    extraOnCopyBtn: false // also glue it on with the copy button under each reply
+    // ready texts glued on by "copy with extra text": [{ text, on, pos, btn }]
+    // on = ticked · pos = 'start' | 'end' · btn = also on the copy button
+    // under a reply. List order decides who goes first.
+    extras: [],
+    extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by load()
   };
   var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], lh: [11, 24] };
   var PRESETS = {
@@ -161,6 +163,15 @@
     // patch run. A local profile with the same name still wins.
     var shared = (DEF.profiles && typeof DEF.profiles === 'object') ? DEF.profiles : {};
     s.profiles = Object.assign({}, shared, s.profiles);
+    if (!Array.isArray(s.extras)) s.extras = [];
+    // the old single text (also from an older settings file pasted into
+    // «اعمال») becomes one ticked row, unless that text is already listed
+    var old = String(s.extraText || '').trim();
+    if (old) {
+      if (!s.extras.some(function (x) { return x && String(x.text || '').trim() === old; }))
+        s.extras.push({ text: old, on: true, pos: s.extraPos === 'start' ? 'start' : 'end', btn: !!s.extraOnCopyBtn });
+      s.extraText = '';
+    }
     return s;
   }
   function sharedProfileNames() {
@@ -791,10 +802,17 @@
   }
 
   // the text from the aA panel, glued before or after — a blank line between
-  function withExtra(text) {
-    var s = load(), extra = String(s.extraText || '').trim();
-    if (!extra) return text;
-    return s.extraPos === 'start' ? extra + '\n\n' + text : text + '\n\n' + extra;
+  // from = 'menu' (right-click: every ticked text) or 'btn' (the copy button
+  // under a reply: only ticked texts that also have their 📋 on)
+  function withExtra(text, from) {
+    var list = (load().extras || []).filter(function (x) {
+      return x && x.on && String(x.text || '').trim() && (from !== 'btn' || x.btn);
+    });
+    var pick = function (start) {
+      return list.filter(function (x) { return (x.pos === 'start') === start; })
+                 .map(function (x) { return String(x.text).trim(); });
+    };
+    return pick(true).concat([text], pick(false)).join('\n\n');
   }
 
   // The copy button under a reply is the app's own: a click, then
@@ -813,7 +831,7 @@
     var wrapped = function (t) {
       var hit = Date.now() < armedUntil;
       armedUntil = 0;
-      if (hit && typeof t === 'string' && load().extraOnCopyBtn) t = withExtra(t);
+      if (hit && typeof t === 'string') t = withExtra(t, 'btn');
       return orig(t);
     };
     wrapped.__crtl = true;
@@ -887,7 +905,7 @@
       var short = text.length > 30 ? text.slice(0, 30) + '…' : text;
 
       [
-        ['⧉ کپی با الصاق متن ویژه', function () { copyText(withExtra(text)); }],
+        ['⧉ کپی با الصاق متن ویژه', function () { copyText(withExtra(text, 'menu')); }],
         ['↩︎ نقل‌قول در چت', function () { quoteInto(text, true); }],
         ['✎ بدون علامت نقل‌قول', function () { quoteInto(text, false); }],
         ['⧉ کپی', function () { copyText(text); }],
@@ -1117,7 +1135,7 @@
              tableScroll: cur.tableScroll, accent: cur.accent,
              textColor: cur.textColor, lh: cur.lh,
              opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
-             extraText: cur.extraText, extraPos: cur.extraPos, extraOnCopyBtn: cur.extraOnCopyBtn,
+             extras: cur.extras,
              profiles: cur.profiles, commands: cur.commands };
   }
 
@@ -1473,31 +1491,103 @@
       }));
     panel.appendChild(tools);
 
-    // custom text for "copy with extra text" in the right-click menu
-    var extra = document.createElement('textarea');
-    extra.rows = 2;
-    extra.dir = 'auto';
-    extra.placeholder = 'متن ویژه — با «کپی با الصاق متن ویژه» در راست‌کلیک به متن کپی‌شده می‌چسبد';
-    extra.value = s.extraText || '';
-    extra.style.cssText = 'flex:1;min-width:0;resize:vertical;background:rgba(127,127,127,.15);' +
-      'border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:2px 4px;font:inherit';
-    extra.addEventListener('input', function () { var cur = load(); cur.extraText = extra.value; save(cur); });
-    var extraWrap = document.createElement('div');
-    extraWrap.className = 'crtl-actions';
-    extraWrap.style.cssText = 'flex:1;min-width:0;gap:6px';
-    extraWrap.appendChild(extra);
-    var posBtn = btn(s.extraPos === 'start' ? 'اول متن' : 'آخر متن', 'جای متن ویژه: اول یا آخر متن کپی‌شده', function () {
-      var cur = load(); cur.extraPos = cur.extraPos === 'start' ? 'end' : 'start'; save(cur); rerender();
-    });
-    posBtn.style.flex = 'none';
-    extraWrap.appendChild(posBtn);
-    var onBtn = btn(s.extraOnCopyBtn ? '☑ دکمهٔ کپی' : '☐ دکمهٔ کپی',
-      'دکمهٔ کپی زیر هر جواب هم متن ویژه را بچسباند یا نه', function () {
-        var cur = load(); cur.extraOnCopyBtn = !cur.extraOnCopyBtn; save(cur); rerender();
+    // ready texts for "copy with extra text". Only this box is rebuilt on a
+    // change — rebuilding the whole panel while typing would steal the caret.
+    var exHead = document.createElement('div');
+    exHead.className = 'crtl-note';
+    exHead.textContent = 'متن‌های ویژه — تیک بزن کدام‌ها بچسبند (بالاتری جلوتر)';
+    panel.appendChild(exHead);
+    var exBox = document.createElement('div');
+    exBox.id = 'crtl-extras';
+    exBox.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0';
+    panel.appendChild(exBox);
+    var exEdit = null;   // null | row index | 'new'
+    function exSave(list) { var cur = load(); cur.extras = list; save(cur); }
+    function exMini(label, title, on) {
+      var b = btn(label, title, on);
+      b.style.cssText = 'flex:none;padding:0 3px;min-width:0;font-size:.85em;line-height:1.5';
+      return b;
+    }
+    function paintExtras() {
+      var list = load().extras;
+      exBox.textContent = '';
+      list.forEach(function (x, k) {
+        if (exEdit === k) return exBox.appendChild(exEditor(x.text, k));
+        var r = document.createElement('div');
+        r.style.cssText = 'display:flex;align-items:center;gap:2px;min-width:0;white-space:nowrap';
+        var cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!x.on;
+        cb.title = 'این متن بچسبد؟';
+        cb.style.cssText = 'flex:none;margin:0 2px';
+        cb.addEventListener('change', function () { list[k].on = cb.checked; exSave(list); });
+        var t = document.createElement('span');
+        t.textContent = String(x.text).replace(/\s+/g, ' ');
+        t.title = x.text;
+        t.dir = 'auto';
+        t.style.cssText = 'flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+        r.appendChild(cb);
+        r.appendChild(t);
+        r.appendChild(exMini(x.pos === 'start' ? 'اول' : 'آخر', 'اول یا آخر متن کپی‌شده', function () {
+          list[k].pos = x.pos === 'start' ? 'end' : 'start'; exSave(list); paintExtras();
+        }));
+        var cp = exMini('📋', 'دکمهٔ کپی زیر هر جواب هم این متن را بچسباند — ' + (x.btn ? 'روشن' : 'خاموش'), function () {
+          list[k].btn = !x.btn; exSave(list); paintExtras();
+        });
+        if (!x.btn) cp.style.opacity = '.35';
+        r.appendChild(cp);
+        r.appendChild(exMini('↑', 'بالاتر', function () {
+          if (k === 0) return;
+          var m = list.splice(k, 1)[0]; list.splice(k - 1, 0, m); exSave(list); paintExtras();
+        }));
+        r.appendChild(exMini('↓', 'پایین‌تر', function () {
+          if (k === list.length - 1) return;
+          var m = list.splice(k, 1)[0]; list.splice(k + 1, 0, m); exSave(list); paintExtras();
+        }));
+        r.appendChild(exMini('✎', 'ویرایش', function () { exEdit = k; paintExtras(); }));
+        // two clicks to delete: confirm() is blocked inside the webview
+        var del = exMini('✕', 'حذف — دو بار بزن', function () {
+          if (del.dataset.arm) { list.splice(k, 1); exSave(list); paintExtras(); return; }
+          del.dataset.arm = '1'; del.textContent = 'پاک؟';
+          setTimeout(function () { if (del.isConnected) { delete del.dataset.arm; del.textContent = '✕'; } }, 3000);
+        });
+        r.appendChild(del);
+        exBox.appendChild(r);
       });
-    onBtn.style.flex = 'none';
-    extraWrap.appendChild(onBtn);
-    panel.appendChild(row('متن ویژه', extraWrap));
+      if (exEdit === 'new') exBox.appendChild(exEditor('', 'new'));
+      else {
+        var add = exMini('+ افزودن', 'یک متن ویژهٔ تازه', function () { exEdit = 'new'; paintExtras(); });
+        add.style.alignSelf = 'flex-start';
+        exBox.appendChild(add);
+      }
+    }
+    function exEditor(value, k) {
+      var w = document.createElement('div');
+      w.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0';
+      var ta = document.createElement('textarea');
+      ta.rows = 3;
+      ta.dir = 'auto';
+      ta.value = value;
+      ta.placeholder = 'متن ویژه — می‌تواند چندخطی باشد';
+      ta.style.cssText = 'width:100%;box-sizing:border-box;resize:vertical;background:rgba(127,127,127,.15);' +
+        'border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:2px 4px;font:inherit';
+      var bar = document.createElement('div');
+      bar.style.cssText = 'display:flex;gap:4px';
+      bar.appendChild(exMini('ذخیره', 'ذخیره', function () {
+        var v = ta.value.trim();
+        if (!v) { ta.focus(); return; }
+        var list = load().extras;
+        if (k === 'new') list.push({ text: v, on: true, pos: 'end', btn: false });
+        else list[k].text = v;
+        exSave(list); exEdit = null; paintExtras();
+      }));
+      bar.appendChild(exMini('لغو', 'لغو', function () { exEdit = null; paintExtras(); }));
+      w.appendChild(ta);
+      w.appendChild(bar);
+      setTimeout(function () { ta.focus(); }, 0);
+      return w;
+    }
+    paintExtras();
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // command list editor. Every toggle in this panel rebuilds it from scratch,

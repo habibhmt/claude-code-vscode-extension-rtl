@@ -118,7 +118,9 @@
     opacity: 65,       // resting opacity of the buttons, in percent
     profiles: {},      // { name: settings snapshot }
     counter: true,     // show the composer character counter
-    quoteMenu: true    // right-click a selection to quote it into the composer
+    quoteMenu: true,   // right-click a selection to quote it into the composer
+    extraText: '',     // custom text glued on by "copy with extra text"
+    extraPos: 'end'    // start | end — where that text goes
   };
   var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], lh: [11, 24] };
   var PRESETS = {
@@ -787,6 +789,13 @@
     for (var i = 0; i < m.length; i++) m[i].classList.remove('crtl-hit');
   }
 
+  // the text from the aA panel, glued before or after — a blank line between
+  function withExtra(text) {
+    var s = load(), extra = String(s.extraText || '').trim();
+    if (!extra) return text;
+    return s.extraPos === 'start' ? extra + '\n\n' + text : text + '\n\n' + extra;
+  }
+
   /* ---------------- copy the conversation ---------------- */
   function copyConversation() {
     var root = document.querySelector('[class*="messagesContainer_"]');
@@ -854,6 +863,7 @@
       var short = text.length > 30 ? text.slice(0, 30) + '…' : text;
 
       [
+        ['⧉ کپی با الصاق متن ویژه', function () { copyText(withExtra(text)); }],
         ['↩︎ نقل‌قول در چت', function () { quoteInto(text, true); }],
         ['✎ بدون علامت نقل‌قول', function () { quoteInto(text, false); }],
         ['⧉ کپی', function () { copyText(text); }],
@@ -1083,6 +1093,7 @@
              tableScroll: cur.tableScroll, accent: cur.accent,
              textColor: cur.textColor, lh: cur.lh,
              opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
+             extraText: cur.extraText, extraPos: cur.extraPos,
              profiles: cur.profiles, commands: cur.commands };
   }
 
@@ -1437,6 +1448,26 @@
         var cur = load(); cur.counter = !cur.counter; save(cur); rerender();
       }));
     panel.appendChild(tools);
+
+    // custom text for "copy with extra text" in the right-click menu
+    var extra = document.createElement('textarea');
+    extra.rows = 2;
+    extra.dir = 'auto';
+    extra.placeholder = 'متن ویژه — با «کپی با الصاق متن ویژه» در راست‌کلیک به متن کپی‌شده می‌چسبد';
+    extra.value = s.extraText || '';
+    extra.style.cssText = 'flex:1;min-width:0;resize:vertical;background:rgba(127,127,127,.15);' +
+      'border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:2px 4px;font:inherit';
+    extra.addEventListener('input', function () { var cur = load(); cur.extraText = extra.value; save(cur); });
+    var extraWrap = document.createElement('div');
+    extraWrap.className = 'crtl-actions';
+    extraWrap.style.cssText = 'flex:1;min-width:0;gap:6px';
+    extraWrap.appendChild(extra);
+    var posBtn = btn(s.extraPos === 'start' ? 'اول متن' : 'آخر متن', 'جای متن ویژه: اول یا آخر متن کپی‌شده', function () {
+      var cur = load(); cur.extraPos = cur.extraPos === 'start' ? 'end' : 'start'; save(cur); rerender();
+    });
+    posBtn.style.flex = 'none';
+    extraWrap.appendChild(posBtn);
+    panel.appendChild(row('متن ویژه', extraWrap));
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // command list editor. Every toggle in this panel rebuilds it from scratch,

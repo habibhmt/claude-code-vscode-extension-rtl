@@ -147,6 +147,7 @@ can be tuned live without touching any file. Click **`aA`** at the bottom edge.
 | پروفایل | save the current settings under a name and switch between them |
 | جست‌وجو | find text in the conversation and step through hits — `Ctrl+Alt+F` |
 | کپی گفتگو | copy the whole conversation as Markdown |
+| متن ویژه | a text box plus «اول متن / آخر متن»; the first right-click item «کپی با الصاق متن ویژه» copies the selection with that text glued before or after it, one blank line between |
 | کپی همه | copy this chat's identity in one go; the first line is a ready `SendMessage to: "<title> [ref]"` that an agent on another device can use over Remote Control. The ref is sha256("bridge-session:<bridgeSessionId>")[:6] and survives a resume; with Remote Control off it says so instead of a code |
 | `sel` | push the editor's current selection into the chat |
 | شمارنده | character count of the composer, plus the app's own usage line when it renders one |

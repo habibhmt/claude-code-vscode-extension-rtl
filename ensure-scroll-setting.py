@@ -22,6 +22,12 @@ import sys
 KEY = "claudeCode.scrollToBottomOnSend"
 APPS = ["Code", "Cursor", "Windsurf", "Devin"]
 STRING = re.compile(r'"(?:\\.|[^"\\])*"')
+# a string, or a comment; comments are dropped, strings kept, so a "//" in a URL survives
+TOKEN = re.compile(r'"(?:\\.|[^"\\])*"|//[^\n]*|/\*.*?\*/', re.S)
+
+
+def without_comments(text):
+    return TOKEN.sub(lambda m: m.group(0) if m.group(0).startswith('"') else "", text)
 
 
 def default_root():
@@ -34,7 +40,8 @@ def ensure(path):
     """Return one of: 'added', 'present', 'comment', 'broken'."""
     with open(path, encoding="utf-8") as f:
         text = f.read()
-    if re.search(r'"' + re.escape(KEY) + r'"\s*:', text):
+    # a key that is only commented out is not set — look past comments
+    if re.search(r'"' + re.escape(KEY) + r'"\s*:', without_comments(text)):
         return "present"
     end = text.rfind("}")
     if end < 0:

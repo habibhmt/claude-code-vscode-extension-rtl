@@ -6,22 +6,61 @@
 // guess by folder, because two chats often share one folder.
 (function () {
   try {
-    var vscode = require('vscode'), fs = require('fs'), path = require('path'), os = require('os');
+    var fs = require('fs'), path = require('path'), os = require('os'), crypto = require('crypto');
     var HOME = path.join(os.homedir(), '.claude');
 
-    function shortName(sid) {
+    // This chat's row in ~/.claude/sessions. Read fresh every time: the remote
+    // id is only trusted while it is in the file right now — a stale one would
+    // put a confident, wrong address on the clipboard.
+    function sessionRecord(sid) {
       var dir = path.join(HOME, 'sessions');
       var files = [];
-      try { files = fs.readdirSync(dir); } catch (e) { return ''; }
+      try { files = fs.readdirSync(dir); } catch (e) { return {}; }
       for (var i = 0; i < files.length; i++) {
         if (!/\.json$/.test(files[i])) continue;
         try {
           var d = JSON.parse(fs.readFileSync(path.join(dir, files[i]), 'utf8'));
-          if (d.sessionId === sid) return d.name || '';
+          if (d.sessionId === sid) return d;
         } catch (e) {}
       }
-      return '';
+      return {};
     }
+
+    // The [ref] ListAgents prints: first 6 hex of sha256("<kind>:<id>"), as in
+    // Claude Code 2.1.280. On this machine a chat is "session:<socket>"; from
+    // another device, over Remote Control, it is "bridge-session:<bridge id>".
+    function ref(kind, id) {
+      return crypto.createHash('sha256').update(kind + ':' + id).digest('hex').slice(0, 6);
+    }
+
+    // Everything the "copy all" button puts on the clipboard. The first line
+    // is a ready command for the agent on the other side.
+    function card(sid, rec, title) {
+      var name = rec.name || '', sock = rec.messagingSocketPath || '', bridge = rec.bridgeSessionId || '';
+      var local = name && sock ? name + ' [' + ref('session', sock) + ']' : '';
+      var remoteRef = bridge ? ref('bridge-session', bridge) : '';
+      var lines = [];
+      if (remoteRef && title) {
+        lines.push('برای پیام به این چت از هر دستگاه: SendMessage to: "' + title + ' [' + remoteRef + ']"');
+        lines.push('اگر پیدا نشد: در ListAgents ردیفی که [' + remoteRef + '] دارد همین چت است (این کد با بستن و باز کردن چت عوض نمی‌شود)');
+      } else if (remoteRef) {
+        // no custom title: the other device shows a name we can't know, so
+        // hand over only the code instead of a made-up name that never matches
+        lines.push('این چت اسم ندارد — از هر دستگاه: در ListAgents ردیفی که [' + remoteRef + '] دارد را پیدا کن و با همان «اسم [' + remoteRef + ']» SendMessage بزن');
+      } else {
+        lines.push('Remote Control خاموش است — از دستگاه دیگر پیدا نمی‌شود' +
+          (local ? '؛ فقط از همین دستگاه: SendMessage to: "' + local + '"' : ''));
+      }
+      lines.push('چت: ' + (title || 'نامشخص'));
+      if (local) lines.push('از همین دستگاه: ' + local + '  (بعد از ری‌استارت عوض می‌شود)');
+      if (bridge) lines.push('شناسهٔ Remote Control: ' + bridge);
+      lines.push('کد سشن: ' + sid);
+      lines.push('دستگاه: ' + os.hostname() + (rec.cwd ? ' · پوشه: ' + rec.cwd : ''));
+      return { text: lines.join('\n'), remote: remoteRef ? (title ? title + ' ' : '') + '[' + remoteRef + ']' : '' };
+    }
+
+    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { ref: ref, card: card, sessionRecord: sessionRecord }; return; }
+    var vscode = require('vscode');
 
     // A rename is a whole line {"type":"custom-title",...}; the last one wins.
     // Only such lines count — the words can also sit inside chat text.
@@ -92,10 +131,11 @@
         if (!m || m.type !== 'crtl-session-info') return;
         var sid = String(m.sid || '');
         var ok = /^[0-9a-f-]{36}$/.test(sid);
-        if (!ok) return webview.postMessage({ type: 'crtl-session-info', sid: sid, name: '', title: '' });
-        var name = shortName(sid);
+        if (!ok) return webview.postMessage({ type: 'crtl-session-info', sid: sid, name: '', title: '', remote: '', card: '' });
+        var rec = sessionRecord(sid);
         title(sid, function (t, pending) {
-          webview.postMessage({ type: 'crtl-session-info', sid: sid, name: name, title: t, pending: pending });
+          var c = card(sid, rec, t);
+          webview.postMessage({ type: 'crtl-session-info', sid: sid, name: rec.name || '', title: t, pending: pending, remote: c.remote, card: c.text });
         });
       });
     }

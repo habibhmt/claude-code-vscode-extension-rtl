@@ -34,12 +34,12 @@
   // The CLI's own messages carry session_id; the latest one seen is this tab's
   // session (it changes after /clear or a resume, hence "latest"). The host
   // hook (claude-host-hook.js) turns it into the short name and the title.
-  var SESSION = { sid: '', name: '', title: '', pending: false };
+  var SESSION = { sid: '', name: '', title: '', remote: '', card: '', pending: false };
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (!d) return;
     if (d.type === 'crtl-session-info') {
-      if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.pending = !!d.pending; paintSession(); }
+      if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; paintSession(); }
       return;
     }
     var m = d.type === 'from-extension' && d.message;
@@ -60,16 +60,17 @@
   }
   function askSession() {
     if (!SESSION.sid) SESSION.sid = sidFromState();
-    SESSION.name = ''; SESSION.title = ''; SESSION.pending = true;
+    SESSION.name = ''; SESSION.title = ''; SESSION.remote = ''; SESSION.card = ''; SESSION.pending = true;
     paintSession();
     var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
     if (api && SESSION.sid) api.postMessage({ type: 'crtl-session-info', sid: SESSION.sid });
   }
   function paintSession() {
-    [['crtl-sess-title', SESSION.title], ['crtl-sess-name', SESSION.name], ['crtl-sess-id', SESSION.sid]].forEach(function (f) {
+    [['crtl-sess-title', SESSION.title], ['crtl-sess-remote', SESSION.remote], ['crtl-sess-name', SESSION.name], ['crtl-sess-id', SESSION.sid]].forEach(function (f) {
       var el = document.getElementById(f[0]);
       if (!el) return;
-      el.textContent = f[1] || (SESSION.sid && SESSION.pending ? 'در حال خواندن…' : 'نامشخص');
+      el.textContent = f[1] || (SESSION.sid && SESSION.pending ? 'در حال خواندن…' :
+        f[0] === 'crtl-sess-remote' && SESSION.card ? 'Remote Control خاموش است' : 'نامشخص');
       el.dataset.v = f[1] || '';
       el.title = f[1] || '';
     });
@@ -1210,34 +1211,32 @@
       applyCss(cur);
     }
 
-    // this chat's names — re-read every time the panel opens
-    [['اسم چت', 'crtl-sess-title', 'title'], ['اسم کوچک', 'crtl-sess-name', 'name'], ['کد سشن', 'crtl-sess-id', 'sid']].forEach(function (f) {
+    // this chat's names — re-read every time the panel opens. One button
+    // copies them all, with a ready SendMessage line on top: the short name
+    // and session id mean nothing on another device, only the remote row does.
+    [['اسم چت', 'crtl-sess-title', 'title'], ['از دستگاه دیگر', 'crtl-sess-remote', 'remote'], ['اسم کوچک', 'crtl-sess-name', 'name'], ['کد سشن', 'crtl-sess-id', 'sid']].forEach(function (f) {
       var val = document.createElement('span');
       val.id = f[1];
       val.dataset.v = SESSION[f[2]] || '';
       val.textContent = SESSION[f[2]] || 'نامشخص';
       val.title = SESSION[f[2]] || '';
       val.className = 'crtl-note';
-      // one line, as much as fits; the copy button always gives the full value
+      // one line, as much as fits; the copy-all button gives the full values
       val.style.cssText = 'flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:text' +
-        (f[2] === 'title' ? '' : ';direction:ltr');
-      if (f[2] === 'title') val.dir = 'auto';
-      var wrap = document.createElement('div');
-      wrap.className = 'crtl-actions';
-      // min-width:0 on this box too, or a long value widens it and pushes the
-      // copy button out of the panel instead of being cut with "…"
-      wrap.style.cssText = 'flex:1;min-width:0;gap:6px';
-      wrap.appendChild(val);
-      var cp = btn('کپی', 'کپی ' + f[0], function () {
-        var v = val.dataset.v;
-        if (!v) return;
-        copyText(v, function () { cp.textContent = '✓'; setTimeout(function () { cp.textContent = 'کپی'; }, 1200); },
-          function () { cp.textContent = '✗'; setTimeout(function () { cp.textContent = 'کپی'; }, 1200); });
-      });
-      cp.style.flex = 'none';
-      wrap.appendChild(cp);
-      panel.appendChild(row(f[0], wrap));
+        (f[2] === 'title' || f[2] === 'remote' ? '' : ';direction:ltr');
+      if (f[2] === 'title' || f[2] === 'remote') val.dir = 'auto';
+      panel.appendChild(row(f[0], val));
     });
+    var cpRow = document.createElement('div');
+    cpRow.className = 'crtl-actions';
+    var cpAll = btn('کپی همه', 'همهٔ مشخصات این چت را یک‌جا کپی کن — برای پیام دادن از دستگاه دیگر', function () {
+      var v = SESSION.card;
+      if (!v) { cpAll.textContent = 'هنوز آماده نیست'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); return; }
+      copyText(v, function () { cpAll.textContent = '✓ کپی شد'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); },
+        function () { cpAll.textContent = '✗'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); });
+    });
+    cpRow.appendChild(cpAll);
+    panel.appendChild(cpRow);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // presets

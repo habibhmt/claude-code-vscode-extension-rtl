@@ -120,7 +120,8 @@
     counter: true,     // show the composer character counter
     quoteMenu: true,   // right-click a selection to quote it into the composer
     extraText: '',     // custom text glued on by "copy with extra text"
-    extraPos: 'end'    // start | end — where that text goes
+    extraPos: 'end',   // start | end — where that text goes
+    extraOnCopyBtn: false // also glue it on with the copy button under each reply
   };
   var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], lh: [11, 24] };
   var PRESETS = {
@@ -796,6 +797,29 @@
     return s.extraPos === 'start' ? extra + '\n\n' + text : text + '\n\n' + extra;
   }
 
+  // The copy button under a reply is the app's own: a click, then
+  // navigator.clipboard.writeText a moment later. A click inside
+  // [data-message-actions] arms a short window; only a write inside that
+  // window gets the extra text, so code-block copies and Cmd+C stay untouched.
+  (function () {
+    var armedUntil = 0;
+    document.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest && e.target.closest('[data-message-actions] button');
+      if (b) armedUntil = Date.now() + 1000;
+    }, true);
+    var cb = navigator.clipboard;
+    if (!cb || !cb.writeText || cb.writeText.__crtl) return;
+    var orig = cb.writeText.bind(cb);
+    var wrapped = function (t) {
+      var hit = Date.now() < armedUntil;
+      armedUntil = 0;
+      if (hit && typeof t === 'string' && load().extraOnCopyBtn) t = withExtra(t);
+      return orig(t);
+    };
+    wrapped.__crtl = true;
+    try { cb.writeText = wrapped; } catch (e) {}
+  })();
+
   /* ---------------- copy the conversation ---------------- */
   function copyConversation() {
     var root = document.querySelector('[class*="messagesContainer_"]');
@@ -1093,7 +1117,7 @@
              tableScroll: cur.tableScroll, accent: cur.accent,
              textColor: cur.textColor, lh: cur.lh,
              opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
-             extraText: cur.extraText, extraPos: cur.extraPos,
+             extraText: cur.extraText, extraPos: cur.extraPos, extraOnCopyBtn: cur.extraOnCopyBtn,
              profiles: cur.profiles, commands: cur.commands };
   }
 
@@ -1467,6 +1491,12 @@
     });
     posBtn.style.flex = 'none';
     extraWrap.appendChild(posBtn);
+    var onBtn = btn(s.extraOnCopyBtn ? '☑ دکمهٔ کپی' : '☐ دکمهٔ کپی',
+      'دکمهٔ کپی زیر هر جواب هم متن ویژه را بچسباند یا نه', function () {
+        var cur = load(); cur.extraOnCopyBtn = !cur.extraOnCopyBtn; save(cur); rerender();
+      });
+    onBtn.style.flex = 'none';
+    extraWrap.appendChild(onBtn);
     panel.appendChild(row('متن ویژه', extraWrap));
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 

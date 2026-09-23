@@ -804,7 +804,7 @@
   (function () {
     var armedUntil = 0;
     document.addEventListener('click', function (e) {
-      var b = e.target && e.target.closest && e.target.closest('[data-message-actions] button');
+      var b = e.target && e.target.closest && e.target.closest('[data-message-actions] button[aria-label^="Copy response"]');
       if (b) armedUntil = Date.now() + 1000;
     }, true);
     var cb = navigator.clipboard;

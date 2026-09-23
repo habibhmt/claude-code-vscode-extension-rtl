@@ -50,6 +50,12 @@ if command -v python3 >/dev/null 2>&1; then HAVE_PYTHON=true; else HAVE_PYTHON=f
 # a failure there never blocks the Claude Code patch.
 "$REPO_DIR/fix-rtl-md-preview.sh" || echo "[WARN] fix-rtl-md-preview.sh failed"
 
+# Stop the chat from jumping to the bottom when a message is sent. Lives in
+# each IDE's settings.json, so it is written here to reach every machine.
+if [ "$HAVE_PYTHON" = true ]; then
+    python3 "$REPO_DIR/ensure-scroll-setting.py" || echo "[WARN] ensure-scroll-setting.py failed"
+fi
+
 # ============================================================
 #  تنظیمات اندازه — این عددها را خودت عوض کن و اسکریپت را دوباره اجرا کن
 # ============================================================

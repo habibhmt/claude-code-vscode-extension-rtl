@@ -116,6 +116,15 @@ The extension updates may overwrite the CSS changes. Simply run the script again
 .\fix-rtl-claude.ps1
 ```
 
+## Chat does not jump to the bottom when you send
+
+`fix-rtl-claude.sh` turns off `claudeCode.scrollToBottomOnSend` (extension 2.1.276+) in the
+`settings.json` of VSCode, Cursor, Windsurf and Devin, through `ensure-scroll-setting.py`.
+Reading higher up, pressing Enter or a streaming reply no longer drags the page down; scroll
+to the bottom yourself and it follows new text again. The key is only added when missing — set
+it to `true` and the script leaves it alone. On a second machine: `git status` (must be clean),
+then `git pull && ./auto-update-claude-code.sh`, then reload the IDE.
+
 ## The in-panel settings (`aA`)
 
 The patch injects a small settings panel into the chat panel itself, so sizes

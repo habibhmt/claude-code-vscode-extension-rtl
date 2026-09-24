@@ -30,17 +30,38 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 # same files mid-write — which showed up as random self-test failures and
 # rolled-back IDEs. mkdir is atomic, so it makes a usable lock.
 LOCK_DIR="${TMPDIR:-/tmp}/crtl-patch.lock"
-if ! mkdir "$LOCK_DIR" 2>/dev/null; then
-    # A lock left behind by a killed run would block every future one, so an
-    # old one is taken over rather than trusted.
-    if [ -n "$(find "$LOCK_DIR" -maxdepth 0 -mmin +5 2>/dev/null)" ]; then
-        rmdir "$LOCK_DIR" 2>/dev/null || true
-        mkdir "$LOCK_DIR" 2>/dev/null || exit 0
+# A busy lock used to mean a silent exit 0 — a run that looked done but had
+# patched nothing. Now it waits for the other run, then does its own work, and
+# if the lock is still held after CRTL_LOCK_WAIT seconds it says so and exits
+# 75 ("try again"). Safe for launchd: a run with nothing to change writes no
+# file under extensions (checked), so the waiting run never re-wakes it.
+LOCK_WAIT="${CRTL_LOCK_WAIT:-60}"
+lock_owner() { cat "$LOCK_DIR/pid" 2>/dev/null || true; }
+lock_stale() {
+    local owner; owner="$(lock_owner)"
+    if [ -n "$owner" ]; then
+        ! kill -0 "$owner" 2>/dev/null           # its process is gone
     else
-        exit 0   # another run is already doing exactly this work
+        # no pid file: left by an older version of this script
+        [ -n "$(find "$LOCK_DIR" -maxdepth 0 -mmin +5 2>/dev/null)" ]
     fi
-fi
-trap 'rmdir "$LOCK_DIR" 2>/dev/null; rm -rf "$TMP_DIR"' EXIT
+}
+waited=0
+until mkdir "$LOCK_DIR" 2>/dev/null; do
+    if lock_stale; then rm -rf "$LOCK_DIR"; continue; fi
+    if [ "$waited" -eq 0 ]; then
+        echo "[WAIT] اجرای دیگری (pid $(lock_owner)) در حال پچ است — تا ${LOCK_WAIT} ثانیه صبر می‌کنم…" >&2
+    fi
+    if [ "$waited" -ge "$LOCK_WAIT" ]; then
+        echo "[WAIT] بعد از ${LOCK_WAIT} ثانیه هنوز اجرای دیگری (pid $(lock_owner)) در کار است — هیچ پچی نزدم؛ دوباره اجرا کن" >&2
+        rm -rf "$TMP_DIR"
+        exit 75
+    fi
+    sleep 1
+    waited=$((waited + 1))
+done
+echo $$ > "$LOCK_DIR/pid"
+trap 'rm -rf "$LOCK_DIR" "$TMP_DIR"' EXIT
 
 # python3 does the extension.js rewrite. Without it the patch still applies —
 # index.css plus the buttons appended to index.js — so warn instead of dying.

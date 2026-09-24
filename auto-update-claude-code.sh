@@ -184,6 +184,11 @@ fi
 if [ "$updated" -gt 0 ] || [ "$FORCE" = true ]; then
     say "re-applying the RTL patch"
     # --with-font matches what the patch agent uses, so both produce the same CSS
-    "$REPO_DIR/fix-rtl-claude.sh" --with-font --no-reload 2>&1 | sed 's/^/    /'
+    rc=0
+    out="$("$REPO_DIR/fix-rtl-claude.sh" --with-font --no-reload 2>&1)" || rc=$?
+    printf '%s\n' "$out" | sed 's/^/    /'
+    # exit 75 = another patch run held the lock the whole wait; say it in the
+    # summary instead of letting it vanish behind the pipe
+    [ "$rc" -eq 75 ] && say "patch NOT applied: another patch run held the lock — it will be re-applied on the next run"
     say "done: $updated IDE(s) updated to $LATEST"
 fi

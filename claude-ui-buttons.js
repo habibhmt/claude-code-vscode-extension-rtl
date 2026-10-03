@@ -98,7 +98,8 @@
     { label: "rev",   text: "/code-review",       side: "left",  send: false },
     { label: "clr",   text: "/clear",             side: "left",  send: false },
     { label: "btw",   text: "/btw ",              side: "left",  send: false },
-    { label: "rc",    text: "/remote-control",    side: "left",  send: false }
+    { label: "rc",    text: "/remote-control",    side: "left",  send: false },
+    { label: "fast",  text: "/fast",              side: "left",  send: false }
   ];
 
   /* ---------------- settings ---------------- */

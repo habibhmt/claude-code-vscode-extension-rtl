@@ -170,6 +170,26 @@ while IFS='|' read -r name dir by_id; do
     fi
 done <<< "$IDES"
 
+# ---------------------------------------------------------------- CLI
+# The terminal `claude` is a separate npm install with its own version and its
+# own updater (switched off in ~/.claude.json), so it drifts behind the
+# extensions unless this keeps it in step. launchd has no nvm in PATH, so the
+# binary is found by path; npm is the one next to it, never a global guess.
+update_cli() {
+    local bin dir now
+    bin="$(ls -1 "$HOME"/.nvm/versions/node/*/bin/claude 2>/dev/null | sort -V | tail -1)"
+    if [ -z "$bin" ]; then say "CLI: not found under ~/.nvm — skipped"; return 0; fi
+    dir="$(dirname "$bin")"
+    now="$(PATH="$dir:$PATH" "$bin" --version 2>/dev/null | awk '{print $1}')"
+    if ! newer_than "$LATEST" "$now"; then say "CLI: already on ${now:-?}"; return 0; fi
+    if [ "$DRY_RUN" = true ]; then say "CLI: behind (${now:-none} -> $LATEST)"; return 0; fi
+    say "CLI: updating ${now:-none} -> $LATEST"
+    PATH="$dir:$PATH" "$dir/npm" install -g "@anthropic-ai/claude-code@$LATEST" >/dev/null 2>&1 || true
+    now="$(PATH="$dir:$PATH" "$bin" --version 2>/dev/null | awk '{print $1}')"
+    if [ "$now" = "$LATEST" ]; then say "CLI: now on $LATEST"; else say "CLI: FAILED, still on ${now:-none}"; fi
+}
+update_cli
+
 if [ "$DRY_RUN" = true ]; then
     say "dry run: $behind_only of $checked IDE(s) behind $LATEST"
     exit 0

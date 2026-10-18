@@ -226,7 +226,6 @@ UI_COMPACT_CSS='[class*="header_"],[class*="titlebar"],[class*="TitleBar"]{min-h
 [class*="headerTitle"]{font-size:11px!important;line-height:1.2!important}
 [class*="attachedFilesContainer"] [class*="chip"],[class*="attachedFilesContainer"] [class*="Chip"],[class*="attachedFilesContainer"] [class*="pill"],[class*="attachedFilesContainer"] [class*="Pill"],[class*="header_"] [class*="chip"],[class*="header_"] [class*="Chip"]{font-size:9px!important;padding:0 4px!important;line-height:1.2!important;max-height:16px!important}
 [class*="attachedFilesContainer"] img,[class*="attachedFilesContainer"] [class*="thumb"],[class*="attachedFilesContainer"] [class*="preview"] img{max-height:12px!important;max-width:12px!important}
-[data-message-stamp]:not([class*="inPadding_"]){height:0!important;padding:0!important;position:relative!important;top:-20px!important;z-index:1}
 '
 
 # Text sizing: big conversation text, small chrome (all values from the settings block above)

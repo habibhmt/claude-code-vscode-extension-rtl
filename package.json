@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "python3 test_chatgpt_patch.py && node test_chatgpt_header.cjs && node test_chatgpt_layout.cjs && NODE_PATH=node_modules node test_chatgpt_tabs.cjs && TABS_ROUTER=memory NODE_PATH=node_modules node test_chatgpt_tabs.cjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "playwright": "^1.50.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  }
+}

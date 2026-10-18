@@ -315,3 +315,121 @@ MIT License - See [LICENSE](LICENSE) file for details.
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
+
+## ChatGPT / Codex extension in VS Code
+
+`fix-rtl-chatgpt.sh` patches installed `openai.chatgpt-*` extensions separately
+from Claude. Requires Python 3 and Node.js on macOS/Linux. It discovers the same
+six IDE extension directories as the Claude patcher.
+
+```bash
+./fix-rtl-chatgpt.sh --with-font
+# macOS: reapply every five minutes, including after extension updates
+python3 install-chatgpt-autofix.py
+```
+
+Run **Developer: Reload Window** in VS Code after installation. The `aA` panel
+provides text/code sizes, line spacing, colours, draggable command buttons,
+profiles, user-message folding, search, copy, quoting and extra copy texts.
+Buttons insert drafts; the default buttons do not send messages.
+Settings use a separate `chatgpt-rtl-sizes` localStorage key and optional
+`~/.chatgpt-rtl-sizes.json` seed. `--with-font` uses Vazirmatn if installed,
+otherwise Tahoma/sans-serif; no remote font requests or CSP changes are needed.
+
+The adapter builds from `claude-ui-buttons.js`, mapping transcript selectors to
+ChatGPT's installed DOM. It excludes Claude's host/session/Remote Control,
+editor-selection and glossary integration, Claude slash commands, chrome sizing
+and tool-call folding. Native composer styling and native tool approvals are
+preserved. It does not change extension update settings or manage processes.
+Conversation copy/search cover rendered transcript content, which may exclude
+older virtualized turns. Future DOM changes may require updating the adapter.
+
+The HTML has an original backup; generated JS/CSS filenames carry a content hash
+for cache invalidation. The patch validates JS before installation and refuses
+to overwrite HTML changed by another process. Background runs never reload the
+IDE. To undo, remove the background agent first:
+
+```bash
+python3 install-chatgpt-autofix.py --remove
+./fix-rtl-chatgpt.sh --revert
+```
+
+Unused generated assets remain inert after revert so open webviews can finish
+loading. For an explicit extension location, pass `--extension-dir /path/to/openai.chatgpt-version`.
+
+Validation: `python3 -m unittest test_chatgpt_patch.py` checks repeatability,
+exact HTML restoration, external-change protection and invalid-JS refusal.
+Browser fixture QA checks panel creation, RTL prose/LTR code, native composer
+direction, quick-button draft insertion and settings persistence. A reload and
+live visual check in the user's VS Code window are still required.
+
+### Compact ChatGPT layout
+
+The ChatGPT patch reserves a 26px top toolbar for quick buttons, `aA` and the
+native run-location selector. Composer minimum height is reduced; long drafts
+remain scrollable and the native expanded-composer mode is preserved. Attachment
+previews are limited to a 76px scrolling area with 56px images. RTL lists use an
+explicit RTL base so English-leading items keep their bullets on the right.
+A full **Developer: Reload Window** rebuilds existing panels with the new assets;
+**Reload Webviews** can reuse the old host-generated HTML.
+
+The patch also adds a compact tab row **inside the Codex panel**. `+` opens a
+native `/extension/panel/new` composer. There is one unsent draft per panel;
+pressing `+` again focuses it. Sending a message gives that chat its own tab.
+Synthetic `client-new-thread` routes are not used: the live Windsurf app treats
+them as pending worktree threads and disables sending. Opening an existing conversation
+adds it to the row; selecting a tab uses Codex's native router. Closing a tab
+only removes the shortcut, without deleting the conversation or stopping work.
+Double-click a tab to give it a short label. The tab list is stored in the
+webview's session storage; draft contents remain owned by Codex. Restoration
+across IDE shutdowns is not promised.
+
+`chatgpt-tabs.js` discovers the outer React Router through the installed app's
+`__codexRoot`. It supports both the data RouterProvider in VS Code and the
+MemoryRouter navigator in Windsurf; it does not replace the native history
+listener. Query parameters are preserved when switching tabs. Leaving settings
+through the MemoryRouter fallback is refused so native unsaved-settings
+confirmation is not bypassed. This is an internal integration and can require maintenance after
+an extension update. If the router cannot be found, the add button stays disabled
+and an explanation is shown; host executable code and native bundled assets are
+not patched. `test_chatgpt_tabs.cjs` uses real React/React Router in an isolated
+fixture to test navigation, native draft entry, saved thread tabs, close behavior, failed
+navigation and deliberate routing breakage. Run with
+`NODE_PATH=/tmp/chatgpt-rtl-qa/node_modules node test_chatgpt_tabs.cjs` and again
+with `TABS_ROUTER=memory` for the Windsurf router. The latter also removes the
+MemoryRouter connection deliberately and verifies the disabled error state.
+Live IDE testing is separate.
+
+Async question cards are scoped by `data-codex-composer-request-navigation`;
+their question text, options and custom answer field now have RTL direction.
+Code inside a question stays LTR. The main multiline composer wrapper's inline
+minimum-height variable is overridden directly, allowing one line when empty
+and growth for longer drafts. This does not apply to native expanded mode.
+
+Rendering regression check (requires Playwright and Chrome):
+`NODE_PATH=/tmp/chatgpt-rtl-qa/node_modules node test_chatgpt_layout.cjs`.
+The isolated fixture checks option ordering, mixed-language paragraph isolation,
+code direction, empty composer height and long-draft growth. It deliberately
+breaks both the question direction and minimum-height rule and requires both
+regressions to be caught. This fixture is not a substitute for checking the live
+question card and composer after **Developer: Reload Window**.
+
+Transcript block gaps use the native `--conversation-item-gap` at 6px instead
+of 16px. The elapsed-work divider keeps its time and disclosure control in a
+smaller row; thinking slots and transcript bottom padding are also compacted.
+Virtualized row heights/margins are not overridden, so native scroll measurement
+continues to use the rendered content. The layout test measures before/after,
+checks that code/table spacing and unrelated surfaces retain their dimensions,
+and deliberately enlarges the gap to confirm that the regression is caught.
+
+Live Windsurf check (2026-10-18): the tab connection error disappeared and
+returning to the original conversation worked. The real new-composer entry
+redirected to Codex onboarding (Next); first-message sending has not been
+verified. Computer-control errors prevented completing that UI check.
+
+The in-panel `گفتگوی قدیمی` button opens the native recent-chat picker in
+add-to-tabs mode. Local history row selections are routed inside this panel
+using the row identity and host ID, preserving existing tabs. Native nested
+actions such as Archive are not intercepted. The fixture tests host-panel
+opening suppression, old-tab preservation, remote host parameters, and a
+deliberately disconnected history handler. Live user verification is pending.

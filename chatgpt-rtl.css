@@ -1,0 +1,183 @@
+/* Scoped to transcript prose; editors, diffs, navigation and composer stay native. */
+.thread-scroll-container :is([class*="MarkdownContent"],.rich-text-user-turn,[data-user-message-bubble]) {
+  direction: rtl; text-align: right; unicode-bidi: plaintext;
+}
+.thread-scroll-container :is(p,li,h1,h2,h3,h4,h5,h6,blockquote,td,th) {
+  unicode-bidi: plaintext; text-align: start;
+}
+.thread-scroll-container :is(pre,code,[data-markdown-copy="code-block"],[class*="diff"],[class*="Diff"],[class*="monaco"]) {
+  direction: ltr !important; text-align: left !important; unicode-bidi: isolate;
+}
+.thread-scroll-container pre {max-width:100%;overflow-x:auto}
+.thread-scroll-container table {direction:rtl}
+
+/* Lists must have an explicit RTL base, including English-leading items. */
+.thread-scroll-container :is([class*="MarkdownContent"],.rich-text-user-turn) :is(ul,ol,li) {
+  direction:rtl!important; text-align:right!important; unicode-bidi:isolate;
+}
+.thread-scroll-container :is(ul,ol) {padding-inline-start:1.5em;padding-inline-end:0}
+/* Compact composer, with long drafts still scrollable and expandable. */
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [contenteditable="true"] {
+  min-height:2.4em!important;max-height:7.2em!important;overflow-y:auto!important;
+}
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [class*="ComposerLayoutInput"] {
+  min-height:0!important;padding-top:6px!important;padding-bottom:6px!important;
+}
+[class*="ComposerLayoutAttachments"] {max-height:76px!important;overflow:auto!important}
+[class*="ComposerLayoutAttachments"] img {width:56px!important;height:56px!important;object-fit:contain!important}
+[class*="ComposerLayoutAttachments"] :is(div,button):has(>img),
+[class*="ComposerLayoutAttachments"] :is(div,button):has(>picture) {
+  width:60px!important;height:60px!important;min-width:0!important;min-height:0!important;
+}
+[data-composer-navigation-target="run-location"] {
+  font-size:10px!important;min-height:20px!important;height:20px!important;padding-block:0!important;
+}
+[class*="ComposerLayoutUtilityBar"] {min-height:22px!important;padding-block:0!important}
+/* Move patch controls to one compact dock; no overlay on the native footer. */
+.crtl-bar:not(.crtl-gear) {
+  top:44px!important;bottom:auto!important;left:auto!important;right:8px!important;
+  flex-direction:row!important;align-items:center!important;max-height:26px!important;
+}
+.crtl-bar:not(.crtl-gear)[data-side="left"] {right:120px!important}
+.crtl-bar .crtl-grip {display:none!important}
+.crtl-gear {top:44px!important;bottom:auto!important;left:8px!important;right:auto!important}
+#crtl-count {display:none!important}
+/* Reserve a real toolbar row so controls never cover chat text. */
+body {padding-top:26px!important;box-sizing:border-box!important}
+#root {height:calc(100dvh - 26px)!important;min-height:0!important}
+.crtl-bar:not(.crtl-gear),.crtl-gear {top:2px!important}
+[data-composer-surface-variant] {
+  --min-height-composer:28px!important;
+  --min-rows-composer-work-home:1!important;
+  --spacing-composer-input-footer:2px!important;
+  --spacing-composer-footer-bottom:4px!important;
+  --padding-composer-empty-attachments:2px!important;
+}
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [class*="ComposerLayoutInput"] {
+  --composer-editor-min-height:28px!important;min-height:28px!important;
+}
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [contenteditable="true"] {min-height:28px!important}
+[data-composer-navigation-target="run-location"] {position:fixed!important;top:2px!important;left:48px!important;z-index:2147482999!important}
+/* Collapse only the empty location holder, leaving other utility controls intact. */
+div.flex-nowrap:has(>[data-composer-navigation-target="run-location"]):not(:has(> :not([data-composer-navigation-target="run-location"]))) {min-height:0!important;height:0!important}
+
+/* Async questions live outside the transcript: style their native card root. */
+[data-codex-composer-request-navigation] {
+  direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important;
+}
+[data-codex-composer-request-navigation] :is(p,span,label,button,[role="radio"],[role="checkbox"]) {
+  text-align:start!important;
+}
+[data-codex-composer-request-navigation] :is(.whitespace-pre-wrap,[role="radio"],[role="checkbox"]) {
+  direction:rtl!important;unicode-bidi:isolate!important;
+}
+[data-codex-composer-request-navigation] :is(textarea,input,[contenteditable="true"]) {
+  direction:rtl!important;text-align:right!important;unicode-bidi:plaintext!important;
+}
+[data-codex-composer-request-navigation] :is(code,pre,kbd) {
+  direction:ltr!important;unicode-bidi:isolate!important;
+}
+
+/* The input wrapper has an inline min-height variable; inherited overrides
+   on ComposerLayoutInput cannot beat it. Target that wrapper itself. */
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [data-composer-input-layout="multiline"] {
+  --composer-editor-min-height:24px!important;
+  min-height:24px!important;height:auto!important;max-height:min(25dvh,8lh)!important;
+  padding-block:0!important;overflow-y:auto!important;
+}
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [data-composer-input-layout="multiline"] > * {
+  min-height:24px!important;
+}
+[data-composer-surface-variant]:not(:has([data-expanded-composer])) [contenteditable="true"] {
+  min-height:24px!important;height:auto!important;
+}
+
+/* Use the native block-gap variable, so measured/virtualized turns see the
+   smaller height too. Never override virtualizer row heights or margins. */
+.thread-scroll-container {
+  --conversation-item-gap:6px!important;
+}
+/* Both IDE builds render the elapsed-time divider with this structure.
+   Keep its disclosure button and time visible; leave other tabular numbers alone. */
+.thread-scroll-container .flex.flex-col.items-start.text-size-chat.text-secondary:has(> .border-t):has(.tabular-nums) {
+  gap:3px!important;font-size:12px!important;line-height:18px!important;
+}
+.thread-scroll-container .flex.flex-col.items-start.text-size-chat.text-secondary:has(> .border-t) .tabular-nums {
+  font-size:12px!important;line-height:18px!important;
+}
+/* Compact the native thinking slot, including its reserved empty state. */
+.thread-scroll-container .h-9.overflow-hidden[aria-hidden],
+.thread-scroll-container span.h-9[role="status"] {
+  height:22px!important;min-height:0!important;
+}
+.thread-scroll-container [data-thread-user-message-navigation-content]:not(:has([data-compact-status-slot-clearance])) {
+  padding-bottom:8px!important;
+}
+
+/* One compact, horizontally scrollable row of independent conversation tabs. */
+html.crtl-has-tabs body {padding-top:58px!important}
+html.crtl-has-tabs #root {height:calc(100dvh - 58px)!important}
+#crtl-tabs {position:fixed;top:26px;inset-inline:4px;height:30px;display:flex;gap:4px;align-items:center;z-index:2147482998;color:var(--vscode-foreground,inherit);font:12px/20px system-ui,sans-serif;direction:ltr}
+#crtl-tabs .crtl-tab-list {display:flex;gap:4px;overflow-x:auto;min-width:0;scrollbar-width:thin;align-items:center}
+#crtl-tabs .crtl-tab-item {display:flex;flex:none;border:1px solid rgba(127,127,127,.35);border-radius:5px;overflow:hidden}
+#crtl-tabs button {font:inherit;color:inherit;background:var(--vscode-editor-background,#202020);border:0;padding:2px 6px;cursor:pointer;white-space:nowrap}
+#crtl-tabs [role="tab"] {max-width:180px;overflow:hidden;text-overflow:ellipsis}
+#crtl-tabs [role="tab"][aria-selected="true"] {background:var(--vscode-list-activeSelectionBackground,#294b69);color:var(--vscode-list-activeSelectionForeground,#fff)}
+#crtl-tabs button:focus-visible {outline:2px solid var(--vscode-focusBorder,#58a6ff);outline-offset:-2px}
+#crtl-tabs button:disabled {opacity:.55;cursor:default}
+#crtl-tabs [role="status"] {font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Merge native conversation header actions into the tabs row. Keep native
+   buttons mounted so their menus and keyboard behavior remain available. */
+html.crtl-has-tabs .draggable:has([style*="header-title"]) {
+  height:0!important;min-height:0!important;padding:0!important;overflow:visible!important;
+}
+html.crtl-has-tabs .draggable:has([style*="header-title"]) > div:has(> [style*="header-title"]) {
+  height:0!important;min-height:0!important;padding-block:0!important;
+}
+html.crtl-has-tabs .draggable [style*="header-title"] {display:none!important}
+html.crtl-has-tabs .draggable [style*="header-title"] + div {
+  position:fixed!important;top:26px!important;right:8px!important;left:auto!important;
+  height:30px!important;display:flex!important;align-items:center!important;
+  z-index:2147483000!important;
+}
+html.crtl-has-tabs #crtl-tabs {right:156px;inset-inline-end:156px}
+/* Remove the native outer bottom inset, not the composer's internal controls. */
+[class~="pb-(--thread-composer-bottom-inset)"]:has([data-composer-surface-variant]) {
+  --thread-composer-bottom-inset:2px!important;
+  padding-bottom:2px!important;
+}
+
+/* Shared dark Codex panel palette, independent of the host IDE theme. */
+:root:has(body.vscode-dark), body.vscode-dark {
+  --vscode-editor-background:#101112!important;
+  --vscode-sideBar-background:#101112!important;
+  --vscode-input-background:#202122!important;
+  --vscode-foreground:#cccccc!important;
+  --app-color-background-surface:#101112!important;
+  --color-surface:#101112!important;
+  --color-surface-secondary:#101112!important;
+  --color-surface-tertiary:#101112!important;
+  --color-background-primary-soft:#202122!important;
+  --color-background-composer:#202122!important;
+  --vscode-list-activeSelectionBackground:#343536!important;
+  --vscode-list-activeSelectionForeground:#eeeeee!important;
+}
+body.vscode-dark,body.vscode-dark #root {background-color:#101112!important;color:#ccc}
+body.vscode-dark [data-composer-surface-variant] {background-color:#202122!important}
+/* Native chat typography uses the same baseline in both extension versions.
+   The aA panel's explicit conversation overrides remain available. */
+:root {--text-size-chat:15px;--text-size-chat-line-height:1.6}
+/* Some Windsurf composer ancestors establish a fixed-position containing
+   block. Release only ancestors of the relocated run-location control. */
+#root :has([data-composer-navigation-target="run-location"]) {
+  transform:none!important;translate:none!important;filter:none!important;
+  perspective:none!important;contain:none!important;will-change:auto!important;
+}
+
+/* Candidate: keep one scroll owner, the native table scroller. */
+
+html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] {direction:rtl!important;max-width:100%!important;width:100%!important;min-width:0!important}
+html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] [class*="_TableScroller_"] {direction:rtl!important;display:block!important;max-width:100%!important;overflow-x:auto!important;mask:none!important}
+html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] [class*="_TableWrapper_"] {width:max-content!important;min-width:100%!important}
+html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] table {display:table!important;max-width:none!important;overflow:visible!important;width:100%!important}

@@ -21,3 +21,4 @@
 
 # auto-update log
 autoupdate.log
+__pycache__/

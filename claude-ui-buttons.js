@@ -99,7 +99,21 @@
     { label: "clr",   text: "/clear",             side: "left",  send: false },
     { label: "btw",   text: "/btw ",              side: "left",  send: false },
     { label: "rc",    text: "/remote-control",    side: "left",  send: false },
-    { label: "fast",  text: "/fast",              side: "left",  send: false }
+    { label: "fast",  text: "/fast",              side: "left",  send: false },
+    // side "top" = the header row between the chat name and its icons. A
+    // click drops the text on its own line in the composer, never sends.
+    { label: "ناظر",   text: "کارایی که میکنی باید با هماهنگی ناظر باشه ها", side: "top", send: false },
+    { label: "اسک",    text: "سوالاتو گزارش هات رو با اسک یوزر کوسشن بگو", side: "top", send: false },
+    { label: "داستان", text: "الان از اول بگو داستان اصلی چی بود چیکارا کردین و کل داستان رفت و برگشت ها رو به زبون ساده بگو و توی جدول", side: "top", send: false },
+    { label: "اعتماد", text: "به هیچ عنوان به حرف مجری اعتماد نکن و همه مواردی که میگه رو خودت توی ترمینال و توی کد چک بخون تا مطمئنش", side: "top", send: false },
+    { label: "قانون",  text: "تو کلود ام دی سراسری رو خوندی ؟ طبق قوانینش و مخصوصا قسمت ناظر مجری عمل کن", side: "top", send: false },
+    { label: "ایجنت",  text: "--------------------------------\nاین متن نظر یه ایجنت دیگه در مورد کار تو هست ، چک کن ببین درست میگه یا نه چون مسیولیت کار با تو هست نه اون ،اون فقط نظرشو گفت ؟ تو هم فعلا نظرتو بگو فقط ، به زبون ساده همه حرفات باید به زبان ساده با متغیر های من با مثال عددی قیمتی باشه توی جدول تا بفهمم من بگو تا بهت بگم ....", side: "top", send: false },
+    { label: "فایده",  text: "به چه دردی میخوره دقیقا و کجا میاد و مفهومش چیه به زبون ساده", side: "top", send: false },
+    { label: "سؤال",   text: "برای اینکه مطمین بشی اون چیزی که فهمیدی با اون چیزی که من از تو میخوام دقیقا یکی هست شروع کن یکی یکی سوال پرسیدن از من سوالایی که جوابشون بله و خیر هست و هر\n  سوالی که میپرسی بر اساس جواب قبلی من باشه و این سیستم رو تا جایی ادامه میدی که مطمین شی اون چیزی که من میخوامم با اون چیزی که تو فهمیدی یکی هست", side: "top", send: false },
+    { label: "ساده",   text: "نمیفهمم اینو به زبون ساده بگو", side: "top", send: false },
+    { label: "واژه",   text: "این واژگان مال من نیست با واژه گان من با من حرف بزن", side: "top", send: false },
+    { label: "جدول",   text: "توی جدول با مثال عددی ساده توضیح بده همه چی رو \nاصطلاحات تخصصی توضیح به زبان ساده داخل پرانتز\nدرصدهای قیمتی عدد $ هم نوشته شود", side: "top", send: false },
+    { label: "حدس",    text: "مثل اون قابلیتی هست که llm ها دارن حدس میزنه با توجه به درخواست های تا الانم چیا ممکنه بخوام اونارو لیست کن", side: "top", send: false }
   ];
 
   /* ---------------- settings ---------------- */
@@ -113,6 +127,7 @@
     tableScroll: true,
     pos: {},           // { left: {x,y}, right: {x,y} } drag offsets
     commands: null,    // null = use DEFAULT_COMMANDS
+    seeded: [],        // top labels already merged into a saved list once
     accent: '',        // '' = inherit the theme's own colours
     textColor: '',     // '' = the theme's own conversation text colour
     lh: 16,            // conversation line height, in tenths (16 = 1.6)
@@ -173,7 +188,22 @@
         s.extras.push({ text: old, on: true, pos: s.extraPos === 'start' ? 'start' : 'end', btn: !!s.extraOnCopyBtn });
       s.extraText = '';
     }
+    seedTop(s);
     return s;
+  }
+  // A list saved before the top row existed never reads DEFAULT_COMMANDS
+  // again, so each default top button is appended to it once. `seeded`
+  // remembers every label handed over, so one the user deleted stays gone.
+  function seedTop(s) {
+    var seeded = Array.isArray(s.seeded) ? s.seeded.slice() : [];
+    var saved = Array.isArray(s.commands) && s.commands.length;
+    DEFAULT_COMMANDS.forEach(function (c) {
+      if (c.side !== 'top' || seeded.indexOf(c.label) >= 0) return;
+      if (saved && !s.commands.some(function (x) { return x && x.label === c.label; }))
+        s.commands.push(JSON.parse(JSON.stringify(c)));
+      seeded.push(c.label);
+    });
+    s.seeded = seeded;
   }
   function sharedProfileNames() {
     return (DEF.profiles && typeof DEF.profiles === 'object') ? Object.keys(DEF.profiles) : [];
@@ -195,6 +225,12 @@
     'color:inherit;cursor:pointer;white-space:nowrap;opacity:var(--crtl-btn-opacity,.65);direction:ltr}',
     '.crtl-btn:hover{opacity:1;background:rgba(127,127,127,.3)}',
     '.crtl-grip{cursor:grab;opacity:.35;letter-spacing:2px}',
+    /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
+    '[class*="headerSpacer_"].crtl-top-host{min-width:0;overflow:hidden;display:flex;align-items:center}',
+    '.crtl-bar.crtl-top{position:static;flex-direction:row;align-items:center;max-height:none;min-width:0;flex:1;',
+    'overflow-x:auto;overflow-y:hidden;direction:rtl;margin:0 4px}',
+    '.crtl-top .crtl-btn{direction:rtl;flex-shrink:0}',
+    '.crtl-top .crtl-btn.crtl-dragging{opacity:1;outline:1px dashed currentColor}',
     '.crtl-grip:active{cursor:grabbing}',
     /* the settings panel keeps its own lane, offset from the button columns */
     '.crtl-panel{position:fixed;bottom:2px;z-index:2147483002;display:none;flex-direction:column;gap:4px;',
@@ -357,6 +393,22 @@
     var proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
     Object.getOwnPropertyDescriptor(proto.prototype, 'value').set
       .call(el, (el.value ? el.value + ' ' : '') + text);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  // Top-row texts are whole sentences: each one starts on its own line
+  // instead of being glued to whatever is already in the composer.
+  function typeLine(el, text) {
+    el.focus();
+    if (el.isContentEditable) {
+      caretToEnd(el);
+      if ((el.textContent || '').trim()) document.execCommand('insertLineBreak');
+      insertLines(text);
+      return;
+    }
+    var proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
+    Object.getOwnPropertyDescriptor(proto.prototype, 'value').set
+      .call(el, (el.value.trim() ? el.value + '\n' : '') + text);
     el.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
@@ -1203,16 +1255,129 @@
 
   /* ---------------- rendering ---------------- */
   function sideOf(cmd, s) {
+    if (cmd.side === 'top') return 'top';
     if (s.side === 'left' || s.side === 'right') return s.side;
     return cmd.side || 'right';
   }
 
+  // The empty stretch of the header between the chat name and its icons.
+  // Found by shape, not by hashed class, and null when a new Claude build
+  // moves it — the caller then falls back to the left column.
+  function topHost() {
+    var sp = document.querySelectorAll('[class*="headerSpacer_"]');
+    for (var i = 0; i < sp.length; i++) {
+      var head = sp[i].closest('[class*="header_"]');
+      if (head && head.querySelector('[class*="titleText_"]')) return sp[i];
+    }
+    return null;
+  }
+
+  function runCommand(c, line) {
+    if (c.menu) { clickMenu(c.menu); return; }
+    var el = input();
+    if (!el) return;
+    if (line) typeLine(el, c.text || ''); else type(el, c.text);
+    if (c.send) setTimeout(function () { send(el); }, 60);
+  }
+
+  // Drag a top button onto another to move it there. Under 5px of travel
+  // it is a plain click; past that the click that follows is swallowed.
+  var DRAG_PX = 5;
+  function wireTopDrag(b, bar) {
+    b.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      var x0 = e.clientX, y0 = e.clientY, moved = false;
+      function move(ev) {
+        if (!moved && Math.abs(ev.clientX - x0) + Math.abs(ev.clientY - y0) > DRAG_PX) {
+          moved = true; b.classList.add('crtl-dragging');
+        }
+      }
+      function up(ev) {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        b.classList.remove('crtl-dragging');
+        if (!moved) return;
+        b.dataset.dragged = '1';
+        setTimeout(function () { delete b.dataset.dragged; }, 0);
+        var tgt = document.elementFromPoint(ev.clientX, ev.clientY);
+        tgt = tgt && tgt.closest ? tgt.closest('.crtl-top .crtl-btn') : null;
+        if (!tgt || tgt === b) return;
+        var r = tgt.getBoundingClientRect();
+        // the row runs right-to-left: dropping on a button's right half puts it before that button
+        var before = ev.clientX > r.left + r.width / 2;
+        var cur = load();
+        var list = commands(cur).slice();
+        var from = +b.dataset.i, to = +tgt.dataset.i;
+        var item = list.splice(from, 1)[0];
+        if (from < to) to--;
+        list.splice(before ? to : to + 1, 0, item);
+        cur.commands = list; save(cur);
+        draftCommands = null;
+        rerender();
+      }
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+    });
+  }
+
+  function renderTop(s) {
+    var old = document.querySelectorAll('.crtl-top');
+    for (var i = 0; i < old.length; i++) {
+      if (old[i].parentNode) old[i].parentNode.classList.remove('crtl-top-host');
+      old[i].remove();
+    }
+    var all = commands(s);
+    var host = topHost();
+    if (!host || !all.some(function (c) { return sideOf(c, s) === 'top'; })) return !!host;
+    var bar = document.createElement('div');
+    bar.className = 'crtl-bar crtl-top';
+    bar.dataset.side = 'top';
+    all.forEach(function (c, idx) {
+      if (sideOf(c, s) !== 'top') return;
+      var b = btn(c.label, c.text || c.menu || '', function () {
+        if (b.dataset.dragged) return;
+        runCommand(c, true);
+      });
+      b.dataset.i = idx;
+      wireTopDrag(b, bar);
+      bar.appendChild(b);
+    });
+    bar.addEventListener('wheel', function (e) {
+      if (!e.deltaY || bar.scrollWidth <= bar.clientWidth) return;
+      bar.scrollLeft -= e.deltaY; e.preventDefault();
+    }, { passive: false });
+    host.classList.add('crtl-top-host');
+    host.appendChild(bar);
+    return true;
+  }
+
+  // React rebuilds the header on a session switch, taking the row with it.
+  var topWatch = null;
+  function watchTop() {
+    if (topWatch) return;
+    topWatch = setInterval(function () {
+      var s = load();
+      if (!commands(s).some(function (c) { return sideOf(c, s) === 'top'; })) return;
+      var bar = document.querySelector('.crtl-top');
+      var host = topHost();
+      if (bar && host && host.contains(bar)) return;
+      if (!bar && !host && document.querySelector('.crtl-bar[data-side="left"] [data-top]')) return;
+      if (host && !document.querySelector('[data-top]')) { renderTop(s); return; }
+      rerender();
+    }, 1500);
+  }
+
   function renderBars(s) {
-    var old = document.querySelectorAll('.crtl-bar');
+    var old = document.querySelectorAll('.crtl-bar:not(.crtl-top)');
     for (var i = 0; i < old.length; i++) old[i].remove();
+    var topOK = renderTop(s);
+    watchTop();
 
     ['left', 'right'].forEach(function (side) {
-      var items = commands(s).filter(function (c) { return sideOf(c, s) === side; });
+      var items = commands(s).filter(function (c) {
+        var at = sideOf(c, s);
+        return at === side || (at === 'top' && !topOK && side === 'left');
+      });
       if (!items.length) return;
       var bar = document.createElement('div');
       bar.className = 'crtl-bar';
@@ -1225,13 +1390,10 @@
       bar.appendChild(grip);
 
       items.forEach(function (c) {
-        bar.appendChild(btn(c.label, c.text || c.menu || '', function () {
-          if (c.menu) { clickMenu(c.menu); return; }
-          var el = input();
-          if (!el) return;
-          type(el, c.text);
-          if (c.send) setTimeout(function () { send(el); }, 60);
-        }));
+        var top = c.side === 'top';
+        var b = btn(c.label, c.text || c.menu || '', function () { runCommand(c, top); });
+        if (top) b.dataset.top = '1';
+        bar.appendChild(b);
       });
 
       document.body.appendChild(bar);
@@ -1593,32 +1755,65 @@
 
     // command list editor. Every toggle in this panel rebuilds it from scratch,
     // so an unsaved edit is parked in draftCommands and put back on the way in.
-    note.textContent = 'لیست دکمه‌ها به صورت JSON:';
-    var noteFields = document.createElement('div');
-    noteFields.className = 'crtl-note';
-    noteFields.style.cssText = 'direction:ltr;text-align:left';
-    noteFields.textContent = 'label, text | menu, side, send';
+    // One row per button: word · text (or, for a menu button, the menu's
+    // name — it keeps opening that menu) · where it sits · delete.
+    note.textContent = 'دکمه‌ها (کلمه · متن · جا):';
     panel.appendChild(note);
-    panel.appendChild(noteFields);
-    var ta = document.createElement('textarea');
-    ta.value = draftCommands !== null ? draftCommands : JSON.stringify(commands(s), null, 1);
-    ta.addEventListener('input', function () { draftCommands = ta.value; });
-    panel.appendChild(ta);
+    if (draftCommands === null) draftCommands = JSON.parse(JSON.stringify(commands(s)));
+    var list = document.createElement('div');
+    list.id = 'crtl-cmds';
+    draftCommands.forEach(function (c, i) {
+      var r = document.createElement('div');
+      r.className = 'crtl-cmd-row';
+      r.style.cssText = 'display:flex;gap:3px;align-items:flex-start;margin-bottom:3px';
+      var word = document.createElement('input');
+      word.className = 'crtl-cmd-label';
+      word.value = c.label || '';
+      word.placeholder = 'کلمه';
+      word.style.cssText = 'width:52px;flex-shrink:0';
+      word.addEventListener('input', function () { c.label = word.value; });
+      var body = document.createElement('textarea');
+      body.className = 'crtl-cmd-text';
+      body.rows = 1;
+      body.style.cssText = 'flex:1;min-width:0;min-height:20px;resize:vertical';
+      if (c.menu !== undefined) {
+        body.value = c.menu; body.placeholder = 'اسمِ منو'; body.title = 'دکمهٔ منو: این منو را باز می‌کند';
+        body.addEventListener('input', function () { c.menu = body.value; });
+      } else {
+        body.value = c.text || ''; body.placeholder = 'متن';
+        body.addEventListener('input', function () { c.text = body.value; });
+      }
+      var where = document.createElement('select');
+      where.className = 'crtl-cmd-side';
+      [['top', 'بالا'], ['left', 'چپ'], ['right', 'راست']].forEach(function (o) {
+        var op = document.createElement('option');
+        op.value = o[0]; op.textContent = o[1];
+        where.appendChild(op);
+      });
+      where.value = c.side === 'top' || c.side === 'left' ? c.side : 'right';
+      where.addEventListener('change', function () { c.side = where.value; });
+      r.appendChild(word); r.appendChild(body); r.appendChild(where);
+      r.appendChild(btn('×', 'حذفِ این دکمه', function () {
+        draftCommands.splice(i, 1); renderPanel(load());
+      }));
+      list.appendChild(r);
+    });
+    panel.appendChild(list);
 
     var acts = document.createElement('div');
     acts.className = 'crtl-actions';
-    acts.appendChild(btn('ذخیرهٔ لیست', 'اعمال لیست دکمه‌ها', function () {
-      try {
-        var parsed = JSON.parse(ta.value);
-        if (!Array.isArray(parsed)) throw new Error('not an array');
-        var cur = load(); cur.commands = parsed; save(cur);
-        draftCommands = null;
-        rerender();
-        var n = document.querySelector('#crtl-panel .crtl-note');
-        if (n) n.textContent = 'ذخیره شد ✓';
-      } catch (err) {
-        note.textContent = 'JSON نامعتبر: ' + err.message;
-      }
+    acts.appendChild(btn('+ دکمهٔ تازه', 'یک ردیفِ خالی اضافه کن', function () {
+      draftCommands.push({ label: '', text: '', side: 'top', send: false });
+      renderPanel(load());
+    }));
+    acts.appendChild(btn('ذخیرهٔ دکمه‌ها', 'اعمالِ این فهرست', function () {
+      var cur = load();
+      cur.commands = draftCommands.filter(function (c) { return String(c.label || '').trim(); });
+      save(cur);
+      draftCommands = null;
+      rerender();
+      var n = document.querySelector('#crtl-panel .crtl-note');
+      if (n) n.textContent = 'ذخیره شد ✓';
     }));
     acts.appendChild(btn('لیست پیش‌فرض', 'برگشت لیست دکمه‌ها به حالت اولیه', function () {
       var cur = load(); cur.commands = null; save(cur);

@@ -25,7 +25,7 @@ await H['turn.complete']($, { agentId: 'x' }, next); await H['turn.complete']($,
 out.subagentOrAbort = calls.complete.length; assert.equal(out.subagentOrAbort, 0)
 // a normal turn: Sonnet 5.5 by full name, then buttons
 await H['turn.complete']($, {}, next); await flush()
-out.model = calls.complete[0].model; assert.equal(out.model, 'claude-haiku-5-5')
+out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')
 const tree = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
 const btns = tree.children[0].children.filter((c) => c.t === 'Button')
 out.buttons = btns.map((b) => b.label); assert.deepEqual(out.buttons, ['تست', 'کامیت', '×'])

@@ -43,8 +43,8 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await open();
   // the row sits in the header spacer, 12 buttons
   out.inHeader=await p.evaluate(()=>!!document.querySelector('[class*="headerSpacer_"] > .crtl-top'));
-  out.topCount=(await topLabels()).length;
-  assert.equal(out.inHeader,true); assert.equal(out.topCount,12);
+  out.topCount=(await topLabels()).length; out.hads=(await topLabels()).slice(-2);
+  assert.equal(out.inHeader,true); assert.equal(out.topCount,14); assert.deepEqual(out.hads,['h-on','h-off']);
   // (الف) two clicks → two lines
   await clickTop('ناظر'); await clickTop('اسک');
   out.twoLines=await composer(); assert.equal(out.twoLines,T1+'\n'+T2);
@@ -91,13 +91,13 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   assert.equal(out.formHasJson,false);
   // (و) a list saved before this version still gets the 12, and a deleted one stays deleted
   await open({saved:JSON.stringify({commands:OLD})});
-  out.seededCount=(await topLabels()).length; assert.equal(out.seededCount,12);
+  out.seededCount=(await topLabels()).length; assert.equal(out.seededCount,14);
   await p.evaluate(()=>{const rows=[...document.querySelectorAll('.crtl-cmd-row')];const r=rows.find(x=>x.querySelector('.crtl-cmd-label').value==='حدس');
    [...r.querySelectorAll('.crtl-btn')].find(b=>b.textContent==='×').click()});
   await p.evaluate(()=>[...document.querySelectorAll('#crtl-panel .crtl-btn')].find(b=>b.textContent==='ذخیرهٔ دکمه‌ها').click());
   const saved=await p.evaluate(()=>localStorage.getItem('crtl-sizes'));
   await p.reload(); await p.addScriptTag({content:script}); await p.waitForSelector('#crtl-panel',{state:'attached'});
-  out.afterDelete=(await topLabels()).length; assert.equal(out.afterDelete,11);
+  out.afterDelete=(await topLabels()).length; assert.equal(out.afterDelete,13);
   assert.ok(saved.includes('"seeded"'));
   // (ط) narrow panel: chat name and the three icons stay visible
   await p.setViewportSize({width:350,height:600}); await p.waitForTimeout(100);
@@ -112,12 +112,12 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await p.evaluate(()=>{const h=document.querySelector('.header_aqhumA');const c=h.cloneNode(true);c.querySelectorAll('.crtl-top').forEach(x=>x.remove());h.replaceWith(c)});
   await p.waitForTimeout(2000);
   out.rebuilt=await p.$$eval('.header_aqhumA [class*="headerSpacer_"] .crtl-top .crtl-btn',b=>b.length);
-  assert.equal(out.rebuilt,11);
+  assert.equal(out.rebuilt,13);
   // header gone (new Claude build): the top buttons land in the left column, never vanish
   await p.setViewportSize({width:900,height:600});
   await open({spacer:false});
   out.fallback=await p.$$eval('.crtl-bar[data-side="left"] [data-top]',b=>b.length);
-  assert.equal(out.fallback,12);
+  assert.equal(out.fallback,14);
   console.log(JSON.stringify(out));
  } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exit(1)});

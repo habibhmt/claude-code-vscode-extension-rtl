@@ -1,7 +1,7 @@
 // حدس: after each answer, Sonnet 5.5 guesses 3-5 next requests (a shortened
 // nazer-ideas divergent prompt). Each guess is a button above the prompt;
 // a click fills the prompt box and never sends.
-export const MODEL = 'claude-haiku-5-5'
+export const MODEL = 'claude-sonnet-5-5'
 
 const SYSTEM = [
   'You predict what the user (حبیب) will ask next in a Claude Code session.',

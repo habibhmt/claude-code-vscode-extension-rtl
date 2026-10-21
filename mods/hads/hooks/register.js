@@ -105,6 +105,18 @@ async function fillAppend($, text) {
 
 // on/off lives in the project itself (<root>/.claude/hads.on), so no project can switch another
 const flagPath = async ($) => (await $.session.root()) + '/.claude/hads.on'
+// keep the flag out of the project's git: a local-only line in .git/info/exclude.
+// No git, or a worktree (.git is a file there), is skipped; nothing here may stop on/off.
+async function hideFromGit($) {
+  try {
+    const git = (await $.session.root()) + '/.git/'
+    await $.fs.read(git + 'HEAD')
+    let ex = ''
+    try { ex = String(await $.fs.read(git + 'info/exclude')) } catch {}
+    if (ex.split('\n').some((l) => l.trim() === '.claude/hads.on')) return
+    await $.fs.write(git + 'info/exclude', ex + (ex && !ex.endsWith('\n') ? '\n' : '') + '.claude/hads.on\n')
+  } catch {}
+}
 const isOn = async ($) => {
   try { return String(await $.fs.read(await flagPath($))).trim() === 'on' } catch { return false }
 }
@@ -121,6 +133,7 @@ export function register(on) {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
       await $.fs.write(await flagPath($), arg)
+      await hideFromGit($)
       if (arg === 'off') { guesses = []; $.ui.invalidate('ui.render') }
       return { text: 'حدس برای همین پروژه ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }

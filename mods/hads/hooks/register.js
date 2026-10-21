@@ -103,6 +103,10 @@ async function fillAppend($, text) {
   return $.prompt.fill({ text: cur.trim() ? cur + '\n' + text : text })
 }
 
+// on/off is kept per project folder; a project nobody turned on stays off
+const projKey = () => { try { return 'on:' + process.cwd() } catch { return 'on:?' } }
+const isOn = async ($) => (await $.store.get(projKey())) === true
+
 export function register(on) {
   on('session.start', async ($, e, next) => {
     try {
@@ -114,16 +118,16 @@ export function register(on) {
   on('command.run', { command: 'hads' }, async ($, e) => {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
-      await $.store.set('off', arg === 'off')
+      await $.store.set(projKey(), arg === 'on')
       if (arg === 'off') { guesses = []; $.ui.invalidate('ui.render') }
-      return { text: 'حدس ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
+      return { text: 'حدس برای همین پروژه ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
     $.clock.after(0, () => guess($))
     return { text: 'حدس در حال ساختن…' }
   })
 
   on('turn.complete', async ($, e, next) => {
-    if (!e.agentId && !e.isAborted && (await interactive($)) && !(await $.store.get('off'))) {
+    if (!e.agentId && !e.isAborted && (await interactive($)) && (await isOn($))) {
       // not awaited: the turn must not wait for the model
       $.clock.after(0, () => guess($))
     }

@@ -23,6 +23,14 @@ $.reply = '[{"label":"تست","text":"آزمون‌ها رو اجرا کن"},{"l
 // subagent and aborted turns never call the model
 await H['turn.complete']($, { agentId: 'x' }, next); await H['turn.complete']($, { isAborted: true }, next); await flush()
 out.subagentOrAbort = calls.complete.length; assert.equal(out.subagentOrAbort, 0)
+// a project nobody turned on stays off
+await H['turn.complete']($, {}, next); await flush()
+out.defaultOff = calls.complete.length; assert.equal(out.defaultOff, 0)
+// on in this folder only: another folder stays off
+const home = process.cwd(), other = (await import('node:os')).tmpdir()
+await H['command.run']($, { args: 'on' })
+process.chdir(other); await H['turn.complete']($, {}, next); await flush(); process.chdir(home)
+out.otherProject = calls.complete.length; assert.equal(out.otherProject, 0)
 // a normal turn: Sonnet 5.5 by full name, then buttons
 await H['turn.complete']($, {}, next); await flush()
 out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')

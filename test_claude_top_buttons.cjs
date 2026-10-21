@@ -45,6 +45,9 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   out.inHeader=await p.evaluate(()=>!!document.querySelector('[class*="headerSpacer_"] > .crtl-top'));
   out.topCount=(await topLabels()).length; out.hads=(await topLabels()).slice(-2);
   assert.equal(out.inHeader,true); assert.equal(out.topCount,14); assert.deepEqual(out.hads,['h-on','h-off']);
+  await clear(); await clickTop('h-on'); await clear(); await clickTop('h-off');
+  out.hadsText=await composer(); await clear(); await clickTop('h-on'); out.hadsText=[await composer(),out.hadsText];
+  assert.deepEqual(out.hadsText,['/hads on','/hads off']); await clear();
   // (الف) two clicks → two lines
   await clickTop('ناظر'); await clickTop('اسک');
   out.twoLines=await composer(); assert.equal(out.twoLines,T1+'\n'+T2);

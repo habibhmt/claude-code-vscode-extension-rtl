@@ -228,6 +228,13 @@
     'color:inherit;cursor:pointer;white-space:nowrap;opacity:var(--crtl-btn-opacity,.65);direction:ltr}',
     '.crtl-btn:hover{opacity:1;background:rgba(127,127,127,.3)}',
     '.crtl-grip{cursor:grab;opacity:.35;letter-spacing:2px}',
+    /* message clock: no line of its own; small and faint on the first line of the message, left side */
+    '[class*="message_"]:has(>[data-message-stamp]){--message-padding-top:8px !important}',
+    '[data-message-stamp]{position:absolute !important;top:calc(var(--message-padding-top,8px) + 2px) !important;left:4px !important;right:auto !important;',
+    'padding:0 !important;z-index:2;opacity:.55;font-size:10px;background:var(--vscode-sideBar-background,var(--vscode-editor-background));pointer-events:auto}',
+    /* answers have the timeline dot at 9-16px on the left: start after it */
+    '[class*="timelineMessage_"]>[data-message-stamp]{left:30px !important}',
+    '[data-message-stamp]:not([class*="inPadding_"]){top:calc(var(--message-padding-top,8px) + 6px) !important;left:10px !important}',
     /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
     '[class*="headerSpacer_"].crtl-top-host{min-width:0;overflow:hidden;display:flex;align-items:center}',
     '.crtl-bar.crtl-top{position:static;flex-direction:row;align-items:center;max-height:none;min-width:0;flex:1;',

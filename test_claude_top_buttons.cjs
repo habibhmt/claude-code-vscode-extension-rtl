@@ -48,6 +48,10 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await clear(); await clickTop('h-on'); await clear(); await clickTop('h-off');
   out.hadsText=await composer(); await clear(); await clickTop('h-on'); out.hadsText=[await composer(),out.hadsText];
   assert.deepEqual(out.hadsText,['/hads on','/hads off']); await clear();
+  // no top button ever sends: count Enter presses on the composer while clicking every one
+  await p.evaluate(()=>{window.__enters=0;document.querySelector('[aria-label="Message input"]').addEventListener('keydown',e=>{if(e.key==='Enter')window.__enters++})});
+  for(const l of await topLabels()){await clickTop(l)} await p.waitForTimeout(200);
+  out.submitted=await p.evaluate(()=>window.__enters); assert.equal(out.submitted,0); await clear();
   // (الف) two clicks → two lines
   await clickTop('ناظر'); await clickTop('اسک');
   out.twoLines=await composer(); assert.equal(out.twoLines,T1+'\n'+T2);

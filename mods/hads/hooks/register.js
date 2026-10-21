@@ -103,9 +103,11 @@ async function fillAppend($, text) {
   return $.prompt.fill({ text: cur.trim() ? cur + '\n' + text : text })
 }
 
-// on/off is kept per project folder; a project nobody turned on stays off
-const projKey = () => { try { return 'on:' + process.cwd() } catch { return 'on:?' } }
-const isOn = async ($) => (await $.store.get(projKey())) === true
+// on/off lives in the project itself (<root>/.claude/hads.on), so no project can switch another
+const flagPath = async ($) => (await $.session.root()) + '/.claude/hads.on'
+const isOn = async ($) => {
+  try { return String(await $.fs.read(await flagPath($))).trim() === 'on' } catch { return false }
+}
 
 export function register(on) {
   on('session.start', async ($, e, next) => {
@@ -118,7 +120,7 @@ export function register(on) {
   on('command.run', { command: 'hads' }, async ($, e) => {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
-      await $.store.set(projKey(), arg === 'on')
+      await $.fs.write(await flagPath($), arg)
       if (arg === 'off') { guesses = []; $.ui.invalidate('ui.render') }
       return { text: 'حدس برای همین پروژه ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }

@@ -19,7 +19,7 @@ let pending = []
 const flush = async () => { await Promise.all(pending); pending = [] }
 const next = async (e) => e
 const out = {}
-$.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = { '/p/A/.git/HEAD': 'ref: main' }
+$.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = { '/p/A/.git/HEAD': 'ref: main', '/p/A/.git/info/exclude': 'keep-me' }
 $.reply = '[{"label":"تست","text":"آزمون‌ها رو اجرا کن"},{"label":"کامیت","text":"کامیت و پوش کن"}]'
 // subagent and aborted turns never call the model
 await H['turn.complete']($, { agentId: 'x' }, next); await H['turn.complete']($, { isAborted: true }, next); await flush()
@@ -30,9 +30,9 @@ out.defaultOff = calls.complete.length; assert.equal(out.defaultOff, 0)
 // on in project A only: project B stays off, and A's switch is a file inside A
 $.root = '/p/A'; await H['command.run']($, { args: 'on' })
 out.flagInA = flags['/p/A/.claude/hads.on']; assert.equal(out.flagInA, 'on')
-// git keeps the flag out: one local exclude line, not repeated; no git (or a worktree) is skipped
+// git keeps the flag out: one local exclude line added after the old ones, not repeated; no git (or a worktree) is skipped
 await H['command.run']($, { args: 'on' })
-out.excludeA = flags['/p/A/.git/info/exclude']; assert.equal(out.excludeA, '.claude/hads.on\n')
+out.excludeA = flags['/p/A/.git/info/exclude']; assert.equal(out.excludeA, 'keep-me\n.claude/hads.on\n')
 $.root = '/p/C'; await H['command.run']($, { args: 'on' })
 out.noGitFlag = flags['/p/C/.claude/hads.on']; assert.equal(out.noGitFlag, 'on')
 out.noGitExclude = Object.keys(flags).filter((k) => k.startsWith('/p/C/.git')).length; assert.equal(out.noGitExclude, 0)

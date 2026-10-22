@@ -6,3 +6,4 @@
 | ۲ | دیدنِ ساعتِ جوابِ کلود بعد از نقطه | ۲۱ اکت ۲۳:۴۰ | Reload و عکس |
 | ۳ | `mods/hads/tsconfig.json` (فایلِ تایپ برای ویرایشگر، ساختهٔ موقعِ ساختنِ مود) — commit بشود یا نه | ۲۱ اکت | تصمیمِ حبیب |
 | ۴ | push و تگِ کارِ «git تمیز برای hads.on» | ۲۲ اکت ۰۳:۰۵ | اجازهٔ منشی («commit ولی push نه») |
+| ۵ | آزمون‌های ۰۲ و ۰۳ (و `npm test`) کرومِ headless باز می‌کنند؛ تا «تمام» ِ منشی فقط با `NO_CHROME=1 bash Doc/tarif/chek.sh` | ۲۲ اکت ۰۷:۰۰ | «تمام» در `state/sarparast/zende-dastoor.md` |

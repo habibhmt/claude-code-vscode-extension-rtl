@@ -1,0 +1,13 @@
+# تعریف ۰۹ — commit بله، push فعلاً نه (commit bi push) — v1 (حبیب، ۱۹ اکت ⇒ جایگزین ۲۲ اکت ۲۰۲۶)
+
+| | |
+|---|---|
+| **آدرسِ چت** | `~/.claude/projects/-Users-habib-1-MY-WORK-136th-day-fix-rtl-claude/6d39ff34-b0b1-48ae-a27b-6dc2870b9578.jsonl` — **قبلی، جایگزین‌شده** (۱۹ اکت، خط ۱۸۷۶): «کامیتو پوشش بکن» · **تازه‌تر، بالادست** (۲۲ اکت ۰۲:۵۷، به نقلِ ناظرِ منشی): «commit ولی push نه» · ۰۳:۲۰ منشی: حبیب تصمیم را به سرپرست‌ها داد |
+| **منبعِ مرتب** | `~/1-MY-WORK/0th-day-secreter-director-from-all-sources/soal-javab/136-mojri.md` ردیف‌های ۳۵، ۸۳ · `Doc/moallagh.md` ردیفِ push |
+| **وضعیتِ git** | `git log origin/main..main --oneline` |
+
+1. **چیست:** کارِ تمام‌شده و آزموده commit ِ محلی می‌شود؛ push و تگ تا اجازهٔ منشی/سرپرست نه. هر push ِ مانده در `moallagh.md` ثبت است.
+2. **کی/کجا:** از ۲۲ اکت، تا خبرِ تازه از منشی.
+3. **عمداً نیست:** نگه‌داشتنِ کار بی‌commit · push ِ «فقط یک بار».
+4. **باطل می‌شود اگر:** commit ای بی‌اجازه به GitHub برود · منشی یا حبیب بگوید "حالا push کن" (آن‌وقت این تعریف کنار می‌رود و commit ها push می‌شوند).
+5. **چک:** `git log origin/main..main --oneline | wc -l` ⇒ بزرگ‌تر از ۰ تا وقتی قاعده برقرار است؛ و `grep -c push Doc/moallagh.md` ⇒ ≥ ۱.

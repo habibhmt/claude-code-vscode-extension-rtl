@@ -15,4 +15,8 @@ n=$(cat ~/.vscode/extensions/anthropic.claude-code-*/webview/index.js 2>/dev/nul
 z=0; for f in ~/.*/extensions/anthropic.claude-code-*; do [ "$(grep -c crtl-panel "$f/extension.js" 2>/dev/null)" -gt 0 ] || z=$((z+1)); done
 l=$(launchctl list | grep -c com.habib.fix-rtl-claude)
 [[ $z -eq 0 && $l -ge 1 ]] && ok "۰۴ پچِ RTL" || no "۰۴ پچِ RTL" "بی‌پچ: $z · launchd: $l"
+python3 Doc/tarif/naghl_chek.py >/dev/null && ok "۰۵–۰۹ و فحوا: نقل‌های حبیب عین منبع" || no "نقل‌ها" "python3 Doc/tarif/naghl_chek.py را ببین"
+a=$(git log origin/main..main --oneline 2>/dev/null | wc -l | tr -d ' '); p=$(grep -c push Doc/moallagh.md)
+[[ $a -eq 0 || $p -ge 1 ]] && ok "۰۹ commit بی‌push (مانده: $a)" || no "۰۹ commit بی‌push" "commit ِ مانده بی‌ثبت در moallagh"
+echo "دستی، هر گزارش: ۰۵ کار به دوشِ حبیب · ۰۶ واژه‌ها · ۰۷ سؤال با منشی · ۰۸ سرچِ عمیق"
 echo "باطل: $bad"; exit $bad

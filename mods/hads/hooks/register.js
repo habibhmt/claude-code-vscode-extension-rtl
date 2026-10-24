@@ -114,12 +114,11 @@ async function guess($) {
   }
 }
 
-const FORK_PROMPT = [
-  '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.)',
-  'Reply ONLY with JSON: {"now": "<exactly two short sentences of plain Persian: what the agent in this',
-  'chat is doing now and what it waits for, in حبیب\'s own words from the glossary below>", "guesses":',
-  '[3 to 5 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]}',
-].join(' ')
+// only the parts ticked on are asked for: fewer output tokens
+const NOW_ASK = '"now": "<exactly two short sentences of plain Persian: what the agent in this chat is doing now and what it waits for, in حبیب\'s own words from the glossary below>"'
+const GUESS_ASK = '"guesses": [3 to 5 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]'
+const forkPrompt = (p) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
+  [p.now && NOW_ASK, p.guess && GUESS_ASK].filter(Boolean).join(', ') + '}'
 
 // {now, guesses} from the fork's reply; null when it has neither
 export function parseBoth(raw) {
@@ -181,7 +180,8 @@ async function tellNow($, tool, force) {
 
 // The end of an answer: one fork over the whole chat, read from the cache the answer just
 // warmed. Too big a chat, or no usable reply, falls back to the two Sonnet calls.
-async function turnEnd($) {
+async function turnEnd($, p = { guess: true, now: true }) {
+  if (!p.guess && !p.now) return
   if (endBusy) { endAgain = true; return }
   endBusy = true; endAt = await $.clock.now()
   try {
@@ -190,23 +190,23 @@ async function turnEnd($) {
     try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
     if (tokens <= MAX_FORK) {
       try {
-        const r = await $.model.fork({ prompt: FORK_PROMPT + '\n\n' + (await vazhe($)) })
+        const r = await $.model.fork({ prompt: forkPrompt(p) + '\n\n' + (await vazhe($)) })
         got = r.isAnswered ? parseBoth(r.text) : null
         if (got) try { await $.store.set('lastTurnUsage', { via: 'fork', tokens, usage: r.usage }) } catch {}
       } catch {}
     }
     if (got) {
       const id = await $.session.id()
-      if (got.now) now = { text: got.now, for: id }
-      if (got.guesses.length) { guesses = got.guesses; madeFor = id }
+      if (got.now && p.now) now = { text: got.now, for: id }
+      if (got.guesses.length && p.guess) { guesses = got.guesses; madeFor = id }
       hidden = false; $.ui.invalidate('ui.render')
     } else {
-      await Promise.all([guess($), tellNow($, '', true)])
+      await Promise.all([p.guess && guess($), p.now && tellNow($, '', true)])
     }
   } finally {
     endBusy = false
   }
-  if (endAgain) { endAgain = false; await turnEnd($) }
+  if (endAgain) { endAgain = false; await turnEnd($, (await readFlag($)) || p) }
 }
 
 const WHY = {
@@ -265,8 +265,27 @@ async function fillAppend($, text) {
 // switch another, not even one in the same folder. One file each, not $.store: the store
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
 const flagPath = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
-const isOn = async ($) => {
-  try { return String(await $.fs.read(await flagPath($))).trim() === 'on' } catch { return false }
+// The file holds `on`, then the parts ticked off: `on -guess -ask`. h-on turns all three on.
+export const PARTS = [['guess', 'حدس'], ['now', 'دو جمله'], ['ask', 'پرسش']]
+async function readFlag($) {
+  try {
+    const w = String(await $.fs.read(await flagPath($))).trim().split(/\s+/)
+    if (w[0] !== 'on') return null
+    return Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)]))
+  } catch {
+    return null
+  }
+}
+const isOn = async ($) => (await readFlag($)) !== null
+async function tick($, key) {
+  const p = await readFlag($)
+  if (!p) return
+  p[key] = !p[key]
+  await $.fs.write(await flagPath($), ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k)].join(' '))
+  if (!p.guess) guesses = []
+  if (!p.now) now = { text: '', for: '' }
+  if (!p.ask) answer = null
+  $.ui.invalidate('ui.render')
 }
 
 export function register(on) {
@@ -287,16 +306,15 @@ export function register(on) {
       $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
-    $.clock.after(0, () => turnEnd($))
+    $.clock.after(0, async () => turnEnd($, (await readFlag($)) || undefined))
     return { text: 'حدس در حال ساختن…' }
   })
 
   on('turn.complete', async ($, e, next) => {
     if (!e.agentId) try { lastActivity = await $.clock.now() } catch {}
-    if (!e.agentId && !e.isAborted && (await interactive($)) && (await isOn($))) {
-      // not awaited: the turn must not wait for the model
-      $.clock.after(0, () => turnEnd($))
-    }
+    const p = !e.agentId && !e.isAborted && (await interactive($)) ? await readFlag($) : null
+    // not awaited: the turn must not wait for the model
+    if (p) $.clock.after(0, () => turnEnd($, p))
     return next(e)
   })
 
@@ -310,7 +328,7 @@ export function register(on) {
         $.clock.after(0, async () => {
           try {
             lastActivity = await $.clock.now()
-            if ((await interactive($)) && (await isOn($))) await tellNow($, what, false)
+            if ((await interactive($)) && (await readFlag($))?.now) await tellNow($, what, false)
           } catch {}
         })
       }
@@ -319,23 +337,27 @@ export function register(on) {
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    const p = await readFlag($)
+    if (hidden || !p) return next(e)
     const id = await $.session.id()
-    const g = madeFor === id ? guesses : []
-    const n = now.for === id ? now.text : ''
-    const a = answer && answer.for === id ? answer : null
-    if (hidden || (!g.length && !n && !a)) return next(e)
+    const g = p.guess && madeFor === id ? guesses : []
+    const n = p.now && now.for === id ? now.text : ''
+    const a = p.ask && answer && answer.for === id ? answer : null
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
     const close = () => { hidden = true; $.ui.invalidate('ui.render') }
     const rows = []
-    // a press on «دو جمله» starts a «بپرس» about it, like /btw on that line
-    if (n) rows.push(Input ? Button({
-      key: 'hads-now', label: n,
-      onPress: () => {
-        askText = 'دربارهٔ این: «' + n + '» — '; $.ui.invalidate('ui.render')
-        try { Promise.resolve($.ui.focus({ requestId: e.requestId, key: 'hads-ask' })).catch(() => {}) } catch {}
-      },
-    }) : Text({ key: 'hads-now', dimColor: true, children: [n] }))
+    // a press on «دو جمله» starts a «پرسش» about it, like /btw on that line
+    if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+      Text({ dimColor: true, children: ['دو جمله:'] }),
+      p.ask && Input ? Button({
+        key: 'hads-now', label: n,
+        onPress: () => {
+          askText = 'دربارهٔ این: «' + n + '» — '; $.ui.invalidate('ui.render')
+          try { Promise.resolve($.ui.focus({ requestId: e.requestId, key: 'hads-ask' })).catch(() => {}) } catch {}
+        },
+      }) : Text({ key: 'hads-now', dimColor: true, children: [n] }),
+    ] }))
     rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
       children: [
@@ -345,17 +367,19 @@ export function register(on) {
           onPress: () => fillAppend($, x.text),
         })),
         // no Input on mobile: the row stays buttons only
-        ...(Input ? [Input({
-          key: 'hads-ask', value: askText, placeholder: 'بپرس… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
+        ...(Input && p.ask ? [Input({
+          key: 'hads-ask', value: askText, placeholder: 'پرسش… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
           onInput: (v) => { askText = v }, onSubmit: (v) => ask($, v),
         })] : []),
+        // one tick per part, for this chat only
+        ...PARTS.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tick($, k) })),
         Button({ key: 'hads-x', label: '×', onPress: close }),
       ],
     }))
     if (a) rows.push(Box({
       flexDirection: 'column',
       children: [
-        Text({ dimColor: true, children: ['بپرس: ' + a.q] }),
+        Text({ dimColor: true, children: ['پرسش: ' + a.q] }),
         Text({ children: [a.text] }),
         Box({ flexDirection: 'row', columnGap: 1, children: [
           Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => fillAppend($, a.q + '\n' + a.text) }),

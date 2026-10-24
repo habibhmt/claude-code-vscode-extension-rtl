@@ -33,9 +33,13 @@ const flush = async () => { await Promise.all(pending); pending = [] }
 const next = async (e) => e
 const out = {}
 const render = (e = {}) => H['ui.render']($, { component: 'AbovePrompt', ...e }, async () => 'engine')
-const row = (t) => t.children.find((c) => c.t === 'Box' && c.flexDirection === 'row')
+// the row with the guesses, «پرسش» and the ticks (the one holding ×)
+const row = (t) => t.children.find((c) => c.t === 'Box' && (c.children || []).some((x) => x && x.key === 'hads-x'))
 // guess buttons drawn (× left out); 'engine' alone means the mod drew nothing
-const guessLabels = (t) => t === 'engine' ? [] : row(t).children.filter((c) => c.t === 'Button' && c.label !== '×').map((c) => c.label)
+const isGuess = (c) => c.t === 'Button' && c.label !== '×' && !String(c.key).startsWith('hads-tick-')
+const guessLabels = (t) => t === 'engine' ? [] : row(t).children.filter(isGuess).map((c) => c.label)
+// any element by key, however deep
+const find = (t, key) => { if (!t || typeof t !== 'object') return null; if (t.key === key) return t; for (const c of t.children || []) { const f = find(c, key); if (f) return f } return null }
 $.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = {}
 $.reply = '[{"label":"تست","text":"آزمون‌ها رو اجرا کن"},{"label":"کامیت","text":"کامیت و پوش کن"}]'
 // subagent and aborted turns never call the model
@@ -62,7 +66,7 @@ $.sid = 'A'; out.answer = (await again['command.run']($, { args: 'on' })).text; 
 await H['turn.complete']($, {}, next); await flush()
 out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')
 const tree = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-const btns = row(tree).children.filter((c) => c.t === 'Button')
+const btns = row(tree).children.filter((c) => c.t === 'Button' && !String(c.key).startsWith('hads-tick-'))
 out.buttons = btns.map((b) => b.label); assert.deepEqual(out.buttons, ['تست', 'کامیت', '×'])
 // after /clear (a new chat id) the old row is gone
 $.sid = 'A2'; out.afterClear = await H['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); assert.equal(out.afterClear, 'engine'); $.sid = 'A'
@@ -89,7 +93,7 @@ out.endNotDropped = calls.complete.length; assert.equal(out.endNotDropped, 2); $
 $.reply = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ label: 'g' + i, text: 't' + i })))
 await H['turn.complete']($, {}, next); await flush()
 const t2 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-out.max = row(t2).children.filter((c) => c.t === 'Button').length; assert.equal(out.max, 6)
+out.max = row(t2).children.filter((c) => c.t === 'Button' && !String(c.key).startsWith('hads-tick-')).length; assert.equal(out.max, 6)
 // other agents' messages are labelled, not taken as the user's; reminders are cut out
 calls.complete.length = 0
 $.msgs = [{ role: 'user', text: '<system-reminder>یادآوری</system-reminder>\nپیامِ حبیب' },
@@ -137,7 +141,7 @@ $.t += mod.GAP; await tool({ agentId: 'sub' }); await flush(); $.sid = 'B'; $.t 
 out.subOrOff = calls.now.length; assert.equal(out.subOrOff, 4)
 // five sentences from the model: two are shown
 $.nowReply = 'اول. دوم! سوم؟ چهارم. پنجم.'; $.t += mod.GAP; await tool(); await flush()
-const nowText = (t) => t.children.find((c) => c.key === 'hads-now')?.children[0]
+const nowText = (t) => find(t, 'hads-now')?.children[0]
 out.twoOnly = nowText(await render()); assert.equal(out.twoOnly, 'اول. دوم!')
 // a dot inside a file name or a version does not end the sentence
 out.fileDot = mod.twoSentences('ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد. سوم.'); assert.equal(out.fileDot, 'ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد.')
@@ -153,7 +157,7 @@ $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: 
 const realNow = $.clock.now; $.clock.now = async () => { throw new Error('boom') }
 out.toolSurvives = (await tool()).result; await flush(); assert.equal(out.toolSurvives, 'ok'); $.clock.now = realNow
 // the end of an answer: ONE fork over the whole chat gives both «دو جمله» and the guesses
-const nowText2 = (t) => t.children.find((c) => c.key === 'hads-now')
+const nowText2 = (t) => find(t, 'hads-now')
 const cnt = () => [calls.fork.length, calls.now.length, calls.complete.length]
 $.t += mod.GAP; $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }
 $.forkReply = { isAnswered: true, usage: { input_tokens: 9, output_tokens: 99, cache_read_input_tokens: 200000, cache_creation_input_tokens: 5 },
@@ -209,7 +213,7 @@ out.nothingToFork = ansText(await render()).some((x) => /\/clear/.test(x)); asse
 $.ui.resolve = () => withInput
 $.forkReply = { isAnswered: true, text: '{"now": "مجری دارد می‌سازد. منتظرِ ناظر است.", "guesses": []}', usage: {} }
 $.t += 1; await H['turn.complete']($, {}, next); await flush()
-const nowBtn = (await render()).children.find((c) => c.key === 'hads-now'); await nowBtn.onPress()
+const nowBtn = find(await render(), 'hads-now'); await nowBtn.onPress()
 out.btwNow = row(await render()).children.find((c) => c.t === 'Input').value.startsWith('دربارهٔ این: «') && calls.focus?.key === 'hads-ask'
 assert.equal(out.btwNow, true)
 // a cold cache (idle past COLD): the first Enter only tells the cost, the second asks
@@ -221,4 +225,35 @@ out.coldSecond = calls.fork.length - f0; assert.equal(out.coldSecond, 1); $.ctx 
 $.ui.resolve = realResolve
 // on mobile (no Input) the row still draws
 out.noInput = row(await render()).children.some((c) => c.t === 'Input'); assert.equal(out.noInput, false)
+// the numbers agreed with Habib and the ناظر (تعریفِ ۱۰): a change must turn this red
+out.pinned = [mod.GAP, mod.MAX_FORK]; assert.deepEqual(out.pinned, [60000, 400000])
+// ticks: one per part, this chat only; a part ticked off is neither drawn nor asked for
+$.sid = 'A'; $.ui.resolve = () => withInput; await H['command.run']($, { args: 'on' })
+const ticks = (t) => PARTS_KEYS.map((k) => find(t, 'hads-tick-' + k)?.label)
+const PARTS_KEYS = ['guess', 'now', 'ask']
+out.ticksOn = ticks(await render()); assert.deepEqual(out.ticksOn, ['✓ حدس', '✓ دو جمله', '✓ پرسش'])
+await find(await render(), 'hads-tick-guess').onPress()
+out.guessOffFile = flags['/h/.claude/hads-on/A']; assert.equal(out.guessOffFile, 'on -guess')
+$.forkReply = { isAnswered: true, text: '{"now": "فقط این. همین.", "guesses": [{"label": "نه", "text": "نباید"}]}', usage: {} }
+await H['turn.complete']($, {}, next); await flush()
+const t8 = await render()
+out.guessOff = { labels: guessLabels(t8), asked: /guesses/.test(calls.fork.at(-1).prompt), now: nowText2(t8)?.label }
+assert.deepEqual(out.guessOff, { labels: [], asked: false, now: 'فقط این. همین.' })
+// what was made while «حدس» was ticked off never shows up when it comes back
+await find(await render(), 'hads-tick-guess').onPress()
+out.noStale = guessLabels(await render()).includes('نه'); assert.equal(out.noStale, false)
+await find(await render(), 'hads-tick-guess').onPress()
+// another chat keeps its own ticks
+$.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
+// «حدس» and «دو جمله» both off: no model call at an answer's end or during work
+await find(await render(), 'hads-tick-now').onPress()
+const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.GAP; await tool(); await flush(); const z1 = cnt()
+out.bothOff = [z1[0] - z0[0], z1[1] - z0[1], z1[2] - z0[2]]; assert.deepEqual(out.bothOff, [0, 0, 0])
+// «پرسش» off: no box; the ticks stay so it can come back
+await find(await render(), 'hads-tick-ask').onPress()
+const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ticks(t9) }
+assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
+for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
+out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
+$.ui.resolve = realResolve
 console.log(JSON.stringify(out))

@@ -243,6 +243,21 @@
        «هنوزم این چارچوب حدس متنش قابل انتخاب و کپی پیست نیست»); buttons and inputs stay as they are */
     '[class*="abovePrompt_"] [class*="band_"],[class*="abovePrompt_"] [class*="row_"],[class*="abovePrompt_"] [class*="paneBody_"],[class*="abovePrompt_"] span[class*="text_"]{-webkit-user-select:text!important;user-select:text!important}',
     '[class*="abovePrompt_"] span[class*="text_"]{cursor:text}',
+    /* the «حدس» box, macOS style (Habib, 24 Oct 22:37: «رو طراحیش کار بکن … با طراحی مک او اس»):
+       a rounded translucent card, SF text, soft shadow; pill buttons; the ticks as a blue/grey
+       segmented look; the ask field with the macOS focus ring. Scoped to .crtl-hads (the page
+       script tags the box whose header says «hads plugin»), so other plugins keep their look. */
+    '.crtl-hads{margin:6px 8px 8px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) 90%,transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
+    '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10.5px!important;letter-spacing:.02em;opacity:.5;padding:7px 12px 0!important;position:static!important}',
+    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:6px 12px 10px!important;margin:0!important}',
+    '.crtl-hads span[class*="text_"]{line-height:1.6}',
+    '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:1px 9px!important;font-size:11.5px!important;line-height:1.6!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
+    '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
+    '.crtl-hads button.crtl-tick-on{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
+    '.crtl-hads button.crtl-tick-off{opacity:.55}',
+    '.crtl-hads button.crtl-insert{border-radius:50%!important;padding:0 6px!important;min-width:0}',
+    '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:2px 9px!important;min-width:14em;outline:none!important;transition:box-shadow .15s}',
+    '.crtl-hads input[class*="input_"]:focus{border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.4)!important}',
     '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
@@ -1987,6 +2002,22 @@
       });
     }
     document.documentElement.classList.toggle('crtl-focus-on', !!document.querySelector('[class*="focusFoldRow_"]'));
+    // the «حدس» box: the panel's own header line says «From the hads plugin»; tag its card and
+    // its tick buttons (✓ on, ✗ off) and the small ⤵ for the macOS look
+    var marks = document.querySelectorAll('[class*="abovePrompt_"] [data-engine-mark]');
+    for (var k = 0; k < marks.length; k++) {
+      if (!/\bhads plugin\b/.test(marks[k].textContent || '')) continue;
+      var card = marks[k].parentElement;
+      if (!card) continue;
+      card.classList.add('crtl-hads');
+      var bs = card.querySelectorAll('button');
+      for (var b = 0; b < bs.length; b++) {
+        var tx = (bs[b].textContent || '').trim();
+        bs[b].classList.toggle('crtl-tick-on', tx.charAt(0) === '✓');
+        bs[b].classList.toggle('crtl-tick-off', tx.charAt(0) === '✗');
+        bs[b].classList.toggle('crtl-insert', tx === '⤵');
+      }
+    }
   }
   setInterval(markHooks, 700);
   window.__crtlMarkHooks = markHooks;

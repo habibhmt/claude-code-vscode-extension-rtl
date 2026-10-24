@@ -182,7 +182,7 @@
 // "informational" line, which the page already draws in the chat (like «Remote Control is
 // active»). The buttons script folds it to one line and opens it on a click or in focus view.
 (function () {
-  var MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+  var mah_shamsi = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
   function fa(s) { return String(s).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
   function jalali(gy, gm, gd) {
     var g = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -200,7 +200,7 @@
     var d = new Date(t + 3.5 * 3600e3);
     var j = jalali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
     var hh = ('0' + d.getUTCHours()).slice(-2), mm = ('0' + d.getUTCMinutes()).slice(-2);
-    return fa(j[2] + ' ' + MONTHS[j[1] - 1] + ' ' + j[0] + ' ' + hh + ':' + mm);
+    return fa(j[2] + ' ' + mah_shamsi[j[1] - 1] + ' ' + j[0] + ' ' + hh + ':' + mm);
   }
   // a long path keeps only its file name (and :line): /Users/…/doc/achar/11.md:40 ⇒ 11.md:40
   function shortPaths(t) { return t.replace(/(?:~|\/Users)\/[^\s:'"`)\]]*\/([^\/\s:'"`)\]]+(?::\d+)?)/g, '$1'); }
@@ -226,8 +226,8 @@
     var first = t.split('\n')[0];
     return { head: shortPaths(first), body: shortPaths(t), dupe: false };
   }
-  globalThis.__crtlHookReadable = readable;
-  globalThis.__crtlHookLine = function (m, now) {
+  globalThis.__crtl_hook_khana = readable;
+  globalThis.__crtl_khat_hook = function (m, now) {
     try {
       if (!m || m.type !== 'system' || m.subtype !== 'hook_response') return m;
       var r = readable(m.output || m.stdout);
@@ -238,6 +238,6 @@
         content: '🪝 ' + whenFa(now || Date.now()) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
     } catch (e) { return m; }
   };
-  globalThis.__crtlJalali = jalali;
+  globalThis.__crtl_tarikh_shamsi = jalali;
 })();
 /* === /CLAUDE-RTL-HOST-HOOK === */

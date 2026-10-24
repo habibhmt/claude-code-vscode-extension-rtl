@@ -134,29 +134,29 @@ const tool = (e = {}) => H['tool.call']($, { tool: 'Bash', command: 'ls', ...e }
 // each one finished before the next: only the time brake can hold them back
 for (let i = 0; i < 5; i++) { await tool(); await flush() }
 out.brake = calls.now.length; assert.equal(out.brake, 1)
-$.t += mod.GAP; await tool(); await flush()
+$.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 out.afterGap = calls.now.length; assert.equal(out.afterGap, 2)
 // an answer's end always tells, even inside the gap
 await H['turn.complete']($, {}, next); await flush()
 out.turnAlways = calls.now.length; assert.equal(out.turnAlways, 3)
 // the glossary of the project goes in, and the tool that just ran
-$.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }; $.t += mod.GAP; await tool({ command: 'npm test' }); await flush()
+$.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }; $.t += mod.do_jomle_fasele_ms; await tool({ command: 'npm test' }); await flush()
 const np = calls.now.at(-1).prompt.map((b) => b.text).join('\n')
 out.glossary = /واژهٔ-حبیب/.test(np) && /npm test/.test(np) && calls.now.at(-1).model === 'claude-sonnet-5-5'; assert.equal(out.glossary, true)
 // a subagent's tools, or a chat that is off, never call
-$.t += mod.GAP; await tool({ agentId: 'sub' }); await flush(); $.sid = 'B'; $.t += mod.GAP; await tool(); await flush(); $.sid = 'A'
+$.t += mod.do_jomle_fasele_ms; await tool({ agentId: 'sub' }); await flush(); $.sid = 'B'; $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); $.sid = 'A'
 out.subOrOff = calls.now.length; assert.equal(out.subOrOff, 4)
 // five sentences from the model: two are shown
-$.nowReply = 'اول. دوم! سوم؟ چهارم. پنجم.'; $.t += mod.GAP; await tool(); await flush()
+$.nowReply = 'اول. دوم! سوم؟ چهارم. پنجم.'; $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 const nowText = (t) => find(t, 'hads-now')?.children[0]
 out.twoOnly = nowText(await render()); assert.equal(out.twoOnly, 'اول. دوم!')
 // a dot inside a file name or a version does not end the sentence
 out.fileDot = mod.twoSentences('ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد. سوم.'); assert.equal(out.fileDot, 'ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد.')
 // a «sentence» without a stop, 2000 long, is cut to MAX_NOW with …
-const long = mod.twoSentences('ا'.repeat(2000)); out.maxLen = long.length + (long.endsWith('…') ? '…' : ''); assert.equal(out.maxLen, mod.MAX_NOW + '…')
+const long = mod.twoSentences('ا'.repeat(2000)); out.maxLen = long.length + (long.endsWith('…') ? '…' : ''); assert.equal(out.maxLen, mod.had_do_jomle_harf + '…')
 // the tool's result comes back untouched and never waits for the model
 let hang; $.nowModel = () => new Promise((r) => { hang = r })
-$.t += mod.GAP; out.untouched = (await tool()).result; assert.equal(out.untouched, 'ok')
+$.t += mod.do_jomle_fasele_ms; out.untouched = (await tool()).result; assert.equal(out.untouched, 'ok')
 await new Promise((r) => setTimeout(r, 5)); out.modelWasCalled = typeof hang; assert.equal(out.modelWasCalled, 'function')
 hang({ isAnswered: false, reason: 'aborted' }); await flush()
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
@@ -167,34 +167,34 @@ out.toolSurvives = (await tool()).result; await flush(); assert.equal(out.toolSu
 // itself (its own model, warm cache) — only every GUESS_EVERY answers
 const nowText2 = (t) => find(t, 'hads-now')
 const cnt = () => [calls.fork.length, calls.now.length, calls.complete.length]
-$.t += mod.GAP; $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }; $.nowReply = 'الف کرد. ب ماند. پ.'
+$.t += mod.do_jomle_fasele_ms; $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }; $.nowReply = 'الف کرد. ب ماند. پ.'
 $.forkReply = { isAnswered: true, usage: { input_tokens: 9, output_tokens: 99, cache_read_input_tokens: 200000, cache_creation_input_tokens: 5 },
-  text: 'بفرما: {"guesses": [{"label": "یک", "text": "کارِ یک"}, {"label": "دو", "text": "کارِ دو"}]}' }
+  text: 'بفرما: {"hads": [{"label": "یک", "text": "کارِ یک"}, {"label": "دو", "text": "کارِ دو"}]}' }
 $.sid = 'F'; await H['command.run']($, { args: 'on' })
 let c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); let c1 = cnt()
 out.oneFork = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.oneFork, [1, 1, 0])
 const t5 = await render()
 out.forkRow = { now: nowText2(t5).children[0], guesses: guessLabels(t5) }
 assert.deepEqual(out.forkRow, { now: 'الف کرد. ب ماند.', guesses: ['کارِ یک', 'کارِ دو'] })
-out.forkPrompt = /JSON/.test(calls.fork.at(-1).prompt) && /guesses/.test(calls.fork.at(-1).prompt) && !/"now"/.test(calls.fork.at(-1).prompt); assert.equal(out.forkPrompt, true)
-out.turnUsage = (await $.store.get('lastTurnUsage'))?.via; assert.equal(out.turnUsage, 'fork')
+out.forkPrompt = /JSON/.test(calls.fork.at(-1).prompt) && /"hads"/.test(calls.fork.at(-1).prompt) && !/"do_jomle"/.test(calls.fork.at(-1).prompt); assert.equal(out.forkPrompt, true)
+out.turnUsage = (await $.store.get('kharj_akhar_hads_fork'))?.rah; assert.equal(out.turnUsage, 'fork')
 // the next GUESS_EVERY-1 answers: «دو جمله» only, no fork, the guesses stay
 const between = []
-for (let i = 1; i < mod.GUESS_EVERY; i++) { c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt(); between.push([c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]) }
-out.between = between; assert.deepEqual(out.between, Array(mod.GUESS_EVERY - 1).fill([0, 1, 0]))
+for (let i = 1; i < mod.hads_har_chand_javab; i++) { c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt(); between.push([c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]) }
+out.between = between; assert.deepEqual(out.between, Array(mod.hads_har_chand_javab - 1).fill([0, 1, 0]))
 out.guessesKept = guessLabels(await render()); assert.deepEqual(out.guessesKept, ['کارِ یک', 'کارِ دو'])
 // a broken fork reply falls back to Sonnet for the guesses, never an empty row
 $.forkReply = { isAnswered: true, text: 'not json', usage: {} }
 c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
 out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
 // a chat over MAX_FORK tokens never forks
-$.forkReply = { isAnswered: true, text: '{"guesses": []}', usage: {} }; $.ctx = mod.MAX_FORK + 1
+$.forkReply = { isAnswered: true, text: '{"hads": []}', usage: {} }; $.ctx = mod.had_fork_kontekst_token + 1
 c0 = cnt(); await H['command.run']($, { args: 'now' }); await flush(); c1 = cnt()
 out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1]); $.ctx = 1000
 $.sid = 'A'
 // mid-work uses only the last three messages
 $.msgs = Array.from({ length: 10 }, (_, i) => ({ role: 'user', text: 'پیامِ-' + i }))
-$.t += mod.GAP; await tool(); await flush()
+$.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 const mp3 = calls.now.at(-1).prompt.map((b) => b.text).join('\n')
 out.lastThree = !/پیامِ-6/.test(mp3) && /پیامِ-7/.test(mp3) && /پیامِ-9/.test(mp3); assert.equal(out.lastThree, true)
 // deep in a long answer the last three are all the agent's: Habib's last request still goes in
@@ -204,7 +204,7 @@ out.hisRequest = mod.recent(longTurn).map((m) => m.text); assert.deepEqual(out.h
 // a mid-work line that comes back after an answer's end does not hide the end's line
 let late; let lateOnce = true
 $.nowModel = (o) => { calls.now.push(o); if (lateOnce) { lateOnce = false; return new Promise((r) => { late = r }) } return { isAnswered: true, text: 'پایان شد. منتظرِ حبیب.' } }
-$.t += mod.GAP; await tool(); await new Promise((r) => setTimeout(r, 5))
+$.t += mod.do_jomle_fasele_ms; await tool(); await new Promise((r) => setTimeout(r, 5))
 $.t += 1; await H['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5))
 late({ isAnswered: true, text: 'وسطِ کار. هنوز.' }); await flush(); await new Promise((r) => setTimeout(r, 5)); await flush()
 const t6 = await render(); out.endWins = nowText2(t6).children[0]; assert.equal(out.endWins, 'پایان شد. منتظرِ حبیب.')
@@ -223,7 +223,7 @@ await box.onSubmit('این یعنی چی؟'); await flush()
 out.ask = { fork: calls.fork.length, fill: calls.fill.length, submit: calls.submit.length }; assert.deepEqual(out.ask, { fork: 1, fill: 0, submit: 0 })
 const ansText = (t) => t.children.filter((c) => c.t === 'Box' && c.flexDirection === 'column').flatMap((c) => c.children).filter((c) => c.t === 'Text').map((c) => c.children[0])
 out.askShown = ansText(await render()).includes('یعنی دکمه ساخته شد.'); assert.equal(out.askShown, true)
-out.askUsage = (await $.store.get('lastAskUsage'))?.cache_read_input_tokens; assert.equal(out.askUsage, 3)
+out.askUsage = (await $.store.get('kharj_akhar_porsesh'))?.cache_read_input_tokens; assert.equal(out.askUsage, 3)
 // after /clear the fork has nothing, and the chat has nothing either: a plain message, never an empty answer
 $.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }; const keepMsgs = $.msgs; $.msgs = []; $.ctx = 0
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('چی شد؟'); await flush()
@@ -237,13 +237,13 @@ await H['turn.complete']($, {}, next); await flush(); await flush()
 out.waitAsked = calls.fork.filter((f, i) => i >= w0 && /^صبر کن/.test(f.prompt)).length; assert.equal(out.waitAsked, 1)
 // btw on «دو جمله»: a press fills «بپرس» with it and moves the keyboard there
 $.ui.resolve = () => withInput
-$.forkReply = { isAnswered: true, text: '{"now": "مجری دارد می‌سازد. منتظرِ ناظر است.", "guesses": []}', usage: {} }
+$.forkReply = { isAnswered: true, text: '{"do_jomle": "مجری دارد می‌سازد. منتظرِ ناظر است.", "hads": []}', usage: {} }
 $.t += 1; await H['turn.complete']($, {}, next); await flush()
 // «دو جمله» is plain text Habib selects and copies (Ctrl+C), not a button; no کپی buttons anywhere
 const rSel = await render()
 out.nowSelectable = find(rSel, 'hads-now')?.t === 'Text' && !JSON.stringify(rSel).includes('copy'); assert.equal(out.nowSelectable, true)
 // a cold cache (idle past COLD): the first Enter only tells the cost, the second asks
-$.t += mod.COLD + 1; $.ctx = 200000; const f0 = calls.fork.length
+$.t += mod.kash_sard_ms + 1; $.ctx = 200000; const f0 = calls.fork.length
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
 out.coldWarn = calls.fork.length === f0 && ansText(await render()).some((x) => /\$1\.00 تا \$1\.60/.test(x)); assert.equal(out.coldWarn, true)
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
@@ -295,8 +295,8 @@ for (let i = 0; i < 55; i++) {
   $.nowReply = 'جملهٔ-' + i + '. تمام.'; $.t += 1000
   await F['turn.complete']($, {}, next); await flush()
 }
-const histLines = String(flags['/h/.claude/hads-log/H.now.jsonl']).trim().split('\n')
-out.histCap = histLines.length; assert.equal(out.histCap, mod.HIST)
+const histLines = String(flags['/h/.claude/hads-log/H.do_jomle_ghablia.jsonl']).trim().split('\n')
+out.histCap = histLines.length; assert.equal(out.histCap, mod.had_ghablia_tedad)
 let rH = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.histButton = find(rH, 'hads-hist')?.label; assert.equal(out.histButton, 'قبلی‌ها ۴۹')
 await find(rH, 'hads-hist').onPress({}); rH = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
@@ -306,35 +306,35 @@ assert.deepEqual(out.histOrder, [true, true, true, true])
 out.histText = find(rH, 'hads-hist-0')?.t === 'Text' && !find(rH, 'hads-hist-copy-0'); assert.equal(out.histText, true)
 await find(rH, 'hads-hist').onPress({})
 // another chat has its own history
-$.sid = 'H2'; await F['command.run']($, { args: 'on' }); $.forkReply = { isAnswered: true, text: '{"now": "دیگری. بله."}', usage: {} }
+$.sid = 'H2'; await F['command.run']($, { args: 'on' }); $.forkReply = { isAnswered: true, text: '{"do_jomle": "دیگری. بله."}', usage: {} }
 await F['turn.complete']($, {}, next); await flush()
-out.histOwn = String(flags['/h/.claude/hads-log/H2.now.jsonl']).trim().split('\n').length; assert.equal(out.histOwn, 1); $.sid = 'H'
+out.histOwn = String(flags['/h/.claude/hads-log/H2.do_jomle_ghablia.jsonl']).trim().split('\n').length; assert.equal(out.histOwn, 1); $.sid = 'H'
 // ▾ folds the whole band to one line; it stays folded after a reload; ▸ opens it; ticks are kept
-await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-guess').onPress({})
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-hads').onPress({})
 await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-min').onPress({})
-out.foldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.foldFile, 'on -guess min')
+out.foldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.foldFile, 'on -hads yek_khat')
 const again2 = await import((process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href) + '?again2')
 const G = {}; again2.register((ev, a, b) => { G[ev] = b || a; return { catch() {} } })
 const rF = await G['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-out.folded = { open: find(rF, 'hads-min')?.label, ask: !!find(rF, 'hads-ask'), ticks: !!find(rF, 'hads-tick-now') }
+out.folded = { open: find(rF, 'hads-min')?.label, ask: !!find(rF, 'hads-ask'), ticks: !!find(rF, 'hads-tick-do_jomle') }
 assert.deepEqual(out.folded, { open: '▸ حدس', ask: false, ticks: false })
 // the one line's × also leaves the one button, never nothing (25 Oct 00:13)
 out.lineX = find(rF, 'hads-to-dot')?.label; assert.equal(out.lineX, '×')
-await find(rF, 'hads-min').onPress({}); out.unfoldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.unfoldFile, 'on -guess')
+await find(rF, 'hads-min').onPress({}); out.unfoldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.unfoldFile, 'on -hads')
 // the third state: just one small button; it opens the folded line, which opens the box (24 Oct 22:52)
 let rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-await find(rD, 'hads-x').onPress({}); out.dotFile = flags['/h/.claude/hads-on/H']; assert.equal(out.dotFile, 'on -guess dot')
+await find(rD, 'hads-x').onPress({}); out.dotFile = flags['/h/.claude/hads-on/H']; assert.equal(out.dotFile, 'on -hads tak_dokme')
 rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.dot = { button: find(rD, 'hads-dot')?.label, nothingElse: !find(rD, 'hads-min') && !find(rD, 'hads-ask') && !find(rD, 'hads-now') && !find(rD, 'hads-x') }
 assert.deepEqual(out.dot, { button: 'حدس ▸', nothingElse: true })
-await find(rD, 'hads-dot').onPress({}); out.dotToMin = flags['/h/.claude/hads-on/H']; assert.equal(out.dotToMin, 'on -guess min')
+await find(rD, 'hads-dot').onPress({}); out.dotToMin = flags['/h/.claude/hads-on/H']; assert.equal(out.dotToMin, 'on -hads yek_khat')
 rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); await find(rD, 'hads-min').onPress({})
-out.backOpen = flags['/h/.claude/hads-on/H']; assert.equal(out.backOpen, 'on -guess')
+out.backOpen = flags['/h/.claude/hads-on/H']; assert.equal(out.backOpen, 'on -hads')
 // a tick keeps the other words of the file
-flags['/h/.claude/hads-on/H'] = 'on +midfork min'; await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-$.sid = 'H'; flags['/h/.claude/hads-on/H'] = 'on +midfork'
-await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-ask').onPress({})
-out.tickKeeps = flags['/h/.claude/hads-on/H']; assert.equal(out.tickKeeps, 'on -ask +midfork')
+flags['/h/.claude/hads-on/H'] = 'on +do_jomle_fork yek_khat'; await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+$.sid = 'H'; flags['/h/.claude/hads-on/H'] = 'on +do_jomle_fork'
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-porsesh').onPress({})
+out.tickKeeps = flags['/h/.claude/hads-on/H']; assert.equal(out.tickKeeps, 'on -porsesh +do_jomle_fork')
 $.ui.resolve = realResolve; $.sid = 'A'
 // «هوک‌ها»: what the hooks injected, read from the transcript's tail (the VS Code panel drops it)
 const J = (o) => JSON.stringify(o)
@@ -360,61 +360,61 @@ await new Promise((r) => setTimeout(r, 5))
 let rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 const hookTexts = (t) => [0, 1, 2, 3, 4, 5].map((i) => find(t, 'hads-hook-' + i)?.children?.[0]).filter(Boolean)
 out.hooksSmall = hookTexts(rK)
-assert.equal(out.hooksSmall.length, 4); assert.ok(out.hooksSmall.every((x) => x.length <= mod.HOOK_SMALL))
+assert.equal(out.hooksSmall.length, 4); assert.ok(out.hooksSmall.every((x) => x.length <= mod.had_hook_kuchak_harf))
 // each hook with its Shamsi date and Tehran time
 assert.equal(out.hooksSmall[1], '۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit ✓ [20:09 +0330 -- habib]'); assert.ok(/^PostToolUse:Bash ×۲ ＋ یادآوری/.test(out.hooksSmall[2]))
 // only hook lines and typed prompts, the last TAIL of them: never the whole 16 MB transcript
-out.tailOnly = calls.argv?.[0] === 'sh' && calls.argv?.[4] === mod.PICK && calls.argv?.[6] === String(mod.TAIL) && calls.argv?.[7] === String(mod.TAIL_BYTES) && /^tail -c .*\| grep -E .*\| tail -n/.test(calls.argv?.[2]); assert.equal(out.tailOnly, true)
+out.tailOnly = calls.argv?.[0] === 'sh' && calls.argv?.[4] === mod.hook_transcript_grep && calls.argv?.[6] === String(mod.had_hook_transcript_khat) && calls.argv?.[7] === String(mod.had_hook_transcript_byte) && /^tail -c .*\| grep -E .*\| tail -n/.test(calls.argv?.[2]); assert.equal(out.tailOnly, true)
 // big: the last HOOK_BIG_ROWS, each whole up to HOOK_BIG (selectable text, no کپی buttons)
 await find(rK, 'hads-hook-size').onPress({}); rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.hooksBig = { file: flags['/h/.claude/hads-on/K'], rows: hookTexts(rK).length, whole: hookTexts(rK).some((x) => x.endsWith(LONG)), copy: JSON.stringify(rK).includes('copy') }
-assert.deepEqual(out.hooksBig, { file: 'on hookbig', rows: mod.HOOK_BIG_ROWS, whole: true, copy: false })
+assert.deepEqual(out.hooksBig, { file: 'on hook_bozorg', rows: mod.had_hook_bozorg_radif, whole: true, copy: false })
 // a pages-long hook (a SessionStart handoff) is cut: it filled the band and hid «دو جمله» (24 Oct)
 const keepTail = $.tail; $.tail += '\n' + J({ attachment: { type: 'hook_success', hookName: 'SessionStart:resume', content: 'ه'.repeat(5000) } })
 await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush(); await new Promise((r) => setTimeout(r, 5))
 rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.hookBigCut <= mod.HOOK_BIG + 60, 'big hook ' + out.hookBigCut)
+out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.hookBigCut <= mod.had_hook_bozorg_harf + 60, 'big hook ' + out.hookBigCut)
 // the ticks stay last, next to the prompt, whatever is above them
 const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && /^hads-tick-/.test(String(x.key))); assert.equal(out.ticksLast, true)
 // ▾ and × on top, always in sight (24 Oct 22:41); only these two (25 Oct 00:13: «همین سه تا نباشه»)
 const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && topRow.children.map((x) => x.label).join(' ') === '▾ ×'; assert.equal(out.closeOnTop, true)
 $.tail = keepTail
 // ticked off: the transcript is not read at all
-await find(rK, 'hads-tick-hooks').onPress({}); calls.run = 0
+await find(rK, 'hads-tick-hook').onPress({}); calls.run = 0
 await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush()
 out.hooksOff = { runs: calls.run, rows: hookTexts(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')).length }
 assert.deepEqual(out.hooksOff, { runs: 0, rows: 0 })
 // a failing tail never breaks anything
-await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-hooks').onPress({}); $.tailFails = true
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-hook').onPress({}); $.tailFails = true
 await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush(); out.tailFails = 'ok'; $.tailFails = false
 $.ui.resolve = realResolve; $.sid = 'A'
-// the numbers agreed with Habib and the ناظر (تعریفِ ۱۰): a change must turn this red
+// the numbers agreed with Habib and the ناظر (تعریفِ ۱۲): a change must turn this red
 // GUESS_EVERY: Habib 24 Oct «حدسو بذار مدل اصلی بکنه … چند تا پیام به چند تا پیام»
-out.pinned = [mod.GAP, mod.MAX_FORK, mod.GUESS_EVERY]; assert.deepEqual(out.pinned, [60000, 400000, 3])
+out.pinned = [mod.do_jomle_fasele_ms, mod.had_fork_kontekst_token, mod.hads_har_chand_javab]; assert.deepEqual(out.pinned, [60000, 400000, 3])
 // ticks: one per part, this chat only; a part ticked off is neither drawn nor asked for
 $.sid = 'A'; $.ui.resolve = () => withInput; await H['command.run']($, { args: 'on' })
 const ticks = (t) => PARTS_KEYS.map((k) => find(t, 'hads-tick-' + k)?.label)
-const PARTS_KEYS = ['guess', 'now', 'ask']
+const PARTS_KEYS = ['hads', 'do_jomle', 'porsesh']
 out.ticksOn = ticks(await render()); assert.deepEqual(out.ticksOn, ['✓ حدس', '✓ دو جمله', '✓ پرسش'])
-await find(await render(), 'hads-tick-guess').onPress()
-out.guessOffFile = flags['/h/.claude/hads-on/A']; assert.equal(out.guessOffFile, 'on -guess')
-$.forkReply = { isAnswered: true, text: '{"guesses": [{"label": "نه", "text": "نباید"}]}', usage: {} }; $.nowReply = 'فقط این. همین.'
+await find(await render(), 'hads-tick-hads').onPress()
+out.guessOffFile = flags['/h/.claude/hads-on/A']; assert.equal(out.guessOffFile, 'on -hads')
+$.forkReply = { isAnswered: true, text: '{"hads": [{"label": "نه", "text": "نباید"}]}', usage: {} }; $.nowReply = 'فقط این. همین.'
 const fk0 = calls.fork.length; await H['turn.complete']($, {}, next); await flush()
 const t8 = await render()
 out.guessOff = { labels: guessLabels(t8), asked: calls.fork.length > fk0, now: nowText2(t8)?.children[0] }
 assert.deepEqual(out.guessOff, { labels: [], asked: false, now: 'فقط این. همین.' })
 // what was made while «حدس» was ticked off never shows up when it comes back
-await find(await render(), 'hads-tick-guess').onPress()
+await find(await render(), 'hads-tick-hads').onPress()
 out.noStale = guessLabels(await render()).includes('نباید'); assert.equal(out.noStale, false)
-await find(await render(), 'hads-tick-guess').onPress()
+await find(await render(), 'hads-tick-hads').onPress()
 // another chat keeps its own ticks
 $.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
 // «حدس» and «دو جمله» both off: no model call at an answer's end or during work
-await find(await render(), 'hads-tick-now').onPress()
-const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.GAP; await tool(); await flush(); const z1 = cnt()
+await find(await render(), 'hads-tick-do_jomle').onPress()
+const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); const z1 = cnt()
 out.bothOff = [z1[0] - z0[0], z1[1] - z0[1], z1[2] - z0[2]]; assert.deepEqual(out.bothOff, [0, 0, 0])
 // «پرسش» off: no box; the ticks stay so it can come back
-await find(await render(), 'hads-tick-ask').onPress()
+await find(await render(), 'hads-tick-porsesh').onPress()
 const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ticks(t9) }
 assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
 for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
@@ -422,15 +422,15 @@ out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
 $.ui.resolve = realResolve
 // «دفترِ حدس» (with چتِ ۲۰۵): one line per event, appended, with sid and Tehran iso; «دو جمله» not twice
 const kinds = new Set(events.map((e) => e.kind))
-out.eventKinds = ['now', 'guess', 'ask'].every((k) => kinds.has(k)); assert.equal(out.eventKinds, true)
+out.eventKinds = ['do_jomle', 'hads', 'porsesh'].every((k) => kinds.has(k)); assert.equal(out.eventKinds, true)
 out.eventShape = events.every((e) => typeof e.t === 'number' && /\+03:30$/.test(e.iso) && e.sid); assert.equal(out.eventShape, true)
-out.askLogged = events.some((e) => e.kind === 'ask' && e.q && e.a); assert.equal(out.askLogged, true)
+out.askLogged = events.some((e) => e.kind === 'porsesh' && e.porsesh_matn && e.javab_matn); assert.equal(out.askLogged, true)
 // (this test loads the module more than once; each load is its own process, so look at one)
 out.sameText = [mod.sameText('ایجنت فایل را خواند و منتظر است.', 'ایجنت فایل را خواند و منتظر است!'), mod.sameText('ایجنت فایل را خواند.', 'حبیب عکس فرستاد.')]
 assert.deepEqual(out.sameText, [true, false])
 $.sid = 'TW'; await H['command.run']($, { args: 'on' }); const tw0 = events.length; $.nowReply = 'همان جمله. باز همان.'
-for (let i = 0; i < 3; i++) { $.t += mod.GAP; await H['turn.complete']($, {}, next); await flush() }
-out.noTwin = events.slice(tw0).filter((e) => e.kind === 'now').length; assert.equal(out.noTwin, 1); $.sid = 'A'
+for (let i = 0; i < 3; i++) { $.t += mod.do_jomle_fasele_ms; await H['turn.complete']($, {}, next); await flush() }
+out.noTwin = events.slice(tw0).filter((e) => e.kind === 'do_jomle').length; assert.equal(out.noTwin, 1); $.sid = 'A'
 // a guess pressed then sent (as is, or edited) is logged as guess_sent; a plain prompt is not
 $.ui.resolve = () => withInput; $.sid = 'G'; await H['command.run']($, { args: 'on' }); $.reply = '[{"label":"x","text":"تست‌ها رو اجرا کن و نتیجه رو بگو"}]'
 await H['command.run']($, { args: 'now' }); await flush()
@@ -439,8 +439,8 @@ const rG = await render(); const shown = guessLabels(rG)[0]
 await find(rG, 'hads-0').onPress()
 await H['prompt.submit']($, { text: shown + ' لطفاً' }, next)
 await H['prompt.submit']($, { text: 'یه چیز دیگه' }, next)
-const after = events.slice(before).map((e) => e.kind + (e.edited ? ':edited' : ''))
-out.guessSent = after; assert.deepEqual(out.guessSent, ['guess_click', 'guess_sent'])
+const after = events.slice(before).map((e) => e.kind + (e.virayesh_shod ? ':virayesh_shod' : ''))
+out.guessSent = after; assert.deepEqual(out.guessSent, ['hads_zadan', 'hads_ferestade'])
 $.ui.resolve = realResolve
 // cloud review, 24 Oct: (1) × while a «پرسش» fork runs never throws or lands in a newer box
 $.ui.resolve = () => withInput; $.sid = 'R'; await H['command.run']($, { args: 'on' }); await H['turn.complete']($, {}, next); await flush()
@@ -481,26 +481,26 @@ out.usageAppend = usages.length > 0 && !Object.keys(flags).some((k) => k.endsWit
 $.ui.resolve = realResolve
 // the end of an exchange: one warm fork sums up this turn's «دو جمله» (done / not done), shown and logged
 $.sid = 'S'; await H['command.run']($, { args: 'on' }); await H['prompt.submit']($, { text: 'کار کن' }, next)
-$.nowReply = 'ایجنت فایل را خواند. منتظر نیست.'; $.t += mod.GAP; await tool(); await flush()
-$.nowReply = 'ایجنت تست را اجرا کرد. تست سبز شد.'; $.t += mod.GAP; await tool(); await flush()
+$.nowReply = 'ایجنت فایل را خواند. منتظر نیست.'; $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
+$.nowReply = 'ایجنت تست را اجرا کرد. تست سبز شد.'; $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 $.model.fork = async (o) => { calls.fork.push(o); return /جمع‌بندی/.test(o.prompt)
-  ? { isAnswered: true, usage: {}, text: '{"text": "فایل خوانده و تست سبز شد. commit مانده.", "done": ["خواندنِ فایل", "تست"], "not_done": ["commit"]}' }
-  : { isAnswered: true, usage: {}, text: '{"guesses": []}' } }
+  ? { isAnswered: true, usage: {}, text: '{"text": "فایل خوانده و تست سبز شد. commit مانده.", "anjam_shod": ["خواندنِ فایل", "تست"], "anjam_nashod": ["commit"]}' }
+  : { isAnswered: true, usage: {}, text: '{"hads": []}' } }
 const sf0 = calls.fork.length, sn0 = calls.now.length, se0 = events.length
 $.t += 1; await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
 const sumFork = calls.fork.slice(sf0).find((f) => /جمع‌بندی/.test(f.prompt))
 const rS = await render()
 out.summary = { asked: !!sumFork && /فایل را خواند/.test(sumFork.prompt) && /تست را اجرا کرد/.test(sumFork.prompt), noSonnet: calls.now.length === sn0,
-  shown: find(rS, 'hads-now')?.children[0], done: find(rS, 'hads-sum-done')?.children[0], not: find(rS, 'hads-sum-not')?.children[0],
-  logged: events.slice(se0).filter((e) => e.kind === 'turn_summary').map((e) => e.not_done) }
+  shown: find(rS, 'hads-now')?.children[0], done: find(rS, 'hads-sum-anjam_shod')?.children[0], not: find(rS, 'hads-sum-anjam_nashod')?.children[0],
+  logged: events.slice(se0).filter((e) => e.kind === 'jambandi_nobat').map((e) => e.anjam_nashod) }
 assert.deepEqual(out.summary, { asked: true, noSonnet: true, shown: 'فایل خوانده و تست سبز شد. commit مانده.', done: '✓ خواندنِ فایل · تست', not: '✗ commit', logged: [['commit']] })
 // it is injected into later chats' memory, so it must be right (Habib, 24 Oct 23:37): the fork reads
 // the whole turn (every tool's output), the «دو جمله» are only hints, done needs a tool's proof,
 // unproven ⇒ not_done; and Habib's own words of the turn are logged as they were sent
 out.summaryRules = { whole: /هر فراخوانیِ ابزار و خروجی‌اش/.test(sumFork.prompt), hints: /فقط راهنما‌اند، منبع نیستند/.test(sumFork.prompt),
-  proof: /در done فقط چیزی که خروجیِ یک ابزار در همین نوبت ثابتش کرد/.test(sumFork.prompt), unsure: /سنجیده‌نشده ⇒ not_done با «چک نشد»/.test(sumFork.prompt),
+  proof: /در anjam_shod فقط چیزی که خروجیِ یک ابزار در همین نوبت ثابتش کرد/.test(sumFork.prompt), unsure: /سنجیده‌نشده ⇒ anjam_nashod با «چک نشد»/.test(sumFork.prompt),
   numbers: /عدد، ساعت، اسمِ فایل و commit فقط اگر عیناً در خروجیِ یک ابزارِ همین نوبت/.test(sumFork.prompt),
-  asked: events.slice(se0).filter((e) => e.kind === 'turn_summary').map((e) => e.asked) }
+  asked: events.slice(se0).filter((e) => e.kind === 'jambandi_nobat').map((e) => e.khaste_habib) }
 assert.deepEqual(out.summaryRules, { whole: true, hints: true, proof: true, unsure: true, numbers: true, asked: ['کار کن'] })
 // a short turn (fewer than SUMMARY_MIN lines): no summary fork, the plain Sonnet «دو جمله»
 await H['prompt.submit']($, { text: 'سلام' }, next); const sf1 = calls.fork.length, sn1 = calls.now.length
@@ -508,9 +508,9 @@ $.t += 1; await H['turn.complete']($, {}, next); await flush()
 out.shortTurn = { fork: calls.fork.slice(sf1).some((f) => /جمع‌بندی/.test(f.prompt)), sonnet: calls.now.length - sn1 }
 assert.deepEqual(out.shortTurn, { fork: false, sonnet: 1 })
 // an aborted turn (Esc) leaves its lines; the next prompt starts clean, so they never join its summary
-$.nowReply = 'کارِ نیمه‌تمام. قطع شد.'; $.t += mod.GAP; await tool(); await flush(); $.t += mod.GAP; await tool(); await flush()
+$.nowReply = 'کارِ نیمه‌تمام. قطع شد.'; $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 await H['turn.complete']($, { isAborted: true }, next); await flush()
-await H['prompt.submit']($, { text: 'کارِ تازه' }, next); $.nowReply = 'کارِ تازه شروع شد. ادامه دارد.'; $.t += mod.GAP; await tool(); await flush()
+await H['prompt.submit']($, { text: 'کارِ تازه' }, next); $.nowReply = 'کارِ تازه شروع شد. ادامه دارد.'; $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 const sf2 = calls.fork.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
 const sumNew = calls.fork.slice(sf2).find((f) => /جمع‌بندی/.test(f.prompt))
 out.newTurnClean = !!sumNew && /کارِ تازه شروع شد/.test(sumNew.prompt) && !/نیمه‌تمام/.test(sumNew.prompt); assert.equal(out.newTurnClean, true)
@@ -526,13 +526,39 @@ const sumTool = calls.fork.slice(sf4).find((f) => /جمع‌بندی/.test(f.pro
 out.toolTurn = !!sumTool && /git status/.test(sumTool.prompt); assert.equal(out.toolTurn, true)
 // a chat over MAX_FORK: still its own warm fork, never Sonnet (Habib, 24 Oct 23:37: «با مدل اصلی»)
 await H['prompt.submit']($, { text: 'کار در چتِ بزرگ' }, next); $.t += 1; await tool({ command: 'npm test' }); await flush()
-$.ctx = mod.MAX_FORK + 1; const savedNow = $.nowModel
+$.ctx = mod.had_fork_kontekst_token + 1; const savedNow = $.nowModel
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: 'خط' } }
-$.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: o.maxTokens === 500 ? '{"text": "تست اجرا شد.", "done": ["تست"], "not_done": []}' : $.reply } }
-$.model.fork = async (o) => { calls.fork.push(o); return /جمع‌بندی/.test(o.prompt) ? { isAnswered: true, usage: {}, text: '{"text": "تست اجرا شد.", "done": ["تست ⇐ npm test"], "not_done": []}' } : { isAnswered: true, usage: {}, text: '{"guesses": []}' } }
+$.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: o.maxTokens === 500 ? '{"text": "تست اجرا شد.", "anjam_shod": ["تست"], "anjam_nashod": []}' : $.reply } }
+$.model.fork = async (o) => { calls.fork.push(o); return /جمع‌بندی/.test(o.prompt) ? { isAnswered: true, usage: {}, text: '{"text": "تست اجرا شد.", "anjam_shod": ["تست ⇐ npm test"], "anjam_nashod": []}' } : { isAnswered: true, usage: {}, text: '{"hads": []}' } }
 const se5 = events.length, sc5 = calls.complete.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
-out.bigSummary = { via: events.slice(se5).filter((e) => e.kind === 'turn_summary').map((e) => e.via), sonnetSummary: calls.complete.slice(sc5).some((c) => c.maxTokens === 500) }
+out.bigSummary = { via: events.slice(se5).filter((e) => e.kind === 'jambandi_nobat').map((e) => e.rah), sonnetSummary: calls.complete.slice(sc5).some((c) => c.maxTokens === 500) }
 assert.deepEqual(out.bigSummary, { via: ['fork'], sonnetSummary: false })
 $.ctx = 1000; $.nowModel = savedNow; $.guessModel = slow
 $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
+// تعریفِ ۱۰ (اسمِ متغیر), 25 Oct: a chat's file written with the old words still works, read as the new
+$.ui.resolve = () => withInput; $.sid = 'OLD'; flags['/h/.claude/hads-on/OLD'] = 'on -guess -hooks min'
+const rOld = await render()
+out.oldWords = { line: find(rOld, 'hads-min')?.label, ticks: !!find(rOld, 'hads-tick-hads') }
+await find(rOld, 'hads-min').onPress({}); out.oldWords.file = flags['/h/.claude/hads-on/OLD']
+assert.deepEqual(out.oldWords, { line: '▸ حدس', ticks: false, file: 'on -hads -hook' })
+// «قبلی‌ها» kept in the old file (<id>.now.jsonl) still shows until the new one is written
+$.sid = 'OLDH'; flags['/h/.claude/hads-on/OLDH'] = 'on'; flags['/h/.claude/hads-log/OLDH.now.jsonl'] = JSON.stringify({ t: 1, text: 'قدیمی' }) + '\n'
+$.forkReply = { isAnswered: true, text: '{}', usage: {} }; $.nowReply = 'تازه. همین.'; $.t += 1; await H['turn.complete']($, {}, next); await flush()
+out.oldHist = String(flags['/h/.claude/hads-log/OLDH.do_jomle_ghablia.jsonl'] || '').split('\n').filter(Boolean).map((l) => JSON.parse(l).text)
+assert.deepEqual(out.oldHist, ['قدیمی', 'تازه. همین.'])
+$.ui.resolve = realResolve; $.sid = 'A'
+// the old → new table is one table: the JSON chat 205 reads is the same as the mod's own
+const fsN = await import('node:fs')
+const jsonPath = new URL('./esm_ghadim.json', import.meta.url)
+out.esmGhadimJson = JSON.stringify(JSON.parse(fsN.readFileSync(jsonPath, 'utf8'))) === JSON.stringify(mod.esm_ghadim); assert.equal(out.esmGhadimJson, true)
+// every name the mod writes is a new name: no old kind, field or word left in what it logs and keeps
+const oldKinds = Object.keys(mod.esm_ghadim.kind_daftar), oldFields = Object.keys(mod.esm_ghadim.khane_daftar)
+out.noOldNames = { kinds: events.filter((e) => oldKinds.includes(e.kind)).length, fields: events.filter((e) => Object.keys(e).some((k) => oldFields.includes(k))).length,
+  usage: usages.filter((u) => 'part' in u || 'via' in u || Object.keys(mod.esm_ghadim.bakhsh_kharj).includes(u.bakhsh)).length,
+  words: Object.entries(flags).filter(([k, v]) => k.includes('/hads-on/') && k !== '/h/.claude/hads-on/OLD' && String(v).split(' ').some((w) => w in mod.esm_ghadim.kalame_file)).map(([k, v]) => k + '=' + v) }
+assert.deepEqual(out.noOldNames, { kinds: 0, fields: 0, usage: 0, words: [] })
+// the source: exported names lower snake_case, never a name glued as '-' + k or 'x_' + y
+const src = fsN.readFileSync(new URL('./hooks/register.js', import.meta.url), 'utf8')
+out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glued: (src.match(/'[-+]' \+ |'[a-z]+_' \+ /g) || []) }
+assert.deepEqual(out.esmRule, { upper: [], glued: [] })
 console.log(JSON.stringify(out))

@@ -123,8 +123,8 @@
   var KEY = 'crtl-sizes';
   var DEF = {
     chat: 15, code: 12, chrome: 10, btn: 10,
-    hook: 13,          // the 🪝 hook lines in the chat (Habib: «کمی خیلی ریزن یه کمی درشتتر بشن»)
-    hadsAlpha: 80,     // how solid the «حدس» card is, % (Habib: «میتونی براش ترانسپرنسی هم بزاری»)
+    hook_font_px: 13,  // the 🪝 hook lines in the chat (Habib: «کمی خیلی ریزن یه کمی درشتتر بشن»)
+    hads_pori_darsad: 80, // how solid the «حدس» card is, % (Habib: «میتونی براش ترانسپرنسی هم بزاری»)
     lines: 1,          // 0 = show user messages in full
     side: 'both',      // both | left | right
     hidden: false,
@@ -146,11 +146,11 @@
     extras: [],
     extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by load()
   };
-  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook: [9, 20], hadsAlpha: [0, 100], lh: [11, 24] };
+  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook_font_px: [9, 20], hads_pori_darsad: [0, 100], lh: [11, 24] };
   var PRESETS = {
-    compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  hook: 11, lines: 1, lh: 14 },
-    normal:  { chat: 15, code: 12, chrome: 10, btn: 10, hook: 13, lines: 1, lh: 16 },
-    large:   { chat: 19, code: 15, chrome: 12, btn: 12, hook: 15, lines: 2, lh: 17 }
+    compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  hook_font_px: 11, lines: 1, lh: 14 },
+    normal:  { chat: 15, code: 12, chrome: 10, btn: 10, hook_font_px: 13, lines: 1, lh: 16 },
+    large:   { chat: 19, code: 15, chrome: 12, btn: 12, hook_font_px: 15, lines: 2, lh: 17 }
   };
 
   // The script can seed defaults by defining window.__CRTL_DEFAULTS before this runs.
@@ -168,9 +168,17 @@
     return d;
   }
 
+  // names before 25 Oct 2026 (تعریفِ ۱۰ ِ پروژه): a value saved under the old name is read as the new one
+  var esm_ghadim_tanzim = { hook: 'hook_font_px', hadsAlpha: 'hads_pori_darsad' };
   function load() {
     var s;
-    try { s = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || '{}')); }
+    try {
+      var raw = JSON.parse(localStorage.getItem(KEY) || '{}');
+      Object.keys(esm_ghadim_tanzim).forEach(function (ghadim) {
+        if (ghadim in raw) { if (!(esm_ghadim_tanzim[ghadim] in raw)) raw[esm_ghadim_tanzim[ghadim]] = raw[ghadim]; delete raw[ghadim]; }
+      });
+      s = Object.assign(fresh(), raw);
+    }
     catch (e) { s = fresh(); }
     Object.keys(LIMITS).forEach(function (k) {
       var lo = LIMITS[k][0], hi = LIMITS[k][1];
@@ -248,7 +256,7 @@
        a rounded translucent card, SF text, soft shadow; pill buttons; the ticks as a blue/grey
        segmented look; the ask field with the macOS focus ring. Scoped to .crtl-hads (the page
        script tags the box whose header says «hads plugin»), so other plugins keep their look. */
-    '.crtl-hads{position:relative;margin:4px 8px 6px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-hads-alpha,80%),transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:blur(var(--crtl-hads-blur,16px));backdrop-filter:blur(var(--crtl-hads-blur,16px));font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
+    '.crtl-hads{position:relative;margin:4px 8px 6px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-hads-pori-darsad,80%),transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:blur(var(--crtl-hads-tari-px,16px));backdrop-filter:blur(var(--crtl-hads-tari-px,16px));font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
     /* compact (24 Oct 22:52: «جمع و جور ترش بکن … ارتفاعش کمتر بشه … فرام ده حدس پلاگین رو با اون دو تا دکمه … تو یک خط»):
        the header line holds ▾ ◂ × too, rows and buttons are tighter */
     '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10px!important;letter-spacing:.02em;opacity:.5;padding:4px 12px 0!important;min-height:20px;line-height:20px;position:static!important}',
@@ -259,30 +267,30 @@
     '.crtl-hads span[class*="text_"]{line-height:1.45}',
     '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:0 8px!important;font-size:11px!important;line-height:1.5!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
     '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
-    '.crtl-hads button.crtl-tick-on{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
-    '.crtl-hads button.crtl-tick-off{opacity:.55}',
-    '.crtl-hads .crtl-hads-top{position:sticky!important;top:0;z-index:3;display:flex;direction:ltr;justify-content:flex-start;gap:4px;padding:0!important;margin:0!important;background:transparent;pointer-events:none}',
-    '.crtl-hads .crtl-hads-top button{pointer-events:auto}',
+    '.crtl-hads button.crtl-tik-roshan{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
+    '.crtl-hads button.crtl-tik-khamush{opacity:.55}',
+    '.crtl-hads .crtl-hads-radif-bala{position:sticky!important;top:0;z-index:3;display:flex;direction:ltr;justify-content:flex-start;gap:4px;padding:0!important;margin:0!important;background:transparent;pointer-events:none}',
+    '.crtl-hads .crtl-hads-radif-bala button{pointer-events:auto}',
     // the header «From the hads plugin» leaves the flow and sits on the top row's line (right side),
     // so ▾ ◂ × and it share one line while the band keeps its own scroll
-    '.crtl-hads:has(.crtl-hads-top) [data-engine-mark]{position:absolute!important;top:6px;right:12px;z-index:2;margin:0!important;pointer-events:none}',
+    '.crtl-hads:has(.crtl-hads-radif-bala) [data-engine-mark]{position:absolute!important;top:6px;right:12px;z-index:2;margin:0!important;pointer-events:none}',
     /* the third state: just one small button, on the left (24 Oct 22:52: «فقط سمت چپ … یک دکمه») */
-    '.crtl-hads.crtl-hads-dot{width:max-content!important;margin:2px auto 4px 8px!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(0,0,0,.25)!important}',
-    '.crtl-hads.crtl-hads-dot [data-engine-mark]{display:none!important}',
-    '.crtl-hads.crtl-hads-dot [class*="band_"],.crtl-hads.crtl-hads-dot [class*="row_"]{padding:3px!important}',
-    '.crtl-hads button.crtl-insert{border-radius:50%!important;padding:0 6px!important;min-width:0}',
+    '.crtl-hads.crtl-hads-tak-dokme{width:max-content!important;margin:2px auto 4px 8px!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(0,0,0,.25)!important}',
+    '.crtl-hads.crtl-hads-tak-dokme [data-engine-mark]{display:none!important}',
+    '.crtl-hads.crtl-hads-tak-dokme [class*="band_"],.crtl-hads.crtl-hads-tak-dokme [class*="row_"]{padding:3px!important}',
+    '.crtl-hads button.crtl-gozashtan-dar-kadr{border-radius:50%!important;padding:0 6px!important;min-width:0}',
     '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:0 8px!important;height:22px;min-width:14em;outline:none!important;transition:box-shadow .15s}',
     '.crtl-hads input[class*="input_"]:focus{border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.4)!important}',
     '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
-    '[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook,[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook *{font-size:var(--crtl-hook-size,13px)!important;line-height:1.45!important}',
+    '[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook,[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook *{font-size:var(--crtl-hook-font-px,13px)!important;line-height:1.45!important}',
     /* folded like «Thought for Ns»: one line whatever the focus view, opened only by a click
        (Habib, 24 Oct 22:55: «میخواستم که جمع باشه … اگه روش بزنیم همون هوکه باز بشه») */
-    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open){max-height:1.9em!important;overflow:hidden!important}',
-    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open),[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open) *{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}',
+    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-baz){max-height:1.9em!important;overflow:hidden!important}',
+    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-baz),[class*="metaMessage_"].crtl-hook:not(.crtl-hook-baz) *{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}',
     '[class*="metaMessage_"].crtl-hook::before{content:"▸ ";opacity:.6}',
-    '[class*="metaMessage_"].crtl-hook.crtl-hook-open::before{content:"▾ "}',
+    '[class*="metaMessage_"].crtl-hook.crtl-hook-baz::before{content:"▾ "}',
     /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
     '[class*="headerSpacer_"].crtl-top-host{min-width:0;overflow:hidden;display:flex;align-items:center}',
     '.crtl-bar.crtl-top{position:static;flex-direction:row;align-items:center;max-height:none;min-width:0;flex:1;',
@@ -344,7 +352,7 @@
     var lh = (s.lh / 10).toFixed(2);
     var msg = '[class*="messagesContainer_"]';
     var out = [
-      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-size:' + (s.hook || 13) + 'px;--crtl-hads-alpha:' + (s.hadsAlpha == null ? 80 : s.hadsAlpha) + '%;--crtl-hads-blur:' + Math.round((s.hadsAlpha == null ? 80 : s.hadsAlpha) / 5) + 'px}',
+      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-font-px:' + (s.hook_font_px || 13) + 'px;--crtl-hads-pori-darsad:' + (s.hads_pori_darsad == null ? 80 : s.hads_pori_darsad) + '%;--crtl-hads-tari-px:' + Math.round((s.hads_pori_darsad == null ? 80 : s.hads_pori_darsad) / 5) + 'px}',
       accent ? '.crtl-btn{border-color:' + accent + '!important;color:' + accent + '!important}' : '',
       accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
       // the conversation ink follows the theme unless a colour is picked; code
@@ -1535,8 +1543,8 @@
     panel.appendChild(sizeRow('کد و جدول', 'code', s, set));
     panel.appendChild(sizeRow('حواشی', 'chrome', s, set));
     panel.appendChild(sizeRow('دکمه‌ها', 'btn', s, set));
-    panel.appendChild(sizeRow('هوک‌ها', 'hook', s, set));
-    panel.appendChild(sizeRow('پُری کادرِ حدس ٪', 'hadsAlpha', s, set));
+    panel.appendChild(sizeRow('هوک‌ها', 'hook_font_px', s, set));
+    panel.appendChild(sizeRow('پُری کادرِ حدس ٪', 'hads_pori_darsad', s, set));
 
     var lhRange = document.createElement('input');
     lhRange.type = 'range';
@@ -2023,7 +2031,7 @@
       ms[i].addEventListener('click', function () {
         var sel = window.getSelection && window.getSelection();
         if (sel && String(sel).length) return;
-        this.classList.toggle('crtl-hook-open');
+        this.classList.toggle('crtl-hook-baz');
       });
     }
     document.documentElement.classList.toggle('crtl-focus-on', !!document.querySelector('[class*="focusFoldRow_"]'));
@@ -2037,16 +2045,16 @@
       card.classList.add('crtl-hads');
       var bs = card.querySelectorAll('button');
       // only the «حدس ▸» button left: the card shrinks to it
-      card.classList.toggle('crtl-hads-dot', bs.length === 1 && /^حدس/.test((bs[0].textContent || '').trim()));
+      card.classList.toggle('crtl-hads-tak-dokme', bs.length === 1 && /^حدس/.test((bs[0].textContent || '').trim()));
       for (var b = 0; b < bs.length; b++) {
         var tx = (bs[b].textContent || '').trim();
-        bs[b].classList.toggle('crtl-tick-on', tx.charAt(0) === '✓');
-        bs[b].classList.toggle('crtl-tick-off', tx.charAt(0) === '✗');
-        bs[b].classList.toggle('crtl-insert', tx === '⤵');
+        bs[b].classList.toggle('crtl-tik-roshan', tx.charAt(0) === '✓');
+        bs[b].classList.toggle('crtl-tik-khamush', tx.charAt(0) === '✗');
+        bs[b].classList.toggle('crtl-gozashtan-dar-kadr', tx === '⤵');
         // ▾ and ×: their row sticks to the top of the box, so they never scroll out of sight
         // the top row is the one holding × (the folded line has ◂ too but no ×: it must stay in the flow)
         // the top row is the one with ▾ (the one line has × too, but ▸ حدس, never ▾)
-        if (tx === '▾' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-top');
+        if (tx === '▾' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-radif-bala');
       }
     }
   }

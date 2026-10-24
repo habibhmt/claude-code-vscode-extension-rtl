@@ -1,6 +1,6 @@
 // Hooks in the chat (Habib, 24 Oct): the VS Code panel never asked the CLI for hook events,
 // so what a hook injected never showed. fix-rtl-claude.sh turns --include-hook-events on and
-// passes every forwarded message through claude-host-hook.js's __crtlHookLine, which makes a
+// passes every forwarded message through claude-host-hook.js's __crtl_khat_hook, which makes a
 // hook's output an "informational" line the page already draws in the chat.
 // No browser: runs the script's own python block on a copy of the installed extension.js.
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path'), vm = require('node:vm')
@@ -15,18 +15,18 @@ const g = { require, globalThis: null, process, console }
 g.globalThis = g
 vm.runInNewContext(hookSrc, g)
 const T = Date.parse('2026-10-24T16:39:00Z')
-const line = g.__crtlHookLine({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: '[20:09 +0330 -- habib] ok\n', uuid: 'u1' }, T)
+const line = g.__crtl_khat_hook({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: '[20:09 +0330 -- habib] ok\n', uuid: 'u1' }, T)
 out.hookLine = { type: line.type, subtype: line.subtype, level: line.level, content: line.content }
 assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok\n[20:09 +0330 -- habib] ok' })
 // the page drops level "info" (SY1): the line must never be "info"
 assert.notEqual(line.level, 'info')
 const other = { type: 'assistant', message: {} }
-out.othersUntouched = g.__crtlHookLine(other) === other && g.__crtlHookLine({ type: 'system', subtype: 'hook_response', output: '  ' }).subtype === 'hook_response'
+out.othersUntouched = g.__crtl_khat_hook(other) === other && g.__crtl_khat_hook({ type: 'system', subtype: 'hook_response', output: '  ' }).subtype === 'hook_response'
 assert.equal(out.othersUntouched, true)
 // readable for a person (Habib, 24 Oct 22:03: «اصلا قابل خوندن نیست»): a clock stamp, {} or
 // nothing make no line; a JSON hook output is unpacked, real line breaks, short paths, and when
 // it has a systemMessage (the panel prints that itself) only the injected context is shown
-const hk = (out) => g.__crtlHookLine({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: out }, T)
+const hk = (out) => g.__crtl_khat_hook({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: out }, T)
 out.noise = ['[22:00 +0330 -- habib]', '{}', '  ', '{"continue":true}'].map((x) => hk(x).subtype)
 assert.deepEqual(out.noise, ['hook_response', 'hook_response', 'hook_response', 'hook_response'])
 const mem = JSON.stringify({ systemMessage: '🧠 حافظه: 2 سابقه تزریق شد', hookSpecificOutput: { hookEventName: 'UserPromptSubmit',
@@ -34,7 +34,7 @@ const mem = JSON.stringify({ systemMessage: '🧠 حافظه: 2 سابقه تز�
 const mc = hk(mem).content
 out.memory = { lines: mc.split('\n').length, rawJson: /hookSpecificOutput|\\n|"systemMessage"/.test(mc), shortPath: /11\.md:40/.test(mc) && !/\/Users\/habib/.test(mc), head: mc.split('\n')[0], twice: mc.includes('🧠 حافظه: 2 سابقه') }
 assert.deepEqual(out.memory, { lines: 4, rawJson: false, shortPath: true, head: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · متنِ تزریقی', twice: false })
-out.jalali = [g.__crtlJalali(2026, 3, 21).join('/'), g.__crtlJalali(2025, 3, 20).join('/')]
+out.jalali = [g.__crtl_tarikh_shamsi(2026, 3, 21).join('/'), g.__crtl_tarikh_shamsi(2025, 3, 20).join('/')]
 assert.deepEqual(out.jalali, ['1405/1/1', '1403/12/30'])
 
 // 2. the script's own python block on a copy of the installed extension.js
@@ -58,7 +58,7 @@ execFileSync('python3', [path.join(tmp, 'p.py')], { env: { ...process.env, CRTL_
 const patched = fs.readFileSync(extJs, 'utf8')
 out.patch = {
   flagAlwaysOn: /\w+\.push\("--include-hook-events"\)/.test(patched) && !/if\(this\.options\.includeHookEvents\)\w+\.push\("--include-hook-events"\)/.test(patched),
-  forwardWrapped: /this\.send\(\{type:"io_message",channelId:[^,]+,message:\(globalThis\.__crtlHookLine\?globalThis\.__crtlHookLine\(\w+\):\w+\),done:!1,hostForwardedAt:Date\.now\(\)\}\)/.test(patched),
+  forwardWrapped: /this\.send\(\{type:"io_message",channelId:[^,]+,message:\(globalThis\.__crtl_khat_hook\?globalThis\.__crtl_khat_hook\(\w+\):\w+\),done:!1,hostForwardedAt:Date\.now\(\)\}\)/.test(patched),
   parses: (() => { try { execFileSync(process.execPath, ['--check', extJs]); return true } catch { return false } })(),
 }
 assert.deepEqual(out.patch, { flagAlwaysOn: true, forwardWrapped: true, parses: true })
@@ -68,39 +68,45 @@ fs.writeFileSync(path.join(tmp, 'p2.py'), pyDollar)
 execFileSync('python3', [path.join(tmp, 'p2.py')], { env: { ...process.env, CRTL_CSS_FILE: path.join(tmp, 'x.css'), CRTL_EXT_JS: extJs,
   CRTL_BUTTONS_JS: path.join(dir, 'claude-ui-buttons.js'), CRTL_HOST_HOOK_JS: process.env.HOST_HOOK_JS || path.join(dir, 'claude-host-hook.js') } })
 const p2 = fs.readFileSync(extJs, 'utf8')
-out.dollarNames = p2.includes('$a.push("--include-hook-events")') && !p2.includes('if(this.options.includeHookEvents)$a') && p2.includes('globalThis.__crtlHookLine(K$)')
+out.dollarNames = p2.includes('$a.push("--include-hook-events")') && !p2.includes('if(this.options.includeHookEvents)$a') && p2.includes('globalThis.__crtl_khat_hook(K$)')
 assert.equal(out.dollarNames, true)
 // 3. the page folds them: the buttons script tags 🪝 meta lines and knows focus view
 const btn = fs.readFileSync(process.env.BUTTONS_JS || path.join(dir, 'claude-ui-buttons.js'), 'utf8')
 // the size must beat the chat's own «msg p{font-size:…!important}»: same !important, higher specificity,
 // and on the line's children too (24 Oct 22:11: the slider changed nothing)
-out.sizeWins = /\[class\*="messagesContainer_"\] \[class\*="metaMessage_"\]\.crtl-hook \*\{font-size:var\(--crtl-hook-size,13px\)!important/.test(btn)
+out.sizeWins = /\[class\*="messagesContainer_"\] \[class\*="metaMessage_"\]\.crtl-hook \*\{font-size:var\(--crtl-hook-font-px,13px\)!important/.test(btn)
 assert.equal(out.sizeWins, true)
 // the «حدس» box above the prompt: its text selectable (the app root is user-select:none)
 out.panelSelectable = /\[class\*="abovePrompt_"\] \[class\*="band_"\][^']*user-select:text!important/.test(btn)
 assert.equal(out.panelSelectable, true)
 // the «حدس» card, macOS look: only the box whose header says «hads plugin» is tagged and styled
-out.hadsCard = /hads plugin/.test(btn) && /card\.classList\.add\('crtl-hads'\)/.test(btn) && /\.crtl-hads\{[^']*border-radius:12px/.test(btn) && /crtl-tick-on\{background:#0a84ff/.test(btn)
+out.hadsCard = /hads plugin/.test(btn) && /card\.classList\.add\('crtl-hads'\)/.test(btn) && /\.crtl-hads\{[^']*border-radius:12px/.test(btn) && /crtl-tik-roshan\{background:#0a84ff/.test(btn)
 assert.equal(out.hadsCard, true)
 // its see-through level is a setting in the aA panel (24 Oct 22:45: «ترانسپرنسی»)
-out.hadsAlpha = /var\(--crtl-hads-alpha,80%\),transparent/.test(btn) && /sizeRow\('پُری کادرِ حدس ٪', 'hadsAlpha'/.test(btn) && /--crtl-hads-alpha:' \+ \(s\.hadsAlpha/.test(btn)
+out.hadsAlpha = /var\(--crtl-hads-pori-darsad,80%\),transparent/.test(btn) && /sizeRow\('پُری کادرِ حدس ٪', 'hads_pori_darsad'/.test(btn) && /--crtl-hads-pori-darsad:' \+ \(s\.hads_pori_darsad/.test(btn)
 assert.equal(out.hadsAlpha, true)
 // down to 0: fully see-through, no blur; 0 is kept, not turned back into the default (24 Oct 23:03)
-out.hadsGlass = /hadsAlpha: \[0, 100\]/.test(btn) && /--crtl-hads-blur:/.test(btn) && /blur\(var\(--crtl-hads-blur/.test(btn) && /isNaN\(n\) \? DEF\[field\] : n/.test(btn) && !/\(s\.hadsAlpha \|\| 80\)/.test(btn)
+out.hadsGlass = /hads_pori_darsad: \[0, 100\]/.test(btn) && /--crtl-hads-tari-px:/.test(btn) && /blur\(var\(--crtl-hads-tari-px/.test(btn) && /isNaN\(n\) \? DEF\[field\] : n/.test(btn) && !/\(s\.hads_pori_darsad \|\| 80\)/.test(btn)
 assert.equal(out.hadsGlass, true)
 // compact: ▾ ◂ × ride on the header line; the one-button state shrinks the card to that button
-out.hadsCompact = /\.crtl-hads \.crtl-hads-top\{position:sticky!important;top:0/.test(btn) && /crtl-hads-dot\{width:max-content/.test(btn) && /toggle\('crtl-hads-dot'/.test(btn)
+out.hadsCompact = /\.crtl-hads \.crtl-hads-radif-bala\{position:sticky!important;top:0/.test(btn) && /crtl-hads-tak-dokme\{width:max-content/.test(btn) && /toggle\('crtl-hads-tak-dokme'/.test(btn)
 assert.equal(out.hadsCompact, true)
 // the top row is found by its ▾, never the folded line (which has × too since 25 Oct 00:13, but no ▾). The band keeps its
 // own scroll (overflow:auto, max 12 lines): «overflow:visible» let the box spill over the chat and the
 // chat stopped scrolling (25 Oct 00:04: «دیگه اسکرول نمیشه»); so the top row sticks to the band's top
-out.topRowSafe = /if \(tx === '▾' && bs\[b\]\.parentElement/.test(btn) && !/if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-top\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-top\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-top\) \[data-engine-mark\]\{position:absolute/.test(btn)
+out.topRowSafe = /if \(tx === '▾' && bs\[b\]\.parentElement/.test(btn) && !/if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-radif-bala\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-radif-bala\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-radif-bala\) \[data-engine-mark\]\{position:absolute/.test(btn)
 assert.equal(out.topRowSafe, true)
-out.pageFolds = /--crtl-hook-size/.test(btn) && /sizeRow\('هوک‌ها', 'hook'/.test(btn) && /crtl-hook-open/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
+out.pageFolds = /--crtl-hook-font-px/.test(btn) && /sizeRow\('هوک‌ها', 'hook_font_px'/.test(btn) && /crtl-hook-baz/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-baz\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)
 // folded whatever the focus view: no rule may open them by focus (24 Oct 22:55)
-out.foldAlways = /crtl-hook:not\(\.crtl-hook-open\)\{max-height:1\.9em!important/.test(btn) && !/\.crtl-focus-on [^']*crtl-hook/.test(btn)
+out.foldAlways = /crtl-hook:not\(\.crtl-hook-baz\)\{max-height:1\.9em!important/.test(btn) && !/\.crtl-focus-on [^']*crtl-hook/.test(btn)
 assert.equal(out.foldAlways, true)
+// تعریفِ ۱۰ (اسمِ متغیر), 25 Oct: the new names only; a value saved under an old setting name is read as the new one
+const btnNoTable = btn.replace(/var esm_ghadim_tanzim = \{[^}]*\};/, '')
+out.esmUi = { table: /var esm_ghadim_tanzim = \{ hook: 'hook_font_px', hadsAlpha: 'hads_pori_darsad' \};/.test(btn),
+  old: (btnNoTable.match(/hadsAlpha|\bhook: \d|'hook'|crtl-hook-size|crtl-hads-alpha|crtl-hads-blur|crtl-hads-dot|crtl-hads-top|crtl-hook-open|crtl-tick-on|crtl-tick-off|crtl-insert/g) || []),
+  host: !/__crtlHook|__crtlJalali/.test(hookSrc) && typeof g.__crtl_khat_hook === 'function' }
+assert.deepEqual(out.esmUi, { table: true, old: [], host: true })
 // a user message keeps the app's own up-down scroll: the hook lines under it are not clamped, and
 // «overflow:hidden» cut them with no way to scroll (25 Oct 00:09: «کادر پیامهای من هم اسکرول نمیشه»)
 out.userMsgScrolls = /userMessage_"\]:not\(\.crtl-expanded\)\{overflow-x:hidden!important\}/.test(btn) && !/userMessage_"\]:not\(\.crtl-expanded\)\{overflow:hidden/.test(btn)

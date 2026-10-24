@@ -273,7 +273,8 @@
     '.crtl-hads .crtl-hads-radif-bala button{pointer-events:auto}',
     // the header «From the hads plugin» leaves the flow and sits on the top row's line (right side),
     // so ▾ ◂ × and it share one line while the band keeps its own scroll
-    '.crtl-hads:has(.crtl-hads-radif-bala) [data-engine-mark]{position:absolute!important;top:6px;right:12px;z-index:2;margin:0!important;pointer-events:none}',
+    // on the left, right after ▾ ×: on the right it sat on top of «جمع‌بندی:» (25 Oct 02:29, پنلِ ۲۰۵)
+    '.crtl-hads:has(.crtl-hads-radif-bala) [data-engine-mark]{position:absolute!important;top:7px;left:76px;right:auto!important;z-index:2;margin:0!important;pointer-events:none;white-space:nowrap}',
     /* the third state: just one small button, on the left (24 Oct 22:52: «فقط سمت چپ … یک دکمه») */
     '.crtl-hads.crtl-hads-tak-dokme{width:max-content!important;margin:2px auto 4px 8px!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(0,0,0,.25)!important}',
     '.crtl-hads.crtl-hads-tak-dokme [data-engine-mark]{display:none!important}',

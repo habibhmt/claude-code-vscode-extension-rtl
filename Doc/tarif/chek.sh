@@ -9,7 +9,7 @@ ok()  { echo "✅ $1"; }
 no()  { echo "❌ $1 — $2"; bad=$((bad+1)); }
 o=$(node mods/hads/test_hads.mjs 2>/dev/null)
 [[ $o == *'"defaultOff":0'* && $o == *'"otherChat":0'* && $o == *'"aAfterBOff":"on"'* && $o == *'"projectFiles":0'* && $o == *'"afterClear":"engine"'* && $o == *'"model":"claude-sonnet-5-5"'* && $o == *'"submit":0'* ]] && ok "۰۱ حدس" || no "۰۱ حدس" "آزمون جوابِ درست نداد"
-[[ $o == *'"brake":1'* && $o == *'"endNotDropped":5'* && $o == *'"twoOnly":"اول. دوم!"'* && $o == *'"untouched":"ok"'* && $o == *'"toolSurvives":"ok"'* && $o == *'"ask":{"fork":1,"fill":0,"submit":0}'* && $o == *'"nothingToFork":true'* ]] && ok "۱۰ دو جمله و بپرس" || no "۱۰ دو جمله و بپرس" "آزمون جوابِ درست نداد"
+[[ $o == *'"brake":1'* && $o == *'"endNotDropped":5'* && $o == *'"twoOnly":"اول. دوم!"'* && $o == *'"fileDot":"ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد."'* && $o == *'"untouched":"ok"'* && $o == *'"toolSurvives":"ok"'* && $o == *'"ask":{"fork":1,"fill":0,"submit":0}'* && $o == *'"nothingToFork":true'* ]] && ok "۱۰ دو جمله و بپرس" || no "۱۰ دو جمله و بپرس" "آزمون جوابِ درست نداد"
 if [[ -n $NO_CHROME ]]; then skip "۰۲ نوارِ بالا"; else
 o=$(node test_claude_top_buttons.cjs 2>/dev/null)
 [[ $o == *'"topCount":14'* && $o == *'"hadsText":["/hads on","/hads off"]'* && $o == *'"dragTyped":""'* && $o == *'"submitted":0'* && $o == *'"notInBanner":true'* ]] && ok "۰۲ نوارِ بالا" || no "۰۲ نوارِ بالا" "آزمون جوابِ درست نداد"

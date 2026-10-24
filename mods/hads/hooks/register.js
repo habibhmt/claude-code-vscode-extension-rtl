@@ -102,10 +102,10 @@ async function guess($) {
   }
 }
 
-// Whatever the model says, at most two sentences are shown.
+// Whatever the model says, at most two sentences are shown. A sentence ends at . ! ? ؟
+// followed by a space: the dot inside register.js or v2.10 ends nothing.
 export function twoSentences(raw) {
-  const parts = String(raw || '').replace(/\s+/g, ' ').trim().match(/[^.!?؟]+[.!?؟]*/g) || []
-  return parts.slice(0, 2).join('').trim()
+  return String(raw || '').replace(/\s+/g, ' ').trim().split(/(?<=[.!?؟]) /).slice(0, 2).join(' ')
 }
 
 async function vazhe($) {

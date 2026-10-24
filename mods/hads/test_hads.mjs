@@ -140,6 +140,8 @@ out.subOrOff = calls.now.length; assert.equal(out.subOrOff, 6)
 $.nowReply = 'اول. دوم! سوم؟ چهارم. پنجم.'; $.t += mod.GAP; await tool(); await flush()
 const nowText = (t) => t.children.find((c) => c.key === 'hads-now')?.children[0]
 out.twoOnly = nowText(await render()); assert.equal(out.twoOnly, 'اول. دوم!')
+// a dot inside a file name or a version does not end the sentence
+out.fileDot = mod.twoSentences('ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد. سوم.'); assert.equal(out.fileDot, 'ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد.')
 // the tool's result comes back untouched and never waits for the model
 let hang; $.nowModel = () => new Promise((r) => { hang = r })
 $.t += mod.GAP; out.untouched = (await tool()).result; assert.equal(out.untouched, 'ok')

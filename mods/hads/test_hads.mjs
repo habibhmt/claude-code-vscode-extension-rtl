@@ -10,7 +10,7 @@ const $ = {
     complete: async (o) => o.maxTokens === 200 ? $.nowModel(o) : $.guessModel(o),
     fork: async (o) => { calls.fork.push(o); return $.forkReply },
   },
-  session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid, root: async () => '/proj',
+  session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid, root: async () => '/proj', cwd: async () => '/proj',
     usage: async () => ({ context: { tokens: $.ctx, window: 1e6 } }), model: async () => 'claude-opus-5-5' },
   env: { get: async (k) => (k === 'HOME' ? '/h' : undefined) },
   ui: { invalidate() {}, focus: async (o) => { calls.focus = o }, copy: async (o) => { calls.copy = o; return { isCopied: true } }, resolve: () => ({ Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }) }) },
@@ -18,6 +18,7 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
+  process: { run: async (argv) => { calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
@@ -81,17 +82,19 @@ await H['command.run']($, { args: 'on' })
 $.reply = 'not json {'; await H['turn.complete']($, {}, next); await flush()
 out.broken = guessLabels(await render()); assert.deepEqual(out.broken, [])
 
-// busy guard: answers ending while one is told wait for it; then one more call tells the last, never dropped
-calls.complete.length = 0; $.reply = '[{"label":"a","text":"b"}]'
-const slow = $.guessModel; let release
-$.guessModel = (o) => { calls.complete.push(o); return new Promise((res) => { release = () => res({ isAnswered: true, text: $.reply }) }) }
+// busy guard: answers ending while «دو جمله» is told wait for it; then one more call tells the last, never dropped
+calls.now.length = 0; $.reply = '[{"label":"a","text":"b"}]'
+const slow = $.guessModel; const nowFast = $.nowModel; let release
+$.nowModel = (o) => { calls.now.push(o); return new Promise((res) => { release = () => res({ isAnswered: true, text: $.nowReply }) }) }
 await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next)
-await new Promise((r) => setTimeout(r, 5)); out.busy = calls.complete.length; assert.equal(out.busy, 1)
+await new Promise((r) => setTimeout(r, 5)); out.busy = calls.now.length; assert.equal(out.busy, 1)
 release(); await new Promise((r) => setTimeout(r, 5)); release(); await flush()
-out.endNotDropped = calls.complete.length; assert.equal(out.endNotDropped, 2); $.guessModel = slow
+out.endNotDropped = calls.now.length; assert.equal(out.endNotDropped, 2); $.nowModel = nowFast
 // at most 5 guesses
 $.reply = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ label: 'g' + i, text: 't' + i })))
-await H['turn.complete']($, {}, next); await flush()
+// guesses come every GUESS_EVERY answers: /hads now asks for them at once
+const guessNow = async () => { await H['command.run']($, { args: 'now' }); await flush() }
+await guessNow()
 const t2 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
 out.max = row(t2).children.filter((c) => c.t === 'Button' && (isGuess(c) || c.key === 'hads-x')).length; assert.equal(out.max, 6)
 // other agents' messages are labelled, not taken as the user's; reminders are cut out
@@ -100,7 +103,7 @@ $.msgs = [{ role: 'user', text: '<system-reminder>یادآوری</system-reminde
   { role: 'user', text: 'Another Claude session sent a message:\n<cross-session-message from="x">جدولِ ناظر</cross-session-message>' },
   { role: 'assistant', text: 'جوابِ کلود' }]
 $.files = { '.remember/now.md': 'هندآفِ الان', '.remember/today-2026-10-21.md': 'هندآفِ امروز', '.remember/today-2026-10-22.done.md': 'کهنه', '.remember/recent.md': 'هفته' }
-await H['turn.complete']($, {}, next); await flush()
+await guessNow()
 const [hp, mp] = calls.complete[0].prompt.map((b) => b.text)
 const sec = (h) => mp.split('## ').find((x) => x.startsWith(h)) || ''
 out.peerFiltered = /پیامِ حبیب/.test(sec('درخواست')) && !/جدولِ ناظر|یادآوری/.test(sec('درخواست')) && /جدولِ ناظر/.test(sec('پیامِ ایجنت')) && /جوابِ کلود/.test(sec('جواب'))
@@ -156,39 +159,51 @@ $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: 
 // a failure in «دو جمله» never breaks the tool (clock throws inside the hook's own work)
 const realNow = $.clock.now; $.clock.now = async () => { throw new Error('boom') }
 out.toolSurvives = (await tool()).result; await flush(); assert.equal(out.toolSurvives, 'ok'); $.clock.now = realNow
-// the end of an answer: ONE fork over the whole chat gives both «دو جمله» and the guesses
+// the end of an answer: «دو جمله» from Sonnet (cheap), the guesses from ONE fork of the chat
+// itself (its own model, warm cache) — only every GUESS_EVERY answers
 const nowText2 = (t) => find(t, 'hads-now')
 const cnt = () => [calls.fork.length, calls.now.length, calls.complete.length]
-$.t += mod.GAP; $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }
+$.t += mod.GAP; $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }; $.nowReply = 'الف کرد. ب ماند. پ.'
 $.forkReply = { isAnswered: true, usage: { input_tokens: 9, output_tokens: 99, cache_read_input_tokens: 200000, cache_creation_input_tokens: 5 },
-  text: 'بفرما: {"now": "الف کرد. ب ماند. پ.", "guesses": [{"label": "یک", "text": "کارِ یک"}, {"label": "دو", "text": "کارِ دو"}]}' }
+  text: 'بفرما: {"guesses": [{"label": "یک", "text": "کارِ یک"}, {"label": "دو", "text": "کارِ دو"}]}' }
+$.sid = 'F'; await H['command.run']($, { args: 'on' })
 let c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); let c1 = cnt()
-out.oneFork = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.oneFork, [1, 0, 0])
+out.oneFork = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.oneFork, [1, 1, 0])
 const t5 = await render()
-out.forkRow = { now: nowText2(t5).children?.[0] ?? nowText2(t5).label, guesses: guessLabels(t5) }
+out.forkRow = { now: nowText2(t5).children[0], guesses: guessLabels(t5) }
 assert.deepEqual(out.forkRow, { now: 'الف کرد. ب ماند.', guesses: ['یک', 'دو'] })
-out.forkPrompt = /واژهٔ-حبیب/.test(calls.fork.at(-1).prompt) && /JSON/.test(calls.fork.at(-1).prompt); assert.equal(out.forkPrompt, true)
+out.forkPrompt = /JSON/.test(calls.fork.at(-1).prompt) && /guesses/.test(calls.fork.at(-1).prompt) && !/"now"/.test(calls.fork.at(-1).prompt); assert.equal(out.forkPrompt, true)
 out.turnUsage = (await $.store.get('lastTurnUsage'))?.via; assert.equal(out.turnUsage, 'fork')
-// a broken fork reply falls back to Sonnet (guess + two sentences), never an empty row
+// the next GUESS_EVERY-1 answers: «دو جمله» only, no fork, the guesses stay
+const between = []
+for (let i = 1; i < mod.GUESS_EVERY; i++) { c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt(); between.push([c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]) }
+out.between = between; assert.deepEqual(out.between, Array(mod.GUESS_EVERY - 1).fill([0, 1, 0]))
+out.guessesKept = guessLabels(await render()); assert.deepEqual(out.guessesKept, ['یک', 'دو'])
+// a broken fork reply falls back to Sonnet for the guesses, never an empty row
 $.forkReply = { isAnswered: true, text: 'not json', usage: {} }
 c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
 out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
 // a chat over MAX_FORK tokens never forks
-$.forkReply = { isAnswered: true, text: '{"now": "x. y.", "guesses": []}', usage: {} }; $.ctx = mod.MAX_FORK + 1
-c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
+$.forkReply = { isAnswered: true, text: '{"guesses": []}', usage: {} }; $.ctx = mod.MAX_FORK + 1
+c0 = cnt(); await H['command.run']($, { args: 'now' }); await flush(); c1 = cnt()
 out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1]); $.ctx = 1000
+$.sid = 'A'
 // mid-work uses only the last three messages
 $.msgs = Array.from({ length: 10 }, (_, i) => ({ role: 'user', text: 'پیامِ-' + i }))
 $.t += mod.GAP; await tool(); await flush()
 const mp3 = calls.now.at(-1).prompt.map((b) => b.text).join('\n')
 out.lastThree = !/پیامِ-6/.test(mp3) && /پیامِ-7/.test(mp3) && /پیامِ-9/.test(mp3); assert.equal(out.lastThree, true)
+// deep in a long answer the last three are all the agent's: Habib's last request still goes in
+const longTurn = [{ role: 'user', text: 'قدیمی' }, { role: 'user', text: 'خواستهٔ-حبیب' }, { role: 'user', text: 'Another Claude session sent a message: <cross-session-message>ایجنت</cross-session-message>' },
+  ...Array.from({ length: 6 }, (_, i) => ({ role: 'assistant', text: 'کار-' + i }))]
+out.hisRequest = mod.recent(longTurn).map((m) => m.text); assert.deepEqual(out.hisRequest, ['قدیمی', 'خواستهٔ-حبیب', 'کار-3', 'کار-4', 'کار-5'])
 // a mid-work line that comes back after an answer's end does not hide the end's line
-let late; $.nowModel = (o) => { calls.now.push(o); return new Promise((r) => { late = r }) }
-$.forkReply = { isAnswered: true, text: '{"now": "پایان شد. منتظرِ حبیب.", "guesses": []}', usage: {} }
+let late; let lateOnce = true
+$.nowModel = (o) => { calls.now.push(o); if (lateOnce) { lateOnce = false; return new Promise((r) => { late = r }) } return { isAnswered: true, text: 'پایان شد. منتظرِ حبیب.' } }
 $.t += mod.GAP; await tool(); await new Promise((r) => setTimeout(r, 5))
 $.t += 1; await H['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5))
-late({ isAnswered: true, text: 'وسطِ کار. هنوز.' }); await flush()
-const t6 = await render(); out.endWins = nowText2(t6).children?.[0] ?? nowText2(t6).label; assert.equal(out.endWins, 'پایان شد. منتظرِ حبیب.')
+late({ isAnswered: true, text: 'وسطِ کار. هنوز.' }); await flush(); await new Promise((r) => setTimeout(r, 5)); await flush()
+const t6 = await render(); out.endWins = nowText2(t6).children[0]; assert.equal(out.endWins, 'پایان شد. منتظرِ حبیب.')
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
 // h-on says at once when the row comes
 $.sid = 'N'; await H['command.run']($, { args: 'on' })
@@ -220,9 +235,9 @@ out.waitAsked = calls.fork.filter((f, i) => i >= w0 && /^صبر کن/.test(f.pro
 $.ui.resolve = () => withInput
 $.forkReply = { isAnswered: true, text: '{"now": "مجری دارد می‌سازد. منتظرِ ناظر است.", "guesses": []}', usage: {} }
 $.t += 1; await H['turn.complete']($, {}, next); await flush()
-const nowBtn = find(await render(), 'hads-now'); await nowBtn.onPress()
-out.btwNow = row(await render()).children.find((c) => c.t === 'Input').value.startsWith('دربارهٔ این: «') && calls.focus?.key === 'hads-ask'
-assert.equal(out.btwNow, true)
+// «دو جمله» is plain text Habib selects and copies (Ctrl+C), not a button; no کپی buttons anywhere
+const rSel = await render()
+out.nowSelectable = find(rSel, 'hads-now')?.t === 'Text' && !JSON.stringify(rSel).includes('copy'); assert.equal(out.nowSelectable, true)
 // a cold cache (idle past COLD): the first Enter only tells the cost, the second asks
 $.t += mod.COLD + 1; $.ctx = 200000; const f0 = calls.fork.length
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
@@ -260,8 +275,7 @@ await find(r10, 'hads-ask').onInput('با دکمه'); r10 = await F['ui.render']
 f1 = calls.fork.length; await find(r10, 'hads-ask-send').onPress({}); await flush()
 out.sendButton = calls.fork.length === f1 + 1 && /^با دکمه/.test(calls.fork.at(-1).prompt); assert.equal(out.sendButton, true)
 r10 = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-await find(r10, 'hads-ans-copy').onPress({ surface: 'terminal' })
-out.copyAnswer = calls.copy?.text === 'جوابِ دکمه.' && calls.copy?.surface === 'terminal'; assert.equal(out.copyAnswer, true)
+out.answerText = !find(r10, 'hads-ans-copy') && JSON.stringify(r10).includes('جوابِ دکمه.'); assert.equal(out.answerText, true)
 // the fork is told not to use tools or go on with the work (mid-work it saw a tool call in flight)
 out.noTools = /ابزاری صدا نزن/.test(calls.fork.at(-1).prompt); assert.equal(out.noTools, true)
 // a cold warning has «باشه، بپرس»: a press asks
@@ -274,7 +288,7 @@ $.ui.resolve = realResolve
 out.when = mod.when(Date.UTC(2026, 9, 24, 15, 27)); assert.equal(out.when, '۲۴ اکت ۱۸:۵۷')
 $.ui.resolve = () => withInput; $.sid = 'H'; await F['command.run']($, { args: 'on' })
 for (let i = 0; i < 55; i++) {
-  $.forkReply = { isAnswered: true, text: '{"now": "جملهٔ-' + i + '. تمام."}', usage: {} }; $.t += 1000
+  $.nowReply = 'جملهٔ-' + i + '. تمام.'; $.t += 1000
   await F['turn.complete']($, {}, next); await flush()
 }
 const histLines = String(flags['/h/.claude/hads-log/H.now.jsonl']).trim().split('\n')
@@ -285,7 +299,7 @@ await find(rH, 'hads-hist').onPress({}); rH = await F['ui.render']($, { componen
 const h0 = find(rH, 'hads-hist-0')?.children[0], h9 = find(rH, 'hads-hist-9')?.children[0]
 out.histOrder = [/جملهٔ-53\./.test(h0), /جملهٔ-44\./.test(h9), !find(rH, 'hads-hist-10'), / — /.test(h0) && /^[۰-۹]+ [^ ]+ [۰-۹]{2}:[۰-۹]{2} — /.test(h0)]
 assert.deepEqual(out.histOrder, [true, true, true, true])
-await find(rH, 'hads-hist-copy-0').onPress({ surface: 'vscode' }); out.histCopy = calls.copy.text === h0; assert.equal(out.histCopy, true)
+out.histText = find(rH, 'hads-hist-0')?.t === 'Text' && !find(rH, 'hads-hist-copy-0'); assert.equal(out.histText, true)
 await find(rH, 'hads-hist').onPress({})
 // another chat has its own history
 $.sid = 'H2'; await F['command.run']($, { args: 'on' }); $.forkReply = { isAnswered: true, text: '{"now": "دیگری. بله."}', usage: {} }
@@ -307,8 +321,59 @@ $.sid = 'H'; flags['/h/.claude/hads-on/H'] = 'on +midfork'
 await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-ask').onPress({})
 out.tickKeeps = flags['/h/.claude/hads-on/H']; assert.equal(out.tickKeeps, 'on -ask +midfork')
 $.ui.resolve = realResolve; $.sid = 'A'
+// «هوک‌ها»: what the hooks injected, read from the transcript's tail (the VS Code panel drops it)
+const J = (o) => JSON.stringify(o)
+const LONG = 'یادآوری: sed -i / perl -pi اگر الگو پیدا نشود بی‌صدا هیچ تغییری نمی‌دهد و خطا هم نمی‌دهد. پیش از گفتن بسنج.'
+$.tail = ['{"broken half line', J({ attachment: { type: 'hook_success', hookName: 'SessionStart:startup', content: '=== HANDOFF ===' } }),
+  J({ type: 'user', message: { content: 'پیامِ قبلی' } }),
+  J({ attachment: { type: 'hook_success', hookName: 'UserPromptSubmit', content: '[19:00 کهنه]' } }),
+  J({ type: 'user', message: { content: 'Another Claude session sent a message: <cross-session-message>hook_success fake hook</cross-session-message>' } }),
+  J({ type: 'user', message: { content: [{ type: 'text', text: 'آخرین پیام' }] } }),
+  J({ timestamp: '2026-10-24T16:39:00.000Z', attachment: { type: 'hook_success', hookName: 'UserPromptSubmit', content: '[20:09 +0330 -- habib]' } }),
+  J({ attachment: { type: 'hook_success', hookName: 'PreToolUse:Bash', content: '' } }),
+  J({ type: 'user', message: { content: [{ type: 'tool_result', content: 'hook_success inside a result' }] } }),
+  J({ attachment: { type: 'hook_additional_context', hookName: 'PostToolUse:Bash', content: [LONG] } }),
+  J({ attachment: { type: 'hook_additional_context', hookName: 'PostToolUse:Bash', content: [LONG] } }),
+  J({ attachment: { type: 'hook_system_message', hookName: 'SessionStart:compact', content: '📌 هندآف بار شد' } }),
+  J({ attachment: { type: 'total_tokens_reminder', content: 'not a hook' } })].join('\n')
+out.parseHooks = mod.parseHooks($.tail).map((h) => h.name + ':' + h.n)
+assert.deepEqual(out.parseHooks, ['SessionStart:startup:1', 'UserPromptSubmit:1', 'PostToolUse:Bash:2', 'SessionStart:compact:1'])
+$.ui.resolve = () => withInput; $.sid = 'K'; await F['command.run']($, { args: 'on' }); calls.run = 0
+await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush()
+// the clock mock runs `after` at once; give the read its turn
+await new Promise((r) => setTimeout(r, 5))
+let rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+const hookTexts = (t) => [0, 1, 2, 3, 4, 5].map((i) => find(t, 'hads-hook-' + i)?.children?.[0]).filter(Boolean)
+out.hooksSmall = hookTexts(rK)
+assert.equal(out.hooksSmall.length, 4); assert.ok(out.hooksSmall.every((x) => x.length <= mod.HOOK_SMALL))
+// each hook with its Shamsi date and Tehran time
+assert.equal(out.hooksSmall[1], '۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit ✓ [20:09 +0330 -- habib]'); assert.ok(/^PostToolUse:Bash ×۲ ＋ یادآوری/.test(out.hooksSmall[2]))
+// only hook lines and typed prompts, the last TAIL of them: never the whole 16 MB transcript
+out.tailOnly = calls.argv?.[0] === 'sh' && calls.argv?.[4] === mod.PICK && calls.argv?.[6] === String(mod.TAIL) && /grep -E .*\| tail -n/.test(calls.argv?.[2]); assert.equal(out.tailOnly, true)
+// big: the last HOOK_BIG_ROWS, each whole up to HOOK_BIG (selectable text, no کپی buttons)
+await find(rK, 'hads-hook-size').onPress({}); rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.hooksBig = { file: flags['/h/.claude/hads-on/K'], rows: hookTexts(rK).length, whole: hookTexts(rK).some((x) => x.endsWith(LONG)), copy: JSON.stringify(rK).includes('copy') }
+assert.deepEqual(out.hooksBig, { file: 'on hookbig', rows: mod.HOOK_BIG_ROWS, whole: true, copy: false })
+// a pages-long hook (a SessionStart handoff) is cut: it filled the band and hid «دو جمله» (24 Oct)
+const keepTail = $.tail; $.tail += '\n' + J({ attachment: { type: 'hook_success', hookName: 'SessionStart:resume', content: 'ه'.repeat(5000) } })
+await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush(); await new Promise((r) => setTimeout(r, 5))
+rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.hookBigCut <= mod.HOOK_BIG + 60, 'big hook ' + out.hookBigCut)
+// the ticks stay last, next to the prompt, whatever is above them
+const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && x.key === 'hads-x'); assert.equal(out.ticksLast, true)
+$.tail = keepTail
+// ticked off: the transcript is not read at all
+await find(rK, 'hads-tick-hooks').onPress({}); calls.run = 0
+await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush()
+out.hooksOff = { runs: calls.run, rows: hookTexts(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')).length }
+assert.deepEqual(out.hooksOff, { runs: 0, rows: 0 })
+// a failing tail never breaks anything
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-hooks').onPress({}); $.tailFails = true
+await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush(); out.tailFails = 'ok'; $.tailFails = false
+$.ui.resolve = realResolve; $.sid = 'A'
 // the numbers agreed with Habib and the ناظر (تعریفِ ۱۰): a change must turn this red
-out.pinned = [mod.GAP, mod.MAX_FORK]; assert.deepEqual(out.pinned, [60000, 400000])
+// GUESS_EVERY: Habib 24 Oct «حدسو بذار مدل اصلی بکنه … چند تا پیام به چند تا پیام»
+out.pinned = [mod.GAP, mod.MAX_FORK, mod.GUESS_EVERY]; assert.deepEqual(out.pinned, [60000, 400000, 3])
 // ticks: one per part, this chat only; a part ticked off is neither drawn nor asked for
 $.sid = 'A'; $.ui.resolve = () => withInput; await H['command.run']($, { args: 'on' })
 const ticks = (t) => PARTS_KEYS.map((k) => find(t, 'hads-tick-' + k)?.label)
@@ -316,10 +381,10 @@ const PARTS_KEYS = ['guess', 'now', 'ask']
 out.ticksOn = ticks(await render()); assert.deepEqual(out.ticksOn, ['✓ حدس', '✓ دو جمله', '✓ پرسش'])
 await find(await render(), 'hads-tick-guess').onPress()
 out.guessOffFile = flags['/h/.claude/hads-on/A']; assert.equal(out.guessOffFile, 'on -guess')
-$.forkReply = { isAnswered: true, text: '{"now": "فقط این. همین.", "guesses": [{"label": "نه", "text": "نباید"}]}', usage: {} }
-await H['turn.complete']($, {}, next); await flush()
+$.forkReply = { isAnswered: true, text: '{"guesses": [{"label": "نه", "text": "نباید"}]}', usage: {} }; $.nowReply = 'فقط این. همین.'
+const fk0 = calls.fork.length; await H['turn.complete']($, {}, next); await flush()
 const t8 = await render()
-out.guessOff = { labels: guessLabels(t8), asked: /guesses/.test(calls.fork.at(-1).prompt), now: nowText2(t8)?.label }
+out.guessOff = { labels: guessLabels(t8), asked: calls.fork.length > fk0, now: nowText2(t8)?.children[0] }
 assert.deepEqual(out.guessOff, { labels: [], asked: false, now: 'فقط این. همین.' })
 // what was made while «حدس» was ticked off never shows up when it comes back
 await find(await render(), 'hads-tick-guess').onPress()

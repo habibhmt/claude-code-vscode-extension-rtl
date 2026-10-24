@@ -17,7 +17,11 @@ for l in (x for f in ('6d39ff34-b0b1-48ae-a27b-6dc2870b9578', '1ab9bf32-ee8d-4ab
     if isinstance(a, dict) and a.get('type') == 'queued_command':
         t = a.get('prompt')
         t = t if isinstance(t, str) else ' '.join(b.get('text', '') for b in t or [] if isinstance(b, dict))
-        (relay if AGENT.search(t) else habib).append(t); continue
+        # Claude Code marks a mid-turn message Habib typed: trust that over the text, which may
+        # quote an agent (a pasted handoff mentions «Another Claude session sent a message»)
+        kind = (a.get('origin') or {}).get('kind')
+        human = kind == 'human' or (kind is None and not AGENT.search(t))
+        (habib if human else relay).append(t); continue
     if o.get('type') != 'user' or o.get('isCompactSummary'): continue
     c = o.get('message', {}).get('content')
     if o.get('isMeta'):

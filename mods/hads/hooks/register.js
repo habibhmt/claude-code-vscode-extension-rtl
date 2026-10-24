@@ -1,8 +1,12 @@
-// حدس: after each answer, one fork of the chat itself (warm cache: the answer was just sent)
-// gives «دو جمله» and 3-5 guesses of the next request; Sonnet 5.5 on the last messages is the
-// fallback and the mid-work teller. Each guess is a button above the prompt; a click fills
-// the prompt box and never sends.
+// حدس: «دو جمله» is Sonnet 5.5 on the last messages, after each answer and (braked) after
+// tools: cheap. The 3-5 guesses are one fork of the chat itself (its own model, the whole chat
+// from the warm cache) every GUESS_EVERY answers; Sonnet is their fallback. Each guess is a
+// button above the prompt; a click fills the prompt box and never sends.
 export const MODEL = 'claude-sonnet-5-5'
+// Habib: «حدسو بذار مدل اصلی بکنه … منتها مثلاً چند تا پیام به چند تا پیام»
+export const GUESS_EVERY = 3
+// answers seen per chat id since this process started: guesses are due on 1st, 4th, 7th…
+const turnsOf = new Map()
 
 const SYSTEM = [
   'You predict what the user (حبیب) will ask next in a Claude Code session.',
@@ -35,6 +39,7 @@ const NOW_SYSTEM = [
 ].join(' ')
 let now = { text: '', for: '' }
 let nowBusy = false
+let nowAgain = false
 let lastNow = 0
 // the end of an answer wins over a mid-work line still on its way
 let endAt = 0
@@ -180,6 +185,28 @@ export function when(t) {
 
 // Whatever the model says, at most two sentences are shown. A sentence ends at . ! ? ؟
 // followed by a space: the dot inside register.js or v2.10 ends nothing. Never past MAX_NOW.
+// Shamsi (Jalali) date and Tehran time, Persian digits: «۳ آبان ۱۴۰۵ ۲۰:۰۹». Habib: «اگر که
+// ساعت تاریخ شمسی باشه چه بهتر». Tehran is +03:30 all year (no DST since 1401).
+const JMONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
+export function jalali(gy, gm, gd) {
+  const g = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
+  const gy2 = gm > 2 ? gy + 1 : gy
+  let days = 355666 + 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g[gm - 1]
+  let jy = -1595 + 33 * Math.floor(days / 12053); days %= 12053
+  jy += 4 * Math.floor(days / 1461); days %= 1461
+  if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365 }
+  const jm = days < 186 ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30)
+  const jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30)
+  return [jy, jm, jd]
+}
+export function whenFa(t) {
+  if (!t) return ''
+  const d = new Date(t + 3.5 * 3600e3)
+  const [jy, jm, jd] = jalali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate())
+  const hh = String(d.getUTCHours()).padStart(2, '0'), mm = String(d.getUTCMinutes()).padStart(2, '0')
+  return fa(jd + ' ' + JMONTHS[jm - 1] + ' ' + jy + ' ' + hh + ':' + mm)
+}
+
 export const MAX_NOW = 300
 export function twoSentences(raw) {
   const t = String(raw || '').replace(/\s+/g, ' ').trim().split(/(?<=[.!?؟]) /).slice(0, 2).join(' ')
@@ -206,8 +233,17 @@ async function logUsage($, part, via, usage) {
   } catch {}
 }
 
+// «دو جمله» reads the last three messages and, always, Habib's last two: deep in a long answer
+// the last three are all the agent's, and his request was missing (24 Oct)
+export function recent(msgs) {
+  const last = msgs.slice(-3)
+  const his = msgs.filter((m) => m.role === 'user' && m.text && !isAgent(m.text) && m.text.replace(STRIP, '').trim()).slice(-2)
+  return msgs.filter((m) => last.includes(m) || his.includes(m))
+}
+
 async function tellNow($, tool, force, viaFork = false) {
-  if (nowBusy) return
+  // an answer's end while a mid-work line is on its way: told right after it, never dropped
+  if (nowBusy) { if (force) nowAgain = true; return }
   const t = await $.clock.now()
   if (!force && t - lastNow < GAP) return
   nowBusy = true; lastNow = t
@@ -221,7 +257,7 @@ async function tellNow($, tool, force, viaFork = false) {
     const r = await $.model.complete({
       model: MODEL, system: NOW_SYSTEM,
       prompt: [{ text: await vazhe($), cache: true },
-        { text: buildPrompt((await $.session.messages()).slice(-3)) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
+        { text: buildPrompt(recent(await $.session.messages())) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
       maxTokens: 200, timeoutMs: 30000,
     })
     // an answer's end started after this call: its line stands
@@ -233,42 +269,49 @@ async function tellNow($, tool, force, viaFork = false) {
   } catch {} finally {
     nowBusy = false
   }
+  if (nowAgain) { nowAgain = false; await tellNow($, '', true) }
 }
 
 async function small($) {
   try { return ((await $.session.usage()).context.tokens || 0) <= MAX_FORK } catch { return false }
 }
 
-// The end of an answer: one fork over the whole chat, read from the cache the answer just
-// warmed. Too big a chat, or no usable reply, falls back to the two Sonnet calls.
-async function turnEnd($, p = { guess: true, now: true }) {
+// The end of an answer. «دو جمله»: Sonnet on the last messages, every answer (cheap).
+// The guesses: one fork over the whole chat (its own model, the cache this answer just
+// warmed) every GUESS_EVERY answers; a chat over MAX_FORK, or no usable reply, asks Sonnet.
+async function turnEnd($, p = { guess: true, now: true }, force = false) {
   if (!p.guess && !p.now) return
   if (endBusy) { endAgain = true; return }
   endBusy = true; endAt = await $.clock.now()
   try {
-    let got = null
-    let tokens = 0
-    try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
-    if (tokens <= MAX_FORK) {
-      try {
-        const r = await $.model.fork({ prompt: forkPrompt(p) + '\n\n' + (await vazhe($)) })
-        got = r.isAnswered ? parseBoth(r.text) : null
-        if (got) try { await $.store.set('lastTurnUsage', { via: 'fork', tokens, usage: r.usage }) } catch {}
-        if (r.isAnswered) await logUsage($, 'end', 'fork', r.usage)
-      } catch {}
-    }
-    if (got) {
-      const id = await $.session.id()
-      if (got.now && p.now) await setNow($, got.now)
-      if (got.guesses.length && p.guess) { guesses = got.guesses; madeFor = id }
-      hidden = false; $.ui.invalidate('ui.render')
-    } else {
-      await Promise.all([p.guess && guess($), p.now && tellNow($, '', true)])
-    }
+    const id = await $.session.id()
+    const seen = turnsOf.get(id) || 0
+    turnsOf.set(id, seen + 1)
+    // also due when this chat shows none (first answer, /clear, an empty or broken reply)
+    const due = p.guess && (force || seen % GUESS_EVERY === 0 || madeFor !== id || !guesses.length)
+    await Promise.all([p.now && tellNow($, '', true), due && guessFork($)])
   } finally {
     endBusy = false
   }
   if (endAgain) { endAgain = false; await turnEnd($, (await readFlag($)) || p) }
+}
+
+async function guessFork($) {
+  let got = null
+  let tokens = 0
+  try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
+  if (tokens <= MAX_FORK) {
+    try {
+      const r = await $.model.fork({ prompt: forkPrompt({ guess: true }) })
+      got = r.isAnswered ? parseBoth(r.text) : null
+      if (got?.guesses.length) try { await $.store.set('lastTurnUsage', { via: 'fork', tokens, usage: r.usage }) } catch {}
+      if (r.isAnswered) await logUsage($, 'guess', 'fork', r.usage)
+    } catch {}
+  }
+  if (got?.guesses.length) {
+    guesses = got.guesses; madeFor = await $.session.id()
+    hidden = false; $.ui.invalidate('ui.render')
+  } else await guess($)
 }
 
 const WAIT = 'این پرسش بعد از جوابِ بعدیِ کلود در همین چت خودش پرسیده می‌شود (بعد از resume یا وسطِ کار، تا اولین جواب چیزی برای خواندن نیست).'
@@ -344,18 +387,18 @@ async function fillAppend($, text) {
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
 const flagPath = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 // The file holds `on`, then the parts ticked off: `on -guess -ask`. h-on turns all three on.
-export const PARTS = [['guess', 'حدس'], ['now', 'دو جمله'], ['ask', 'پرسش']]
+export const PARTS = [['guess', 'حدس'], ['now', 'دو جمله'], ['ask', 'پرسش'], ['hooks', 'هوک‌ها']]
 async function readFlag($) {
   try {
     const w = String(await $.fs.read(await flagPath($))).trim().split(/\s+/)
     if (w[0] !== 'on') return null
-    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork'), min: w.includes('min') }
+    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork'), min: w.includes('min'), hookbig: w.includes('hookbig') }
   } catch {
     return null
   }
 }
 const isOn = async ($) => (await readFlag($)) !== null
-const flagWords = (p) => ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k), ...(p.midfork ? ['+midfork'] : []), ...(p.min ? ['min'] : [])].join(' ')
+const flagWords = (p) => ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k), ...(p.midfork ? ['+midfork'] : []), ...(p.min ? ['min'] : []), ...(p.hookbig ? ['hookbig'] : [])].join(' ')
 // ▾ / ▸: the whole band folds to one line and stays so after a reload (the word `min`)
 async function fold($) {
   const p = await readFlag($)
@@ -365,6 +408,76 @@ async function fold($) {
   $.ui.invalidate('ui.render')
 }
 let histOpen = false
+
+// «هوک‌ها»: the VS Code panel drops every hook_* message on purpose (extension.js filters
+// subtype hook_ out, the webview has no view for them), so the band shows what the hooks
+// injected, read from the transcript the CLI writes: the attachments of type hook_success,
+// hook_additional_context and hook_system_message since the last prompt, and the last
+// SessionStart's. A transcript passes $.fs.read's 4 MiB and its tail is mostly request blobs,
+// so grep keeps only hook attachments and typed prompts, and of those the last TAIL lines.
+export const TAIL = 400
+export const PICK = '"attachment":\\{"type":"hook_|"type":"user","message":\\{"role":"user","content":("|\\[\\{"type":"text")'
+// one line each: the Shamsi date and time first (~۲۰ characters), then the hook
+export const HOOK_SMALL = 100
+let tPath = ''
+let hooks = { list: [], for: '' }
+let hooksAt = 0
+export function parseHooks(text) {
+  const lines = String(text || '').split('\n')
+  const all = []
+  let lastPrompt = -1
+  for (const l of lines) {
+    let o
+    try { o = JSON.parse(l) } catch { continue }
+    const a = o.attachment
+    if (a && typeof a === 'object' && typeof a.type === 'string' && a.type.startsWith('hook_')) {
+      const body = Array.isArray(a.content) ? a.content.join('\n') : String(a.content ?? '')
+      if (body.trim() && ['hook_success', 'hook_additional_context', 'hook_system_message'].includes(a.type)) {
+        const t = Date.parse(o.timestamp)
+        all.push({ name: a.hookName || a.hookEvent || a.type, kind: a.type, text: body.trim(), t: Number.isFinite(t) ? t : 0 })
+      }
+      continue
+    }
+    // a prompt the person (or another chat) sent, not a tool result
+    if (o.type === 'user' && !o.isMeta) {
+      const c = o.message?.content
+      const typed = typeof c === 'string' || (Array.isArray(c) && c.some((b) => b?.type === 'text'))
+      if (typed) lastPrompt = all.length
+    }
+  }
+  const since = lastPrompt < 0 ? all : all.slice(lastPrompt)
+  const start = all.filter((h) => /^SessionStart/.test(h.name)).slice(-3)
+  // the same hook with the same text (a reminder after every Bash) is one line with ×n
+  const out = []
+  for (const h of [...start.filter((x) => !since.includes(x)), ...since]) {
+    const twin = out.find((x) => x.name === h.name && x.text === h.text)
+    // a repeated hook keeps the time of its latest run
+    if (twin) { twin.n++; twin.t = Math.max(twin.t, h.t) }
+    else out.push({ ...h, n: 1 })
+  }
+  return out
+}
+// on screen: the last HOOK_ROWS of them
+export const HOOK_ROWS = 6
+export const HOOK_BIG_ROWS = 3
+export const HOOK_BIG = 600
+async function readHooks($) {
+  try {
+    const t = await $.clock.now()
+    if (t - hooksAt < 2000) return
+    hooksAt = t
+    let path = tPath
+    if (!path) {
+      const slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
+      path = (await $.env.get('HOME')) + '/.claude/projects/' + slug + '/' + (await $.session.id()) + '.jsonl'
+    }
+    const r = await $.process.run(['sh', '-c', 'grep -E "$1" "$2" | tail -n "$3"', 'sh', PICK, path, String(TAIL)])
+    if (r.exitCode !== 0) return
+    hooks = { list: parseHooks(r.stdout), for: await $.session.id() }
+    $.ui.invalidate('ui.render')
+  } catch {}
+}
+const hookLine = (h) => (h.t ? whenFa(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + fa(h.n) : '') + (h.kind === 'hook_additional_context' ? ' ＋ ' : h.kind === 'hook_system_message' ? ' 📌 ' : ' ✓ ') + h.text.replace(/\s+/g, ' ')
 async function tick($, key) {
   const p = await readFlag($)
   if (!p) return
@@ -387,6 +500,7 @@ export function register(on) {
   // resume / fork: Claude Code says how long the chat was idle and whether its cache expired
   on('classic.SessionStart', async ($, e, next) => {
     try {
+      if (typeof e.transcript_path === 'string') tPath = e.transcript_path
       if (typeof e.seconds_since_last_response === 'number') lastActivity = (await $.clock.now()) - e.seconds_since_last_response * 1000
       cacheExpired = e.prompt_cache_likely_expired === true
     } catch {}
@@ -412,8 +526,18 @@ export function register(on) {
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
     if (arg.startsWith('ask ')) { $.clock.after(0, () => ask($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
-    $.clock.after(0, async () => turnEnd($, (await readFlag($)) || undefined))
+    // /hads now: asked for, so the guesses come now whatever the count
+    $.clock.after(0, async () => turnEnd($, (await readFlag($)) || undefined, true))
     return { text: 'حدس در حال ساختن…' }
+  })
+
+  // the prompt's own hooks are written right after it: read them a moment later
+  on('classic.UserPromptSubmit', async ($, e, next) => {
+    try {
+      if (typeof e.transcript_path === 'string') tPath = e.transcript_path
+      $.clock.after(1500, async () => { if ((await readFlag($))?.hooks) { hooksAt = 0; await readHooks($) } })
+    } catch {}
+    return next(e)
   })
 
   on('turn.complete', async ($, e, next) => {
@@ -423,6 +547,7 @@ export function register(on) {
       if (pendingAsk && !e.isAborted) { const q = pendingAsk; pendingAsk = null; $.clock.after(0, () => ask($, q)) }
     }
     const p = !e.agentId && !e.isAborted && (await interactive($)) ? await readFlag($) : null
+    if (p?.hooks) $.clock.after(500, () => { hooksAt = 0; return readHooks($) })
     // not awaited: the turn must not wait for the model
     if (p) $.clock.after(0, () => turnEnd($, p))
     return next(e)
@@ -439,6 +564,7 @@ export function register(on) {
           try {
             lastActivity = await $.clock.now(); cacheExpired = false
             const p = (await interactive($)) ? await readFlag($) : null
+            if (p?.hooks) await readHooks($)
             if (p?.now) await tellNow($, what, false, p.midfork && (await small($)))
           } catch {}
         })
@@ -457,10 +583,6 @@ export function register(on) {
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
     const close = () => { hidden = true; $.ui.invalidate('ui.render') }
-    // a copy button: the terminal and VS Code draw these lines as buttons, so a mouse selection is not sure
-    const copy = (key, text) => Button({ key, label: 'کپی', onPress: (press) => {
-      Promise.resolve($.ui.copy({ text, surface: press?.surface ?? e.surface })).catch(() => {})
-    } })
     // folded: one line, ▸ opens it again
     if (p.min) {
       const line = Box({ flexDirection: 'row', columnGap: 1, children: [
@@ -471,26 +593,47 @@ export function register(on) {
     }
     const hist = n || histOpen ? await readHist($) : []
     const rows = []
-    // a press on «دو جمله» starts a «پرسش» about it, like /btw on that line
+    // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
+    // the panel's rows are user-select:text in VS Code
     if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: ['دو جمله:'] }),
-      p.ask && Input ? Button({
-        key: 'hads-now', label: n,
-        onPress: () => {
-          askText = 'دربارهٔ این: «' + n + '» — '; $.ui.invalidate('ui.render')
-          try { Promise.resolve($.ui.focus({ requestId: e.requestId, key: 'hads-ask' })).catch(() => {}) } catch {}
-        },
-      }) : Text({ key: 'hads-now', dimColor: true, children: [n] }),
-      copy('hads-now-copy', n),
+      Text({ key: 'hads-now', children: [n] }),
       ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (histOpen ? '▴ ' : '') + 'قبلی‌ها ' + fa(hist.length - 1), onPress: () => { histOpen = !histOpen; $.ui.invalidate('ui.render') } })] : []),
     ] }))
     // the earlier ones, newest first, with Tehran date and time; the current one is not repeated
-    if (histOpen) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) => Box({
-      flexDirection: 'row', columnGap: 1, children: [
-        Text({ key: 'hads-hist-' + i, dimColor: true, children: [when(x.t) + ' — ' + x.text] }),
-        copy('hads-hist-copy-' + i, when(x.t) + ' — ' + x.text),
+    if (histOpen) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>
+      Text({ key: 'hads-hist-' + i, dimColor: true, children: [when(x.t) + ' — ' + x.text] })) }))
+    // «هوک‌ها»: small = one line each, HOOK_SMALL long; big = the last HOOK_BIG_ROWS, each at most
+    // HOOK_BIG long (a SessionStart handoff is pages: whole, it filled the band)
+    const hkAll = p.hooks && hooks.for === id ? hooks.list : []
+    const hk = hkAll.slice(-(p.hookbig ? HOOK_BIG_ROWS : HOOK_ROWS))
+    if (hk.length) rows.push(Box({ flexDirection: 'column', children: [
+      Box({ flexDirection: 'row', columnGap: 1, children: [
+        Text({ dimColor: true, children: ['هوک‌ها (' + fa(hkAll.length) + (hkAll.length > hk.length ? '، ' + fa(hk.length) + ' تای آخر' : '') + '):'] }),
+        Button({ key: 'hads-hook-size', label: p.hookbig ? 'کوچک' : 'بزرگ', onPress: async () => {
+          const q = await readFlag($); if (!q) return
+          q.hookbig = !q.hookbig; await $.fs.write(await flagPath($), flagWords(q)); $.ui.invalidate('ui.render')
+        } }),
+      ] }),
+      ...hk.map((h, i) => p.hookbig
+        ? Text({ key: 'hads-hook-' + i, children: [(h.t ? whenFa(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + fa(h.n) : '') + ':\n' + (h.text.length > HOOK_BIG ? h.text.slice(0, HOOK_BIG - 1) + '…' : h.text)] })
+        : Text({ key: 'hads-hook-' + i, dimColor: true, children: [(() => { const l = hookLine(h); return l.length > HOOK_SMALL ? l.slice(0, HOOK_SMALL - 1) + '…' : l })()] })),
+    ] }))
+    if (a) rows.push(Box({
+      flexDirection: 'column',
+      children: [
+        Text({ dimColor: true, children: ['پرسش: ' + a.q] }),
+        Text({ children: [a.text] }),
+        Box({ flexDirection: 'row', columnGap: 1, children: [
+          // a cold warning asks once more by a press, not only by Enter
+          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => ask($, a.q) })] : []),
+          Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => fillAppend($, a.q + '\n' + a.text) }),
+          Button({ key: 'hads-ans-x', label: '×', onPress: () => { answer = null; $.ui.invalidate('ui.render') } }),
+        ] }),
       ],
-    })) }))
+    }))
+    // the guesses, «پرسش» and the ticks come last, next to the prompt: a big band above can
+    // never push them out of sight
     rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
       children: [
@@ -510,20 +653,6 @@ export function register(on) {
         ...PARTS.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tick($, k) })),
         Button({ key: 'hads-min', label: '▾', onPress: () => fold($) }),
         Button({ key: 'hads-x', label: '×', onPress: close }),
-      ],
-    }))
-    if (a) rows.push(Box({
-      flexDirection: 'column',
-      children: [
-        Text({ dimColor: true, children: ['پرسش: ' + a.q] }),
-        Text({ children: [a.text] }),
-        Box({ flexDirection: 'row', columnGap: 1, children: [
-          // a cold warning asks once more by a press, not only by Enter
-          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => ask($, a.q) })] : []),
-          copy('hads-ans-copy', a.text),
-          Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => fillAppend($, a.q + '\n' + a.text) }),
-          Button({ key: 'hads-ans-x', label: '×', onPress: () => { answer = null; $.ui.invalidate('ui.render') } }),
-        ] }),
       ],
     }))
     return Box({ flexDirection: 'column', children: theirs ? [theirs, ...rows] : rows })

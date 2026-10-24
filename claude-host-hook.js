@@ -202,15 +202,40 @@
     var hh = ('0' + d.getUTCHours()).slice(-2), mm = ('0' + d.getUTCMinutes()).slice(-2);
     return fa(j[2] + ' ' + MONTHS[j[1] - 1] + ' ' + j[0] + ' ' + hh + ':' + mm);
   }
+  // a long path keeps only its file name (and :line): /Users/…/doc/achar/11.md:40 ⇒ 11.md:40
+  function shortPaths(t) { return t.replace(/(?:~|\/Users)\/[^\s:'"`)\]]*\/([^\/\s:'"`)\]]+(?::\d+)?)/g, '$1'); }
+  // What a person can read of a hook's output, or null when there is nothing to show
+  // (Habib, 24 Oct 22:03: «اصلا قابل خوندن نیست … اینا مثلا معلوم نیست چین … اگر که همینن نیان خیلی شلوغ میکنن»):
+  //  · empty, «{}», or only a clock stamp like «[22:00 +0330 -- habib]»: nothing
+  //  · JSON from a hook (systemMessage / additionalContext): unpacked, real line breaks, short paths.
+  //    The panel already prints a systemMessage itself («… says: …»), so then this line carries
+  //    only the injected context, never the message twice.
+  function readable(text) {
+    var t = String(text || '').trim();
+    if (!t || t === '{}' || /^\[\d{1,2}:\d{2}( [+-]\d{4})?( -- [^\]]+)?\]$/.test(t)) return null;
+    if (t.charAt(0) === '{') {
+      var o; try { o = JSON.parse(t); } catch (e) { o = null; }
+      if (o && typeof o === 'object') {
+        var h = o.hookSpecificOutput || {};
+        var ctx = typeof h.additionalContext === 'string' ? h.additionalContext.trim() : '';
+        var sys = typeof o.systemMessage === 'string' ? o.systemMessage.trim() : '';
+        if (ctx) return { head: sys ? 'متنِ تزریقی' : ctx.split('\n')[0], body: shortPaths(ctx), dupe: !!sys };
+        return null;
+      }
+    }
+    var first = t.split('\n')[0];
+    return { head: shortPaths(first), body: shortPaths(t), dupe: false };
+  }
+  globalThis.__crtlHookReadable = readable;
   globalThis.__crtlHookLine = function (m, now) {
     try {
       if (!m || m.type !== 'system' || m.subtype !== 'hook_response') return m;
-      var text = String(m.output || m.stdout || '').trim();
-      if (!text) return m;
+      var r = readable(m.output || m.stdout);
+      if (!r) return m;
       var name = m.hook_name || m.hook_event || 'hook';
-      // the first line is what the folded view shows: mark, time, name
+      // the first line is what the folded view shows: mark, time, name, a short head
       return { type: 'system', subtype: 'informational', level: 'notice', session_id: m.session_id, uuid: m.uuid,
-        content: '🪝 ' + whenFa(now || Date.now()) + ' · ' + name + '\n' + text };
+        content: '🪝 ' + whenFa(now || Date.now()) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
     } catch (e) { return m; }
   };
   globalThis.__crtlJalali = jalali;

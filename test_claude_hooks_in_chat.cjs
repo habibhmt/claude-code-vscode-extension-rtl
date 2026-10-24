@@ -15,14 +15,25 @@ const g = { require, globalThis: null, process, console }
 g.globalThis = g
 vm.runInNewContext(hookSrc, g)
 const T = Date.parse('2026-10-24T16:39:00Z')
-const line = g.__crtlHookLine({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: '[20:09 +0330 -- habib]\n', uuid: 'u1' }, T)
+const line = g.__crtlHookLine({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: '[20:09 +0330 -- habib] ok\n', uuid: 'u1' }, T)
 out.hookLine = { type: line.type, subtype: line.subtype, level: line.level, content: line.content }
-assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit\n[20:09 +0330 -- habib]' })
+assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok\n[20:09 +0330 -- habib] ok' })
 // the page drops level "info" (SY1): the line must never be "info"
 assert.notEqual(line.level, 'info')
 const other = { type: 'assistant', message: {} }
 out.othersUntouched = g.__crtlHookLine(other) === other && g.__crtlHookLine({ type: 'system', subtype: 'hook_response', output: '  ' }).subtype === 'hook_response'
 assert.equal(out.othersUntouched, true)
+// readable for a person (Habib, 24 Oct 22:03: «اصلا قابل خوندن نیست»): a clock stamp, {} or
+// nothing make no line; a JSON hook output is unpacked, real line breaks, short paths, and when
+// it has a systemMessage (the panel prints that itself) only the injected context is shown
+const hk = (out) => g.__crtlHookLine({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: out }, T)
+out.noise = ['[22:00 +0330 -- habib]', '{}', '  ', '{"continue":true}'].map((x) => hk(x).subtype)
+assert.deepEqual(out.noise, ['hook_response', 'hook_response', 'hook_response', 'hook_response'])
+const mem = JSON.stringify({ systemMessage: '🧠 حافظه: 2 سابقه تزریق شد', hookSpecificOutput: { hookEventName: 'UserPromptSubmit',
+  additionalContext: '[حافظهٔ آزمایشیِ حبیب]\n1) حرفِ تو 10-22 16:37 — /Users/habib/Downloads/205th-day-mother-of-all-agent/doc/achar/11.md:40\n2) …' } })
+const mc = hk(mem).content
+out.memory = { lines: mc.split('\n').length, rawJson: /hookSpecificOutput|\\n|"systemMessage"/.test(mc), shortPath: /11\.md:40/.test(mc) && !/\/Users\/habib/.test(mc), head: mc.split('\n')[0], twice: mc.includes('🧠 حافظه: 2 سابقه') }
+assert.deepEqual(out.memory, { lines: 4, rawJson: false, shortPath: true, head: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · متنِ تزریقی', twice: false })
 out.jalali = [g.__crtlJalali(2026, 3, 21).join('/'), g.__crtlJalali(2025, 3, 20).join('/')]
 assert.deepEqual(out.jalali, ['1405/1/1', '1403/12/30'])
 
@@ -61,7 +72,7 @@ out.dollarNames = p2.includes('$a.push("--include-hook-events")') && !p2.include
 assert.equal(out.dollarNames, true)
 // 3. the page folds them: the buttons script tags 🪝 meta lines and knows focus view
 const btn = fs.readFileSync(process.env.BUTTONS_JS || path.join(dir, 'claude-ui-buttons.js'), 'utf8')
-out.pageFolds = /crtl-hook-open/.test(btn) && /focusFoldRow_/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
+out.pageFolds = /--crtl-hook-size/.test(btn) && /sizeRow\('هوک‌ها', 'hook'/.test(btn) && /crtl-hook-open/.test(btn) && /focusFoldRow_/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)
 fs.rmSync(tmp, { recursive: true, force: true })
 console.log(JSON.stringify(out))

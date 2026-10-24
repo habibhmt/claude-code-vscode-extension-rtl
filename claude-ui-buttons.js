@@ -123,6 +123,7 @@
   var KEY = 'crtl-sizes';
   var DEF = {
     chat: 15, code: 12, chrome: 10, btn: 10,
+    hook: 13,          // the 🪝 hook lines in the chat (Habib: «کمی خیلی ریزن یه کمی درشتتر بشن»)
     lines: 1,          // 0 = show user messages in full
     side: 'both',      // both | left | right
     hidden: false,
@@ -144,11 +145,11 @@
     extras: [],
     extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by load()
   };
-  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], lh: [11, 24] };
+  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook: [9, 20], lh: [11, 24] };
   var PRESETS = {
-    compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  lines: 1, lh: 14 },
-    normal:  { chat: 15, code: 12, chrome: 10, btn: 10, lines: 1, lh: 16 },
-    large:   { chat: 19, code: 15, chrome: 12, btn: 12, lines: 2, lh: 17 }
+    compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  hook: 11, lines: 1, lh: 14 },
+    normal:  { chat: 15, code: 12, chrome: 10, btn: 10, hook: 13, lines: 1, lh: 16 },
+    large:   { chat: 19, code: 15, chrome: 12, btn: 12, hook: 15, lines: 2, lh: 17 }
   };
 
   // The script can seed defaults by defining window.__CRTL_DEFAULTS before this runs.
@@ -237,7 +238,7 @@
     '[data-message-stamp]:not([class*="inPadding_"]){top:calc(var(--message-padding-top,8px) + 6px) !important;left:10px !important}',
     /* hooks in the chat (host hook turns each hook's output into a meta line starting with 🪝):
        folded to one line; a click, or focus view, shows what the hook injected in full */
-    '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.75}',
+    '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;font-size:var(--crtl-hook-size,13px);padding:3px 8px}',
     '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open) [class*="metaMessageLines_"]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.crtl-focus-on [class*="metaMessage_"].crtl-hook [class*="metaMessageLines_"]{white-space:pre-line !important;overflow:visible}',
     /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
@@ -301,7 +302,7 @@
     var lh = (s.lh / 10).toFixed(2);
     var msg = '[class*="messagesContainer_"]';
     var out = [
-      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + '}',
+      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-size:' + (s.hook || 13) + 'px}',
       accent ? '.crtl-btn{border-color:' + accent + '!important;color:' + accent + '!important}' : '',
       accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
       // the conversation ink follows the theme unless a colour is picked; code
@@ -1487,6 +1488,7 @@
     panel.appendChild(sizeRow('کد و جدول', 'code', s, set));
     panel.appendChild(sizeRow('حواشی', 'chrome', s, set));
     panel.appendChild(sizeRow('دکمه‌ها', 'btn', s, set));
+    panel.appendChild(sizeRow('هوک‌ها', 'hook', s, set));
 
     var lhRange = document.createElement('input');
     lhRange.type = 'range';

@@ -10,9 +10,10 @@ const $ = {
     complete: async (o) => o.maxTokens === 200 ? $.nowModel(o) : $.guessModel(o),
     fork: async (o) => { calls.fork.push(o); return $.forkReply },
   },
-  session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid, root: async () => '/proj' },
+  session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid, root: async () => '/proj',
+    usage: async () => ({ context: { tokens: $.ctx, window: 1e6 } }), model: async () => 'claude-opus-5-5' },
   env: { get: async (k) => (k === 'HOME' ? '/h' : undefined) },
-  ui: { invalidate() {}, resolve: () => ({ Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }) }) },
+  ui: { invalidate() {}, focus: async (o) => { calls.focus = o }, resolve: () => ({ Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }) }) },
   prompt: { fill: async (o) => calls.fill.push(o), submit: async (o) => calls.submit.push(o), read: async () => $.typed },
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
@@ -21,6 +22,9 @@ const $ = {
 }
 const flags = {}
 $.t = 0
+$.ctx = 1000
+// no fork reply at first: the end of an answer falls back to the two Sonnet calls
+$.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }
 $.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: $.reply } }
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
 $.nowReply = 'یک. دو.'
@@ -73,12 +77,14 @@ await H['command.run']($, { args: 'on' })
 $.reply = 'not json {'; await H['turn.complete']($, {}, next); await flush()
 out.broken = guessLabels(await render()); assert.deepEqual(out.broken, [])
 
-// busy guard: two turns ending together call the model once
+// busy guard: answers ending while one is told wait for it; then one more call tells the last, never dropped
 calls.complete.length = 0; $.reply = '[{"label":"a","text":"b"}]'
 const slow = $.guessModel; let release
 $.guessModel = (o) => { calls.complete.push(o); return new Promise((res) => { release = () => res({ isAnswered: true, text: $.reply }) }) }
-await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next); release(); await flush()
-out.busy = calls.complete.length; assert.equal(out.busy, 1); $.guessModel = slow
+await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next)
+await new Promise((r) => setTimeout(r, 5)); out.busy = calls.complete.length; assert.equal(out.busy, 1)
+release(); await new Promise((r) => setTimeout(r, 5)); release(); await flush()
+out.endNotDropped = calls.complete.length; assert.equal(out.endNotDropped, 2); $.guessModel = slow
 // at most 5 guesses
 $.reply = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ label: 'g' + i, text: 't' + i })))
 await H['turn.complete']($, {}, next); await flush()
@@ -122,20 +128,13 @@ out.afterGap = calls.now.length; assert.equal(out.afterGap, 2)
 // an answer's end always tells, even inside the gap
 await H['turn.complete']($, {}, next); await flush()
 out.turnAlways = calls.now.length; assert.equal(out.turnAlways, 3)
-// one at a time: answers ending while a call runs wait for it, then one more call tells the end
-let free; $.nowModel = (o) => { calls.now.push(o); return new Promise((r) => { free = () => r({ isAnswered: true, text: $.nowReply }) }) }
-await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next)
-await new Promise((r) => setTimeout(r, 5)); out.oneAtATime = calls.now.length; assert.equal(out.oneAtATime, 4)
-free(); await new Promise((r) => setTimeout(r, 5)); free(); await flush()
-out.endNotDropped = calls.now.length; assert.equal(out.endNotDropped, 5)
-$.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
 // the glossary of the project goes in, and the tool that just ran
 $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }; $.t += mod.GAP; await tool({ command: 'npm test' }); await flush()
 const np = calls.now.at(-1).prompt.map((b) => b.text).join('\n')
 out.glossary = /واژهٔ-حبیب/.test(np) && /npm test/.test(np) && calls.now.at(-1).model === 'claude-sonnet-5-5'; assert.equal(out.glossary, true)
 // a subagent's tools, or a chat that is off, never call
 $.t += mod.GAP; await tool({ agentId: 'sub' }); await flush(); $.sid = 'B'; $.t += mod.GAP; await tool(); await flush(); $.sid = 'A'
-out.subOrOff = calls.now.length; assert.equal(out.subOrOff, 6)
+out.subOrOff = calls.now.length; assert.equal(out.subOrOff, 4)
 // five sentences from the model: two are shown
 $.nowReply = 'اول. دوم! سوم؟ چهارم. پنجم.'; $.t += mod.GAP; await tool(); await flush()
 const nowText = (t) => t.children.find((c) => c.key === 'hads-now')?.children[0]
@@ -149,13 +148,52 @@ let hang; $.nowModel = () => new Promise((r) => { hang = r })
 $.t += mod.GAP; out.untouched = (await tool()).result; assert.equal(out.untouched, 'ok')
 await new Promise((r) => setTimeout(r, 5)); out.modelWasCalled = typeof hang; assert.equal(out.modelWasCalled, 'function')
 hang({ isAnswered: false, reason: 'aborted' }); await flush()
+$.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
 // a failure in «دو جمله» never breaks the tool (clock throws inside the hook's own work)
 const realNow = $.clock.now; $.clock.now = async () => { throw new Error('boom') }
 out.toolSurvives = (await tool()).result; await flush(); assert.equal(out.toolSurvives, 'ok'); $.clock.now = realNow
+// the end of an answer: ONE fork over the whole chat gives both «دو جمله» and the guesses
+const nowText2 = (t) => t.children.find((c) => c.key === 'hads-now')
+const cnt = () => [calls.fork.length, calls.now.length, calls.complete.length]
+$.t += mod.GAP; $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-حبیب' }
+$.forkReply = { isAnswered: true, usage: { input_tokens: 9, output_tokens: 99, cache_read_input_tokens: 200000, cache_creation_input_tokens: 5 },
+  text: 'بفرما: {"now": "الف کرد. ب ماند. پ.", "guesses": [{"label": "یک", "text": "کارِ یک"}, {"label": "دو", "text": "کارِ دو"}]}' }
+let c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); let c1 = cnt()
+out.oneFork = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.oneFork, [1, 0, 0])
+const t5 = await render()
+out.forkRow = { now: nowText2(t5).children?.[0] ?? nowText2(t5).label, guesses: guessLabels(t5) }
+assert.deepEqual(out.forkRow, { now: 'الف کرد. ب ماند.', guesses: ['یک', 'دو'] })
+out.forkPrompt = /واژهٔ-حبیب/.test(calls.fork.at(-1).prompt) && /JSON/.test(calls.fork.at(-1).prompt); assert.equal(out.forkPrompt, true)
+out.turnUsage = (await $.store.get('lastTurnUsage'))?.via; assert.equal(out.turnUsage, 'fork')
+// a broken fork reply falls back to Sonnet (guess + two sentences), never an empty row
+$.forkReply = { isAnswered: true, text: 'not json', usage: {} }
+c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
+out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
+// a chat over MAX_FORK tokens never forks
+$.forkReply = { isAnswered: true, text: '{"now": "x. y.", "guesses": []}', usage: {} }; $.ctx = mod.MAX_FORK + 1
+c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
+out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1]); $.ctx = 1000
+// mid-work uses only the last three messages
+$.msgs = Array.from({ length: 10 }, (_, i) => ({ role: 'user', text: 'پیامِ-' + i }))
+$.t += mod.GAP; await tool(); await flush()
+const mp3 = calls.now.at(-1).prompt.map((b) => b.text).join('\n')
+out.lastThree = !/پیامِ-6/.test(mp3) && /پیامِ-7/.test(mp3) && /پیامِ-9/.test(mp3); assert.equal(out.lastThree, true)
+// a mid-work line that comes back after an answer's end does not hide the end's line
+let late; $.nowModel = (o) => { calls.now.push(o); return new Promise((r) => { late = r }) }
+$.forkReply = { isAnswered: true, text: '{"now": "پایان شد. منتظرِ حبیب.", "guesses": []}', usage: {} }
+$.t += mod.GAP; await tool(); await new Promise((r) => setTimeout(r, 5))
+$.t += 1; await H['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5))
+late({ isAnswered: true, text: 'وسطِ کار. هنوز.' }); await flush()
+const t6 = await render(); out.endWins = nowText2(t6).children?.[0] ?? nowText2(t6).label; assert.equal(out.endWins, 'پایان شد. منتظرِ حبیب.')
+$.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
+// h-on says at once when the row comes
+$.sid = 'N'; await H['command.run']($, { args: 'on' })
+const t7 = await render(); out.onLine = /بعد از جوابِ بعدی/.test(nowText2(t7).children?.[0] ?? nowText2(t7).label); assert.equal(out.onLine, true)
+$.sid = 'A'
 // «بپرس» is a side question: $.model.fork, nothing typed into or sent from the prompt
 const withInput = { Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }), Input: (p) => ({ t: 'Input', ...p }) }
 const realResolve = $.ui.resolve; $.ui.resolve = () => withInput
-calls.fill.length = 0; calls.submit.length = 0
+calls.fill.length = 0; calls.submit.length = 0; calls.fork.length = 0
 $.forkReply = { isAnswered: true, text: 'یعنی دکمه ساخته شد.', usage: { input_tokens: 1, output_tokens: 2, cache_read_input_tokens: 3, cache_creation_input_tokens: 0 } }
 const box = row(await render()).children.find((c) => c.t === 'Input')
 await box.onSubmit('این یعنی چی؟'); await flush()
@@ -167,6 +205,19 @@ out.askUsage = (await $.store.get('lastAskUsage'))?.cache_read_input_tokens; ass
 $.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('چی شد؟'); await flush()
 out.nothingToFork = ansText(await render()).some((x) => /\/clear/.test(x)); assert.equal(out.nothingToFork, true)
+// btw on «دو جمله»: a press fills «بپرس» with it and moves the keyboard there
+$.ui.resolve = () => withInput
+$.forkReply = { isAnswered: true, text: '{"now": "مجری دارد می‌سازد. منتظرِ ناظر است.", "guesses": []}', usage: {} }
+$.t += 1; await H['turn.complete']($, {}, next); await flush()
+const nowBtn = (await render()).children.find((c) => c.key === 'hads-now'); await nowBtn.onPress()
+out.btwNow = row(await render()).children.find((c) => c.t === 'Input').value.startsWith('دربارهٔ این: «') && calls.focus?.key === 'hads-ask'
+assert.equal(out.btwNow, true)
+// a cold cache (idle past COLD): the first Enter only tells the cost, the second asks
+$.t += mod.COLD + 1; $.ctx = 200000; const f0 = calls.fork.length
+await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
+out.coldWarn = calls.fork.length === f0 && ansText(await render()).some((x) => /\$1\.00 تا \$1\.60/.test(x)); assert.equal(out.coldWarn, true)
+await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
+out.coldSecond = calls.fork.length - f0; assert.equal(out.coldSecond, 1); $.ctx = 1000
 $.ui.resolve = realResolve
 // on mobile (no Input) the row still draws
 out.noInput = row(await render()).children.some((c) => c.t === 'Input'); assert.equal(out.noInput, false)

@@ -1,6 +1,7 @@
-// حدس: after each answer, Sonnet 5.5 guesses 3-5 next requests (a shortened
-// nazer-ideas divergent prompt). Each guess is a button above the prompt;
-// a click fills the prompt box and never sends.
+// حدس: after each answer, one fork of the chat itself (warm cache: the answer was just sent)
+// gives «دو جمله» and 3-5 guesses of the next request; Sonnet 5.5 on the last messages is the
+// fallback and the mid-work teller. Each guess is a button above the prompt; a click fills
+// the prompt box and never sends.
 export const MODEL = 'claude-sonnet-5-5'
 
 const SYSTEM = [
@@ -18,7 +19,11 @@ let madeFor = ''
 
 // «دو جمله»: what the agent is doing now, in Habib's words (the project's 00_vazhe_name.md),
 // after each answer and, at most every GAP ms, after a tool. One call at a time.
-export const GAP = 20000
+export const GAP = 60000
+// over this many tokens of chat even a warm fork costs too much: Sonnet on the last messages
+export const MAX_FORK = 400000
+// idle longer than this and the chat's cache is likely gone (1 h TTL): «بپرس» warns first
+export const COLD = 55 * 60000
 const NOW_SYSTEM = [
   'In exactly two short sentences of plain Persian, tell حبیب what the agent in this Claude Code',
   'session is doing right now and what it is waiting for. Use the words of the glossary given, not',
@@ -26,11 +31,17 @@ const NOW_SYSTEM = [
 ].join(' ')
 let now = { text: '', for: '' }
 let nowBusy = false
-// an answer that ends while a call runs is told right after it, never dropped
-let nowAgain = false
 let lastNow = 0
+// the end of an answer wins over a mid-work line still on its way
+let endAt = 0
+let endBusy = false
+// an answer that ends while the last one is still told is told right after it, never dropped
+let endAgain = false
+// last time the chat itself talked to the model (an answer's end, a tool): the cache's age
+let lastActivity = 0
 // «بپرس»: a side question like /btw, answered by $.model.fork; never reaches the chat
 let answer = null
+let askText = ''
 
 export function parseGuesses(raw) {
   try {
@@ -92,6 +103,7 @@ async function guess($) {
       maxTokens: 600, timeoutMs: 60000,
     })
     guesses = r.isAnswered ? parseGuesses(r.text) : []
+    if (r.isAnswered) try { await $.store.set('lastGuessUsage', r.usage) } catch {}
     madeFor = await $.session.id()
     hidden = false
     $.ui.invalidate('ui.render')
@@ -100,6 +112,33 @@ async function guess($) {
   } finally {
     busy = false
   }
+}
+
+const FORK_PROMPT = [
+  '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.)',
+  'Reply ONLY with JSON: {"now": "<exactly two short sentences of plain Persian: what the agent in this',
+  'chat is doing now and what it waits for, in حبیب\'s own words from the glossary below>", "guesses":',
+  '[3 to 5 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]}',
+].join(' ')
+
+// {now, guesses} from the fork's reply; null when it has neither
+export function parseBoth(raw) {
+  try {
+    const m = String(raw || '').match(/\{[\s\S]*\}/)
+    const o = JSON.parse(m ? m[0] : raw)
+    const n = typeof o?.now === 'string' ? twoSentences(o.now) : ''
+    const g = Array.isArray(o?.guesses) ? parseGuesses(JSON.stringify(o.guesses)) : []
+    return n || g.length ? { now: n, guesses: g } : null
+  } catch {
+    return null
+  }
+}
+
+// $ per million tokens written to the cache (5 min, 1 h), for the cold «بپرس» warning
+const WRITE = { 'opus-5-5': [5, 8], 'sonnet-5-5': [2.5, 4], 'haiku-5-5': [0.125, 0.2] }
+export function coldCost(model, tokens) {
+  const k = Object.keys(WRITE).find((x) => String(model).includes(x)) || 'opus-5-5'
+  return WRITE[k].map((p) => (tokens * p) / 1e6)
 }
 
 // Whatever the model says, at most two sentences are shown. A sentence ends at . ! ? ؟
@@ -117,8 +156,9 @@ async function vazhe($) {
   return '(no glossary: plain Persian)'
 }
 
+// Sonnet on the last three messages only: cheap enough to run every GAP during work
 async function tellNow($, tool, force) {
-  if (nowBusy) { if (force) nowAgain = true; return }
+  if (nowBusy) return
   const t = await $.clock.now()
   if (!force && t - lastNow < GAP) return
   nowBusy = true; lastNow = t
@@ -126,14 +166,47 @@ async function tellNow($, tool, force) {
     const r = await $.model.complete({
       model: MODEL, system: NOW_SYSTEM,
       prompt: [{ text: await vazhe($), cache: true },
-        { text: buildPrompt(await $.session.messages()) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
+        { text: buildPrompt((await $.session.messages()).slice(-3)) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
       maxTokens: 200, timeoutMs: 30000,
     })
-    if (r.isAnswered) { now = { text: twoSentences(r.text), for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render') }
+    // an answer's end started after this call: its line stands
+    if (r.isAnswered && endAt <= t) {
+      now = { text: twoSentences(r.text), for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render')
+      try { await $.store.set('lastNowUsage', r.usage) } catch {}
+    }
   } catch {} finally {
     nowBusy = false
   }
-  if (nowAgain) { nowAgain = false; await tellNow($, '', true) }
+}
+
+// The end of an answer: one fork over the whole chat, read from the cache the answer just
+// warmed. Too big a chat, or no usable reply, falls back to the two Sonnet calls.
+async function turnEnd($) {
+  if (endBusy) { endAgain = true; return }
+  endBusy = true; endAt = await $.clock.now()
+  try {
+    let got = null
+    let tokens = 0
+    try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
+    if (tokens <= MAX_FORK) {
+      try {
+        const r = await $.model.fork({ prompt: FORK_PROMPT + '\n\n' + (await vazhe($)) })
+        got = r.isAnswered ? parseBoth(r.text) : null
+        if (got) try { await $.store.set('lastTurnUsage', { via: 'fork', tokens, usage: r.usage }) } catch {}
+      } catch {}
+    }
+    if (got) {
+      const id = await $.session.id()
+      if (got.now) now = { text: got.now, for: id }
+      if (got.guesses.length) { guesses = got.guesses; madeFor = id }
+      hidden = false; $.ui.invalidate('ui.render')
+    } else {
+      await Promise.all([guess($), tellNow($, '', true)])
+    }
+  } finally {
+    endBusy = false
+  }
+  if (endAgain) { endAgain = false; await turnEnd($) }
 }
 
 const WHY = {
@@ -144,7 +217,20 @@ const WHY = {
 }
 async function ask($, q) {
   if (!String(q).trim()) return
-  answer = { q, text: '…', for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render')
+  const id = await $.session.id()
+  // a cold cache re-reads the whole chat at the write price: say how much, ask Enter again
+  if ((await $.clock.now()) - lastActivity > COLD && !(answer?.cold && answer.q === q && answer.for === id)) {
+    let tokens = 0, model = ''
+    try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
+    try { model = await $.session.model() } catch {}
+    const [a, b] = coldCost(model, tokens)
+    answer = { q, for: id, cold: true,
+      text: 'کشِ چت احتمالاً سرد است: این سؤال حدودِ $' + a.toFixed(2) + ' تا $' + b.toFixed(2) +
+        ' خرج دارد (' + Math.round(tokens / 1000) + 'k توکن). برای پرسیدن دوباره Enter بزن.' }
+    hidden = false; $.ui.invalidate('ui.render')
+    return
+  }
+  answer = { q, text: '…', for: id }; askText = ''; hidden = false; $.ui.invalidate('ui.render')
   try {
     const r = await $.model.fork({ prompt: q + '\n\n(کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
     answer.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
@@ -195,18 +281,21 @@ export function register(on) {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
       await $.fs.write(await flagPath($), arg)
-      if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null; $.ui.invalidate('ui.render') }
+      if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null }
+      // nothing to tell yet: say when it comes (no fork here, the cache may be cold)
+      else { now = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() }; hidden = false }
+      $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
-    $.clock.after(0, () => guess($))
+    $.clock.after(0, () => turnEnd($))
     return { text: 'حدس در حال ساختن…' }
   })
 
   on('turn.complete', async ($, e, next) => {
+    if (!e.agentId) try { lastActivity = await $.clock.now() } catch {}
     if (!e.agentId && !e.isAborted && (await interactive($)) && (await isOn($))) {
       // not awaited: the turn must not wait for the model
-      $.clock.after(0, () => guess($))
-      $.clock.after(0, () => tellNow($, '', true))
+      $.clock.after(0, () => turnEnd($))
     }
     return next(e)
   })
@@ -219,7 +308,10 @@ export function register(on) {
       if (!e.agentId) {
         const what = e.tool + ': ' + String(e.description || e.command || e.file_path || '').slice(0, 200)
         $.clock.after(0, async () => {
-          try { if ((await interactive($)) && (await isOn($))) await tellNow($, what, false) } catch {}
+          try {
+            lastActivity = await $.clock.now()
+            if ((await interactive($)) && (await isOn($))) await tellNow($, what, false)
+          } catch {}
         })
       }
     } catch {}
@@ -236,7 +328,14 @@ export function register(on) {
     const theirs = await next(e)
     const close = () => { hidden = true; $.ui.invalidate('ui.render') }
     const rows = []
-    if (n) rows.push(Text({ key: 'hads-now', dimColor: true, children: [n] }))
+    // a press on «دو جمله» starts a «بپرس» about it, like /btw on that line
+    if (n) rows.push(Input ? Button({
+      key: 'hads-now', label: n,
+      onPress: () => {
+        askText = 'دربارهٔ این: «' + n + '» — '; $.ui.invalidate('ui.render')
+        try { Promise.resolve($.ui.focus({ requestId: e.requestId, key: 'hads-ask' })).catch(() => {}) } catch {}
+      },
+    }) : Text({ key: 'hads-now', dimColor: true, children: [n] }))
     rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
       children: [
@@ -246,7 +345,10 @@ export function register(on) {
           onPress: () => fillAppend($, x.text),
         })),
         // no Input on mobile: the row stays buttons only
-        ...(Input ? [Input({ key: 'hads-ask', placeholder: 'بپرس… (مثلِ btw، به چت نمی‌رسد)', onSubmit: (v) => ask($, v) })] : []),
+        ...(Input ? [Input({
+          key: 'hads-ask', value: askText, placeholder: 'بپرس… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
+          onInput: (v) => { askText = v }, onSubmit: (v) => ask($, v),
+        })] : []),
         Button({ key: 'hads-x', label: '×', onPress: close }),
       ],
     }))

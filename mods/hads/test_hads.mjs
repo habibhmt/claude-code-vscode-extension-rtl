@@ -270,6 +270,43 @@ await askVia('سردِ دکمه'); f1 = calls.fork.length
 await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-ans-go').onPress({}); await flush()
 out.coldButton = calls.fork.length === f1 + 1; assert.equal(out.coldButton, true)
 $.ui.resolve = realResolve
+// «قبلی‌ها»: every «دو جمله» kept with its time, this chat only, the last HIST, newest first
+out.when = mod.when(Date.UTC(2026, 9, 24, 15, 27)); assert.equal(out.when, '۲۴ اکت ۱۸:۵۷')
+$.ui.resolve = () => withInput; $.sid = 'H'; await F['command.run']($, { args: 'on' })
+for (let i = 0; i < 55; i++) {
+  $.forkReply = { isAnswered: true, text: '{"now": "جملهٔ-' + i + '. تمام."}', usage: {} }; $.t += 1000
+  await F['turn.complete']($, {}, next); await flush()
+}
+const histLines = String(flags['/h/.claude/hads-log/H.now.jsonl']).trim().split('\n')
+out.histCap = histLines.length; assert.equal(out.histCap, mod.HIST)
+let rH = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.histButton = find(rH, 'hads-hist')?.label; assert.equal(out.histButton, 'قبلی‌ها ۴۹')
+await find(rH, 'hads-hist').onPress({}); rH = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+const h0 = find(rH, 'hads-hist-0')?.children[0], h9 = find(rH, 'hads-hist-9')?.children[0]
+out.histOrder = [/جملهٔ-53\./.test(h0), /جملهٔ-44\./.test(h9), !find(rH, 'hads-hist-10'), / — /.test(h0) && /^[۰-۹]+ [^ ]+ [۰-۹]{2}:[۰-۹]{2} — /.test(h0)]
+assert.deepEqual(out.histOrder, [true, true, true, true])
+await find(rH, 'hads-hist-copy-0').onPress({ surface: 'vscode' }); out.histCopy = calls.copy.text === h0; assert.equal(out.histCopy, true)
+await find(rH, 'hads-hist').onPress({})
+// another chat has its own history
+$.sid = 'H2'; await F['command.run']($, { args: 'on' }); $.forkReply = { isAnswered: true, text: '{"now": "دیگری. بله."}', usage: {} }
+await F['turn.complete']($, {}, next); await flush()
+out.histOwn = String(flags['/h/.claude/hads-log/H2.now.jsonl']).trim().split('\n').length; assert.equal(out.histOwn, 1); $.sid = 'H'
+// ▾ folds the whole band to one line; it stays folded after a reload; ▸ opens it; ticks are kept
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-guess').onPress({})
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-min').onPress({})
+out.foldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.foldFile, 'on -guess min')
+const again2 = await import((process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href) + '?again2')
+const G = {}; again2.register((ev, a, b) => { G[ev] = b || a; return { catch() {} } })
+const rF = await G['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.folded = { open: find(rF, 'hads-min')?.label, ask: !!find(rF, 'hads-ask'), ticks: !!find(rF, 'hads-tick-now') }
+assert.deepEqual(out.folded, { open: '▸ حدس', ask: false, ticks: false })
+await find(rF, 'hads-min').onPress({}); out.unfoldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.unfoldFile, 'on -guess')
+// a tick keeps the other words of the file
+flags['/h/.claude/hads-on/H'] = 'on +midfork min'; await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+$.sid = 'H'; flags['/h/.claude/hads-on/H'] = 'on +midfork'
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-ask').onPress({})
+out.tickKeeps = flags['/h/.claude/hads-on/H']; assert.equal(out.tickKeeps, 'on -ask +midfork')
+$.ui.resolve = realResolve; $.sid = 'A'
 // the numbers agreed with Habib and the ناظر (تعریفِ ۱۰): a change must turn this red
 out.pinned = [mod.GAP, mod.MAX_FORK]; assert.deepEqual(out.pinned, [60000, 400000])
 // ticks: one per part, this chat only; a part ticked off is neither drawn nor asked for

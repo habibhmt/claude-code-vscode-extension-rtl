@@ -150,6 +150,34 @@ export function coldCost(model, tokens) {
   return WRITE[k].map((p) => (tokens * p) / 1e6)
 }
 
+// «قبلی‌ها»: every «دو جمله» with its time, this chat only (~/.claude/hads-log/<id>.now.jsonl,
+// the last HIST); newest first on screen
+export const HIST = 50
+const histPath = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.now.jsonl'
+async function readHist($) {
+  try {
+    return String(await $.fs.read(await histPath($))).split('\n').filter(Boolean).map((l) => JSON.parse(l)).reverse()
+  } catch {
+    return []
+  }
+}
+async function setNow($, text) {
+  const id = await $.session.id()
+  now = { text, for: id }; hidden = false; $.ui.invalidate('ui.render')
+  try {
+    const old = (await readHist($)).reverse().map((x) => JSON.stringify(x))
+    await $.fs.write(await histPath($), old.slice(-(HIST - 1)).concat(JSON.stringify({ t: await $.clock.now(), text })).join('\n') + '\n')
+  } catch {}
+}
+// Tehran time (+03:30, no DST), as Habib writes dates: «۲۴ اکت ۱۸:۵۷»
+const MONTHS = ['ژان', 'فور', 'مار', 'آور', 'مه', 'ژوئن', 'ژوئیه', 'اوت', 'سپت', 'اکت', 'نوا', 'دسا']
+const fa = (x) => String(x).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d])
+export function when(t) {
+  const d = new Date(t + 3.5 * 3600e3)
+  const two = (x) => String(x).padStart(2, '0')
+  return fa(d.getUTCDate()) + ' ' + MONTHS[d.getUTCMonth()] + ' ' + fa(two(d.getUTCHours()) + ':' + two(d.getUTCMinutes()))
+}
+
 // Whatever the model says, at most two sentences are shown. A sentence ends at . ! ? ؟
 // followed by a space: the dot inside register.js or v2.10 ends nothing. Never past MAX_NOW.
 export const MAX_NOW = 300
@@ -188,7 +216,7 @@ async function tellNow($, tool, force, viaFork = false) {
       const r = await $.model.fork({ prompt: forkPrompt({ now: true }) + '\n\n' + (await vazhe($)) })
       const got = r.isAnswered ? parseBoth(r.text) : null
       if (r.isAnswered) await logUsage($, 'now', 'fork', r.usage)
-      if (got?.now && endAt <= t) { now = { text: got.now, for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render'); return }
+      if (got?.now && endAt <= t) { await setNow($, got.now); return }
     }
     const r = await $.model.complete({
       model: MODEL, system: NOW_SYSTEM,
@@ -198,7 +226,7 @@ async function tellNow($, tool, force, viaFork = false) {
     })
     // an answer's end started after this call: its line stands
     if (r.isAnswered && endAt <= t) {
-      now = { text: twoSentences(r.text), for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render')
+      await setNow($, twoSentences(r.text))
       try { await $.store.set('lastNowUsage', r.usage) } catch {}
     }
     if (r.isAnswered) await logUsage($, 'now', 'sonnet', r.usage)
@@ -231,7 +259,7 @@ async function turnEnd($, p = { guess: true, now: true }) {
     }
     if (got) {
       const id = await $.session.id()
-      if (got.now && p.now) now = { text: got.now, for: id }
+      if (got.now && p.now) await setNow($, got.now)
       if (got.guesses.length && p.guess) { guesses = got.guesses; madeFor = id }
       hidden = false; $.ui.invalidate('ui.render')
     } else {
@@ -321,17 +349,27 @@ async function readFlag($) {
   try {
     const w = String(await $.fs.read(await flagPath($))).trim().split(/\s+/)
     if (w[0] !== 'on') return null
-    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork') }
+    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork'), min: w.includes('min') }
   } catch {
     return null
   }
 }
 const isOn = async ($) => (await readFlag($)) !== null
+const flagWords = (p) => ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k), ...(p.midfork ? ['+midfork'] : []), ...(p.min ? ['min'] : [])].join(' ')
+// ▾ / ▸: the whole band folds to one line and stays so after a reload (the word `min`)
+async function fold($) {
+  const p = await readFlag($)
+  if (!p) return
+  p.min = !p.min
+  await $.fs.write(await flagPath($), flagWords(p))
+  $.ui.invalidate('ui.render')
+}
+let histOpen = false
 async function tick($, key) {
   const p = await readFlag($)
   if (!p) return
   p[key] = !p[key]
-  await $.fs.write(await flagPath($), ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k)].join(' '))
+  await $.fs.write(await flagPath($), flagWords(p))
   if (!p.guess) guesses = []
   if (!p.now) now = { text: '', for: '' }
   if (!p.ask) answer = null
@@ -423,6 +461,15 @@ export function register(on) {
     const copy = (key, text) => Button({ key, label: 'کپی', onPress: (press) => {
       Promise.resolve($.ui.copy({ text, surface: press?.surface ?? e.surface })).catch(() => {})
     } })
+    // folded: one line, ▸ opens it again
+    if (p.min) {
+      const line = Box({ flexDirection: 'row', columnGap: 1, children: [
+        Button({ key: 'hads-min', label: '▸ حدس', onPress: () => fold($) }),
+        ...(n ? [Text({ dimColor: true, children: [n.length > 40 ? n.slice(0, 40) + '…' : n] })] : []),
+      ] })
+      return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
+    }
+    const hist = n || histOpen ? await readHist($) : []
     const rows = []
     // a press on «دو جمله» starts a «پرسش» about it, like /btw on that line
     if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
@@ -435,7 +482,15 @@ export function register(on) {
         },
       }) : Text({ key: 'hads-now', dimColor: true, children: [n] }),
       copy('hads-now-copy', n),
+      ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (histOpen ? '▴ ' : '') + 'قبلی‌ها ' + fa(hist.length - 1), onPress: () => { histOpen = !histOpen; $.ui.invalidate('ui.render') } })] : []),
     ] }))
+    // the earlier ones, newest first, with Tehran date and time; the current one is not repeated
+    if (histOpen) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) => Box({
+      flexDirection: 'row', columnGap: 1, children: [
+        Text({ key: 'hads-hist-' + i, dimColor: true, children: [when(x.t) + ' — ' + x.text] }),
+        copy('hads-hist-copy-' + i, when(x.t) + ' — ' + x.text),
+      ],
+    })) }))
     rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
       children: [
@@ -453,6 +508,7 @@ export function register(on) {
         Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => ask($, askText) })] : []),
         // one tick per part, for this chat only
         ...PARTS.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tick($, k) })),
+        Button({ key: 'hads-min', label: '▾', onPress: () => fold($) }),
         Button({ key: 'hads-x', label: '×', onPress: close }),
       ],
     }))

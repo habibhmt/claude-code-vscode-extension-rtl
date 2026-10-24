@@ -502,6 +502,25 @@ $.nowReply = 'کارِ نیمه‌تمام. قطع شد.'; $.t += mod.GAP; await
 await H['turn.complete']($, { isAborted: true }, next); await flush()
 await H['prompt.submit']($, { text: 'کارِ تازه' }, next); $.nowReply = 'کارِ تازه شروع شد. ادامه دارد.'; $.t += mod.GAP; await tool(); await flush()
 const sf2 = calls.fork.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
-out.newTurnClean = !calls.fork.slice(sf2).some((f) => /جمع‌بندی/.test(f.prompt)); assert.equal(out.newTurnClean, true)
+const sumNew = calls.fork.slice(sf2).find((f) => /جمع‌بندی/.test(f.prompt))
+out.newTurnClean = !!sumNew && /کارِ تازه شروع شد/.test(sumNew.prompt) && !/نیمه‌تمام/.test(sumNew.prompt); assert.equal(out.newTurnClean, true)
+// a turn with no tool and no «دو جمله» (a plain chat answer): no summary, the plain Sonnet line
+await H['prompt.submit']($, { text: 'سلام' }, next); const sf3 = calls.fork.length, sn3 = calls.now.length
+$.t += 1; await H['turn.complete']($, {}, next); await flush()
+out.chatTurn = { fork: calls.fork.slice(sf3).some((f) => /جمع‌بندی/.test(f.prompt)), sonnet: calls.now.length - sn3 }
+assert.deepEqual(out.chatTurn, { fork: false, sonnet: 1 })
+// a turn with one tool only (shorter than a minute: no «دو جمله» yet) is summed up too (۲۰۳, 24 Oct 22:58)
+await H['prompt.submit']($, { text: 'یه کار کوتاه' }, next); $.t += 1; await tool({ command: 'git status' }); await flush()
+const sf4 = calls.fork.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
+const sumTool = calls.fork.slice(sf4).find((f) => /جمع‌بندی/.test(f.prompt))
+out.toolTurn = !!sumTool && /git status/.test(sumTool.prompt); assert.equal(out.toolTurn, true)
+// a chat over MAX_FORK: summed up by Sonnet, never skipped
+await H['prompt.submit']($, { text: 'کار در چتِ بزرگ' }, next); $.t += 1; await tool({ command: 'npm test' }); await flush()
+$.ctx = mod.MAX_FORK + 1; const savedNow = $.nowModel
+$.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: 'خط' } }
+$.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: o.maxTokens === 500 ? '{"text": "تست اجرا شد.", "done": ["تست"], "not_done": []}' : $.reply } }
+const se5 = events.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
+out.bigSummary = events.slice(se5).filter((e) => e.kind === 'turn_summary').map((e) => e.via); assert.deepEqual(out.bigSummary, ['sonnet'])
+$.ctx = 1000; $.nowModel = savedNow; $.guessModel = slow
 $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
 console.log(JSON.stringify(out))

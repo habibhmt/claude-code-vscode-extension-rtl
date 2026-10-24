@@ -200,7 +200,7 @@ async function setNow($, text, kind = 'now') {
   const id = await $.session.id()
   if (kind === 'now') turnNows.set(id, [...(turnNows.get(id) || []), text].slice(-40))
   now = { text, for: id }; hidden = false; $.ui.invalidate('ui.render')
-  if (kind === 'now' && !sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'now', { text }) }
+  if (kind !== 'summary' && !sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'now', { text }) }
   try {
     const old = (await readHist($)).reverse().map((x) => JSON.stringify(x))
     await $.fs.write(await histPath($), old.slice(-(HIST - 1)).concat(JSON.stringify({ t: await $.clock.now(), text })).join('\n') + '\n')
@@ -285,7 +285,7 @@ async function tellNow($, tool, force, viaFork = false) {
       const got = r.isAnswered ? parseBoth(r.text) : null
       if (r.isAnswered) await logUsage($, 'now', 'fork', r.usage)
       // no early return: a queued answer-end line (nowAgain) must still be told below
-      if (got?.now && endAt <= t) { await setNow($, got.now); done = true }
+      if (got?.now && endAt <= t) { await setNow($, got.now, force ? 'end' : 'now'); done = true }
     }
     if (!done) {
     const r = await $.model.complete({
@@ -296,7 +296,8 @@ async function tellNow($, tool, force, viaFork = false) {
     })
     // an answer's end started after this call: its line stands
     if (r.isAnswered && endAt <= t) {
-      await setNow($, twoSentences(r.text))
+      // only lines written during the work belong to the turn's summary, not the answer's last one
+      await setNow($, twoSentences(r.text), force ? 'end' : 'now')
       try { await $.store.set('lastNowUsage', r.usage) } catch {}
     }
     if (r.isAnswered) await logUsage($, 'now', 'sonnet', r.usage)
@@ -337,9 +338,15 @@ async function turnEnd($, p = { guess: true, now: true }, force = false) {
 // chat itself (warm cache: the answer was just sent) gets every «دو جمله» of this turn and says
 // what was done and what was not. Shown in place of «دو جمله» and logged as turn_summary.
 // Too few lines, a chat over MAX_FORK or no usable reply: the plain Sonnet «دو جمله», as before.
-export const SUMMARY_MIN = 2
-const SUMMARY_ASK = (lines) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
-  'این «دو جمله»‌ها در همین نوبت، وسطِ کار، هر چند ثانیه نوشته شده‌اند:\n' + lines.map((l, i) => (i + 1) + ') ' + l).join('\n') +
+// a turn is summed up when the agent did work in it: a tool ran, or «دو جمله» was written.
+// (v7 asked for 2 lines; «دو جمله» comes at most once a minute, so most turns had 0-1 and the
+// real chat ۲۰۳ never got one — 24 Oct 22:58)
+export const SUMMARY_MIN = 1
+// tools run in the turn now running, per chat
+const turnTools = new Map()
+const SUMMARY_ASK = (lines, tools) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
+  (lines.length ? 'این «دو جمله»‌ها در همین نوبت، وسطِ کار، نوشته شده‌اند:\n' + lines.map((l, i) => (i + 1) + ') ' + l).join('\n') + '\n' : '') +
+  (tools.length ? 'ابزارهایی که در این نوبت اجرا شد:\n' + tools.map((l) => '- ' + l).join('\n') : '') +
   '\n\nبا توجه به آن‌ها و جوابِ آخرت، جمع‌بندیِ همین نوبت را بده: چه کارهایی انجام شد و چه کارهایی نشد یا مانده. فارسیِ ساده، با واژه‌های حبیب. ' +
   'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "done": ["<short>", …], "not_done": ["<short>", …]}'
 export function parseSummary(raw) {
@@ -356,19 +363,26 @@ export function parseSummary(raw) {
 async function summarize($) {
   const id = await $.session.id()
   const lines = turnNows.get(id) || []
-  turnNows.set(id, [])
-  if (lines.length < SUMMARY_MIN) return false
+  const tools = turnTools.get(id) || []
+  turnNows.set(id, []); turnTools.set(id, [])
+  if (lines.length < SUMMARY_MIN && !tools.length) return false
   let tokens = 0
   try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
-  if (tokens > MAX_FORK) return false
   try {
-    const r = await $.model.fork({ prompt: SUMMARY_ASK(lines) })
-    if (r.isAnswered) await logUsage($, 'summary', 'fork', r.usage)
+    // the chat itself with its warm cache; a chat over MAX_FORK: Sonnet on the turn's lines,
+    // tools and last messages instead of no summary at all
+    const big = tokens > MAX_FORK
+    const r = big
+      ? await $.model.complete({ model: MODEL, system: 'You sum up one turn of a Claude Code session for حبیب.',
+        prompt: [{ text: await vazhe($), cache: true }, { text: buildPrompt(recent(await $.session.messages())) + '\n\n' + SUMMARY_ASK(lines, tools) }],
+        maxTokens: 500, timeoutMs: 30000 })
+      : await $.model.fork({ prompt: SUMMARY_ASK(lines, tools) })
+    if (r.isAnswered) await logUsage($, 'summary', big ? 'sonnet' : 'fork', r.usage)
     const got = r.isAnswered ? parseSummary(r.text) : null
     if (!got) return false
     await setNow($, got.text, 'summary')
     now.summary = got
-    await logEvent($, 'turn_summary', { text: got.text, done: got.done, not_done: got.not_done, from: lines.length })
+    await logEvent($, 'turn_summary', { text: got.text, done: got.done, not_done: got.not_done, from: lines.length, tools: tools.length, via: big ? 'sonnet' : 'fork' })
     return true
   } catch {
     return false
@@ -630,7 +644,7 @@ export function register(on) {
   // the prompt's own hooks are written right after it: read them a moment later
   // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
   on('prompt.submit', async ($, e, next) => {
-    try { turnNows.set(await $.session.id(), []) } catch {}
+    try { const sid = await $.session.id(); turnNows.set(sid, []); turnTools.set(sid, []) } catch {}
     try {
       const sent = String(e?.text || '').trim()
       if (sent && clicked.length) {
@@ -670,6 +684,8 @@ export function register(on) {
     try {
       if (!e.agentId) {
         const what = e.tool + ': ' + String(e.description || e.command || e.file_path || '').slice(0, 200)
+        // remembered for the turn's summary (a short line each, at most 30)
+        $.clock.after(0, async () => { try { const sid = await $.session.id(); turnTools.set(sid, [...(turnTools.get(sid) || []), what.slice(0, 120)].slice(-30)) } catch {} })
         $.clock.after(0, async () => {
           try {
             lastActivity = await $.clock.now(); cacheExpired = false

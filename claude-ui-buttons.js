@@ -254,14 +254,14 @@
     '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10px!important;letter-spacing:.02em;opacity:.5;padding:4px 12px 0!important;min-height:20px;line-height:20px;position:static!important}',
     /* the band is contain:paint — a containing block of its own — so the absolute top row was placed
        against the band (over «پرسش») and clipped; the card must be its box (24 Oct 23:22) */
-    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important;contain:none!important;overflow:visible!important}',
+    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important}',
     '.crtl-hads [class*="box_"]{row-gap:2px}',
     '.crtl-hads span[class*="text_"]{line-height:1.45}',
     '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:0 8px!important;font-size:11px!important;line-height:1.5!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
     '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
     '.crtl-hads button.crtl-tick-on{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
     '.crtl-hads button.crtl-tick-off{opacity:.55}',
-    '.crtl-hads .crtl-hads-top{position:absolute!important;top:3px;left:10px;z-index:3;display:flex;gap:4px;padding:0!important;margin:0!important;background:transparent}',
+    '.crtl-hads .crtl-hads-top{position:sticky!important;top:0;z-index:3;height:0;overflow:visible;display:flex;direction:ltr;justify-content:flex-start;gap:4px;padding:0!important;margin:0!important;background:transparent}',
     /* the third state: just one small button, on the left (24 Oct 22:52: «فقط سمت چپ … یک دکمه») */
     '.crtl-hads.crtl-hads-dot{width:max-content!important;margin:2px auto 4px 8px!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(0,0,0,.25)!important}',
     '.crtl-hads.crtl-hads-dot [data-engine-mark]{display:none!important}',

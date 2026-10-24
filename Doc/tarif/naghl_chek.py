@@ -30,7 +30,7 @@ for l in (x for f in ('6d39ff34-b0b1-48ae-a27b-6dc2870b9578', '1ab9bf32-ee8d-4ab
         if b.get('type') == 'text':
             t = b.get('text', '')
             (relay if AGENT.search(t) else habib).append(t)
-        elif b.get('type') == 'tool_result' and isinstance(b.get('content'), str) and b['content'].startswith('Your questions have been answered'):
+        elif b.get('type') == 'tool_result' and isinstance(b.get('content'), str) and b['content'].startswith(('Your questions have been answered', 'The user answered:')):
             habib += ANSWER.findall(b['content'])
 # kham: only the last column (Habib's answer), not the agent's question beside it
 try: habib += [r.rstrip(' |\n').rsplit(' | ', 1)[-1] for r in open(H + '/1-MY-WORK/0th-day-secreter-director-from-all-sources/soal-javab/kham/136-mojri.md') if r.startswith('| 20')]

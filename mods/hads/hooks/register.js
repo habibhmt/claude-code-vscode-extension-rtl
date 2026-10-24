@@ -511,7 +511,8 @@ export const esm_ghadim = {
   kalame_file: { '-guess': '-hads', '-now': '-do_jomle', '-ask': '-porsesh', '-hooks': '-hook', '+midfork': '+do_jomle_fork', min: 'yek_khat', dot: 'tak_dokme', hookbig: 'hook_bozorg' },
   kind_daftar: { now: 'do_jomle', guess: 'hads', guess_click: 'hads_zadan', guess_sent: 'hads_ferestade', ask: 'porsesh', ask_wait: 'porsesh_montazer', turn_summary: 'jambandi_nobat' },
   khane_daftar: { items: 'hads_ha', guess: 'hads_matn', sent: 'matn_ferestade', edited: 'virayesh_shod', q: 'porsesh_matn', a: 'javab_matn', asked: 'khaste_habib', done: 'anjam_shod', not_done: 'anjam_nashod', from: 'tedad_do_jomle', tools: 'tedad_abzar', via: 'rah', tokens: 'kontekst_token' },
-  bakhsh_kharj: { now: 'do_jomle', guess: 'hads', ask: 'porsesh', summary: 'jambandi_nobat' },
+  // end: the one fork at an answer's end that made «دو جمله» and the guesses together (v2, 24 Oct)
+  bakhsh_kharj: { now: 'do_jomle', guess: 'hads', ask: 'porsesh', summary: 'jambandi_nobat', end: 'akhar_javab' },
   khane_kharj: { part: 'bakhsh', via: 'rah' },
 }
 async function khandan_file_chat($) {

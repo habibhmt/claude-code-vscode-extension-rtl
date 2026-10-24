@@ -37,7 +37,8 @@
     "now": "do_jomle",
     "guess": "hads",
     "ask": "porsesh",
-    "summary": "jambandi_nobat"
+    "summary": "jambandi_nobat",
+    "end": "akhar_javab"
   },
   "khane_kharj": {
     "part": "bakhsh",

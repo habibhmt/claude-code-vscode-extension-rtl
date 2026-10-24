@@ -22,8 +22,12 @@ let madeFor = ''
 export const GAP = 60000
 // over this many tokens of chat even a warm fork costs too much: Sonnet on the last messages
 export const MAX_FORK = 400000
-// idle longer than this and the chat's cache is likely gone (1 h TTL): «بپرس» warns first
+// idle longer than this and the chat's cache is likely gone: «پرسش» warns first. The TTL is
+// 1 h (Claude Code says so: «Prompt cache warm, about 58 min left»); a model switch tells
+// the real one (classic.PostModelSwitch cache_ttl), a 5 min TTL makes it COLD_5M.
 export const COLD = 55 * 60000
+export const COLD_5M = 4 * 60000
+let coldAfter = COLD
 const NOW_SYSTEM = [
   'In exactly two short sentences of plain Persian, tell حبیب what the agent in this Claude Code',
   'session is doing right now and what it is waiting for. Use the words of the glossary given, not',
@@ -39,6 +43,11 @@ let endBusy = false
 let endAgain = false
 // last time the chat itself talked to the model (an answer's end, a tool): the cache's age
 let lastActivity = 0
+// set by classic.SessionStart on a resume: Claude Code's own word that the cache is gone
+let cacheExpired = false
+// a «پرسش» that came before the fork had anything to read (resume, a turn still running):
+// asked by itself when the next answer ends
+let pendingAsk = null
 // «بپرس»: a side question like /btw, answered by $.model.fork; never reaches the chat
 let answer = null
 let askText = ''
@@ -104,6 +113,7 @@ async function guess($) {
     })
     guesses = r.isAnswered ? parseGuesses(r.text) : []
     if (r.isAnswered) try { await $.store.set('lastGuessUsage', r.usage) } catch {}
+    if (r.isAnswered) await logUsage($, 'guess', 'sonnet', r.usage)
     madeFor = await $.session.id()
     hidden = false
     $.ui.invalidate('ui.render')
@@ -156,12 +166,30 @@ async function vazhe($) {
 }
 
 // Sonnet on the last three messages only: cheap enough to run every GAP during work
-async function tellNow($, tool, force) {
+// every model call of this chat, one JSON line each (~/.claude/hads-log/<id>.usage.jsonl,
+// the last 500): the real cost per part, read by `hads-kharj`
+async function logUsage($, part, via, usage) {
+  try {
+    const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.usage.jsonl'
+    let old = ''
+    try { old = String(await $.fs.read(f)) } catch {}
+    const line = JSON.stringify({ t: await $.clock.now(), part, via, usage })
+    await $.fs.write(f, old.split('\n').filter(Boolean).slice(-499).concat(line).join('\n') + '\n')
+  } catch {}
+}
+
+async function tellNow($, tool, force, viaFork = false) {
   if (nowBusy) return
   const t = await $.clock.now()
   if (!force && t - lastNow < GAP) return
   nowBusy = true; lastNow = t
   try {
+    if (viaFork) {
+      const r = await $.model.fork({ prompt: forkPrompt({ now: true }) + '\n\n' + (await vazhe($)) })
+      const got = r.isAnswered ? parseBoth(r.text) : null
+      if (r.isAnswered) await logUsage($, 'now', 'fork', r.usage)
+      if (got?.now && endAt <= t) { now = { text: got.now, for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render'); return }
+    }
     const r = await $.model.complete({
       model: MODEL, system: NOW_SYSTEM,
       prompt: [{ text: await vazhe($), cache: true },
@@ -173,9 +201,14 @@ async function tellNow($, tool, force) {
       now = { text: twoSentences(r.text), for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render')
       try { await $.store.set('lastNowUsage', r.usage) } catch {}
     }
+    if (r.isAnswered) await logUsage($, 'now', 'sonnet', r.usage)
   } catch {} finally {
     nowBusy = false
   }
+}
+
+async function small($) {
+  try { return ((await $.session.usage()).context.tokens || 0) <= MAX_FORK } catch { return false }
 }
 
 // The end of an answer: one fork over the whole chat, read from the cache the answer just
@@ -193,6 +226,7 @@ async function turnEnd($, p = { guess: true, now: true }) {
         const r = await $.model.fork({ prompt: forkPrompt(p) + '\n\n' + (await vazhe($)) })
         got = r.isAnswered ? parseBoth(r.text) : null
         if (got) try { await $.store.set('lastTurnUsage', { via: 'fork', tokens, usage: r.usage }) } catch {}
+        if (r.isAnswered) await logUsage($, 'end', 'fork', r.usage)
       } catch {}
     }
     if (got) {
@@ -209,6 +243,7 @@ async function turnEnd($, p = { guess: true, now: true }) {
   if (endAgain) { endAgain = false; await turnEnd($, (await readFlag($)) || p) }
 }
 
+const WAIT = 'این پرسش بعد از جوابِ بعدیِ کلود در همین چت خودش پرسیده می‌شود (بعد از resume یا وسطِ کار، تا اولین جواب چیزی برای خواندن نیست).'
 const WHY = {
   'nothing-to-fork': 'این چت هنوز چیزی ندارد (مثلاً تازه /clear شده)؛ اول یک پیام بفرست.',
   'api-error': 'خطا از سمتِ Claude؛ دوباره بپرس.',
@@ -218,23 +253,38 @@ const WHY = {
 async function ask($, q) {
   if (!String(q).trim()) return
   const id = await $.session.id()
-  // a cold cache re-reads the whole chat at the write price: say how much, ask Enter again
-  if ((await $.clock.now()) - lastActivity > COLD && !(answer?.cold && answer.q === q && answer.for === id)) {
+  // a cold cache re-reads the whole chat at the write price: say how much, ask Enter again.
+  // Known only from this process's own activity or the resume's numbers; no word means no warning
+  // is claimed as fact.
+  const idle = lastActivity ? (await $.clock.now()) - lastActivity : -1
+  const cold = cacheExpired || idle > coldAfter
+  if ((cold || idle < 0) && !(answer?.cold && answer.q === q && answer.for === id)) {
     let tokens = 0, model = ''
     try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
     try { model = await $.session.model() } catch {}
-    const [a, b] = coldCost(model, tokens)
-    answer = { q, for: id, cold: true,
-      text: 'کشِ چت احتمالاً سرد است: این سؤال حدودِ $' + a.toFixed(2) + ' تا $' + b.toFixed(2) +
-        ' خرج دارد (' + Math.round(tokens / 1000) + 'k توکن). برای پرسیدن دوباره Enter بزن.' }
-    hidden = false; $.ui.invalidate('ui.render')
-    return
+    if (tokens > 0) {
+      const [a, b] = coldCost(model, tokens)
+      const cost = '$' + a.toFixed(2) + ' تا $' + b.toFixed(2) + ' (' + Math.round(tokens / 1000) + 'k توکن)'
+      answer = { q, for: id, cold: true,
+        text: (cold ? 'کشِ چت سرد است (' + Math.round(idle / 60000) + ' دقیقه بی‌کار' + (cacheExpired ? '، به گفتهٔ خودِ Claude Code' : '') + '): این سؤال حدودِ ' + cost + ' خرج دارد.'
+          : 'نمی‌دانم کشِ چت گرم است یا نه؛ اگر سرد باشد این سؤال حدودِ ' + cost + ' خرج دارد.') + ' برای پرسیدن «باشه، بپرس» یا دوباره Enter را بزن.' }
+      hidden = false; $.ui.invalidate('ui.render')
+      return
+    }
   }
   answer = { q, text: '…', for: id }; askText = ''; hidden = false; $.ui.invalidate('ui.render')
   try {
-    const r = await $.model.fork({ prompt: q + '\n\n(کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
-    answer.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
+    // mid-work the fork sees a tool call in flight and may try to go on with it: say it may not
+    const r = await $.model.fork({ prompt: q + '\n\n(این پرسش از کادرِ حدس است، نه دستورِ کار: ابزاری صدا نزن و کاری را ادامه نده؛ فقط کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
+    // nothing to read yet, though the chat has a story: wait for the next answer, then ask
+    let has = false
+    if (!r.isAnswered && r.reason === 'nothing-to-fork') {
+      try { has = ((await $.session.usage()).context.tokens || 0) > 0 || (await $.session.messages()).length > 0 } catch {}
+    }
+    if (has) { pendingAsk = q; answer.text = WAIT; answer.waiting = true }
+    else answer.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
     if (r.isAnswered) try { await $.store.set('lastAskUsage', r.usage) } catch {}
+    if (r.isAnswered) await logUsage($, 'ask', 'fork', r.usage)
   } catch {
     answer.text = WHY.aborted
   }
@@ -271,7 +321,7 @@ async function readFlag($) {
   try {
     const w = String(await $.fs.read(await flagPath($))).trim().split(/\s+/)
     if (w[0] !== 'on') return null
-    return Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)]))
+    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork') }
   } catch {
     return null
   }
@@ -291,7 +341,24 @@ async function tick($, key) {
 export function register(on) {
   on('session.start', async ($, e, next) => {
     try {
-      await $.command.register({ name: 'hads', description: 'حدس: on | off | now', argumentHint: '[on|off|now]', immediate: true })
+      await $.command.register({ name: 'hads', description: 'حدس: on | off | now | ask <پرسش>', argumentHint: '[on|off|now|ask …]', immediate: true })
+    } catch {}
+    return next(e)
+  })
+
+  // resume / fork: Claude Code says how long the chat was idle and whether its cache expired
+  on('classic.SessionStart', async ($, e, next) => {
+    try {
+      if (typeof e.seconds_since_last_response === 'number') lastActivity = (await $.clock.now()) - e.seconds_since_last_response * 1000
+      cacheExpired = e.prompt_cache_likely_expired === true
+    } catch {}
+    return next(e)
+  })
+  // a model switch tells the TTL; the new model's cache starts cold
+  on('classic.PostModelSwitch', async ($, e, next) => {
+    try {
+      coldAfter = e.cache_ttl === '5m' ? COLD_5M : COLD
+      if (e.from_model !== e.to_model) cacheExpired = true
     } catch {}
     return next(e)
   })
@@ -306,12 +373,17 @@ export function register(on) {
       $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
+    if (arg.startsWith('ask ')) { $.clock.after(0, () => ask($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
     $.clock.after(0, async () => turnEnd($, (await readFlag($)) || undefined))
     return { text: 'حدس در حال ساختن…' }
   })
 
   on('turn.complete', async ($, e, next) => {
-    if (!e.agentId) try { lastActivity = await $.clock.now() } catch {}
+    if (!e.agentId) {
+      try { lastActivity = await $.clock.now(); cacheExpired = false } catch {}
+      // a «پرسش» that waited for this answer goes now
+      if (pendingAsk && !e.isAborted) { const q = pendingAsk; pendingAsk = null; $.clock.after(0, () => ask($, q)) }
+    }
     const p = !e.agentId && !e.isAborted && (await interactive($)) ? await readFlag($) : null
     // not awaited: the turn must not wait for the model
     if (p) $.clock.after(0, () => turnEnd($, p))
@@ -327,8 +399,9 @@ export function register(on) {
         const what = e.tool + ': ' + String(e.description || e.command || e.file_path || '').slice(0, 200)
         $.clock.after(0, async () => {
           try {
-            lastActivity = await $.clock.now()
-            if ((await interactive($)) && (await readFlag($))?.now) await tellNow($, what, false)
+            lastActivity = await $.clock.now(); cacheExpired = false
+            const p = (await interactive($)) ? await readFlag($) : null
+            if (p?.now) await tellNow($, what, false, p.midfork && (await small($)))
           } catch {}
         })
       }
@@ -346,6 +419,10 @@ export function register(on) {
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
     const close = () => { hidden = true; $.ui.invalidate('ui.render') }
+    // a copy button: the terminal and VS Code draw these lines as buttons, so a mouse selection is not sure
+    const copy = (key, text) => Button({ key, label: 'کپی', onPress: (press) => {
+      Promise.resolve($.ui.copy({ text, surface: press?.surface ?? e.surface })).catch(() => {})
+    } })
     const rows = []
     // a press on «دو جمله» starts a «پرسش» about it, like /btw on that line
     if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
@@ -357,6 +434,7 @@ export function register(on) {
           try { Promise.resolve($.ui.focus({ requestId: e.requestId, key: 'hads-ask' })).catch(() => {}) } catch {}
         },
       }) : Text({ key: 'hads-now', dimColor: true, children: [n] }),
+      copy('hads-now-copy', n),
     ] }))
     rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
@@ -370,7 +448,9 @@ export function register(on) {
         ...(Input && p.ask ? [Input({
           key: 'hads-ask', value: askText, placeholder: 'پرسش… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
           onInput: (v) => { askText = v }, onSubmit: (v) => ask($, v),
-        })] : []),
+        }),
+        // Enter on the screen, for whoever does not want the key
+        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => ask($, askText) })] : []),
         // one tick per part, for this chat only
         ...PARTS.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tick($, k) })),
         Button({ key: 'hads-x', label: '×', onPress: close }),
@@ -382,6 +462,9 @@ export function register(on) {
         Text({ dimColor: true, children: ['پرسش: ' + a.q] }),
         Text({ children: [a.text] }),
         Box({ flexDirection: 'row', columnGap: 1, children: [
+          // a cold warning asks once more by a press, not only by Enter
+          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => ask($, a.q) })] : []),
+          copy('hads-ans-copy', a.text),
           Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => fillAppend($, a.q + '\n' + a.text) }),
           Button({ key: 'hads-ans-x', label: '×', onPress: () => { answer = null; $.ui.invalidate('ui.render') } }),
         ] }),

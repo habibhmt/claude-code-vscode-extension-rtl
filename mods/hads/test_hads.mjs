@@ -13,7 +13,7 @@ const $ = {
   session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid, root: async () => '/proj',
     usage: async () => ({ context: { tokens: $.ctx, window: 1e6 } }), model: async () => 'claude-opus-5-5' },
   env: { get: async (k) => (k === 'HOME' ? '/h' : undefined) },
-  ui: { invalidate() {}, focus: async (o) => { calls.focus = o }, resolve: () => ({ Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }) }) },
+  ui: { invalidate() {}, focus: async (o) => { calls.focus = o }, copy: async (o) => { calls.copy = o; return { isCopied: true } }, resolve: () => ({ Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }) }) },
   prompt: { fill: async (o) => calls.fill.push(o), submit: async (o) => calls.submit.push(o), read: async () => $.typed },
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
@@ -36,7 +36,7 @@ const render = (e = {}) => H['ui.render']($, { component: 'AbovePrompt', ...e },
 // the row with the guesses, «پرسش» and the ticks (the one holding ×)
 const row = (t) => t.children.find((c) => c.t === 'Box' && (c.children || []).some((x) => x && x.key === 'hads-x'))
 // guess buttons drawn (× left out); 'engine' alone means the mod drew nothing
-const isGuess = (c) => c.t === 'Button' && c.label !== '×' && !String(c.key).startsWith('hads-tick-')
+const isGuess = (c) => c.t === 'Button' && /^hads-\d+$/.test(String(c.key))
 const guessLabels = (t) => t === 'engine' ? [] : row(t).children.filter(isGuess).map((c) => c.label)
 // any element by key, however deep
 const find = (t, key) => { if (!t || typeof t !== 'object') return null; if (t.key === key) return t; for (const c of t.children || []) { const f = find(c, key); if (f) return f } return null }
@@ -66,7 +66,7 @@ $.sid = 'A'; out.answer = (await again['command.run']($, { args: 'on' })).text; 
 await H['turn.complete']($, {}, next); await flush()
 out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')
 const tree = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-const btns = row(tree).children.filter((c) => c.t === 'Button' && !String(c.key).startsWith('hads-tick-'))
+const btns = row(tree).children.filter((c) => c.t === 'Button' && (isGuess(c) || c.key === 'hads-x'))
 out.buttons = btns.map((b) => b.label); assert.deepEqual(out.buttons, ['تست', 'کامیت', '×'])
 // after /clear (a new chat id) the old row is gone
 $.sid = 'A2'; out.afterClear = await H['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); assert.equal(out.afterClear, 'engine'); $.sid = 'A'
@@ -93,7 +93,7 @@ out.endNotDropped = calls.complete.length; assert.equal(out.endNotDropped, 2); $
 $.reply = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ label: 'g' + i, text: 't' + i })))
 await H['turn.complete']($, {}, next); await flush()
 const t2 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-out.max = row(t2).children.filter((c) => c.t === 'Button' && !String(c.key).startsWith('hads-tick-')).length; assert.equal(out.max, 6)
+out.max = row(t2).children.filter((c) => c.t === 'Button' && (isGuess(c) || c.key === 'hads-x')).length; assert.equal(out.max, 6)
 // other agents' messages are labelled, not taken as the user's; reminders are cut out
 calls.complete.length = 0
 $.msgs = [{ role: 'user', text: '<system-reminder>یادآوری</system-reminder>\nپیامِ حبیب' },
@@ -205,10 +205,17 @@ out.ask = { fork: calls.fork.length, fill: calls.fill.length, submit: calls.subm
 const ansText = (t) => t.children.filter((c) => c.t === 'Box' && c.flexDirection === 'column').flatMap((c) => c.children).filter((c) => c.t === 'Text').map((c) => c.children[0])
 out.askShown = ansText(await render()).includes('یعنی دکمه ساخته شد.'); assert.equal(out.askShown, true)
 out.askUsage = (await $.store.get('lastAskUsage'))?.cache_read_input_tokens; assert.equal(out.askUsage, 3)
-// after /clear the fork has nothing: a plain message, never an empty answer
-$.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }
+// after /clear the fork has nothing, and the chat has nothing either: a plain message, never an empty answer
+$.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }; const keepMsgs = $.msgs; $.msgs = []; $.ctx = 0
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('چی شد؟'); await flush()
 out.nothingToFork = ansText(await render()).some((x) => /\/clear/.test(x)); assert.equal(out.nothingToFork, true)
+// a chat with a story (resume, a turn still running) but no request yet: the question waits, then goes by itself
+$.msgs = keepMsgs; $.ctx = 1000
+await row(await render()).children.find((c) => c.t === 'Input').onSubmit('صبر کن'); await flush()
+out.waitShown = ansText(await render()).some((x) => /بعد از جوابِ بعدیِ کلود/.test(x)) && !ansText(await render()).some((x) => /\/clear/.test(x)); assert.equal(out.waitShown, true)
+$.forkReply = { isAnswered: true, text: 'حالا جواب.', usage: {} }; const w0 = calls.fork.length
+await H['turn.complete']($, {}, next); await flush(); await flush()
+out.waitAsked = calls.fork.filter((f, i) => i >= w0 && /^صبر کن/.test(f.prompt)).length; assert.equal(out.waitAsked, 1)
 // btw on «دو جمله»: a press fills «بپرس» with it and moves the keyboard there
 $.ui.resolve = () => withInput
 $.forkReply = { isAnswered: true, text: '{"now": "مجری دارد می‌سازد. منتظرِ ناظر است.", "guesses": []}', usage: {} }
@@ -225,6 +232,44 @@ out.coldSecond = calls.fork.length - f0; assert.equal(out.coldSecond, 1); $.ctx 
 $.ui.resolve = realResolve
 // on mobile (no Input) the row still draws
 out.noInput = row(await render()).children.some((c) => c.t === 'Input'); assert.equal(out.noInput, false)
+// the cache's state on a resume comes from Claude Code itself (classic.SessionStart)
+const fresh = await import((process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href) + '?fresh')
+const F = {}; fresh.register((ev, a, b) => { F[ev] = b || a; return { catch() {} } })
+const askVia = async (q) => { const r = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); await row(r).children.find((c) => c.t === 'Input').onSubmit(q); await flush(); return ansText(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')) }
+$.ui.resolve = () => withInput; $.ctx = 411000; $.forkReply = { isAnswered: true, text: 'جوابِ گرم.', usage: {} }
+await F['turn.complete']($, { agentId: 'sub' }, next)
+// nothing known at all: no false «cold», an honest «I don't know» with the price
+out.unknownHonest = (await askVia('ناشناس')).some((x) => /نمی‌دانم کشِ چت گرم است یا نه/.test(x) && /\$2\.06 تا \$3\.29/.test(x)); assert.equal(out.unknownHonest, true)
+// resumed 2 minutes after the last answer, cache warm: asked at once, no warning
+await F['classic.SessionStart']($, { seconds_since_last_response: 120, prompt_cache_likely_expired: false }, next)
+let f1 = calls.fork.length; out.resumeWarm = (await askVia('گرم؟')).includes('جوابِ گرم.') && calls.fork.length === f1 + 1; assert.equal(out.resumeWarm, true)
+// resumed after 10 minutes, Claude Code says expired (a 5 min TTL): warned, though 10 min < COLD
+await F['classic.SessionStart']($, { seconds_since_last_response: 600, prompt_cache_likely_expired: true }, next)
+f1 = calls.fork.length; out.resumeCold = (await askVia('سرد؟')).some((x) => /کشِ چت سرد است/.test(x)) && calls.fork.length === f1; assert.equal(out.resumeCold, true)
+// a 5 min TTL (told by a model switch): 10 minutes idle is cold
+await F['turn.complete']($, {}, next); await flush()
+await F['classic.PostModelSwitch']($, { cache_ttl: '5m', from_model: 'x', to_model: 'x' }, next)
+$.t += 10 * 60000; f1 = calls.fork.length
+out.ttl5m = (await askVia('پنج دقیقه')).some((x) => /سرد است/.test(x)) && calls.fork.length === f1; assert.equal(out.ttl5m, true)
+$.ui.resolve = realResolve; $.ctx = 1000
+// «بفرست ⏎» on the screen asks what the box holds; «کپی» puts the text on the clipboard
+$.ui.resolve = () => withInput; $.forkReply = { isAnswered: true, text: 'جوابِ دکمه.', usage: {} }; $.t += 1
+await F['turn.complete']($, {}, next); await flush()
+let r10 = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+await find(r10, 'hads-ask').onInput('با دکمه'); r10 = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+f1 = calls.fork.length; await find(r10, 'hads-ask-send').onPress({}); await flush()
+out.sendButton = calls.fork.length === f1 + 1 && /^با دکمه/.test(calls.fork.at(-1).prompt); assert.equal(out.sendButton, true)
+r10 = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+await find(r10, 'hads-ans-copy').onPress({ surface: 'terminal' })
+out.copyAnswer = calls.copy?.text === 'جوابِ دکمه.' && calls.copy?.surface === 'terminal'; assert.equal(out.copyAnswer, true)
+// the fork is told not to use tools or go on with the work (mid-work it saw a tool call in flight)
+out.noTools = /ابزاری صدا نزن/.test(calls.fork.at(-1).prompt); assert.equal(out.noTools, true)
+// a cold warning has «باشه، بپرس»: a press asks
+await F['classic.SessionStart']($, { seconds_since_last_response: 600, prompt_cache_likely_expired: true }, next)
+await askVia('سردِ دکمه'); f1 = calls.fork.length
+await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-ans-go').onPress({}); await flush()
+out.coldButton = calls.fork.length === f1 + 1; assert.equal(out.coldButton, true)
+$.ui.resolve = realResolve
 // the numbers agreed with Habib and the ناظر (تعریفِ ۱۰): a change must turn this red
 out.pinned = [mod.GAP, mod.MAX_FORK]; assert.deepEqual(out.pinned, [60000, 400000])
 // ticks: one per part, this chat only; a part ticked off is neither drawn nor asked for

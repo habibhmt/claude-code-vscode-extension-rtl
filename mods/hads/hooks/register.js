@@ -651,7 +651,12 @@ export function register(on) {
       return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
     }
     const hist = n || histOpen ? await readHist($) : []
-    const rows = []
+    // ▾ (fold) and × (close) on top, where they are always in sight however long the box grows
+    // (Habib, 24 Oct 22:41: «اینها باید بالای صفحه باشند که همه جا قابلیت دیدن داشته باشند»)
+    const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
+      Button({ key: 'hads-min', label: '▾', onPress: () => fold($) }),
+      Button({ key: 'hads-x', label: '×', onPress: close }),
+    ] })]
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
     // the panel's rows are user-select:text in VS Code
     if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
@@ -716,8 +721,6 @@ export function register(on) {
         Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => ask($, askText) })] : []),
         // one tick per part, for this chat only
         ...PARTS.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tick($, k) })),
-        Button({ key: 'hads-min', label: '▾', onPress: () => fold($) }),
-        Button({ key: 'hads-x', label: '×', onPress: close }),
       ],
     }))
     return Box({ flexDirection: 'column', children: theirs ? [theirs, ...rows] : rows })

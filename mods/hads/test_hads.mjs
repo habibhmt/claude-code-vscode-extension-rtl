@@ -37,7 +37,8 @@ const next = async (e) => e
 const out = {}
 const render = (e = {}) => H['ui.render']($, { component: 'AbovePrompt', ...e }, async () => 'engine')
 // the row with the guesses, «پرسش» and the ticks (the one holding ×)
-const row = (t) => t.children.find((c) => c.t === 'Box' && (c.children || []).some((x) => x && x.key === 'hads-x'))
+// the row with «پرسش» and the ticks (▾ and × sit in their own row on top)
+const row = (t) => t.children.find((c) => c.t === 'Box' && (c.children || []).some((x) => x && /^hads-tick-/.test(String(x.key))))
 // guess buttons drawn (× left out); 'engine' alone means the mod drew nothing
 const isGuess = (c) => c.t === 'Button' && /^hads-\d+$/.test(String(c.key))
 // the guesses: whole sentences (Text hads-g-i), each with a ⤵ button (hads-i)
@@ -363,7 +364,9 @@ await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)
 rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.hookBigCut <= mod.HOOK_BIG + 60, 'big hook ' + out.hookBigCut)
 // the ticks stay last, next to the prompt, whatever is above them
-const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && x.key === 'hads-x'); assert.equal(out.ticksLast, true)
+const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && /^hads-tick-/.test(String(x.key))); assert.equal(out.ticksLast, true)
+// ▾ and × on top, always in sight (24 Oct 22:41)
+const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && ['hads-min', 'hads-x'].every((k) => topRow.children.some((x) => x.key === k)); assert.equal(out.closeOnTop, true)
 $.tail = keepTail
 // ticked off: the transcript is not read at all
 await find(rK, 'hads-tick-hooks').onPress({}); calls.run = 0

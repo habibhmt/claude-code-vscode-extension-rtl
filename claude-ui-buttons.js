@@ -255,6 +255,7 @@
     '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
     '.crtl-hads button.crtl-tick-on{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
     '.crtl-hads button.crtl-tick-off{opacity:.55}',
+    '.crtl-hads .crtl-hads-top{position:sticky;top:0;z-index:3;display:flex;justify-content:flex-end;gap:4px;padding:2px 0 4px;background:inherit}',
     '.crtl-hads button.crtl-insert{border-radius:50%!important;padding:0 6px!important;min-width:0}',
     '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:2px 9px!important;min-width:14em;outline:none!important;transition:box-shadow .15s}',
     '.crtl-hads input[class*="input_"]:focus{border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.4)!important}',
@@ -2016,6 +2017,8 @@
         bs[b].classList.toggle('crtl-tick-on', tx.charAt(0) === '✓');
         bs[b].classList.toggle('crtl-tick-off', tx.charAt(0) === '✗');
         bs[b].classList.toggle('crtl-insert', tx === '⤵');
+        // ▾ and ×: their row sticks to the top of the box, so they never scroll out of sight
+        if ((tx === '×' || tx === '▾') && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 2) bs[b].parentElement.classList.add('crtl-hads-top');
       }
     }
   }

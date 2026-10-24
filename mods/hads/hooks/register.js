@@ -13,6 +13,8 @@ const SYSTEM = [
 let guesses = []
 let hidden = false
 let busy = false
+// the chat the guesses were made in: after /clear (a new id) they are not shown
+let madeFor = ''
 
 export function parseGuesses(raw) {
   try {
@@ -74,6 +76,7 @@ async function guess($) {
       maxTokens: 600, timeoutMs: 60000,
     })
     guesses = r.isAnswered ? parseGuesses(r.text) : []
+    madeFor = await $.session.id()
     hidden = false
     $.ui.invalidate('ui.render')
   } catch {
@@ -103,20 +106,10 @@ async function fillAppend($, text) {
   return $.prompt.fill({ text: cur.trim() ? cur + '\n' + text : text })
 }
 
-// on/off lives in the project itself (<root>/.claude/hads.on), so no project can switch another
-const flagPath = async ($) => (await $.session.root()) + '/.claude/hads.on'
-// keep the flag out of the project's git: a local-only line in .git/info/exclude.
-// No git, or a worktree (.git is a file there), is skipped; nothing here may stop on/off.
-async function hideFromGit($) {
-  try {
-    const git = (await $.session.root()) + '/.git/'
-    await $.fs.read(git + 'HEAD')
-    let ex = ''
-    try { ex = String(await $.fs.read(git + 'info/exclude')) } catch {}
-    if (ex.split('\n').some((l) => l.trim() === '.claude/hads.on')) return
-    await $.fs.write(git + 'info/exclude', ex + (ex && !ex.endsWith('\n') ? '\n' : '') + '.claude/hads.on\n')
-  } catch {}
-}
+// on/off is per chat: one file per session id (~/.claude/hads-on/<id>), so no chat can
+// switch another, not even one in the same folder. One file each, not $.store: the store
+// is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
+const flagPath = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 const isOn = async ($) => {
   try { return String(await $.fs.read(await flagPath($))).trim() === 'on' } catch { return false }
 }
@@ -133,9 +126,8 @@ export function register(on) {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
       await $.fs.write(await flagPath($), arg)
-      await hideFromGit($)
       if (arg === 'off') { guesses = []; $.ui.invalidate('ui.render') }
-      return { text: 'حدس برای همین پروژه ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
+      return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
     $.clock.after(0, () => guess($))
     return { text: 'حدس در حال ساختن…' }
@@ -150,7 +142,7 @@ export function register(on) {
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    if (hidden || !guesses.length) return next(e)
+    if (hidden || !guesses.length || madeFor !== (await $.session.id())) return next(e)
     const { Box, Text, Button } = $.ui.resolve(e)
     const theirs = await next(e)
     const row = Box({

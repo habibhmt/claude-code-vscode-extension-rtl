@@ -8,7 +8,7 @@ skip() { echo "⏭  $1 — رد شد: کروم فعلاً ممنوع"; }
 ok()  { echo "✅ $1"; }
 no()  { echo "❌ $1 — $2"; bad=$((bad+1)); }
 o=$(node mods/hads/test_hads.mjs 2>/dev/null)
-[[ $o == *'"defaultOff":0'* && $o == *'"otherProject":0'* && $o == *'"model":"claude-sonnet-5-5"'* && $o == *'"submit":0'* ]] && ok "۰۱ حدس" || no "۰۱ حدس" "آزمون جوابِ درست نداد"
+[[ $o == *'"defaultOff":0'* && $o == *'"otherChat":0'* && $o == *'"aAfterBOff":"on"'* && $o == *'"projectFiles":0'* && $o == *'"afterClear":"engine"'* && $o == *'"model":"claude-sonnet-5-5"'* && $o == *'"submit":0'* ]] && ok "۰۱ حدس" || no "۰۱ حدس" "آزمون جوابِ درست نداد"
 if [[ -n $NO_CHROME ]]; then skip "۰۲ نوارِ بالا"; else
 o=$(node test_claude_top_buttons.cjs 2>/dev/null)
 [[ $o == *'"topCount":14'* && $o == *'"hadsText":["/hads on","/hads off"]'* && $o == *'"dragTyped":""'* && $o == *'"submitted":0'* && $o == *'"notInBanner":true'* ]] && ok "۰۲ نوارِ بالا" || no "۰۲ نوارِ بالا" "آزمون جوابِ درست نداد"

@@ -6,7 +6,8 @@ mod.register((ev, a, b) => { H[ev] = b || a; return { catch() {} } })
 const store = {}
 const $ = {
   model: { complete: async (o) => { calls.complete.push(o); return { isAnswered: true, text: $.reply } } },
-  session: { messages: async () => $.msgs, surfaces: async () => $.surf, root: async () => $.root },
+  session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid },
+  env: { get: async (k) => (k === 'HOME' ? '/h' : undefined) },
   ui: { invalidate() {}, resolve: () => ({ Box: (p) => ({ t: 'Box', ...p }), Text: (p) => ({ t: 'Text', ...p }), Button: (p) => ({ t: 'Button', ...p }) }) },
   prompt: { fill: async (o) => calls.fill.push(o), submit: async (o) => calls.submit.push(o), read: async () => $.typed },
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
@@ -19,7 +20,7 @@ let pending = []
 const flush = async () => { await Promise.all(pending); pending = [] }
 const next = async (e) => e
 const out = {}
-$.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = { '/p/A/.git/HEAD': 'ref: main', '/p/A/.git/info/exclude': 'keep-me' }
+$.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = {}
 $.reply = '[{"label":"تست","text":"آزمون‌ها رو اجرا کن"},{"label":"کامیت","text":"کامیت و پوش کن"}]'
 // subagent and aborted turns never call the model
 await H['turn.complete']($, { agentId: 'x' }, next); await H['turn.complete']($, { isAborted: true }, next); await flush()
@@ -27,24 +28,28 @@ out.subagentOrAbort = calls.complete.length; assert.equal(out.subagentOrAbort, 0
 // a project nobody turned on stays off
 await H['turn.complete']($, {}, next); await flush()
 out.defaultOff = calls.complete.length; assert.equal(out.defaultOff, 0)
-// on in project A only: project B stays off, and A's switch is a file inside A
-$.root = '/p/A'; await H['command.run']($, { args: 'on' })
-out.flagInA = flags['/p/A/.claude/hads.on']; assert.equal(out.flagInA, 'on')
-// git keeps the flag out: one local exclude line added after the old ones, not repeated; no git (or a worktree) is skipped
-await H['command.run']($, { args: 'on' })
-out.excludeA = flags['/p/A/.git/info/exclude']; assert.equal(out.excludeA, 'keep-me\n.claude/hads.on\n')
-$.root = '/p/C'; await H['command.run']($, { args: 'on' })
-out.noGitFlag = flags['/p/C/.claude/hads.on']; assert.equal(out.noGitFlag, 'on')
-out.noGitExclude = Object.keys(flags).filter((k) => k.startsWith('/p/C/.git')).length; assert.equal(out.noGitExclude, 0)
-$.root = '/p/B'; await H['turn.complete']($, {}, next); await flush()
-out.otherProject = calls.complete.length; assert.equal(out.otherProject, 0)
-$.root = '/p/A'
+// on in chat A only: chat B (same folder) stays off, and A's switch is A's own file
+$.sid = 'A'; await H['command.run']($, { args: 'on' })
+out.flagA = flags['/h/.claude/hads-on/A']; assert.equal(out.flagA, 'on')
+out.onlyOneFile = Object.keys(flags).filter((k) => k.startsWith('/h/.claude/hads-on/')).length; assert.equal(out.onlyOneFile, 1)
+$.sid = 'B'; await H['turn.complete']($, {}, next); await flush()
+out.otherChat = calls.complete.length; assert.equal(out.otherChat, 0)
+// B turning off touches only B's file: A stays on
+await H['command.run']($, { args: 'off' })
+out.aAfterBOff = flags['/h/.claude/hads-on/A']; assert.equal(out.aAfterBOff, 'on')
+// nothing is written into the project
+out.projectFiles = Object.keys(flags).filter((k) => !k.startsWith('/h/.claude/hads-on/')).length; assert.equal(out.projectFiles, 0)
+// the mod reloads (resume keeps the id): A is still on
+const again = {}; mod.register((ev, a, b) => { again[ev] = b || a; return { catch() {} } })
+$.sid = 'A'; out.answer = (await again['command.run']($, { args: 'on' })).text; assert.equal(out.answer, 'حدس برای همین چت روشن شد')
 // a normal turn: Sonnet 5.5 by full name, then buttons
 await H['turn.complete']($, {}, next); await flush()
 out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')
 const tree = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
 const btns = tree.children[0].children.filter((c) => c.t === 'Button')
 out.buttons = btns.map((b) => b.label); assert.deepEqual(out.buttons, ['تست', 'کامیت', '×'])
+// after /clear (a new chat id) the old row is gone
+$.sid = 'A2'; out.afterClear = await H['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); assert.equal(out.afterClear, 'engine'); $.sid = 'A'
 // a click fills the prompt, never sends
 await btns[1].onPress(); out.fill = calls.fill.map((f) => f.text); out.submit = calls.submit.length
 assert.deepEqual(out.fill, ['کامیت و پوش کن']); assert.equal(out.submit, 0)

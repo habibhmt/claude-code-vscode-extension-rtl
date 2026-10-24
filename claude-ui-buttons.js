@@ -248,17 +248,24 @@
        a rounded translucent card, SF text, soft shadow; pill buttons; the ticks as a blue/grey
        segmented look; the ask field with the macOS focus ring. Scoped to .crtl-hads (the page
        script tags the box whose header says «hads plugin»), so other plugins keep their look. */
-    '.crtl-hads{margin:6px 8px 8px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-hads-alpha,80%),transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
-    '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10.5px!important;letter-spacing:.02em;opacity:.5;padding:7px 12px 0!important;position:static!important}',
-    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:6px 12px 10px!important;margin:0!important}',
-    '.crtl-hads span[class*="text_"]{line-height:1.6}',
-    '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:1px 9px!important;font-size:11.5px!important;line-height:1.6!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
+    '.crtl-hads{position:relative;margin:4px 8px 6px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-hads-alpha,80%),transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
+    /* compact (24 Oct 22:52: «جمع و جور ترش بکن … ارتفاعش کمتر بشه … فرام ده حدس پلاگین رو با اون دو تا دکمه … تو یک خط»):
+       the header line holds ▾ ◂ × too, rows and buttons are tighter */
+    '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10px!important;letter-spacing:.02em;opacity:.5;padding:4px 12px 0!important;min-height:20px;line-height:20px;position:static!important}',
+    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important}',
+    '.crtl-hads [class*="box_"]{row-gap:2px}',
+    '.crtl-hads span[class*="text_"]{line-height:1.45}',
+    '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:0 8px!important;font-size:11px!important;line-height:1.5!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
     '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
     '.crtl-hads button.crtl-tick-on{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
     '.crtl-hads button.crtl-tick-off{opacity:.55}',
-    '.crtl-hads .crtl-hads-top{position:sticky;top:0;z-index:3;display:flex;justify-content:flex-end;gap:4px;padding:2px 0 4px;background:inherit}',
+    '.crtl-hads .crtl-hads-top{position:absolute!important;top:3px;left:10px;z-index:3;display:flex;gap:4px;padding:0!important;margin:0!important;background:transparent}',
+    /* the third state: just one small button, on the left (24 Oct 22:52: «فقط سمت چپ … یک دکمه») */
+    '.crtl-hads.crtl-hads-dot{width:max-content!important;margin:2px auto 4px 8px!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(0,0,0,.25)!important}',
+    '.crtl-hads.crtl-hads-dot [data-engine-mark]{display:none!important}',
+    '.crtl-hads.crtl-hads-dot [class*="band_"],.crtl-hads.crtl-hads-dot [class*="row_"]{padding:3px!important}',
     '.crtl-hads button.crtl-insert{border-radius:50%!important;padding:0 6px!important;min-width:0}',
-    '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:2px 9px!important;min-width:14em;outline:none!important;transition:box-shadow .15s}',
+    '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:0 8px!important;height:22px;min-width:14em;outline:none!important;transition:box-shadow .15s}',
     '.crtl-hads input[class*="input_"]:focus{border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.4)!important}',
     '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
@@ -2014,13 +2021,15 @@
       if (!card) continue;
       card.classList.add('crtl-hads');
       var bs = card.querySelectorAll('button');
+      // only the «حدس ▸» button left: the card shrinks to it
+      card.classList.toggle('crtl-hads-dot', bs.length === 1 && /^حدس/.test((bs[0].textContent || '').trim()));
       for (var b = 0; b < bs.length; b++) {
         var tx = (bs[b].textContent || '').trim();
         bs[b].classList.toggle('crtl-tick-on', tx.charAt(0) === '✓');
         bs[b].classList.toggle('crtl-tick-off', tx.charAt(0) === '✗');
         bs[b].classList.toggle('crtl-insert', tx === '⤵');
         // ▾ and ×: their row sticks to the top of the box, so they never scroll out of sight
-        if ((tx === '×' || tx === '▾') && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 2) bs[b].parentElement.classList.add('crtl-hads-top');
+        if ((tx === '×' || tx === '▾' || tx === '◂') && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-top');
       }
     }
   }

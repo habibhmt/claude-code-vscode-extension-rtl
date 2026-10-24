@@ -319,6 +319,15 @@ const rF = await G['ui.render']($, { component: 'AbovePrompt' }, async () => 'en
 out.folded = { open: find(rF, 'hads-min')?.label, ask: !!find(rF, 'hads-ask'), ticks: !!find(rF, 'hads-tick-now') }
 assert.deepEqual(out.folded, { open: '▸ حدس', ask: false, ticks: false })
 await find(rF, 'hads-min').onPress({}); out.unfoldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.unfoldFile, 'on -guess')
+// the third state: just one small button; it opens the folded line, which opens the box (24 Oct 22:52)
+let rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+await find(rD, 'hads-to-dot').onPress({}); out.dotFile = flags['/h/.claude/hads-on/H']; assert.equal(out.dotFile, 'on -guess dot')
+rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.dot = { button: find(rD, 'hads-dot')?.label, nothingElse: !find(rD, 'hads-min') && !find(rD, 'hads-ask') && !find(rD, 'hads-now') && !find(rD, 'hads-x') }
+assert.deepEqual(out.dot, { button: 'حدس ▸', nothingElse: true })
+await find(rD, 'hads-dot').onPress({}); out.dotToMin = flags['/h/.claude/hads-on/H']; assert.equal(out.dotToMin, 'on -guess min')
+rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); await find(rD, 'hads-min').onPress({})
+out.backOpen = flags['/h/.claude/hads-on/H']; assert.equal(out.backOpen, 'on -guess')
 // a tick keeps the other words of the file
 flags['/h/.claude/hads-on/H'] = 'on +midfork min'; await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 $.sid = 'H'; flags['/h/.claude/hads-on/H'] = 'on +midfork'
@@ -366,7 +375,7 @@ out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.
 // the ticks stay last, next to the prompt, whatever is above them
 const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && /^hads-tick-/.test(String(x.key))); assert.equal(out.ticksLast, true)
 // ▾ and × on top, always in sight (24 Oct 22:41)
-const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && ['hads-min', 'hads-x'].every((k) => topRow.children.some((x) => x.key === k)); assert.equal(out.closeOnTop, true)
+const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && ['hads-min', 'hads-to-dot', 'hads-x'].every((k) => topRow.children.some((x) => x.key === k)); assert.equal(out.closeOnTop, true)
 $.tail = keepTail
 // ticked off: the transcript is not read at all
 await find(rK, 'hads-tick-hooks').onPress({}); calls.run = 0

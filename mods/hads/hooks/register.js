@@ -478,21 +478,25 @@ async function readFlag($) {
   try {
     const w = String(await $.fs.read(await flagPath($))).trim().split(/\s+/)
     if (w[0] !== 'on') return null
-    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork'), min: w.includes('min'), hookbig: w.includes('hookbig') }
+    return { ...Object.fromEntries(PARTS.map(([k]) => [k, !w.includes('-' + k)])), midfork: w.includes('+midfork'), min: w.includes('min'), dot: w.includes('dot'), hookbig: w.includes('hookbig') }
   } catch {
     return null
   }
 }
 const isOn = async ($) => (await readFlag($)) !== null
-const flagWords = (p) => ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k), ...(p.midfork ? ['+midfork'] : []), ...(p.min ? ['min'] : []), ...(p.hookbig ? ['hookbig'] : [])].join(' ')
+const flagWords = (p) => ['on', ...PARTS.filter(([k]) => !p[k]).map(([k]) => '-' + k), ...(p.midfork ? ['+midfork'] : []), ...(p.min ? ['min'] : []), ...(p.dot ? ['dot'] : []), ...(p.hookbig ? ['hookbig'] : [])].join(' ')
 // ▾ / ▸: the whole band folds to one line and stays so after a reload (the word `min`)
-async function fold($) {
+// three states (Habib, 24 Oct 22:52: «سه حالته، یکی حالت باز، یکی حالت مثل الان … یه حالتی هم که
+// بشه اصلا یه دکمه»): open · folded to one line (min) · just one small button (dot).
+// The button opens the folded line; the line opens the box. Kept in the chat's file over reloads.
+async function setMode($, mode) {
   const p = await readFlag($)
   if (!p) return
-  p.min = !p.min
+  p.min = mode === 'min'; p.dot = mode === 'dot'
   await $.fs.write(await flagPath($), flagWords(p))
   $.ui.invalidate('ui.render')
 }
+const fold = ($) => readFlag($).then((p) => p && setMode($, p.min ? 'open' : 'min'))
 let histOpen = false
 
 // «هوک‌ها»: the VS Code panel drops every hook_* message on purpose (extension.js filters
@@ -691,10 +695,16 @@ export function register(on) {
     const theirs = await next(e)
     const close = () => { hidden = true; $.ui.invalidate('ui.render') }
     // folded: one line, ▸ opens it again
+    // one small button only: it opens the folded line
+    if (p.dot) {
+      const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => setMode($, 'min') })
+      return Box({ flexDirection: 'column', children: theirs ? [theirs, one] : [one] })
+    }
     if (p.min) {
       const line = Box({ flexDirection: 'row', columnGap: 1, children: [
-        Button({ key: 'hads-min', label: '▸ حدس', onPress: () => fold($) }),
+        Button({ key: 'hads-min', label: '▸ حدس', onPress: () => setMode($, 'open') }),
         ...(n ? [Text({ dimColor: true, children: [n.length > 40 ? n.slice(0, 40) + '…' : n] })] : []),
+        Button({ key: 'hads-to-dot', label: '◂', onPress: () => setMode($, 'dot') }),
       ] })
       return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
     }
@@ -702,7 +712,8 @@ export function register(on) {
     // ▾ (fold) and × (close) on top, where they are always in sight however long the box grows
     // (Habib, 24 Oct 22:41: «اینها باید بالای صفحه باشند که همه جا قابلیت دیدن داشته باشند»)
     const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
-      Button({ key: 'hads-min', label: '▾', onPress: () => fold($) }),
+      Button({ key: 'hads-min', label: '▾', onPress: () => setMode($, 'min') }),
+      Button({ key: 'hads-to-dot', label: '◂', onPress: () => setMode($, 'dot') }),
       Button({ key: 'hads-x', label: '×', onPress: close }),
     ] })]
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);

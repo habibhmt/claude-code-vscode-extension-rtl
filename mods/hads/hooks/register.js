@@ -16,6 +16,22 @@ let busy = false
 // the chat the guesses were made in: after /clear (a new id) they are not shown
 let madeFor = ''
 
+// «دو جمله»: what the agent is doing now, in Habib's words (the project's 00_vazhe_name.md),
+// after each answer and, at most every GAP ms, after a tool. One call at a time.
+export const GAP = 20000
+const NOW_SYSTEM = [
+  'In exactly two short sentences of plain Persian, tell حبیب what the agent in this Claude Code',
+  'session is doing right now and what it is waiting for. Use the words of the glossary given, not',
+  'technical terms. Do not guess what comes next. Reply with the two sentences only.',
+].join(' ')
+let now = { text: '', for: '' }
+let nowBusy = false
+// an answer that ends while a call runs is told right after it, never dropped
+let nowAgain = false
+let lastNow = 0
+// «بپرس»: a side question like /btw, answered by $.model.fork; never reaches the chat
+let answer = null
+
 export function parseGuesses(raw) {
   try {
     const m = String(raw || '').match(/\[[\s\S]*\]/)
@@ -86,6 +102,57 @@ async function guess($) {
   }
 }
 
+// Whatever the model says, at most two sentences are shown.
+export function twoSentences(raw) {
+  const parts = String(raw || '').replace(/\s+/g, ' ').trim().match(/[^.!?؟]+[.!?؟]*/g) || []
+  return parts.slice(0, 2).join('').trim()
+}
+
+async function vazhe($) {
+  for (const f of ['Doc/tarif/00_vazhe_name.md', 'doc/tarif/00_vazhe_name.md']) {
+    try { return '## واژه‌نامهٔ حبیب\n' + String(await $.fs.read((await $.session.root()) + '/' + f)).slice(0, 6000) } catch {}
+  }
+  return '(no glossary: plain Persian)'
+}
+
+async function tellNow($, tool, force) {
+  if (nowBusy) { if (force) nowAgain = true; return }
+  const t = await $.clock.now()
+  if (!force && t - lastNow < GAP) return
+  nowBusy = true; lastNow = t
+  try {
+    const r = await $.model.complete({
+      model: MODEL, system: NOW_SYSTEM,
+      prompt: [{ text: await vazhe($), cache: true },
+        { text: buildPrompt(await $.session.messages()) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
+      maxTokens: 200, timeoutMs: 30000,
+    })
+    if (r.isAnswered) { now = { text: twoSentences(r.text), for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render') }
+  } catch {} finally {
+    nowBusy = false
+  }
+  if (nowAgain) { nowAgain = false; await tellNow($, '', true) }
+}
+
+const WHY = {
+  'nothing-to-fork': 'این چت هنوز چیزی ندارد (مثلاً تازه /clear شده)؛ اول یک پیام بفرست.',
+  'api-error': 'خطا از سمتِ Claude؛ دوباره بپرس.',
+  'empty-reply': 'جوابی نیامد؛ دوباره بپرس.',
+  aborted: 'نیمه‌کاره ماند؛ دوباره بپرس.',
+}
+async function ask($, q) {
+  if (!String(q).trim()) return
+  answer = { q, text: '…', for: await $.session.id() }; hidden = false; $.ui.invalidate('ui.render')
+  try {
+    const r = await $.model.fork({ prompt: q + '\n\n(کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
+    answer.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
+    if (r.isAnswered) try { await $.store.set('lastAskUsage', r.usage) } catch {}
+  } catch {
+    answer.text = WHY.aborted
+  }
+  $.ui.invalidate('ui.render')
+}
+
 // No app attached (claude -p, SDK) means nobody sees the row: skip the model call.
 async function interactive($) {
   try {
@@ -126,7 +193,7 @@ export function register(on) {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
       await $.fs.write(await flagPath($), arg)
-      if (arg === 'off') { guesses = []; $.ui.invalidate('ui.render') }
+      if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null; $.ui.invalidate('ui.render') }
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
     $.clock.after(0, () => guess($))
@@ -137,25 +204,61 @@ export function register(on) {
     if (!e.agentId && !e.isAborted && (await interactive($)) && (await isOn($))) {
       // not awaited: the turn must not wait for the model
       $.clock.after(0, () => guess($))
+      $.clock.after(0, () => tellNow($, '', true))
     }
     return next(e)
   })
 
+  // after every tool: the tool runs first and its result goes back untouched; the rest
+  // is never awaited and never throws, so «دو جمله» can not slow or break a tool
+  on('tool.call', async ($, e, next) => {
+    const r = await next(e)
+    try {
+      if (!e.agentId) {
+        const what = e.tool + ': ' + String(e.description || e.command || e.file_path || '').slice(0, 200)
+        $.clock.after(0, async () => {
+          try { if ((await interactive($)) && (await isOn($))) await tellNow($, what, false) } catch {}
+        })
+      }
+    } catch {}
+    return r
+  })
+
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    if (hidden || !guesses.length || madeFor !== (await $.session.id())) return next(e)
-    const { Box, Text, Button } = $.ui.resolve(e)
+    const id = await $.session.id()
+    const g = madeFor === id ? guesses : []
+    const n = now.for === id ? now.text : ''
+    const a = answer && answer.for === id ? answer : null
+    if (hidden || (!g.length && !n && !a)) return next(e)
+    const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
-    const row = Box({
+    const close = () => { hidden = true; $.ui.invalidate('ui.render') }
+    const rows = []
+    if (n) rows.push(Text({ key: 'hads-now', dimColor: true, children: [n] }))
+    rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
       children: [
-        Text({ dimColor: true, children: ['حدس:'] }),
-        ...guesses.map((g, i) => Button({
-          key: 'hads-' + i, label: g.label,
-          onPress: () => fillAppend($, g.text),
+        ...(g.length ? [Text({ dimColor: true, children: ['حدس:'] })] : []),
+        ...g.map((x, i) => Button({
+          key: 'hads-' + i, label: x.label,
+          onPress: () => fillAppend($, x.text),
         })),
-        Button({ key: 'hads-x', label: '×', onPress: () => { hidden = true; $.ui.invalidate('ui.render') } }),
+        // no Input on mobile: the row stays buttons only
+        ...(Input ? [Input({ key: 'hads-ask', placeholder: 'بپرس… (مثلِ btw، به چت نمی‌رسد)', onSubmit: (v) => ask($, v) })] : []),
+        Button({ key: 'hads-x', label: '×', onPress: close }),
       ],
-    })
-    return Box({ flexDirection: 'column', children: theirs ? [theirs, row] : [row] })
+    }))
+    if (a) rows.push(Box({
+      flexDirection: 'column',
+      children: [
+        Text({ dimColor: true, children: ['بپرس: ' + a.q] }),
+        Text({ children: [a.text] }),
+        Box({ flexDirection: 'row', columnGap: 1, children: [
+          Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => fillAppend($, a.q + '\n' + a.text) }),
+          Button({ key: 'hads-ans-x', label: '×', onPress: () => { answer = null; $.ui.invalidate('ui.render') } }),
+        ] }),
+      ],
+    }))
+    return Box({ flexDirection: 'column', children: theirs ? [theirs, ...rows] : rows })
   })
 }

@@ -139,8 +139,11 @@ assert.equal(out.foldAlways, true)
 const btnNoTable = btn.replace(/var esm_ghadim_tanzim = \{[^}]*\};/, '')
 out.esmUi = { table: /var esm_ghadim_tanzim = \{ hook: 'hook_font_px', hadsAlpha: 'hads_pori_darsad' \};/.test(btn),
   old: (btnNoTable.match(/hadsAlpha|\bhook: \d|'hook'|crtl-hook-size|crtl-hads-alpha|crtl-hads-blur|crtl-hads-dot|crtl-hads-top|crtl-hook-open|crtl-tick-on|crtl-tick-off|crtl-insert/g) || []),
-  host: !/__crtlHook|__crtlJalali/.test(hookSrc) && typeof g.__crtl_khat_hook === 'function' }
-assert.deepEqual(out.esmUi, { table: true, old: [], host: true })
+  host: !/__crtlHook|__crtlJalali/.test(hookSrc) && typeof g.__crtl_khat_hook === 'function',
+  // the hooks part's own functions with Habib's words too (25 Oct 02:20)
+  hostTabe: ['readable', 'whenFa', 'jalali', 'shortPaths', 'khatHook', 'khatHayeHook', 'transcriptPath', 'GOROOH_HOOK', 'NESHANE_HOOK']
+    .filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(hookSrc.slice(hookSrc.indexOf('// Hooks in the chat.')).replace(/\/\/.*$/gm, ''))) }
+assert.deepEqual(out.esmUi, { table: true, old: [], host: true, hostTabe: [] })
 // a user message keeps the app's own up-down scroll: the hook lines under it are not clamped, and
 // «overflow:hidden» cut them with no way to scroll (25 Oct 00:09: «کادر پیامهای من هم اسکرول نمیشه»)
 out.userMsgScrolls = /userMessage_"\]:not\(\.crtl-expanded\)\{overflow-x:hidden!important\}/.test(btn) && !/userMessage_"\]:not\(\.crtl-expanded\)\{overflow:hidden/.test(btn)

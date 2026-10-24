@@ -151,9 +151,9 @@ $.nowReply = 'اول. دوم! سوم؟ چهارم. پنجم.'; $.t += mod.do_jom
 const nowText = (t) => find(t, 'hads-now')?.children[0]
 out.twoOnly = nowText(await render()); assert.equal(out.twoOnly, 'اول. دوم!')
 // a dot inside a file name or a version does not end the sentence
-out.fileDot = mod.twoSentences('ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد. سوم.'); assert.equal(out.fileDot, 'ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد.')
+out.fileDot = mod.kutah_be_do_jomle('ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد. سوم.'); assert.equal(out.fileDot, 'ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد.')
 // a «sentence» without a stop, 2000 long, is cut to MAX_NOW with …
-const long = mod.twoSentences('ا'.repeat(2000)); out.maxLen = long.length + (long.endsWith('…') ? '…' : ''); assert.equal(out.maxLen, mod.had_do_jomle_harf + '…')
+const long = mod.kutah_be_do_jomle('ا'.repeat(2000)); out.maxLen = long.length + (long.endsWith('…') ? '…' : ''); assert.equal(out.maxLen, mod.had_do_jomle_harf + '…')
 // the tool's result comes back untouched and never waits for the model
 let hang; $.nowModel = () => new Promise((r) => { hang = r })
 $.t += mod.do_jomle_fasele_ms; out.untouched = (await tool()).result; assert.equal(out.untouched, 'ok')
@@ -200,7 +200,7 @@ out.lastThree = !/پیامِ-6/.test(mp3) && /پیامِ-7/.test(mp3) && /پیا
 // deep in a long answer the last three are all the agent's: Habib's last request still goes in
 const longTurn = [{ role: 'user', text: 'قدیمی' }, { role: 'user', text: 'خواستهٔ-حبیب' }, { role: 'user', text: 'Another Claude session sent a message: <cross-session-message>ایجنت</cross-session-message>' },
   ...Array.from({ length: 6 }, (_, i) => ({ role: 'assistant', text: 'کار-' + i }))]
-out.hisRequest = mod.recent(longTurn).map((m) => m.text); assert.deepEqual(out.hisRequest, ['قدیمی', 'خواستهٔ-حبیب', 'کار-3', 'کار-4', 'کار-5'])
+out.hisRequest = mod.payam_ha_ye_akhar(longTurn).map((m) => m.text); assert.deepEqual(out.hisRequest, ['قدیمی', 'خواستهٔ-حبیب', 'کار-3', 'کار-4', 'کار-5'])
 // a mid-work line that comes back after an answer's end does not hide the end's line
 let late; let lateOnce = true
 $.nowModel = (o) => { calls.now.push(o); if (lateOnce) { lateOnce = false; return new Promise((r) => { late = r }) } return { isAnswered: true, text: 'پایان شد. منتظرِ حبیب.' } }
@@ -289,7 +289,7 @@ await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'en
 out.coldButton = calls.fork.length === f1 + 1; assert.equal(out.coldButton, true)
 $.ui.resolve = realResolve
 // «قبلی‌ها»: every «دو جمله» kept with its time, this chat only, the last HIST, newest first
-out.when = mod.when(Date.UTC(2026, 9, 24, 15, 27)); assert.equal(out.when, '۲۴ اکت ۱۸:۵۷')
+out.when = mod.zaman_miladi(Date.UTC(2026, 9, 24, 15, 27)); assert.equal(out.when, '۲۴ اکت ۱۸:۵۷')
 $.ui.resolve = () => withInput; $.sid = 'H'; await F['command.run']($, { args: 'on' })
 for (let i = 0; i < 55; i++) {
   $.nowReply = 'جملهٔ-' + i + '. تمام.'; $.t += 1000
@@ -351,7 +351,7 @@ $.tail = ['{"broken half line', J({ attachment: { type: 'hook_success', hookName
   J({ attachment: { type: 'hook_additional_context', hookName: 'PostToolUse:Bash', content: [LONG] } }),
   J({ attachment: { type: 'hook_system_message', hookName: 'SessionStart:compact', content: '📌 هندآف بار شد' } }),
   J({ attachment: { type: 'total_tokens_reminder', content: 'not a hook' } })].join('\n')
-out.parseHooks = mod.parseHooks($.tail).map((h) => h.name + ':' + h.n)
+out.parseHooks = mod.khandan_hook_ha($.tail).map((h) => h.name + ':' + h.n)
 assert.deepEqual(out.parseHooks, ['SessionStart:startup:1', 'UserPromptSubmit:1', 'PostToolUse:Bash:2', 'SessionStart:compact:1'])
 $.ui.resolve = () => withInput; $.sid = 'K'; await F['command.run']($, { args: 'on' }); calls.run = 0
 await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await flush()
@@ -426,7 +426,7 @@ out.eventKinds = ['do_jomle', 'hads', 'porsesh'].every((k) => kinds.has(k)); ass
 out.eventShape = events.every((e) => typeof e.t === 'number' && /\+03:30$/.test(e.iso) && e.sid); assert.equal(out.eventShape, true)
 out.askLogged = events.some((e) => e.kind === 'porsesh' && e.porsesh_matn && e.javab_matn); assert.equal(out.askLogged, true)
 // (this test loads the module more than once; each load is its own process, so look at one)
-out.sameText = [mod.sameText('ایجنت فایل را خواند و منتظر است.', 'ایجنت فایل را خواند و منتظر است!'), mod.sameText('ایجنت فایل را خواند.', 'حبیب عکس فرستاد.')]
+out.sameText = [mod.hamun_matn('ایجنت فایل را خواند و منتظر است.', 'ایجنت فایل را خواند و منتظر است!'), mod.hamun_matn('ایجنت فایل را خواند.', 'حبیب عکس فرستاد.')]
 assert.deepEqual(out.sameText, [true, false])
 $.sid = 'TW'; await H['command.run']($, { args: 'on' }); const tw0 = events.length; $.nowReply = 'همان جمله. باز همان.'
 for (let i = 0; i < 3; i++) { $.t += mod.do_jomle_fasele_ms; await H['turn.complete']($, {}, next); await flush() }
@@ -506,7 +506,7 @@ assert.deepEqual(out.summaryRules, { whole: true, hints: true, proof: true, unsu
 out.proofScope = /ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»/.test(sumFork.prompt); assert.equal(out.proofScope, true)
 // a turn started by Claude Code itself or another chat logs no request of Habib's
 out.notHabib = ['Continue from where you left off.', '<task-notification>x</task-notification>', 'This session is being continued from a previous conversation', 'Another Claude session sent a message: <cross-session-message>x</cross-session-message>', 'این کار رو بکن']
-  .map((t) => mod.harfeHabib(t) === mod.matn_bi_harfe_habib)
+  .map((t) => mod.harf_habib(t) === mod.matn_bi_harfe_habib)
 assert.deepEqual(out.notHabib, [true, true, true, true, false])
 // a short turn (fewer than SUMMARY_MIN lines): no summary fork, the plain Sonnet «دو جمله»
 await H['prompt.submit']($, { text: 'سلام' }, next); const sf1 = calls.fork.length, sn1 = calls.now.length
@@ -567,4 +567,8 @@ assert.deepEqual(out.noOldNames, { kinds: 0, fields: 0, usage: 0, words: [] })
 const src = fsN.readFileSync(new URL('./hooks/register.js', import.meta.url), 'utf8')
 out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glued: (src.match(/'[-+]' \+ |'[a-z]+_' \+ /g) || []) }
 assert.deepEqual(out.esmRule, { upper: [], glued: [] })
+// 25 Oct 02:20 («اسمِ تابع‌های داخلِ کد … بزن»): the functions and the chat-wide variables have Habib's words too
+const codeOnly = src.replace(/export const esm_ghadim = \{[\s\S]*?\n\}\n/, '').replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "histPathGhadim", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))
+assert.deepEqual(out.esmTabe, [])
 console.log(JSON.stringify(out))

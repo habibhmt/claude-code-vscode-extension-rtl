@@ -183,8 +183,8 @@
 // active»). The buttons script folds it to one line and opens it on a click or in focus view.
 (function () {
   var mah_shamsi = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
-  function fa(s) { return String(s).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
-  function jalali(gy, gm, gd) {
+  function adad_farsi(s) { return String(s).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
+  function tarikh_shamsi(gy, gm, gd) {
     var g = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
     var gy2 = gm > 2 ? gy + 1 : gy;
     var days = 355666 + 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g[gm - 1];
@@ -196,21 +196,21 @@
     return [jy, jm, jd];
   }
   // Tehran is +03:30 all year
-  function whenFa(t) {
+  function zaman_shamsi(t) {
     var d = new Date(t + 3.5 * 3600e3);
-    var j = jalali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+    var j = tarikh_shamsi(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
     var hh = ('0' + d.getUTCHours()).slice(-2), mm = ('0' + d.getUTCMinutes()).slice(-2);
-    return fa(j[2] + ' ' + mah_shamsi[j[1] - 1] + ' ' + j[0] + ' ' + hh + ':' + mm);
+    return adad_farsi(j[2] + ' ' + mah_shamsi[j[1] - 1] + ' ' + j[0] + ' ' + hh + ':' + mm);
   }
   // a long path keeps only its file name (and :line): /Users/…/doc/achar/11.md:40 ⇒ 11.md:40
-  function shortPaths(t) { return t.replace(/(?:~|\/Users)\/[^\s:'"`)\]]*\/([^\/\s:'"`)\]]+(?::\d+)?)/g, '$1'); }
+  function kutah_kardan_masir(t) { return t.replace(/(?:~|\/Users)\/[^\s:'"`)\]]*\/([^\/\s:'"`)\]]+(?::\d+)?)/g, '$1'); }
   // What a person can read of a hook's output, or null when there is nothing to show
   // (Habib, 24 Oct 22:03: «اصلا قابل خوندن نیست … اینا مثلا معلوم نیست چین … اگر که همینن نیان خیلی شلوغ میکنن»):
   //  · empty, «{}», or only a clock stamp like «[22:00 +0330 -- habib]»: nothing
   //  · JSON from a hook (systemMessage / additionalContext): unpacked, real line breaks, short paths.
   //    The panel already prints a systemMessage itself («… says: …»), so then this line carries
   //    only the injected context, never the message twice.
-  function readable(text) {
+  function khana_baraye_habib(text) {
     var t = String(text || '').trim();
     if (!t || t === '{}' || /^\[\d{1,2}:\d{2}( [+-]\d{4})?( -- [^\]]+)?\]$/.test(t)) return null;
     if (t.charAt(0) === '{') {
@@ -219,33 +219,33 @@
         var h = o.hookSpecificOutput || {};
         var ctx = typeof h.additionalContext === 'string' ? h.additionalContext.trim() : '';
         var sys = typeof o.systemMessage === 'string' ? o.systemMessage.trim() : '';
-        if (ctx) return { head: sys ? 'متنِ تزریقی' : ctx.split('\n')[0], body: shortPaths(ctx), dupe: !!sys };
+        if (ctx) return { head: sys ? 'متنِ تزریقی' : ctx.split('\n')[0], body: kutah_kardan_masir(ctx), dupe: !!sys };
         return null;
       }
     }
     var first = t.split('\n')[0];
-    return { head: shortPaths(first), body: shortPaths(t), dupe: false };
+    return { head: kutah_kardan_masir(first), body: kutah_kardan_masir(t), dupe: false };
   }
-  globalThis.__crtl_hook_khana = readable;
+  globalThis.__crtl_hook_khana = khana_baraye_habib;
   // one hook line: the first line is what the folded view shows (mark, time, name, a short head)
-  function khatHook(name, r, t, uuid, sid) {
+  function sakht_khat_hook(name, r, t, uuid, sid) {
     return { type: 'system', subtype: 'informational', level: 'notice', session_id: sid, uuid: uuid,
-      content: '🪝 ' + whenFa(t) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
+      content: '🪝 ' + zaman_shamsi(t) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
   }
   globalThis.__crtl_khat_hook = function (m, now) {
     try {
       if (!m || m.type !== 'system' || m.subtype !== 'hook_response') return m;
-      var r = readable(m.output || m.stdout);
+      var r = khana_baraye_habib(m.output || m.stdout);
       if (!r) return m;
-      return khatHook(m.hook_name || m.hook_event || 'hook', r, now || Date.now(), m.uuid, m.session_id);
+      return sakht_khat_hook(m.hook_name || m.hook_event || 'hook', r, now || Date.now(), m.uuid, m.session_id);
     } catch (e) { return m; }
   };
   // After a reload the page rebuilds the chat from the transcript, which keeps each hook's output
   // as an attachment, but never draws them: the 🪝 lines were gone (Habib, 25 Oct: «من چند بار
   // چند بار ریلود میکنم چند چت رو بعد اینو بکشه»). Each one is put back right after the last
   // message that came before it. Anything wrong leaves the chat as it was.
-  var GOROOH_HOOK = { hook_success: 1, hook_additional_context: 1, hook_system_message: 1 };
-  function transcriptPath(sid) {
+  var gorooh_hook = { hook_success: 1, hook_additional_context: 1, hook_system_message: 1 };
+  function masir_transcript(sid) {
     var fs = require('fs'), path = require('path'), os = require('os');
     var root = path.join(process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude'), 'projects');
     var dirs = fs.readdirSync(root);
@@ -257,8 +257,8 @@
   }
   // the transcript's hook lines only: read in 8 MB pieces and searched as bytes, never parsed whole
   // (a long chat is hundreds of MB; /usr/bin/grep took 0.6 s on 81 MB, this ~0.1 s)
-  var NESHANE_HOOK = Buffer.from('"attachment":{"type":"hook_');
-  function khatHayeHook(f) {
+  var neshane_hook = Buffer.from('"attachment":{"type":"hook_');
+  function khat_ha_ye_hook_dar_file(f) {
     var fs = require('fs'), fd = fs.openSync(f, 'r'), out = [], rest = Buffer.alloc(0), piece = Buffer.alloc(8 * 1024 * 1024), n;
     try {
       while ((n = fs.readSync(fd, piece, 0, piece.length, null)) > 0) {
@@ -267,36 +267,36 @@
         if (end < 0) { rest = buf; continue; }
         var whole = buf.subarray(0, end + 1);
         rest = Buffer.from(buf.subarray(end + 1));
-        for (var i = whole.indexOf(NESHANE_HOOK); i >= 0; i = whole.indexOf(NESHANE_HOOK, i + 1)) {
+        for (var i = whole.indexOf(neshane_hook); i >= 0; i = whole.indexOf(neshane_hook, i + 1)) {
           var a = whole.lastIndexOf(10, i) + 1, b = whole.indexOf(10, i);
           out.push(whole.toString('utf8', a, b));
           i = b;
         }
       }
-      if (rest.length && rest.indexOf(NESHANE_HOOK) >= 0) out.push(rest.toString('utf8'));
+      if (rest.length && rest.indexOf(neshane_hook) >= 0) out.push(rest.toString('utf8'));
     } finally { fs.closeSync(fd); }
     return out;
   }
   globalThis.__crtl_hook_tarikhche = function (messages, sid) {
     try {
       if (!Array.isArray(messages) || !messages.length || !/^[0-9a-f-]{36}$/.test(String(sid))) return messages;
-      var f = transcriptPath(String(sid));
+      var f = masir_transcript(String(sid));
       if (!f) return messages;
       var first = Date.parse(messages[0].timestamp) || 0;
       var lines = [];
-      khatHayeHook(f).forEach(function (l) {
+      khat_ha_ye_hook_dar_file(f).forEach(function (l) {
         var o; try { o = JSON.parse(l); } catch (e) { return; }
         var a = o.attachment;
-        if (!a || !GOROOH_HOOK[a.type] || o.isSidechain) return;
+        if (!a || !gorooh_hook[a.type] || o.isSidechain) return;
         var t = Date.parse(o.timestamp);
         if (!t || t < first) return;
         var body = Array.isArray(a.content) ? a.content.join('\n') : String(a.content == null ? '' : a.content);
-        var r = readable(body);
+        var r = khana_baraye_habib(body);
         if (!r) return;
         // a hook's message (systemMessage) is a line of its own: the live panel prints it apart too
         if (a.type === 'hook_system_message') r = { head: r.head, body: r.body };
         if (a.type === 'hook_additional_context') r = { head: 'متنِ تزریقی', body: r.body };
-        lines.push({ t: t, m: khatHook(a.hookName || a.hookEvent || 'hook', r, t, o.uuid || ('crtl-hook-' + t), String(sid)) });
+        lines.push({ t: t, m: sakht_khat_hook(a.hookName || a.hookEvent || 'hook', r, t, o.uuid || ('crtl-hook-' + t), String(sid)) });
       });
       if (!lines.length) return messages;
       var out = [], j = 0;
@@ -309,6 +309,6 @@
       return out;
     } catch (e) { return messages; }
   };
-  globalThis.__crtl_tarikh_shamsi = jalali;
+  globalThis.__crtl_tarikh_shamsi = tarikh_shamsi;
 })();
 /* === /CLAUDE-RTL-HOST-HOOK === */

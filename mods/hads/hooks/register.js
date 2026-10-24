@@ -6,7 +6,7 @@ export const model_do_jomle_va_hads = 'claude-sonnet-5-5'
 // Habib: «حدسو بذار مدل اصلی بکنه … منتها مثلاً چند تا پیام به چند تا پیام»
 export const hads_har_chand_javab = 3
 // answers seen per chat id since this process started: guesses are due on 1st, 4th, 7th…
-const turnsOf = new Map()
+const tedad_javab_har_chat = new Map()
 
 const prompt_system_hads = [
   'You predict what the user (حبیب) will ask next in a Claude Code session.',
@@ -15,10 +15,10 @@ const prompt_system_hads = [
   'in plain Persian, in the user\'s tone. Reply ONLY with JSON: [{"label": "<= 3 words", "text": "<one line>"}].',
 ].join(' ')
 
-let guesses = []
-let busy = false
+let hads_akhar = []
+let hads_dar_kar = false
 // the chat the guesses were made in: after /clear (a new id) they are not shown
-let madeFor = ''
+let hads_baraye_chat = ''
 
 // «دو جمله»: what the agent is doing now, in Habib's words (the project's 00_vazhe_name.md),
 // after each answer and, at most every do_jomle_fasele_ms ms, after a tool. One call at a time.
@@ -30,33 +30,33 @@ export const had_fork_kontekst_token = 400000
 // the real one (classic.PostModelSwitch cache_ttl), a 5 min TTL makes it kash_sard_5m_ms.
 export const kash_sard_ms = 55 * 60000
 export const kash_sard_5m_ms = 4 * 60000
-let coldAfter = kash_sard_ms
+let kash_sard_bad_az_ms = kash_sard_ms
 const prompt_system_do_jomle = [
   'In exactly two short sentences of plain Persian, tell حبیب what the agent in this Claude Code',
   'session is doing right now and what it is waiting for. Use the words of the glossary given, not',
   'technical terms. Do not guess what comes next. Reply with the two sentences only.',
 ].join(' ')
-let now = { text: '', for: '' }
-let nowBusy = false
-let nowAgain = false
-let lastNow = 0
+let do_jomle_akhar = { text: '', for: '' }
+let do_jomle_dar_kar = false
+let do_jomle_dobare = false
+let zaman_do_jomle_akhar = 0
 // the end of an answer wins over a mid-work line still on its way
-let endAt = 0
-let endBusy = false
+let zaman_akhar_javab = 0
+let akhar_javab_dar_kar = false
 // an answer that ends while the last one is still told is told right after it, never dropped
-let endAgain = false
+let akhar_javab_dobare = false
 // last time the chat itself talked to the model (an answer's end, a tool): the cache's age
-let lastActivity = 0
+let zaman_akharin_kar = 0
 // set by classic.SessionStart on a resume: Claude Code's own word that the cache is gone
-let cacheExpired = false
+let kash_sard_shod = false
 // a «پرسش» that came before the fork had anything to read (resume, a turn still running):
 // asked by itself when the next answer ends
-let pendingAsk = null
+let porsesh_montazer = null
 // «بپرس»: a side question like /btw, answered by $.model.fork; never reaches the chat
-let answer = null
-let askText = ''
+let javab_porsesh = null
+let matn_porsesh = ''
 
-export function parseGuesses(raw) {
+export function khandan_hads(raw) {
   try {
     const m = String(raw || '').match(/\[[\s\S]*\]/)
     const list = JSON.parse(m ? m[0] : raw)
@@ -71,21 +71,21 @@ export function parseGuesses(raw) {
 }
 
 const system_reminder_regex = /<system-reminder[\s\S]*?<\/system-reminder>/g
-export const isAgent = (t) => /<cross-session-message|^\s*Another Claude session sent a message/.test(t)
+export const az_agent_digar = (t) => /<cross-session-message|^\s*Another Claude session sent a message/.test(t)
 // what starts a turn but is not Habib's: a task's or another chat's message, or what Claude Code sends
 // by itself after a compact or a resume (205, 25 Oct: «Continue from where you left off.» was logged as
 // his request). Such a turn has no new word of his: the summary says so
 export const matn_bi_harfe_habib = 'حرفِ تازه‌ای از حبیب نبود؛ ادامهٔ کارِ قبلی'
-export const harfeHabib = (t) => !t || isAgent(t) || /^\s*(<task-notification|Continue from where you left off|This session is being continued)/.test(t) ? matn_bi_harfe_habib : t
+export const harf_habib = (t) => !t || az_agent_digar(t) || /^\s*(<task-notification|Continue from where you left off|This session is being continued)/.test(t) ? matn_bi_harfe_habib : t
 
 // Labelled context: Habib's own words, Claude's answers, and other agents'
 // messages kept apart, so guesses follow Habib and still know the story.
-export function buildPrompt(messages) {
+export function sakht_prompt(messages) {
   const cut = (s, n) => String(s).slice(0, n)
   const users = [], agents = []
   for (const m of messages) {
     if (m.role !== 'user' || !m.text) continue
-    if (isAgent(m.text)) { agents.push(m.text); continue }
+    if (az_agent_digar(m.text)) { agents.push(m.text); continue }
     const own = m.text.replace(system_reminder_regex, '').trim()
     if (own) users.push(own)
   }
@@ -97,7 +97,7 @@ export function buildPrompt(messages) {
 }
 
 // .remember handoffs of this project: now, today, last seven days.
-async function handoffs($) {
+async function handoff_ha($) {
   const dir = '.remember/'
   const read = async (f) => { try { return String(await $.fs.read(dir + f)).slice(0, 3000) } catch { return '' } }
   let today = ''
@@ -110,42 +110,42 @@ async function handoffs($) {
   return parts.length ? '## هندآف‌های این پروژه\n' + parts.map(([k, t]) => '### ' + k + '\n' + t).join('\n') : ''
 }
 
-async function guess($) {
-  if (busy) return
-  busy = true
+async function hads_ba_sonnet($) {
+  if (hads_dar_kar) return
+  hads_dar_kar = true
   try {
     const r = await $.model.complete({
       model: model_do_jomle_va_hads, system: prompt_system_hads,
       // handoffs first, cached: they change rarely between answers
-      prompt: [{ text: (await handoffs($)) || '(no handoff)', cache: true }, { text: buildPrompt(await $.session.messages()) }],
+      prompt: [{ text: (await handoff_ha($)) || '(no handoff)', cache: true }, { text: sakht_prompt(await $.session.messages()) }],
       maxTokens: 600, timeoutMs: 60000,
     })
-    guesses = r.isAnswered ? parseGuesses(r.text) : []
-    if (guesses.length) await logEvent($, 'hads', { rah: 'sonnet', hads_ha: guesses.map((g) => g.text) })
+    hads_akhar = r.isAnswered ? khandan_hads(r.text) : []
+    if (hads_akhar.length) await benevis_daftar($, 'hads', { rah: 'sonnet', hads_ha: hads_akhar.map((g) => g.text) })
     if (r.isAnswered) try { await $.store.set('kharj_akhar_hads_sonnet', r.usage) } catch {}
-    if (r.isAnswered) await logUsage($, 'hads', 'sonnet', r.usage)
-    madeFor = await $.session.id()
+    if (r.isAnswered) await benevis_kharj($, 'hads', 'sonnet', r.usage)
+    hads_baraye_chat = await $.session.id()
     $.ui.invalidate('ui.render')
   } catch {
-    guesses = []
+    hads_akhar = []
   } finally {
-    busy = false
+    hads_dar_kar = false
   }
 }
 
 // only the parts ticked on are asked for: fewer output tokens
 const prompt_fork_do_jomle = '"do_jomle": "<exactly two short sentences of plain Persian: what the agent in this chat is doing now and what it waits for, in حبیب\'s own words from the glossary below>"'
 const prompt_fork_hads = '"hads": [1 or 2 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]'
-const forkPrompt = (p) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
+const prompt_fork = (p) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads].filter(Boolean).join(', ') + '}'
 
 // {do_jomle, hads} from the fork's reply; null when it has neither
-export function parseBoth(raw) {
+export function khandan_javab_fork(raw) {
   try {
     const m = String(raw || '').match(/\{[\s\S]*\}/)
     const o = JSON.parse(m ? m[0] : raw)
-    const n = typeof o?.do_jomle === 'string' ? twoSentences(o.do_jomle) : ''
-    const g = Array.isArray(o?.hads) ? parseGuesses(JSON.stringify(o.hads)) : []
+    const n = typeof o?.do_jomle === 'string' ? kutah_be_do_jomle(o.do_jomle) : ''
+    const g = Array.isArray(o?.hads) ? khandan_hads(JSON.stringify(o.hads)) : []
     return n || g.length ? { do_jomle: n, hads: g } : null
   } catch {
     return null
@@ -154,7 +154,7 @@ export function parseBoth(raw) {
 
 // $ per million tokens written to the cache (5 min, 1 h), for the cold «بپرس» warning
 const gheymat_kash_neveshtan_usd = { 'opus-5-5': [5, 8], 'sonnet-5-5': [2.5, 4], 'haiku-5-5': [0.125, 0.2] }
-export function coldCost(model, tokens) {
+export function kharj_kash_sard(model, tokens) {
   const k = Object.keys(gheymat_kash_neveshtan_usd).find((x) => String(model).includes(x)) || 'opus-5-5'
   return gheymat_kash_neveshtan_usd[k].map((p) => (tokens * p) / 1e6)
 }
@@ -162,11 +162,11 @@ export function coldCost(model, tokens) {
 // «قبلی‌ها»: every «دو جمله» with its time, this chat only (~/.claude/hads-log/<id>.do_jomle_ghablia.jsonl,
 // the last had_ghablia_tedad); newest first on screen
 export const had_ghablia_tedad = 50
-const histPath = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.do_jomle_ghablia.jsonl'
+const masir_ghablia = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.do_jomle_ghablia.jsonl'
 // the file's name before 25 Oct (تعریفِ ۱۰): read when the new one is not there yet
-const histPathGhadim = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.now.jsonl'
-async function readHist($) {
-  for (const f of [await histPath($), await histPathGhadim($)]) {
+const masir_ghablia_ghadim = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.now.jsonl'
+async function khandan_ghablia($) {
+  for (const f of [await masir_ghablia($), await masir_ghablia_ghadim($)]) {
     try { return String(await $.fs.read(f)).split('\n').filter(Boolean).map((l) => JSON.parse(l)).reverse() } catch {}
   }
   return []
@@ -175,7 +175,7 @@ async function readHist($) {
 // guess, one JSON line each in ~/.claude/hads-log/<id>.events.jsonl — no cap, appended, never
 // read back here (a 4 MB read limit would cut a long chat). Their memory index reads it; only
 // «پرسش» and a guess Habib sent go to search, never «دو جمله» or an unsent guess.
-async function logEvent($, kind, data) {
+async function benevis_daftar($, kind, data) {
   try {
     const t = await $.clock.now(), sid = await $.session.id()
     const d = new Date(t + 3.5 * 3600e3)
@@ -186,7 +186,7 @@ async function logEvent($, kind, data) {
   } catch {}
 }
 // a «دو جمله» that says what the last one said is not logged again (205: so the log stays readable)
-export function sameText(a, b) {
+export function hamun_matn(a, b) {
   const w = (x) => new Set(String(x || '').split(/\s+/).filter((y) => y.length > 1))
   const A = w(a), B = w(b)
   if (!A.size || !B.size) return false
@@ -194,29 +194,29 @@ export function sameText(a, b) {
   return n / Math.max(A.size, B.size) >= 0.8
 }
 // per chat id: one process may serve more than one chat (/clear makes a new id)
-const lastLogged = new Map()
+const do_jomle_akhar_dar_daftar = new Map()
 // guesses pressed into the prompt box, to know at Enter which one Habib sent
-let clicked = []
+let hads_zade_shode = []
 
 // every «دو جمله» of the turn now running, per chat: the end of the answer sums them up
-const turnNows = new Map()
-async function setNow($, text, kind = 'do_jomle') {
+const do_jomle_ha_ye_nobat = new Map()
+async function benevis_do_jomle($, text, kind = 'do_jomle') {
   const id = await $.session.id()
-  if (kind === 'do_jomle') turnNows.set(id, [...(turnNows.get(id) || []), text].slice(-40))
-  now = { text, for: id }; $.ui.invalidate('ui.render')
-  if (kind !== 'jambandi_nobat' && !sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'do_jomle', { text }) }
+  if (kind === 'do_jomle') do_jomle_ha_ye_nobat.set(id, [...(do_jomle_ha_ye_nobat.get(id) || []), text].slice(-40))
+  do_jomle_akhar = { text, for: id }; $.ui.invalidate('ui.render')
+  if (kind !== 'jambandi_nobat' && !hamun_matn(text, do_jomle_akhar_dar_daftar.get(id))) { do_jomle_akhar_dar_daftar.set(id, text); await benevis_daftar($, 'do_jomle', { text }) }
   try {
-    const old = (await readHist($)).reverse().map((x) => JSON.stringify(x))
-    await $.fs.write(await histPath($), old.slice(-(had_ghablia_tedad - 1)).concat(JSON.stringify({ t: await $.clock.now(), text })).join('\n') + '\n')
+    const old = (await khandan_ghablia($)).reverse().map((x) => JSON.stringify(x))
+    await $.fs.write(await masir_ghablia($), old.slice(-(had_ghablia_tedad - 1)).concat(JSON.stringify({ t: await $.clock.now(), text })).join('\n') + '\n')
   } catch {}
 }
 // Tehran time (+03:30, no DST), as Habib writes dates: «۲۴ اکت ۱۸:۵۷»
 const mah_miladi = ['ژان', 'فور', 'مار', 'آور', 'مه', 'ژوئن', 'ژوئیه', 'اوت', 'سپت', 'اکت', 'نوا', 'دسا']
-const fa = (x) => String(x).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d])
-export function when(t) {
+const adad_farsi = (x) => String(x).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d])
+export function zaman_miladi(t) {
   const d = new Date(t + 3.5 * 3600e3)
   const two = (x) => String(x).padStart(2, '0')
-  return fa(d.getUTCDate()) + ' ' + mah_miladi[d.getUTCMonth()] + ' ' + fa(two(d.getUTCHours()) + ':' + two(d.getUTCMinutes()))
+  return adad_farsi(d.getUTCDate()) + ' ' + mah_miladi[d.getUTCMonth()] + ' ' + adad_farsi(two(d.getUTCHours()) + ':' + two(d.getUTCMinutes()))
 }
 
 // Whatever the model says, at most two sentences are shown. A sentence ends at . ! ? ؟
@@ -224,7 +224,7 @@ export function when(t) {
 // Shamsi (Jalali) date and Tehran time, Persian digits: «۳ آبان ۱۴۰۵ ۲۰:۰۹». Habib: «اگر که
 // ساعت تاریخ شمسی باشه چه بهتر». Tehran is +03:30 all year (no DST since 1401).
 const mah_shamsi = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
-export function jalali(gy, gm, gd) {
+export function tarikh_shamsi(gy, gm, gd) {
   const g = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]
   const gy2 = gm > 2 ? gy + 1 : gy
   let days = 355666 + 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g[gm - 1]
@@ -235,21 +235,21 @@ export function jalali(gy, gm, gd) {
   const jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30)
   return [jy, jm, jd]
 }
-export function whenFa(t) {
+export function zaman_shamsi(t) {
   if (!t) return ''
   const d = new Date(t + 3.5 * 3600e3)
-  const [jy, jm, jd] = jalali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate())
+  const [jy, jm, jd] = tarikh_shamsi(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate())
   const hh = String(d.getUTCHours()).padStart(2, '0'), mm = String(d.getUTCMinutes()).padStart(2, '0')
-  return fa(jd + ' ' + mah_shamsi[jm - 1] + ' ' + jy + ' ' + hh + ':' + mm)
+  return adad_farsi(jd + ' ' + mah_shamsi[jm - 1] + ' ' + jy + ' ' + hh + ':' + mm)
 }
 
 export const had_do_jomle_harf = 300
-export function twoSentences(raw) {
+export function kutah_be_do_jomle(raw) {
   const t = String(raw || '').replace(/\s+/g, ' ').trim().split(/(?<=[.!?؟]) /).slice(0, 2).join(' ')
   return t.length > had_do_jomle_harf ? t.slice(0, had_do_jomle_harf - 1) + '…' : t
 }
 
-async function vazhe($) {
+async function vazhe_name($) {
   for (const f of ['Doc/tarif/00_vazhe_name.md', 'doc/tarif/00_vazhe_name.md']) {
     try { return '## واژه‌نامهٔ حبیب\n' + String(await $.fs.read((await $.session.root()) + '/' + f)).slice(0, 6000) } catch {}
   }
@@ -259,7 +259,7 @@ async function vazhe($) {
 // Sonnet on the last three messages only: cheap enough to run every do_jomle_fasele_ms during work
 // every model call of this chat, one JSON line each (~/.claude/hads-log/<id>.usage.jsonl,
 // the last 500): the real cost per part, read by `hads-kharj`
-async function logUsage($, bakhsh, rah, usage) {
+async function benevis_kharj($, bakhsh, rah, usage) {
   try {
     const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.usage.jsonl'
     // appended, never read and rewritten: two calls ending together would each drop the other's line
@@ -270,71 +270,71 @@ async function logUsage($, bakhsh, rah, usage) {
 
 // «دو جمله» reads the last three messages and, always, Habib's last two: deep in a long answer
 // the last three are all the agent's, and his request was missing (24 Oct)
-export function recent(msgs) {
+export function payam_ha_ye_akhar(msgs) {
   const last = msgs.slice(-3)
-  const his = msgs.filter((m) => m.role === 'user' && m.text && !isAgent(m.text) && m.text.replace(system_reminder_regex, '').trim()).slice(-2)
+  const his = msgs.filter((m) => m.role === 'user' && m.text && !az_agent_digar(m.text) && m.text.replace(system_reminder_regex, '').trim()).slice(-2)
   return msgs.filter((m) => last.includes(m) || his.includes(m))
 }
 
-async function tellNow($, tool, force, viaFork = false) {
+async function begu_do_jomle($, tool, force, viaFork = false) {
   // an answer's end while a mid-work line is on its way: told right after it, never dropped
-  if (nowBusy) { if (force) nowAgain = true; return }
+  if (do_jomle_dar_kar) { if (force) do_jomle_dobare = true; return }
   const t = await $.clock.now()
-  if (!force && t - lastNow < do_jomle_fasele_ms) return
-  nowBusy = true; lastNow = t
+  if (!force && t - zaman_do_jomle_akhar < do_jomle_fasele_ms) return
+  do_jomle_dar_kar = true; zaman_do_jomle_akhar = t
   try {
     let done = false
     if (viaFork) {
-      const r = await $.model.fork({ prompt: forkPrompt({ do_jomle: true }) + '\n\n' + (await vazhe($)) })
-      const got = r.isAnswered ? parseBoth(r.text) : null
-      if (r.isAnswered) await logUsage($, 'do_jomle', 'fork', r.usage)
+      const r = await $.model.fork({ prompt: prompt_fork({ do_jomle: true }) + '\n\n' + (await vazhe_name($)) })
+      const got = r.isAnswered ? khandan_javab_fork(r.text) : null
+      if (r.isAnswered) await benevis_kharj($, 'do_jomle', 'fork', r.usage)
       // no early return: a queued answer-end line (nowAgain) must still be told below
-      if (got?.do_jomle && endAt <= t) { await setNow($, got.do_jomle, force ? 'akhar_javab' : 'do_jomle'); done = true }
+      if (got?.do_jomle && zaman_akhar_javab <= t) { await benevis_do_jomle($, got.do_jomle, force ? 'akhar_javab' : 'do_jomle'); done = true }
     }
     if (!done) {
     const r = await $.model.complete({
       model: model_do_jomle_va_hads, system: prompt_system_do_jomle,
-      prompt: [{ text: await vazhe($), cache: true },
-        { text: buildPrompt(recent(await $.session.messages())) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
+      prompt: [{ text: await vazhe_name($), cache: true },
+        { text: sakht_prompt(payam_ha_ye_akhar(await $.session.messages())) + (tool ? '\n\n## ابزاری که همین الان تمام شد\n' + tool : '') }],
       maxTokens: 200, timeoutMs: 30000,
     })
     // an answer's end started after this call: its line stands
-    if (r.isAnswered && endAt <= t) {
+    if (r.isAnswered && zaman_akhar_javab <= t) {
       // only lines written during the work belong to the turn's summary, not the answer's last one
-      await setNow($, twoSentences(r.text), force ? 'akhar_javab' : 'do_jomle')
+      await benevis_do_jomle($, kutah_be_do_jomle(r.text), force ? 'akhar_javab' : 'do_jomle')
       try { await $.store.set('kharj_akhar_do_jomle', r.usage) } catch {}
     }
-    if (r.isAnswered) await logUsage($, 'do_jomle', 'sonnet', r.usage)
+    if (r.isAnswered) await benevis_kharj($, 'do_jomle', 'sonnet', r.usage)
     }
   } catch {} finally {
-    nowBusy = false
+    do_jomle_dar_kar = false
   }
-  if (nowAgain) { nowAgain = false; await tellNow($, '', true) }
+  if (do_jomle_dobare) { do_jomle_dobare = false; await begu_do_jomle($, '', true) }
 }
 
-async function small($) {
+async function chat_kuchak($) {
   try { return ((await $.session.usage()).context.tokens || 0) <= had_fork_kontekst_token } catch { return false }
 }
 
 // The end of an answer. «دو جمله»: Sonnet on the last messages, every answer (cheap).
 // The guesses: one fork over the whole chat (its own model, the cache this answer just
 // warmed) every hads_har_chand_javab answers; a chat over had_fork_kontekst_token, or no usable reply, asks Sonnet.
-async function turnEnd($, p = { hads: true, do_jomle: true }, force = false) {
+async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false) {
   if (!p.hads && !p.do_jomle) return
-  if (endBusy) { endAgain = true; return }
-  endBusy = true; endAt = await $.clock.now()
+  if (akhar_javab_dar_kar) { akhar_javab_dobare = true; return }
+  akhar_javab_dar_kar = true; zaman_akhar_javab = await $.clock.now()
   try {
     const id = await $.session.id()
-    const seen = turnsOf.get(id) || 0
-    turnsOf.set(id, seen + 1)
+    const seen = tedad_javab_har_chat.get(id) || 0
+    tedad_javab_har_chat.set(id, seen + 1)
     // also due when this chat shows none (first answer, /clear, an empty or broken reply)
-    const due = p.hads && (force || seen % hads_har_chand_javab === 0 || madeFor !== id || !guesses.length)
-    await Promise.all([p.do_jomle && (async () => { if (!(await summarize($))) await tellNow($, '', true) })(), due && guessFork($)])
+    const due = p.hads && (force || seen % hads_har_chand_javab === 0 || hads_baraye_chat !== id || !hads_akhar.length)
+    await Promise.all([p.do_jomle && (async () => { if (!(await jambandi($))) await begu_do_jomle($, '', true) })(), due && hads_ba_fork($)])
   } finally {
-    endBusy = false
+    akhar_javab_dar_kar = false
   }
   // turned off meanwhile: the queued run is dropped, never run on the old flags
-  if (endAgain) { endAgain = false; const q = await readFlag($); if (q) await turnEnd($, q) }
+  if (akhar_javab_dobare) { akhar_javab_dobare = false; const q = await khandan_file_chat($); if (q) await akhar_javab($, q) }
 }
 
 // The end of an exchange (Habib, 24 Oct 22:42: «دو جمله … عکس لحظه ای میگیره … جمع بندی نداره …
@@ -348,9 +348,9 @@ async function turnEnd($, p = { hads: true, do_jomle: true }, force = false) {
 // real chat ۲۰۳ never got one — 24 Oct 22:58)
 export const had_kamtarin_do_jomle_jambandi = 1
 // tools run in the turn now running, per chat
-const turnTools = new Map()
+const abzar_ha_ye_nobat = new Map()
 // Habib's own message that started the turn, per chat
-const turnAsked = new Map()
+const khaste_habib_nobat = new Map()
 const prompt_jambandi_nobat = (lines, tools) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
   'جمع‌بندیِ همین نوبت را بده؛ این جمع‌بندی به حافظهٔ چت‌های بعدی تزریق می‌شود، پس باید بی‌اشتباه باشد. ' +
   'منبع: کلِ همین نوبت در حافظهٔ خودت، از آخرین پیامِ حبیب تا حالا: پیامِ حبیب، هر فراخوانیِ ابزار و خروجی‌اش، و جوابت. ' +
@@ -364,23 +364,23 @@ const prompt_jambandi_nobat = (lines, tools) => '(این پیام از مودِ 
   '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ anjam_nashod. ' +
   '۶) مدرک فقط همان چیزی را ثابت می‌کند که خودش نشان می‌دهد: ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»؛ رفتار فقط با آزمونی که همان رفتار را دید ⇒ وگرنه anjam_nashod «رفتارش آزموده نشد». فارسیِ ساده، با واژه‌های حبیب. ' +
   'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "anjam_shod": ["<short> ⇐ <evidence>", …], "anjam_nashod": ["<short>", …]}'
-export function parseSummary(raw) {
+export function khandan_jambandi(raw) {
   try {
     const m = String(raw || '').match(/\{[\s\S]*\}/)
     const o = JSON.parse(m ? m[0] : raw)
     const list = (x) => (Array.isArray(x) ? x : []).filter((y) => typeof y === 'string' && y.trim()).map((y) => y.trim()).slice(0, 8)
-    const text = typeof o?.text === 'string' ? twoSentences(o.text) : ''
+    const text = typeof o?.text === 'string' ? kutah_be_do_jomle(o.text) : ''
     return text ? { text, anjam_shod: list(o.anjam_shod), anjam_nashod: list(o.anjam_nashod) } : null
   } catch {
     return null
   }
 }
-async function summarize($) {
+async function jambandi($) {
   const id = await $.session.id()
-  const lines = turnNows.get(id) || []
-  const tools = turnTools.get(id) || []
-  const asked = turnAsked.get(id) || ''
-  turnNows.set(id, []); turnTools.set(id, [])
+  const lines = do_jomle_ha_ye_nobat.get(id) || []
+  const tools = abzar_ha_ye_nobat.get(id) || []
+  const asked = khaste_habib_nobat.get(id) || ''
+  do_jomle_ha_ye_nobat.set(id, []); abzar_ha_ye_nobat.set(id, [])
   if (lines.length < had_kamtarin_do_jomle_jambandi && !tools.length) return false
   let tokens = 0
   try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
@@ -389,36 +389,36 @@ async function summarize($) {
     // output (Habib, 24 Oct 23:37: «با مدل اصلی که با کش گرم کار میکنه»; Sonnet on the last few
     // messages got turns wrong). No usable reply: no summary, the plain «دو جمله».
     const r = await $.model.fork({ prompt: prompt_jambandi_nobat(lines, tools) })
-    if (r.isAnswered) await logUsage($, 'jambandi_nobat', 'fork', r.usage)
-    const got = r.isAnswered ? parseSummary(r.text) : null
+    if (r.isAnswered) await benevis_kharj($, 'jambandi_nobat', 'fork', r.usage)
+    const got = r.isAnswered ? khandan_jambandi(r.text) : null
     if (!got) return false
-    await setNow($, got.text, 'jambandi_nobat')
-    now.summary = got
+    await benevis_do_jomle($, got.text, 'jambandi_nobat')
+    do_jomle_akhar.summary = got
     // what Habib asked in this turn, word for word from his own message (not the model's retelling)
-    await logEvent($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', kontekst_token: tokens })
+    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', kontekst_token: tokens })
     return true
   } catch {
     return false
   }
 }
 
-async function guessFork($) {
+async function hads_ba_fork($) {
   let got = null
   let tokens = 0
   try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
   if (tokens <= had_fork_kontekst_token) {
     try {
-      const r = await $.model.fork({ prompt: forkPrompt({ hads: true }) })
-      got = r.isAnswered ? parseBoth(r.text) : null
+      const r = await $.model.fork({ prompt: prompt_fork({ hads: true }) })
+      got = r.isAnswered ? khandan_javab_fork(r.text) : null
       if (got?.hads.length) try { await $.store.set('kharj_akhar_hads_fork', { rah: 'fork', kontekst_token: tokens, usage: r.usage }) } catch {}
-      if (r.isAnswered) await logUsage($, 'hads', 'fork', r.usage)
+      if (r.isAnswered) await benevis_kharj($, 'hads', 'fork', r.usage)
     } catch {}
   }
   if (got?.hads.length) {
-    guesses = got.hads; madeFor = await $.session.id()
-    await logEvent($, 'hads', { rah: 'fork', hads_ha: guesses.map((g) => g.text) })
+    hads_akhar = got.hads; hads_baraye_chat = await $.session.id()
+    await benevis_daftar($, 'hads', { rah: 'fork', hads_ha: hads_akhar.map((g) => g.text) })
     $.ui.invalidate('ui.render')
-  } else await guess($)
+  } else await hads_ba_sonnet($)
 }
 
 const matn_porsesh_montazer = 'این پرسش بعد از جوابِ بعدیِ کلود در همین چت خودش پرسیده می‌شود (بعد از resume یا وسطِ کار، تا اولین جواب چیزی برای خواندن نیست).'
@@ -428,32 +428,32 @@ const matn_dalil_bi_javab = {
   'empty-reply': 'جوابی نیامد؛ دوباره بپرس.',
   aborted: 'نیمه‌کاره ماند؛ دوباره بپرس.',
 }
-async function ask($, q) {
+async function bepors($, q) {
   if (!String(q).trim()) return
   // off in this chat, or «پرسش» unticked: nothing would be drawn, so no fork is paid for
-  if (!(await readFlag($))?.porsesh) return
+  if (!(await khandan_file_chat($))?.porsesh) return
   const id = await $.session.id()
   // a cold cache re-reads the whole chat at the write price: say how much, ask Enter again.
   // Known only from this process's own activity or the resume's numbers; no word means no warning
   // is claimed as fact.
-  const idle = lastActivity ? (await $.clock.now()) - lastActivity : -1
-  const cold = cacheExpired || idle > coldAfter
-  if ((cold || idle < 0) && !(answer?.cold && answer.q === q && answer.for === id)) {
+  const idle = zaman_akharin_kar ? (await $.clock.now()) - zaman_akharin_kar : -1
+  const cold = kash_sard_shod || idle > kash_sard_bad_az_ms
+  if ((cold || idle < 0) && !(javab_porsesh?.cold && javab_porsesh.q === q && javab_porsesh.for === id)) {
     let tokens = 0, model = ''
     try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
     try { model = await $.session.model() } catch {}
     if (tokens > 0) {
-      const [a, b] = coldCost(model, tokens)
+      const [a, b] = kharj_kash_sard(model, tokens)
       const cost = '$' + a.toFixed(2) + ' تا $' + b.toFixed(2) + ' (' + Math.round(tokens / 1000) + 'k توکن)'
-      answer = { q, for: id, cold: true,
-        text: (cold ? 'کشِ چت سرد است (' + Math.round(idle / 60000) + ' دقیقه بی‌کار' + (cacheExpired ? '، به گفتهٔ خودِ Claude Code' : '') + '): این سؤال حدودِ ' + cost + ' خرج دارد.'
+      javab_porsesh = { q, for: id, cold: true,
+        text: (cold ? 'کشِ چت سرد است (' + Math.round(idle / 60000) + ' دقیقه بی‌کار' + (kash_sard_shod ? '، به گفتهٔ خودِ Claude Code' : '') + '): این سؤال حدودِ ' + cost + ' خرج دارد.'
           : 'نمی‌دانم کشِ چت گرم است یا نه؛ اگر سرد باشد این سؤال حدودِ ' + cost + ' خرج دارد.') + ' برای پرسیدن «باشه، بپرس» یا دوباره Enter را بزن.' }
       $.ui.invalidate('ui.render')
       return
     }
   }
   // this question's own box: × or a newer question may replace `answer` while the fork runs
-  const cur = answer = { q, text: '…', for: id }; askText = ''; $.ui.invalidate('ui.render')
+  const cur = javab_porsesh = { q, text: '…', for: id }; matn_porsesh = ''; $.ui.invalidate('ui.render')
   try {
     // mid-work the fork sees a tool call in flight and may try to go on with it: say it may not
     const r = await $.model.fork({ prompt: q + '\n\n(این پرسش از کادرِ حدس است، نه دستورِ کار: ابزاری صدا نزن و کاری را ادامه نده؛ فقط کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
@@ -462,21 +462,21 @@ async function ask($, q) {
     if (!r.isAnswered && r.reason === 'nothing-to-fork') {
       try { has = ((await $.session.usage()).context.tokens || 0) > 0 || (await $.session.messages()).length > 0 } catch {}
     }
-    if (has) { pendingAsk = q; cur.text = matn_porsesh_montazer; cur.waiting = true; await logEvent($, 'porsesh_montazer', { porsesh_matn: q }) }
+    if (has) { porsesh_montazer = q; cur.text = matn_porsesh_montazer; cur.waiting = true; await benevis_daftar($, 'porsesh_montazer', { porsesh_matn: q }) }
     else cur.text = r.isAnswered ? r.text : (matn_dalil_bi_javab[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
     // the fork just read the whole chat into the cache: it is warm for the next question
-    if (r.isAnswered) { try { lastActivity = await $.clock.now() } catch {} cacheExpired = false }
-    if (r.isAnswered) await logEvent($, 'porsesh', { porsesh_matn: q, javab_matn: r.text, rah: 'fork' })
+    if (r.isAnswered) { try { zaman_akharin_kar = await $.clock.now() } catch {} kash_sard_shod = false }
+    if (r.isAnswered) await benevis_daftar($, 'porsesh', { porsesh_matn: q, javab_matn: r.text, rah: 'fork' })
     if (r.isAnswered) try { await $.store.set('kharj_akhar_porsesh', r.usage) } catch {}
-    if (r.isAnswered) await logUsage($, 'porsesh', 'fork', r.usage)
+    if (r.isAnswered) await benevis_kharj($, 'porsesh', 'fork', r.usage)
   } catch {
     cur.text = matn_dalil_bi_javab.aborted
   }
-  if (answer === cur) $.ui.invalidate('ui.render')
+  if (javab_porsesh === cur) $.ui.invalidate('ui.render')
 }
 
 // No app attached (claude -p, SDK) means nobody sees the row: skip the model call.
-async function interactive($) {
+async function chat_ba_safhe($) {
   try {
     const s = await $.session.surfaces()
     return !Array.isArray(s) || s.length > 0
@@ -486,7 +486,7 @@ async function interactive($) {
 }
 
 // Keep what is already typed: the guess goes on its own line after it.
-async function fillAppend($, text) {
+async function gozashtan_dar_kadr($, text) {
   let cur = ''
   try {
     const v = await $.prompt.read()
@@ -498,7 +498,7 @@ async function fillAppend($, text) {
 // on/off is per chat: one file per session id (~/.claude/hads-on/<id>), so no chat can
 // switch another, not even one in the same folder. One file each, not $.store: the store
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
-const flagPath = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
+const masir_file_chat = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 // The file holds `on`, then the parts ticked off: `on -hads -porsesh`. h-on turns all of them on.
 export const bakhsh_ha = [['hads', 'حدس'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها']]
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
@@ -514,10 +514,10 @@ export const esm_ghadim = {
   bakhsh_kharj: { now: 'do_jomle', guess: 'hads', ask: 'porsesh', summary: 'jambandi_nobat' },
   khane_kharj: { part: 'bakhsh', via: 'rah' },
 }
-async function readFlag($) {
+async function khandan_file_chat($) {
   try {
     // a file written before 25 Oct holds the old words: read as the new ones
-    const w = String(await $.fs.read(await flagPath($))).trim().split(/\s+/).map((x) => esm_ghadim.kalame_file[x] || x)
+    const w = String(await $.fs.read(await masir_file_chat($))).trim().split(/\s+/).map((x) => esm_ghadim.kalame_file[x] || x)
     if (w[0] !== 'on') return null
     return { ...Object.fromEntries(bakhsh_ha.map(([k]) => [k, !w.includes(kalame_khamush[k])])),
       ...Object.fromEntries(Object.entries(kalame_tanzim).map(([k, kalame]) => [k, w.includes(kalame)])) }
@@ -525,21 +525,21 @@ async function readFlag($) {
     return null
   }
 }
-const isOn = async ($) => (await readFlag($)) !== null
-const flagWords = (p) => ['on', ...bakhsh_ha.filter(([k]) => !p[k]).map(([k]) => kalame_khamush[k]), ...Object.entries(kalame_tanzim).filter(([k]) => p[k]).map(([, kalame]) => kalame)].join(' ')
+const roshan_ast = async ($) => (await khandan_file_chat($)) !== null
+const kalame_ha_ye_file = (p) => ['on', ...bakhsh_ha.filter(([k]) => !p[k]).map(([k]) => kalame_khamush[k]), ...Object.entries(kalame_tanzim).filter(([k]) => p[k]).map(([, kalame]) => kalame)].join(' ')
 // ▾ / ▸: the whole band folds to one line and stays so after a reload (the word `yek_khat`)
 // three states (Habib, 24 Oct 22:52: «سه حالته، یکی حالت باز، یکی حالت مثل الان … یه حالتی هم که
 // بشه اصلا یه دکمه»): open (baz) · folded to one line (yek_khat) · just one small button (tak_dokme).
 // The button opens the folded line; the line opens the box. Kept in the chat's file over reloads.
-async function setMode($, mode) {
-  const p = await readFlag($)
+async function taghir_halat($, mode) {
+  const p = await khandan_file_chat($)
   if (!p) return
   p.yek_khat = mode === 'yek_khat'; p.tak_dokme = mode === 'tak_dokme'
-  await $.fs.write(await flagPath($), flagWords(p))
+  await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
   $.ui.invalidate('ui.render')
 }
-const fold = ($) => readFlag($).then((p) => p && setMode($, p.yek_khat ? 'baz' : 'yek_khat'))
-let histOpen = false
+const jam_kardan = ($) => khandan_file_chat($).then((p) => p && taghir_halat($, p.yek_khat ? 'baz' : 'yek_khat'))
+let ghablia_baz = false
 
 // «هوک‌ها»: the VS Code panel drops every hook_* message on purpose (extension.js filters
 // subtype hook_ out, the webview has no view for them), so the band shows what the hooks
@@ -552,10 +552,10 @@ export const had_hook_transcript_byte = 4000000
 export const hook_transcript_grep = '"attachment":\\{"type":"hook_|"type":"user","message":\\{"role":"user","content":("|\\[\\{"type":"text")'
 // one line each: the Shamsi date and time first (~۲۰ characters), then the hook
 export const had_hook_kuchak_harf = 100
-let tPath = ''
-let hooks = { list: [], for: '' }
-let hooksAt = 0
-export function parseHooks(text) {
+let masir_transcript = ''
+let hook_ha = { list: [], for: '' }
+let zaman_khandan_hook = 0
+export function khandan_hook_ha(text) {
   const lines = String(text || '').split('\n')
   const all = []
   let lastPrompt = -1
@@ -594,12 +594,12 @@ export function parseHooks(text) {
 export const had_hook_kuchak_radif = 6
 export const had_hook_bozorg_radif = 3
 export const had_hook_bozorg_harf = 600
-async function readHooks($) {
+async function khandan_hook_az_transcript($) {
   try {
     const t = await $.clock.now()
-    if (t - hooksAt < 2000) return
-    hooksAt = t
-    let path = tPath
+    if (t - zaman_khandan_hook < 2000) return
+    zaman_khandan_hook = t
+    let path = masir_transcript
     if (!path) {
       const slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
       path = (await $.env.get('HOME')) + '/.claude/projects/' + slug + '/' + (await $.session.id()) + '.jsonl'
@@ -608,19 +608,19 @@ async function readHooks($) {
     // and this runs after tools. The first line of the cut is half a line; parseHooks skips it.
     const r = await $.process.run(['sh', '-c', 'tail -c "$4" "$2" | grep -E "$1" | tail -n "$3"', 'sh', hook_transcript_grep, path, String(had_hook_transcript_khat), String(had_hook_transcript_byte)])
     if (r.exitCode !== 0) return
-    hooks = { list: parseHooks(r.stdout), for: await $.session.id() }
+    hook_ha = { list: khandan_hook_ha(r.stdout), for: await $.session.id() }
     $.ui.invalidate('ui.render')
   } catch {}
 }
-const hookLine = (h) => (h.t ? whenFa(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + fa(h.n) : '') + (h.kind === 'hook_additional_context' ? ' ＋ ' : h.kind === 'hook_system_message' ? ' 📌 ' : ' ✓ ') + h.text.replace(/\s+/g, ' ')
-async function tick($, key) {
-  const p = await readFlag($)
+const khat_hook = (h) => (h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + (h.kind === 'hook_additional_context' ? ' ＋ ' : h.kind === 'hook_system_message' ? ' 📌 ' : ' ✓ ') + h.text.replace(/\s+/g, ' ')
+async function tik_zadan($, key) {
+  const p = await khandan_file_chat($)
   if (!p) return
   p[key] = !p[key]
-  await $.fs.write(await flagPath($), flagWords(p))
-  if (!p.hads) guesses = []
-  if (!p.do_jomle) now = { text: '', for: '' }
-  if (!p.porsesh) { answer = null; pendingAsk = null }
+  await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
+  if (!p.hads) hads_akhar = []
+  if (!p.do_jomle) do_jomle_akhar = { text: '', for: '' }
+  if (!p.porsesh) { javab_porsesh = null; porsesh_montazer = null }
   $.ui.invalidate('ui.render')
 }
 
@@ -635,17 +635,17 @@ export function register(on) {
   // resume / fork: Claude Code says how long the chat was idle and whether its cache expired
   on('classic.SessionStart', async ($, e, next) => {
     try {
-      if (typeof e.transcript_path === 'string') tPath = e.transcript_path
-      if (typeof e.seconds_since_last_response === 'number') lastActivity = (await $.clock.now()) - e.seconds_since_last_response * 1000
-      cacheExpired = e.prompt_cache_likely_expired === true
+      if (typeof e.transcript_path === 'string') masir_transcript = e.transcript_path
+      if (typeof e.seconds_since_last_response === 'number') zaman_akharin_kar = (await $.clock.now()) - e.seconds_since_last_response * 1000
+      kash_sard_shod = e.prompt_cache_likely_expired === true
     } catch {}
     return next(e)
   })
   // a model switch tells the TTL; the new model's cache starts cold
   on('classic.PostModelSwitch', async ($, e, next) => {
     try {
-      coldAfter = e.cache_ttl === '5m' ? kash_sard_5m_ms : kash_sard_ms
-      if (e.from_model !== e.to_model) cacheExpired = true
+      kash_sard_bad_az_ms = e.cache_ttl === '5m' ? kash_sard_5m_ms : kash_sard_ms
+      if (e.from_model !== e.to_model) kash_sard_shod = true
     } catch {}
     return next(e)
   })
@@ -653,32 +653,32 @@ export function register(on) {
   on('command.run', { command: 'hads' }, async ($, e) => {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
-      await $.fs.write(await flagPath($), arg)
-      if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null; pendingAsk = null }
+      await $.fs.write(await masir_file_chat($), arg)
+      if (arg === 'off') { hads_akhar = []; do_jomle_akhar = { text: '', for: '' }; javab_porsesh = null; porsesh_montazer = null }
       // nothing to tell yet: say when it comes (no fork here, the cache may be cold)
-      else { now = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() } }
+      else { do_jomle_akhar = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() } }
       $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
-    if (arg.startsWith('ask ') && !(await readFlag($))?.porsesh) return { text: 'پرسش در این چت خاموش است' }
-    if (arg.startsWith('ask ')) { $.clock.after(0, () => ask($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
+    if (arg.startsWith('ask ') && !(await khandan_file_chat($))?.porsesh) return { text: 'پرسش در این چت خاموش است' }
+    if (arg.startsWith('ask ')) { $.clock.after(0, () => bepors($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
     // /hads now: asked for, so the guesses come now whatever the count
-    const pn = await readFlag($)
+    const pn = await khandan_file_chat($)
     if (!pn) return { text: 'حدس در این چت خاموش است؛ اول /hads on' }
-    $.clock.after(0, () => turnEnd($, pn, true))
+    $.clock.after(0, () => akhar_javab($, pn, true))
     return { text: 'حدس در حال ساختن…' }
   })
 
   // the prompt's own hooks are written right after it: read them a moment later
   // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
   on('prompt.submit', async ($, e, next) => {
-    try { const sid = await $.session.id(); turnNows.set(sid, []); turnTools.set(sid, []); turnAsked.set(sid, harfeHabib(String(e?.text || '').trim())) } catch {}
+    try { const sid = await $.session.id(); do_jomle_ha_ye_nobat.set(sid, []); abzar_ha_ye_nobat.set(sid, []); khaste_habib_nobat.set(sid, harf_habib(String(e?.text || '').trim())) } catch {}
     try {
       const sent = String(e?.text || '').trim()
-      if (sent && clicked.length) {
-        const hit = clicked.find((g) => sent.includes(g)) || clicked.find((g) => sameText(g, sent))
-        if (hit) await logEvent($, 'hads_ferestade', { hads_matn: hit, matn_ferestade: sent, virayesh_shod: !sent.includes(hit) })
-        clicked = []
+      if (sent && hads_zade_shode.length) {
+        const hit = hads_zade_shode.find((g) => sent.includes(g)) || hads_zade_shode.find((g) => hamun_matn(g, sent))
+        if (hit) await benevis_daftar($, 'hads_ferestade', { hads_matn: hit, matn_ferestade: sent, virayesh_shod: !sent.includes(hit) })
+        hads_zade_shode = []
       }
     } catch {}
     return next(e)
@@ -686,22 +686,22 @@ export function register(on) {
 
   on('classic.UserPromptSubmit', async ($, e, next) => {
     try {
-      if (typeof e.transcript_path === 'string') tPath = e.transcript_path
-      $.clock.after(1500, async () => { if ((await readFlag($))?.hook) { hooksAt = 0; await readHooks($) } })
+      if (typeof e.transcript_path === 'string') masir_transcript = e.transcript_path
+      $.clock.after(1500, async () => { if ((await khandan_file_chat($))?.hook) { zaman_khandan_hook = 0; await khandan_hook_az_transcript($) } })
     } catch {}
     return next(e)
   })
 
   on('turn.complete', async ($, e, next) => {
     if (!e.agentId) {
-      try { lastActivity = await $.clock.now(); cacheExpired = false } catch {}
+      try { zaman_akharin_kar = await $.clock.now(); kash_sard_shod = false } catch {}
       // a «پرسش» that waited for this answer goes now
-      if (pendingAsk && !e.isAborted) { const q = pendingAsk; pendingAsk = null; $.clock.after(0, () => ask($, q)) }
+      if (porsesh_montazer && !e.isAborted) { const q = porsesh_montazer; porsesh_montazer = null; $.clock.after(0, () => bepors($, q)) }
     }
-    const p = !e.agentId && !e.isAborted && (await interactive($)) ? await readFlag($) : null
-    if (p?.hook) $.clock.after(500, () => { hooksAt = 0; return readHooks($) })
+    const p = !e.agentId && !e.isAborted && (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
+    if (p?.hook) $.clock.after(500, () => { zaman_khandan_hook = 0; return khandan_hook_az_transcript($) })
     // not awaited: the turn must not wait for the model
-    if (p) $.clock.after(0, () => turnEnd($, p))
+    if (p) $.clock.after(0, () => akhar_javab($, p))
     return next(e)
   })
 
@@ -713,13 +713,13 @@ export function register(on) {
       if (!e.agentId) {
         const what = e.tool + ': ' + String(e.description || e.command || e.file_path || '').slice(0, 200)
         // remembered for the turn's summary (a short line each, at most 30)
-        $.clock.after(0, async () => { try { const sid = await $.session.id(); turnTools.set(sid, [...(turnTools.get(sid) || []), what.slice(0, 120)].slice(-30)) } catch {} })
+        $.clock.after(0, async () => { try { const sid = await $.session.id(); abzar_ha_ye_nobat.set(sid, [...(abzar_ha_ye_nobat.get(sid) || []), what.slice(0, 120)].slice(-30)) } catch {} })
         $.clock.after(0, async () => {
           try {
-            lastActivity = await $.clock.now(); cacheExpired = false
-            const p = (await interactive($)) ? await readFlag($) : null
-            if (p?.hook) await readHooks($)
-            if (p?.do_jomle) await tellNow($, what, false, p.do_jomle_fork && (await small($)))
+            zaman_akharin_kar = await $.clock.now(); kash_sard_shod = false
+            const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
+            if (p?.hook) await khandan_hook_az_transcript($)
+            if (p?.do_jomle) await begu_do_jomle($, what, false, p.do_jomle_fork && (await chat_kuchak($)))
           } catch {}
         })
       }
@@ -728,44 +728,44 @@ export function register(on) {
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    const p = await readFlag($)
+    const p = await khandan_file_chat($)
     if (!p) return next(e)
     const id = await $.session.id()
-    const g = p.hads && madeFor === id ? guesses : []
-    const n = p.do_jomle && now.for === id ? now.text : ''
-    const sm = n && now.summary ? now.summary : null
-    const a = p.porsesh && answer && answer.for === id ? answer : null
+    const g = p.hads && hads_baraye_chat === id ? hads_akhar : []
+    const n = p.do_jomle && do_jomle_akhar.for === id ? do_jomle_akhar.text : ''
+    const sm = n && do_jomle_akhar.summary ? do_jomle_akhar.summary : null
+    const a = p.porsesh && javab_porsesh && javab_porsesh.for === id ? javab_porsesh : null
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line
     if (p.tak_dokme) {
-      const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => setMode($, 'yek_khat') })
+      const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => taghir_halat($, 'yek_khat') })
       return Box({ flexDirection: 'column', children: theirs ? [theirs, one] : [one] })
     }
     if (p.yek_khat) {
       const line = Box({ flexDirection: 'row', columnGap: 1, children: [
-        Button({ key: 'hads-min', label: '▸ حدس', onPress: () => setMode($, 'baz') }),
+        Button({ key: 'hads-min', label: '▸ حدس', onPress: () => taghir_halat($, 'baz') }),
         ...(n ? [Text({ dimColor: true, children: [n.length > 40 ? n.slice(0, 40) + '…' : n] })] : []),
-        Button({ key: 'hads-to-dot', label: '×', onPress: () => setMode($, 'tak_dokme') }),
+        Button({ key: 'hads-to-dot', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
       ] })
       return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
     }
-    const hist = n || histOpen ? await readHist($) : []
+    const hist = n || ghablia_baz ? await khandan_ghablia($) : []
     // ▾ (one line) and × (one button) on top, where they are always in sight however long the box
     // grows (Habib, 24 Oct 22:41: «اینها باید بالای صفحه باشند که همه جا قابلیت دیدن داشته باشند»).
     // The box never closes all the way: × leaves the one button (25 Oct 00:13: «ضربدر … تک دکمه ای
     // شدن یعنی کلا هیچوقت بسته نشه … همین سه تا نباشه»)
     const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
-      Button({ key: 'hads-min', label: '▾', onPress: () => setMode($, 'yek_khat') }),
-      Button({ key: 'hads-x', label: '×', onPress: () => setMode($, 'tak_dokme') }),
+      Button({ key: 'hads-min', label: '▾', onPress: () => taghir_halat($, 'yek_khat') }),
+      Button({ key: 'hads-x', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
     ] })]
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
     // the panel's rows are user-select:text in VS Code
     if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [sm ? 'جمع‌بندی:' : 'دو جمله:'] }),
       Text({ key: 'hads-now', children: [n] }),
-      ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (histOpen ? '▴ ' : '') + 'قبلی‌ها ' + fa(hist.length - 1), onPress: () => { histOpen = !histOpen; $.ui.invalidate('ui.render') } })] : []),
+      ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (ghablia_baz ? '▴ ' : '') + 'قبلی‌ها ' + adad_farsi(hist.length - 1), onPress: () => { ghablia_baz = !ghablia_baz; $.ui.invalidate('ui.render') } })] : []),
     ] }))
     // the turn's summary: what was done ✓ and what was not ✗, one plain line each
     if (sm) for (const [k, mark, list] of [['anjam_shod', '✓', sm.anjam_shod], ['anjam_nashod', '✗', sm.anjam_nashod]]) {
@@ -777,29 +777,29 @@ export function register(on) {
       Text({ dimColor: true, children: [i ? '      ' : 'حدس:'] }),
       Text({ key: 'hads-g-' + i, children: [g[i].text] }),
       Button({ key: 'hads-' + i, label: '⤵', onPress: () => {
-        clicked = [...clicked.filter((c) => c !== g[i].text), g[i].text].slice(-5)
-        logEvent($, 'hads_zadan', { text: g[i].text })
-        return fillAppend($, g[i].text)
+        hads_zade_shode = [...hads_zade_shode.filter((c) => c !== g[i].text), g[i].text].slice(-5)
+        benevis_daftar($, 'hads_zadan', { text: g[i].text })
+        return gozashtan_dar_kadr($, g[i].text)
       } }),
     ] }))
     // the earlier ones, newest first, with Tehran date and time; the current one is not repeated
-    if (histOpen) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>
-      Text({ key: 'hads-hist-' + i, dimColor: true, children: [when(x.t) + ' — ' + x.text] })) }))
+    if (ghablia_baz) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>
+      Text({ key: 'hads-hist-' + i, dimColor: true, children: [zaman_miladi(x.t) + ' — ' + x.text] })) }))
     // «هوک‌ها»: small = one line each, had_hook_kuchak_harf long; big = the last had_hook_bozorg_radif, each at most
     // had_hook_bozorg_harf long (a SessionStart handoff is pages: whole, it filled the band)
-    const hkAll = p.hook && hooks.for === id ? hooks.list : []
+    const hkAll = p.hook && hook_ha.for === id ? hook_ha.list : []
     const hk = hkAll.slice(-(p.hook_bozorg ? had_hook_bozorg_radif : had_hook_kuchak_radif))
     if (hk.length) rows.push(Box({ flexDirection: 'column', children: [
       Box({ flexDirection: 'row', columnGap: 1, children: [
-        Text({ dimColor: true, children: ['هوک‌ها (' + fa(hkAll.length) + (hkAll.length > hk.length ? '، ' + fa(hk.length) + ' تای آخر' : '') + '):'] }),
+        Text({ dimColor: true, children: ['هوک‌ها (' + adad_farsi(hkAll.length) + (hkAll.length > hk.length ? '، ' + adad_farsi(hk.length) + ' تای آخر' : '') + '):'] }),
         Button({ key: 'hads-hook-size', label: p.hook_bozorg ? 'کوچک' : 'بزرگ', onPress: async () => {
-          const q = await readFlag($); if (!q) return
-          q.hook_bozorg = !q.hook_bozorg; await $.fs.write(await flagPath($), flagWords(q)); $.ui.invalidate('ui.render')
+          const q = await khandan_file_chat($); if (!q) return
+          q.hook_bozorg = !q.hook_bozorg; await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(q)); $.ui.invalidate('ui.render')
         } }),
       ] }),
       ...hk.map((h, i) => p.hook_bozorg
-        ? Text({ key: 'hads-hook-' + i, children: [(h.t ? whenFa(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + fa(h.n) : '') + ':\n' + (h.text.length > had_hook_bozorg_harf ? h.text.slice(0, had_hook_bozorg_harf - 1) + '…' : h.text)] })
-        : Text({ key: 'hads-hook-' + i, dimColor: true, children: [(() => { const l = hookLine(h); return l.length > had_hook_kuchak_harf ? l.slice(0, had_hook_kuchak_harf - 1) + '…' : l })()] })),
+        ? Text({ key: 'hads-hook-' + i, children: [(h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + ':\n' + (h.text.length > had_hook_bozorg_harf ? h.text.slice(0, had_hook_bozorg_harf - 1) + '…' : h.text)] })
+        : Text({ key: 'hads-hook-' + i, dimColor: true, children: [(() => { const l = khat_hook(h); return l.length > had_hook_kuchak_harf ? l.slice(0, had_hook_kuchak_harf - 1) + '…' : l })()] })),
     ] }))
     if (a) rows.push(Box({
       flexDirection: 'column',
@@ -808,9 +808,9 @@ export function register(on) {
         Text({ children: [a.text] }),
         Box({ flexDirection: 'row', columnGap: 1, children: [
           // a cold warning asks once more by a press, not only by Enter
-          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => ask($, a.q) })] : []),
-          Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => fillAppend($, a.q + '\n' + a.text) }),
-          Button({ key: 'hads-ans-x', label: '×', onPress: () => { answer = null; $.ui.invalidate('ui.render') } }),
+          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => bepors($, a.q) })] : []),
+          Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => gozashtan_dar_kadr($, a.q + '\n' + a.text) }),
+          Button({ key: 'hads-ans-x', label: '×', onPress: () => { javab_porsesh = null; $.ui.invalidate('ui.render') } }),
         ] }),
       ],
     }))
@@ -821,13 +821,13 @@ export function register(on) {
       children: [
         // no Input on mobile: the row stays buttons only
         ...(Input && p.porsesh ? [Input({
-          key: 'hads-ask', value: askText, placeholder: 'پرسش… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
-          onInput: (v) => { askText = v }, onSubmit: (v) => ask($, v),
+          key: 'hads-ask', value: matn_porsesh, placeholder: 'پرسش… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
+          onInput: (v) => { matn_porsesh = v }, onSubmit: (v) => bepors($, v),
         }),
         // Enter on the screen, for whoever does not want the key
-        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => ask($, askText) })] : []),
+        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => bepors($, matn_porsesh) })] : []),
         // one tick per part, for this chat only
-        ...bakhsh_ha.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tick($, k) })),
+        ...bakhsh_ha.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tik_zadan($, k) })),
       ],
     }))
     return Box({ flexDirection: 'column', children: theirs ? [theirs, ...rows] : rows })

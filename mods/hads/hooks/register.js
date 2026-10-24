@@ -255,10 +255,9 @@ async function vazhe($) {
 async function logUsage($, part, via, usage) {
   try {
     const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.usage.jsonl'
-    let old = ''
-    try { old = String(await $.fs.read(f)) } catch {}
-    const line = JSON.stringify({ t: await $.clock.now(), part, via, usage })
-    await $.fs.write(f, old.split('\n').filter(Boolean).slice(-499).concat(line).join('\n') + '\n')
+    // appended, never read and rewritten: two calls ending together would each drop the other's line
+    const line = JSON.stringify({ t: await $.clock.now(), part, via, usage }) + '\n'
+    await $.process.run(['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat >> "$1"', 'sh', f], { stdin: line, timeoutMs: 5000 })
   } catch {}
 }
 
@@ -277,12 +276,15 @@ async function tellNow($, tool, force, viaFork = false) {
   if (!force && t - lastNow < GAP) return
   nowBusy = true; lastNow = t
   try {
+    let done = false
     if (viaFork) {
       const r = await $.model.fork({ prompt: forkPrompt({ now: true }) + '\n\n' + (await vazhe($)) })
       const got = r.isAnswered ? parseBoth(r.text) : null
       if (r.isAnswered) await logUsage($, 'now', 'fork', r.usage)
-      if (got?.now && endAt <= t) { await setNow($, got.now); return }
+      // no early return: a queued answer-end line (nowAgain) must still be told below
+      if (got?.now && endAt <= t) { await setNow($, got.now); done = true }
     }
+    if (!done) {
     const r = await $.model.complete({
       model: MODEL, system: NOW_SYSTEM,
       prompt: [{ text: await vazhe($), cache: true },
@@ -295,6 +297,7 @@ async function tellNow($, tool, force, viaFork = false) {
       try { await $.store.set('lastNowUsage', r.usage) } catch {}
     }
     if (r.isAnswered) await logUsage($, 'now', 'sonnet', r.usage)
+    }
   } catch {} finally {
     nowBusy = false
   }
@@ -322,7 +325,8 @@ async function turnEnd($, p = { guess: true, now: true }, force = false) {
   } finally {
     endBusy = false
   }
-  if (endAgain) { endAgain = false; await turnEnd($, (await readFlag($)) || p) }
+  // turned off meanwhile: the queued run is dropped, never run on the old flags
+  if (endAgain) { endAgain = false; const q = await readFlag($); if (q) await turnEnd($, q) }
 }
 
 async function guessFork($) {
@@ -353,6 +357,8 @@ const WHY = {
 }
 async function ask($, q) {
   if (!String(q).trim()) return
+  // off in this chat, or «پرسش» unticked: nothing would be drawn, so no fork is paid for
+  if (!(await readFlag($))?.ask) return
   const id = await $.session.id()
   // a cold cache re-reads the whole chat at the write price: say how much, ask Enter again.
   // Known only from this process's own activity or the resume's numbers; no word means no warning
@@ -373,7 +379,8 @@ async function ask($, q) {
       return
     }
   }
-  answer = { q, text: '…', for: id }; askText = ''; hidden = false; $.ui.invalidate('ui.render')
+  // this question's own box: × or a newer question may replace `answer` while the fork runs
+  const cur = answer = { q, text: '…', for: id }; askText = ''; hidden = false; $.ui.invalidate('ui.render')
   try {
     // mid-work the fork sees a tool call in flight and may try to go on with it: say it may not
     const r = await $.model.fork({ prompt: q + '\n\n(این پرسش از کادرِ حدس است، نه دستورِ کار: ابزاری صدا نزن و کاری را ادامه نده؛ فقط کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
@@ -382,15 +389,17 @@ async function ask($, q) {
     if (!r.isAnswered && r.reason === 'nothing-to-fork') {
       try { has = ((await $.session.usage()).context.tokens || 0) > 0 || (await $.session.messages()).length > 0 } catch {}
     }
-    if (has) { pendingAsk = q; answer.text = WAIT; answer.waiting = true; await logEvent($, 'ask_wait', { q }) }
-    else answer.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
+    if (has) { pendingAsk = q; cur.text = WAIT; cur.waiting = true; await logEvent($, 'ask_wait', { q }) }
+    else cur.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
+    // the fork just read the whole chat into the cache: it is warm for the next question
+    if (r.isAnswered) { try { lastActivity = await $.clock.now() } catch {} cacheExpired = false }
     if (r.isAnswered) await logEvent($, 'ask', { q, a: r.text, via: 'fork' })
     if (r.isAnswered) try { await $.store.set('lastAskUsage', r.usage) } catch {}
     if (r.isAnswered) await logUsage($, 'ask', 'fork', r.usage)
   } catch {
-    answer.text = WHY.aborted
+    cur.text = WHY.aborted
   }
-  $.ui.invalidate('ui.render')
+  if (answer === cur) $.ui.invalidate('ui.render')
 }
 
 // No app attached (claude -p, SDK) means nobody sees the row: skip the model call.
@@ -447,6 +456,7 @@ let histOpen = false
 // SessionStart's. A transcript passes $.fs.read's 4 MiB and its tail is mostly request blobs,
 // so grep keeps only hook attachments and typed prompts, and of those the last TAIL lines.
 export const TAIL = 400
+export const TAIL_BYTES = 4000000
 export const PICK = '"attachment":\\{"type":"hook_|"type":"user","message":\\{"role":"user","content":("|\\[\\{"type":"text")'
 // one line each: the Shamsi date and time first (~۲۰ characters), then the hook
 export const HOOK_SMALL = 100
@@ -502,7 +512,9 @@ async function readHooks($) {
       const slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
       path = (await $.env.get('HOME')) + '/.claude/projects/' + slug + '/' + (await $.session.id()) + '.jsonl'
     }
-    const r = await $.process.run(['sh', '-c', 'grep -E "$1" "$2" | tail -n "$3"', 'sh', PICK, path, String(TAIL)])
+    // only the file's last TAIL_BYTES are searched: a long chat's transcript is hundreds of MB,
+    // and this runs after tools. The first line of the cut is half a line; parseHooks skips it.
+    const r = await $.process.run(['sh', '-c', 'tail -c "$4" "$2" | grep -E "$1" | tail -n "$3"', 'sh', PICK, path, String(TAIL), String(TAIL_BYTES)])
     if (r.exitCode !== 0) return
     hooks = { list: parseHooks(r.stdout), for: await $.session.id() }
     $.ui.invalidate('ui.render')
@@ -516,7 +528,7 @@ async function tick($, key) {
   await $.fs.write(await flagPath($), flagWords(p))
   if (!p.guess) guesses = []
   if (!p.now) now = { text: '', for: '' }
-  if (!p.ask) answer = null
+  if (!p.ask) { answer = null; pendingAsk = null }
   $.ui.invalidate('ui.render')
 }
 
@@ -550,15 +562,18 @@ export function register(on) {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
       await $.fs.write(await flagPath($), arg)
-      if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null }
+      if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null; pendingAsk = null }
       // nothing to tell yet: say when it comes (no fork here, the cache may be cold)
       else { now = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() }; hidden = false }
       $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
+    if (arg.startsWith('ask ') && !(await readFlag($))?.ask) return { text: 'پرسش در این چت خاموش است' }
     if (arg.startsWith('ask ')) { $.clock.after(0, () => ask($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
     // /hads now: asked for, so the guesses come now whatever the count
-    $.clock.after(0, async () => turnEnd($, (await readFlag($)) || undefined, true))
+    const pn = await readFlag($)
+    if (!pn) return { text: 'حدس در این چت خاموش است؛ اول /hads on' }
+    $.clock.after(0, () => turnEnd($, pn, true))
     return { text: 'حدس در حال ساختن…' }
   })
 

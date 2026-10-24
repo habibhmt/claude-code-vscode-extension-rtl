@@ -27,7 +27,9 @@ out.jalali = [g.__crtlJalali(2026, 3, 21).join('/'), g.__crtlJalali(2025, 3, 20)
 assert.deepEqual(out.jalali, ['1405/1/1', '1403/12/30'])
 
 // 2. the script's own python block on a copy of the installed extension.js
-const exts = fs.readdirSync(path.join(os.homedir(), '.vscode/extensions')).filter((d) => d.startsWith('anthropic.claude-code-')).sort()
+// no VS Code here (CI, Cursor or Windsurf only): skip the patch part, never crash
+const extRoot = path.join(os.homedir(), '.vscode/extensions')
+const exts = fs.existsSync(extRoot) ? fs.readdirSync(extRoot).filter((d) => d.startsWith('anthropic.claude-code-')).sort() : []
 const ext = exts.length && path.join(os.homedir(), '.vscode/extensions', exts.at(-1))
 if (!ext || !fs.existsSync(path.join(ext, 'extension.js.backup'))) {
   console.log(JSON.stringify({ ...out, patch: 'skipped: no installed extension.js.backup' }))
@@ -49,6 +51,14 @@ out.patch = {
   parses: (() => { try { execFileSync(process.execPath, ['--check', extJs]); return true } catch { return false } })(),
 }
 assert.deepEqual(out.patch, { flagAlwaysOn: true, forwardWrapped: true, parses: true })
+// a bundle that names the args and the message with $ (esbuild does): still matched
+const pyDollar = py.replace("src = open(path + '.backup', encoding='utf-8').read()", "src = open(path + '.backup', encoding='utf-8').read().replace('if(this.options.includeHookEvents)a.push(', 'if(this.options.includeHookEvents)$a.push(').replace(',message:K1,done:!1,hostForwardedAt', ',message:K$,done:!1,hostForwardedAt')")
+fs.writeFileSync(path.join(tmp, 'p2.py'), pyDollar)
+execFileSync('python3', [path.join(tmp, 'p2.py')], { env: { ...process.env, CRTL_CSS_FILE: path.join(tmp, 'x.css'), CRTL_EXT_JS: extJs,
+  CRTL_BUTTONS_JS: path.join(dir, 'claude-ui-buttons.js'), CRTL_HOST_HOOK_JS: process.env.HOST_HOOK_JS || path.join(dir, 'claude-host-hook.js') } })
+const p2 = fs.readFileSync(extJs, 'utf8')
+out.dollarNames = p2.includes('$a.push("--include-hook-events")') && !p2.includes('if(this.options.includeHookEvents)$a') && p2.includes('globalThis.__crtlHookLine(K$)')
+assert.equal(out.dollarNames, true)
 // 3. the page folds them: the buttons script tags 🪝 meta lines and knows focus view
 const btn = fs.readFileSync(process.env.BUTTONS_JS || path.join(dir, 'claude-ui-buttons.js'), 'utf8')
 out.pageFolds = /crtl-hook-open/.test(btn) && /focusFoldRow_/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)

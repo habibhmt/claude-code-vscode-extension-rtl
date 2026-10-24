@@ -18,11 +18,12 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
-  process: { run: async (argv, init) => { if (/cat >>/.test(argv?.[2] || '')) { events.push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
+  process: { run: async (argv, init) => { if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
 const events = []
+const usages = []
 $.t = 0
 $.ctx = 1000
 // no fork reply at first: the end of an answer falls back to the two Sonnet calls
@@ -351,7 +352,7 @@ assert.equal(out.hooksSmall.length, 4); assert.ok(out.hooksSmall.every((x) => x.
 // each hook with its Shamsi date and Tehran time
 assert.equal(out.hooksSmall[1], '۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit ✓ [20:09 +0330 -- habib]'); assert.ok(/^PostToolUse:Bash ×۲ ＋ یادآوری/.test(out.hooksSmall[2]))
 // only hook lines and typed prompts, the last TAIL of them: never the whole 16 MB transcript
-out.tailOnly = calls.argv?.[0] === 'sh' && calls.argv?.[4] === mod.PICK && calls.argv?.[6] === String(mod.TAIL) && /grep -E .*\| tail -n/.test(calls.argv?.[2]); assert.equal(out.tailOnly, true)
+out.tailOnly = calls.argv?.[0] === 'sh' && calls.argv?.[4] === mod.PICK && calls.argv?.[6] === String(mod.TAIL) && calls.argv?.[7] === String(mod.TAIL_BYTES) && /^tail -c .*\| grep -E .*\| tail -n/.test(calls.argv?.[2]); assert.equal(out.tailOnly, true)
 // big: the last HOOK_BIG_ROWS, each whole up to HOOK_BIG (selectable text, no کپی buttons)
 await find(rK, 'hads-hook-size').onPress({}); rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.hooksBig = { file: flags['/h/.claude/hads-on/K'], rows: hookTexts(rK).length, whole: hookTexts(rK).some((x) => x.endsWith(LONG)), copy: JSON.stringify(rK).includes('copy') }
@@ -426,5 +427,42 @@ await H['prompt.submit']($, { text: shown + ' لطفاً' }, next)
 await H['prompt.submit']($, { text: 'یه چیز دیگه' }, next)
 const after = events.slice(before).map((e) => e.kind + (e.edited ? ':edited' : ''))
 out.guessSent = after; assert.deepEqual(out.guessSent, ['guess_click', 'guess_sent'])
+$.ui.resolve = realResolve
+// cloud review, 24 Oct: (1) × while a «پرسش» fork runs never throws or lands in a newer box
+$.ui.resolve = () => withInput; $.sid = 'R'; await H['command.run']($, { args: 'on' }); await H['turn.complete']($, {}, next); await flush()
+let relF; $.model.fork = (o) => { calls.fork.push(o); return new Promise((r) => { relF = r }) }
+const pAsk = H['command.run']($, { args: 'ask سؤالِ یک' }); await flush(); await new Promise((r) => setTimeout(r, 5))
+const x1 = find(await render(), 'hads-ans-x'); x1 && x1.onPress()
+let threw = false; relF({ isAnswered: true, text: 'جوابِ یک', usage: {} }); await new Promise((r) => setTimeout(r, 5)); try { await flush() } catch { threw = true }
+out.askClosed = { threw, shown: JSON.stringify(await render()).includes('جوابِ یک') }; assert.deepEqual(out.askClosed, { threw: false, shown: false })
+// a newer question while the first is still out: the first answer never lands in the second's box
+let rel1, rel2; let nth = 0
+$.model.fork = (o) => { calls.fork.push(o); nth++; return new Promise((r) => { if (nth === 1) rel1 = r; else rel2 = r }) }
+H['command.run']($, { args: 'ask اول' }); await new Promise((r) => setTimeout(r, 5))
+H['command.run']($, { args: 'ask دوم' }); await new Promise((r) => setTimeout(r, 5))
+rel1({ isAnswered: true, text: 'جوابِ اول', usage: {} }); await new Promise((r) => setTimeout(r, 5))
+const rQ = JSON.stringify(await render()); out.askNewer = rQ.includes('پرسش: دوم') && !rQ.includes('جوابِ اول'); assert.equal(out.askNewer, true)
+rel2({ isAnswered: true, text: 'جوابِ دوم', usage: {} }); await flush()
+// a «پرسش» that waits (nothing-to-fork) and then /hads off: no fork at the next answer
+$.model.fork = async (o) => { calls.fork.push(o); return { isAnswered: false, reason: 'nothing-to-fork' } }
+await H['command.run']($, { args: 'ask منتظر' }); await flush()
+await H['command.run']($, { args: 'off' }); await H['command.run']($, { args: 'on' }); const wq0 = calls.fork.length; $.t = $.t || 1e12
+$.model.fork = async (o) => { calls.fork.push(o); return { isAnswered: true, text: '{}', usage: {} } }
+await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
+out.waitDropped = !calls.fork.slice(wq0).some((f) => /منتظر/.test(f.prompt)); assert.equal(out.waitDropped, true)
+$.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
+// (2) off: /hads now, /hads ask and a waiting «پرسش» never pay for a model call
+await H['command.run']($, { args: 'off' }); const off0 = cnt()
+out.nowOff = (await H['command.run']($, { args: 'now' })).text; await H['command.run']($, { args: 'ask چیزی' }); await flush()
+const off1 = cnt(); out.offCalls = [off1[0] - off0[0], off1[1] - off0[1], off1[2] - off0[2]]; assert.deepEqual(out.offCalls, [0, 0, 0])
+// (4) an answer that ends during a running end, then /hads off: the queued re-run is dropped
+await H['command.run']($, { args: 'on' }); let relN; const nowKeep = $.nowModel
+$.nowModel = (o) => { calls.now.push(o); return new Promise((r) => { relN = r }) }
+await H['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)); await H['turn.complete']($, {}, next)
+await H['command.run']($, { args: 'off' }); const q0 = cnt()
+$.nowModel = nowKeep; relN({ isAnswered: true, text: 'یک. دو.' }); await new Promise((r) => setTimeout(r, 10)); await flush()
+const q1 = cnt(); out.endAgainOff = [q1[0] - q0[0], q1[1] - q0[1], q1[2] - q0[2]]; assert.deepEqual(out.endAgainOff, [0, 0, 0])
+// (6) usage lines are appended, never read and rewritten
+out.usageAppend = usages.length > 0 && !Object.keys(flags).some((k) => k.endsWith('.usage.jsonl')); assert.equal(out.usageAppend, true)
 $.ui.resolve = realResolve
 console.log(JSON.stringify(out))

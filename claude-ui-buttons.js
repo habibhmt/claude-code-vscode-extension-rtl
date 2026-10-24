@@ -238,6 +238,11 @@
     '[data-message-stamp]:not([class*="inPadding_"]){top:calc(var(--message-padding-top,8px) + 6px) !important;left:10px !important}',
     /* hooks in the chat (host hook turns each hook's output into a meta line starting with 🪝):
        folded to one line; a click, or focus view, shows what the hook injected in full */
+    /* the plugin panels above the prompt (the «حدس» box): the app root is user-select:none and the
+       panel's band never turns it back on, so its text could not be selected (Habib, 24 Oct 22:13:
+       «هنوزم این چارچوب حدس متنش قابل انتخاب و کپی پیست نیست»); buttons and inputs stay as they are */
+    '[class*="abovePrompt_"] [class*="band_"],[class*="abovePrompt_"] [class*="row_"],[class*="abovePrompt_"] [class*="paneBody_"],[class*="abovePrompt_"] span[class*="text_"]{-webkit-user-select:text!important;user-select:text!important}',
+    '[class*="abovePrompt_"] span[class*="text_"]{cursor:text}',
     '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */

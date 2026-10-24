@@ -492,6 +492,14 @@ out.summary = { asked: !!sumFork && /فایل را خواند/.test(sumFork.prom
   shown: find(rS, 'hads-now')?.children[0], done: find(rS, 'hads-sum-done')?.children[0], not: find(rS, 'hads-sum-not')?.children[0],
   logged: events.slice(se0).filter((e) => e.kind === 'turn_summary').map((e) => e.not_done) }
 assert.deepEqual(out.summary, { asked: true, noSonnet: true, shown: 'فایل خوانده و تست سبز شد. commit مانده.', done: '✓ خواندنِ فایل · تست', not: '✗ commit', logged: [['commit']] })
+// it is injected into later chats' memory, so it must be right (Habib, 24 Oct 23:37): the fork reads
+// the whole turn (every tool's output), the «دو جمله» are only hints, done needs a tool's proof,
+// unproven ⇒ not_done; and Habib's own words of the turn are logged as they were sent
+out.summaryRules = { whole: /هر فراخوانیِ ابزار و خروجی‌اش/.test(sumFork.prompt), hints: /فقط راهنما‌اند، منبع نیستند/.test(sumFork.prompt),
+  proof: /در done فقط چیزی که خروجیِ یک ابزار در همین نوبت ثابتش کرد/.test(sumFork.prompt), unsure: /سنجیده‌نشده ⇒ not_done با «چک نشد»/.test(sumFork.prompt),
+  numbers: /عدد، ساعت، اسمِ فایل و commit فقط اگر عیناً در خروجیِ یک ابزارِ همین نوبت/.test(sumFork.prompt),
+  asked: events.slice(se0).filter((e) => e.kind === 'turn_summary').map((e) => e.asked) }
+assert.deepEqual(out.summaryRules, { whole: true, hints: true, proof: true, unsure: true, numbers: true, asked: ['کار کن'] })
 // a short turn (fewer than SUMMARY_MIN lines): no summary fork, the plain Sonnet «دو جمله»
 await H['prompt.submit']($, { text: 'سلام' }, next); const sf1 = calls.fork.length, sn1 = calls.now.length
 $.t += 1; await H['turn.complete']($, {}, next); await flush()
@@ -514,13 +522,15 @@ await H['prompt.submit']($, { text: 'یه کار کوتاه' }, next); $.t += 1;
 const sf4 = calls.fork.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
 const sumTool = calls.fork.slice(sf4).find((f) => /جمع‌بندی/.test(f.prompt))
 out.toolTurn = !!sumTool && /git status/.test(sumTool.prompt); assert.equal(out.toolTurn, true)
-// a chat over MAX_FORK: summed up by Sonnet, never skipped
+// a chat over MAX_FORK: still its own warm fork, never Sonnet (Habib, 24 Oct 23:37: «با مدل اصلی»)
 await H['prompt.submit']($, { text: 'کار در چتِ بزرگ' }, next); $.t += 1; await tool({ command: 'npm test' }); await flush()
 $.ctx = mod.MAX_FORK + 1; const savedNow = $.nowModel
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: 'خط' } }
 $.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: o.maxTokens === 500 ? '{"text": "تست اجرا شد.", "done": ["تست"], "not_done": []}' : $.reply } }
-const se5 = events.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
-out.bigSummary = events.slice(se5).filter((e) => e.kind === 'turn_summary').map((e) => e.via); assert.deepEqual(out.bigSummary, ['sonnet'])
+$.model.fork = async (o) => { calls.fork.push(o); return /جمع‌بندی/.test(o.prompt) ? { isAnswered: true, usage: {}, text: '{"text": "تست اجرا شد.", "done": ["تست ⇐ npm test"], "not_done": []}' } : { isAnswered: true, usage: {}, text: '{"guesses": []}' } }
+const se5 = events.length, sc5 = calls.complete.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
+out.bigSummary = { via: events.slice(se5).filter((e) => e.kind === 'turn_summary').map((e) => e.via), sonnetSummary: calls.complete.slice(sc5).some((c) => c.maxTokens === 500) }
+assert.deepEqual(out.bigSummary, { via: ['fork'], sonnetSummary: false })
 $.ctx = 1000; $.nowModel = savedNow; $.guessModel = slow
 $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
 console.log(JSON.stringify(out))

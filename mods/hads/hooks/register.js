@@ -337,18 +337,28 @@ async function turnEnd($, p = { guess: true, now: true }, force = false) {
 // بعد از رفت و برگشت کل اینا رو بده به … یه ایجنت با کشه گرم که … جمعبندی کنه»): one fork of the
 // chat itself (warm cache: the answer was just sent) gets every «دو جمله» of this turn and says
 // what was done and what was not. Shown in place of «دو جمله» and logged as turn_summary.
-// Too few lines, a chat over MAX_FORK or no usable reply: the plain Sonnet «دو جمله», as before.
+// No tool and no line, or no usable reply: the plain Sonnet «دو جمله», as before. Any size of
+// chat is summed up by its own fork (24 Oct 23:37): it is injected into later chats' memory.
 // a turn is summed up when the agent did work in it: a tool ran, or «دو جمله» was written.
 // (v7 asked for 2 lines; «دو جمله» comes at most once a minute, so most turns had 0-1 and the
 // real chat ۲۰۳ never got one — 24 Oct 22:58)
 export const SUMMARY_MIN = 1
 // tools run in the turn now running, per chat
 const turnTools = new Map()
+// Habib's own message that started the turn, per chat
+const turnAsked = new Map()
 const SUMMARY_ASK = (lines, tools) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
-  (lines.length ? 'این «دو جمله»‌ها در همین نوبت، وسطِ کار، نوشته شده‌اند:\n' + lines.map((l, i) => (i + 1) + ') ' + l).join('\n') + '\n' : '') +
-  (tools.length ? 'ابزارهایی که در این نوبت اجرا شد:\n' + tools.map((l) => '- ' + l).join('\n') : '') +
-  '\n\nبا توجه به آن‌ها و جوابِ آخرت، جمع‌بندیِ همین نوبت را بده: چه کارهایی انجام شد و چه کارهایی نشد یا مانده. فارسیِ ساده، با واژه‌های حبیب. ' +
-  'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "done": ["<short>", …], "not_done": ["<short>", …]}'
+  'جمع‌بندیِ همین نوبت را بده؛ این جمع‌بندی به حافظهٔ چت‌های بعدی تزریق می‌شود، پس باید بی‌اشتباه باشد. ' +
+  'منبع: کلِ همین نوبت در حافظهٔ خودت، از آخرین پیامِ حبیب تا حالا: پیامِ حبیب، هر فراخوانیِ ابزار و خروجی‌اش، و جوابت. ' +
+  (lines.length ? 'این «دو جمله»‌ها وسطِ کار نوشته شده‌اند؛ فقط راهنما‌اند، منبع نیستند:\n' + lines.map((l, i) => (i + 1) + ') ' + l).join('\n') + '\n' : '') +
+  (tools.length ? 'فهرستِ ابزارهای این نوبت (خروجی‌شان را از حافظهٔ خودت بخوان):\n' + tools.map((l) => '- ' + l).join('\n') + '\n' : '') +
+  '\nقاعده‌ها: ' +
+  '۱) در done فقط چیزی که خروجیِ یک ابزار در همین نوبت ثابتش کرد، و ته هر کدام مدرکش بعد از «⇐» (مثلاً «نگهبان روشن است ⇐ pgrep: 36459»). ' +
+  '۲) پیشنهاد، نیت، کاری که فقط گفته شد، یا چیزی که از نوبت‌های قبل می‌دانستی ⇒ done نیست. ' +
+  '۳) نامطمئن یا سنجیده‌نشده ⇒ not_done با «چک نشد». ' +
+  '۴) عدد، ساعت، اسمِ فایل و commit فقط اگر عیناً در خروجیِ یک ابزارِ همین نوبت آمده. ' +
+  '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ not_done. فارسیِ ساده، با واژه‌های حبیب. ' +
+  'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "done": ["<short> ⇐ <evidence>", …], "not_done": ["<short>", …]}'
 export function parseSummary(raw) {
   try {
     const m = String(raw || '').match(/\{[\s\S]*\}/)
@@ -364,25 +374,23 @@ async function summarize($) {
   const id = await $.session.id()
   const lines = turnNows.get(id) || []
   const tools = turnTools.get(id) || []
+  const asked = turnAsked.get(id) || ''
   turnNows.set(id, []); turnTools.set(id, [])
   if (lines.length < SUMMARY_MIN && !tools.length) return false
   let tokens = 0
   try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
   try {
-    // the chat itself with its warm cache; a chat over MAX_FORK: Sonnet on the turn's lines,
-    // tools and last messages instead of no summary at all
-    const big = tokens > MAX_FORK
-    const r = big
-      ? await $.model.complete({ model: MODEL, system: 'You sum up one turn of a Claude Code session for حبیب.',
-        prompt: [{ text: await vazhe($), cache: true }, { text: buildPrompt(recent(await $.session.messages())) + '\n\n' + SUMMARY_ASK(lines, tools) }],
-        maxTokens: 500, timeoutMs: 30000 })
-      : await $.model.fork({ prompt: SUMMARY_ASK(lines, tools) })
-    if (r.isAnswered) await logUsage($, 'summary', big ? 'sonnet' : 'fork', r.usage)
+    // always the chat itself with its warm cache, whatever its size: only it has read every tool's
+    // output (Habib, 24 Oct 23:37: «با مدل اصلی که با کش گرم کار میکنه»; Sonnet on the last few
+    // messages got turns wrong). No usable reply: no summary, the plain «دو جمله».
+    const r = await $.model.fork({ prompt: SUMMARY_ASK(lines, tools) })
+    if (r.isAnswered) await logUsage($, 'summary', 'fork', r.usage)
     const got = r.isAnswered ? parseSummary(r.text) : null
     if (!got) return false
     await setNow($, got.text, 'summary')
     now.summary = got
-    await logEvent($, 'turn_summary', { text: got.text, done: got.done, not_done: got.not_done, from: lines.length, tools: tools.length, via: big ? 'sonnet' : 'fork' })
+    // what Habib asked in this turn, word for word from his own message (not the model's retelling)
+    await logEvent($, 'turn_summary', { asked: asked.slice(0, 300), text: got.text, done: got.done, not_done: got.not_done, from: lines.length, tools: tools.length, via: 'fork', tokens })
     return true
   } catch {
     return false
@@ -644,7 +652,7 @@ export function register(on) {
   // the prompt's own hooks are written right after it: read them a moment later
   // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
   on('prompt.submit', async ($, e, next) => {
-    try { const sid = await $.session.id(); turnNows.set(sid, []); turnTools.set(sid, []) } catch {}
+    try { const sid = await $.session.id(); turnNows.set(sid, []); turnTools.set(sid, []); turnAsked.set(sid, String(e?.text || '').trim()) } catch {}
     try {
       const sent = String(e?.text || '').trim()
       if (sent && clicked.length) {

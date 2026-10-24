@@ -252,7 +252,9 @@
     /* compact (24 Oct 22:52: «جمع و جور ترش بکن … ارتفاعش کمتر بشه … فرام ده حدس پلاگین رو با اون دو تا دکمه … تو یک خط»):
        the header line holds ▾ ◂ × too, rows and buttons are tighter */
     '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10px!important;letter-spacing:.02em;opacity:.5;padding:4px 12px 0!important;min-height:20px;line-height:20px;position:static!important}',
-    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important}',
+    /* the band is contain:paint — a containing block of its own — so the absolute top row was placed
+       against the band (over «پرسش») and clipped; the card must be its box (24 Oct 23:22) */
+    '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important;contain:none!important;overflow:visible!important}',
     '.crtl-hads [class*="box_"]{row-gap:2px}',
     '.crtl-hads span[class*="text_"]{line-height:1.45}',
     '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:0 8px!important;font-size:11px!important;line-height:1.5!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
@@ -2035,7 +2037,8 @@
         bs[b].classList.toggle('crtl-tick-off', tx.charAt(0) === '✗');
         bs[b].classList.toggle('crtl-insert', tx === '⤵');
         // ▾ and ×: their row sticks to the top of the box, so they never scroll out of sight
-        if ((tx === '×' || tx === '▾' || tx === '◂') && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-top');
+        // the top row is the one holding × (the folded line has ◂ too but no ×: it must stay in the flow)
+        if (tx === '×' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-top');
       }
     }
   }

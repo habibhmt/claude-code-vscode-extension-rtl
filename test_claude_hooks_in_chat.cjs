@@ -91,6 +91,10 @@ assert.equal(out.hadsGlass, true)
 // compact: ▾ ◂ × ride on the header line; the one-button state shrinks the card to that button
 out.hadsCompact = /\.crtl-hads \.crtl-hads-top\{position:absolute!important;top:3px/.test(btn) && /crtl-hads-dot\{width:max-content/.test(btn) && /toggle\('crtl-hads-dot'/.test(btn)
 assert.equal(out.hadsCompact, true)
+// the top row is found by its ×, never the folded line (which has ◂ but no ×); and the band
+// lets the card be the box the top row sits against (contain:none)
+out.topRowSafe = /if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && /crtl-hads \[class\*="band_"\][^']*contain:none!important/.test(btn)
+assert.equal(out.topRowSafe, true)
 out.pageFolds = /--crtl-hook-size/.test(btn) && /sizeRow\('هوک‌ها', 'hook'/.test(btn) && /crtl-hook-open/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)
 // folded whatever the focus view: no rule may open them by focus (24 Oct 22:55)

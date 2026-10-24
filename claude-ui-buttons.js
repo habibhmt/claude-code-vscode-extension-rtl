@@ -271,8 +271,12 @@
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
     '[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook,[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook *{font-size:var(--crtl-hook-size,13px)!important;line-height:1.45!important}',
-    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open) [class*="metaMessageLines_"]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
-    '.crtl-focus-on [class*="metaMessage_"].crtl-hook [class*="metaMessageLines_"]{white-space:pre-line !important;overflow:visible}',
+    /* folded like «Thought for Ns»: one line whatever the focus view, opened only by a click
+       (Habib, 24 Oct 22:55: «میخواستم که جمع باشه … اگه روش بزنیم همون هوکه باز بشه») */
+    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open){max-height:1.9em!important;overflow:hidden!important}',
+    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open),[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open) *{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}',
+    '[class*="metaMessage_"].crtl-hook::before{content:"▸ ";opacity:.6}',
+    '[class*="metaMessage_"].crtl-hook.crtl-hook-open::before{content:"▾ "}',
     /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
     '[class*="headerSpacer_"].crtl-top-host{min-width:0;overflow:hidden;display:flex;align-items:center}',
     '.crtl-bar.crtl-top{position:static;flex-direction:row;align-items:center;max-height:none;min-width:0;flex:1;',

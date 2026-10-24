@@ -8,3 +8,4 @@
 | ۴ | push و تگِ همهٔ commit های محلی (`git log origin/main..main`) | ۲۲ اکت ۰۳:۰۵ | حرفِ جدای حبیب برای push |
 | ۵ | آزمون‌های ۰۲ و ۰۳ (و `npm test`) کرومِ headless باز می‌کنند؛ تا «تمام» ِ منشی فقط با `NO_CHROME=1 bash Doc/tarif/chek.sh` | ۲۲ اکت ۰۷:۰۰ | «تمام» در `state/sarparast/zende-dastoor.md` |
 | ۶ | دیدنِ «دو جمله» و «بپرس» در پنلِ VS Code با چشم (فقط در ترمینال آزموده شد) + خرجِ «بپرس» با cache ِ سرد | ۲۴ اکت ۱۸:۱۰ | «تمام» ِ منشی برای Reload/عکس |
+| ۷ | h-on و h-off خودشان بفرستند (`send: true` در `claude-ui-buttons.js`) — ناظر و مجری هم‌نظر؛ آزمونش (`test_claude_top_buttons.cjs`) کرومِ headless می‌خواهد | ۲۴ اکت ۱۸:۵۸ | «تمام» ِ منشی |

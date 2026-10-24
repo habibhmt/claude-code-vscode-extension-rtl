@@ -424,6 +424,15 @@ if m:
     hook_path = os.environ.get('CRTL_HOST_HOOK_JS', '')
     if hook_path and os.path.exists(hook_path):
         out = open(hook_path, encoding='utf-8').read() + '\n' + out
+        # hooks in the chat: ask the CLI for hook events (the panel never does), and pass
+        # each forwarded message through the host hook's __crtlHookLine, which turns a
+        # hook's output into a line the page already draws. Either anchor missing (a new
+        # bundle) leaves that part alone; the rest of the patch still applies.
+        out = re.sub(r'if\(this\.options\.includeHookEvents\)(\w+)\.push\("--include-hook-events"\)',
+                     r'\1.push("--include-hook-events")', out, count=1)
+        out = re.sub(r'this\.send\(\{type:"io_message",channelId:(\$|\w+),message:(\w+),done:!1,hostForwardedAt:Date\.now\(\)\}\)',
+                     r'this.send({type:"io_message",channelId:\1,message:(globalThis.__crtlHookLine?globalThis.__crtlHookLine(\2):\2),done:!1,hostForwardedAt:Date.now()})',
+                     out, count=1)
     open(path, 'w', encoding='utf-8').write(out)
 PYEOF
                 rm -f "$css_tmp"

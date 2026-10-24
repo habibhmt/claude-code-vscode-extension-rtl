@@ -173,4 +173,46 @@
     };
   } catch (e) {}
 })();
+
+// Hooks in the chat. The panel never asked the CLI for hook events and has no view for
+// them, so what a hook injected stayed invisible (Habib, 24 Oct: «میخوام تو خود اکستنشن
+// کلود کد … این هوک ها هم همین طور باشه هم یه خطی بیان … و هم اگر فوکوس آن شد اینا
+// کامل بیاید»). fix-rtl-claude.sh turns --include-hook-events on and passes every message
+// the host forwards to the page through this: a hook_response with output becomes an
+// "informational" line, which the page already draws in the chat (like «Remote Control is
+// active»). The buttons script folds it to one line and opens it on a click or in focus view.
+(function () {
+  var MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+  function fa(s) { return String(s).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
+  function jalali(gy, gm, gd) {
+    var g = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    var gy2 = gm > 2 ? gy + 1 : gy;
+    var days = 355666 + 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g[gm - 1];
+    var jy = -1595 + 33 * Math.floor(days / 12053); days %= 12053;
+    jy += 4 * Math.floor(days / 1461); days %= 1461;
+    if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+    var jm = days < 186 ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+    var jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30);
+    return [jy, jm, jd];
+  }
+  // Tehran is +03:30 all year
+  function whenFa(t) {
+    var d = new Date(t + 3.5 * 3600e3);
+    var j = jalali(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());
+    var hh = ('0' + d.getUTCHours()).slice(-2), mm = ('0' + d.getUTCMinutes()).slice(-2);
+    return fa(j[2] + ' ' + MONTHS[j[1] - 1] + ' ' + j[0] + ' ' + hh + ':' + mm);
+  }
+  globalThis.__crtlHookLine = function (m, now) {
+    try {
+      if (!m || m.type !== 'system' || m.subtype !== 'hook_response') return m;
+      var text = String(m.output || m.stdout || '').trim();
+      if (!text) return m;
+      var name = m.hook_name || m.hook_event || 'hook';
+      // the first line is what the folded view shows: mark, time, name
+      return { type: 'system', subtype: 'informational', level: 'notice', session_id: m.session_id, uuid: m.uuid,
+        content: '🪝 ' + whenFa(now || Date.now()) + ' · ' + name + '\n' + text };
+    } catch (e) { return m; }
+  };
+  globalThis.__crtlJalali = jalali;
+})();
 /* === /CLAUDE-RTL-HOST-HOOK === */

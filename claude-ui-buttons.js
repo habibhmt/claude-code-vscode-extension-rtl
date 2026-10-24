@@ -235,6 +235,11 @@
     /* answers have the timeline dot at 9-16px on the left: start after it */
     '[class*="timelineMessage_"]>[data-message-stamp]{left:30px !important}',
     '[data-message-stamp]:not([class*="inPadding_"]){top:calc(var(--message-padding-top,8px) + 6px) !important;left:10px !important}',
+    /* hooks in the chat (host hook turns each hook's output into a meta line starting with 🪝):
+       folded to one line; a click, or focus view, shows what the hook injected in full */
+    '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.75}',
+    '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open) [class*="metaMessageLines_"]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.crtl-focus-on [class*="metaMessage_"].crtl-hook [class*="metaMessageLines_"]{white-space:pre-line !important;overflow:visible}',
     /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
     '[class*="headerSpacer_"].crtl-top-host{min-width:0;overflow:hidden;display:flex;align-items:center}',
     '.crtl-bar.crtl-top{position:static;flex-direction:row;align-items:center;max-height:none;min-width:0;flex:1;',
@@ -1955,6 +1960,24 @@
       }
     });
   }
+
+  // hooks in the chat: tag the 🪝 meta lines, open/close them on a click (not when the click
+  // ends a text selection), and mark focus view, where the panel folds the rest
+  function markHooks() {
+    var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');
+    for (var i = 0; i < ms.length; i++) {
+      if (!/^\s*🪝/.test(ms[i].textContent || '')) continue;
+      ms[i].classList.add('crtl-hook');
+      ms[i].addEventListener('click', function () {
+        var sel = window.getSelection && window.getSelection();
+        if (sel && String(sel).length) return;
+        this.classList.toggle('crtl-hook-open');
+      });
+    }
+    document.documentElement.classList.toggle('crtl-focus-on', !!document.querySelector('[class*="focusFoldRow_"]'));
+  }
+  setInterval(markHooks, 700);
+  window.__crtlMarkHooks = markHooks;
 
   var tries = 0;
   var timer = setInterval(function () {

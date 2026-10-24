@@ -261,7 +261,11 @@
     '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
     '.crtl-hads button.crtl-tick-on{background:#0a84ff!important;color:#fff!important;border-color:transparent!important}',
     '.crtl-hads button.crtl-tick-off{opacity:.55}',
-    '.crtl-hads .crtl-hads-top{position:sticky!important;top:0;z-index:3;height:0;overflow:visible;display:flex;direction:ltr;justify-content:flex-start;gap:4px;padding:0!important;margin:0!important;background:transparent}',
+    '.crtl-hads .crtl-hads-top{position:sticky!important;top:0;z-index:3;display:flex;direction:ltr;justify-content:flex-start;gap:4px;padding:0!important;margin:0!important;background:transparent;pointer-events:none}',
+    '.crtl-hads .crtl-hads-top button{pointer-events:auto}',
+    // the header «From the hads plugin» leaves the flow and sits on the top row's line (right side),
+    // so ▾ ◂ × and it share one line while the band keeps its own scroll
+    '.crtl-hads:has(.crtl-hads-top) [data-engine-mark]{position:absolute!important;top:6px;right:12px;z-index:2;margin:0!important;pointer-events:none}',
     /* the third state: just one small button, on the left (24 Oct 22:52: «فقط سمت چپ … یک دکمه») */
     '.crtl-hads.crtl-hads-dot{width:max-content!important;margin:2px auto 4px 8px!important;border-radius:8px!important;box-shadow:0 2px 8px rgba(0,0,0,.25)!important}',
     '.crtl-hads.crtl-hads-dot [data-engine-mark]{display:none!important}',
@@ -374,7 +378,10 @@
     // max-height, which !important does.
     var inner = '[class*="userMessage_"]:not(.crtl-expanded) [class*="content_"]';
     if (s.lines > 0) {
-      out.push('[class*="userMessage_"]:not(.crtl-expanded){overflow:hidden!important}');
+      // only sideways: the app's own up-down scroll stays (the pinned message on top has
+      // max-height:40vh and scrolls; hook lines under a message are not clamped, so a hidden
+      // overflow cut them with no way to reach the rest — 25 Oct 00:09)
+      out.push('[class*="userMessage_"]:not(.crtl-expanded){overflow-x:hidden!important}');
       out.push(inner + '{display:-webkit-box!important;-webkit-line-clamp:' + s.lines +
         '!important;-webkit-box-orient:vertical!important;overflow:hidden!important;max-height:none!important}');
       out.push('[class*="userMessage_"]:not(.crtl-expanded) [class*="truncationGradient"]{display:none!important}');

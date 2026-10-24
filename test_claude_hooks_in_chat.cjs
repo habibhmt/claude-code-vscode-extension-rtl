@@ -94,12 +94,16 @@ assert.equal(out.hadsCompact, true)
 // the top row is found by its ×, never the folded line (which has ◂ but no ×). The band keeps its
 // own scroll (overflow:auto, max 12 lines): «overflow:visible» let the box spill over the chat and the
 // chat stopped scrolling (25 Oct 00:04: «دیگه اسکرول نمیشه»); so the top row sticks to the band's top
-out.topRowSafe = /if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-top\{position:sticky!important;top:0/.test(btn)
+out.topRowSafe = /if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-top\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-top\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-top\) \[data-engine-mark\]\{position:absolute/.test(btn)
 assert.equal(out.topRowSafe, true)
 out.pageFolds = /--crtl-hook-size/.test(btn) && /sizeRow\('هوک‌ها', 'hook'/.test(btn) && /crtl-hook-open/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)
 // folded whatever the focus view: no rule may open them by focus (24 Oct 22:55)
 out.foldAlways = /crtl-hook:not\(\.crtl-hook-open\)\{max-height:1\.9em!important/.test(btn) && !/\.crtl-focus-on [^']*crtl-hook/.test(btn)
 assert.equal(out.foldAlways, true)
+// a user message keeps the app's own up-down scroll: the hook lines under it are not clamped, and
+// «overflow:hidden» cut them with no way to scroll (25 Oct 00:09: «کادر پیامهای من هم اسکرول نمیشه»)
+out.userMsgScrolls = /userMessage_"\]:not\(\.crtl-expanded\)\{overflow-x:hidden!important\}/.test(btn) && !/userMessage_"\]:not\(\.crtl-expanded\)\{overflow:hidden/.test(btn)
+assert.equal(out.userMsgScrolls, true)
 fs.rmSync(tmp, { recursive: true, force: true })
 console.log(JSON.stringify(out))

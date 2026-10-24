@@ -142,6 +142,8 @@ const nowText = (t) => t.children.find((c) => c.key === 'hads-now')?.children[0]
 out.twoOnly = nowText(await render()); assert.equal(out.twoOnly, 'اول. دوم!')
 // a dot inside a file name or a version does not end the sentence
 out.fileDot = mod.twoSentences('ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد. سوم.'); assert.equal(out.fileDot, 'ایجنت فایل register.js را در v2.10 عوض کرد. بعد تست زد.')
+// a «sentence» without a stop, 2000 long, is cut to MAX_NOW with …
+const long = mod.twoSentences('ا'.repeat(2000)); out.maxLen = long.length + (long.endsWith('…') ? '…' : ''); assert.equal(out.maxLen, mod.MAX_NOW + '…')
 // the tool's result comes back untouched and never waits for the model
 let hang; $.nowModel = () => new Promise((r) => { hang = r })
 $.t += mod.GAP; out.untouched = (await tool()).result; assert.equal(out.untouched, 'ok')

@@ -72,6 +72,10 @@ out.dollarNames = p2.includes('$a.push("--include-hook-events")') && !p2.include
 assert.equal(out.dollarNames, true)
 // 3. the page folds them: the buttons script tags 🪝 meta lines and knows focus view
 const btn = fs.readFileSync(process.env.BUTTONS_JS || path.join(dir, 'claude-ui-buttons.js'), 'utf8')
+// the size must beat the chat's own «msg p{font-size:…!important}»: same !important, higher specificity,
+// and on the line's children too (24 Oct 22:11: the slider changed nothing)
+out.sizeWins = /\[class\*="messagesContainer_"\] \[class\*="metaMessage_"\]\.crtl-hook \*\{font-size:var\(--crtl-hook-size,13px\)!important/.test(btn)
+assert.equal(out.sizeWins, true)
 out.pageFolds = /--crtl-hook-size/.test(btn) && /sizeRow\('هوک‌ها', 'hook'/.test(btn) && /crtl-hook-open/.test(btn) && /focusFoldRow_/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)
 fs.rmSync(tmp, { recursive: true, force: true })

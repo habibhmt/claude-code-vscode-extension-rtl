@@ -238,7 +238,10 @@
     '[data-message-stamp]:not([class*="inPadding_"]){top:calc(var(--message-padding-top,8px) + 6px) !important;left:10px !important}',
     /* hooks in the chat (host hook turns each hook's output into a meta line starting with 🪝):
        folded to one line; a click, or focus view, shows what the hook injected in full */
-    '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;font-size:var(--crtl-hook-size,13px);padding:3px 8px}',
+    '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
+    /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
+       hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
+    '[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook,[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook *{font-size:var(--crtl-hook-size,13px)!important;line-height:1.45!important}',
     '[class*="metaMessage_"].crtl-hook:not(.crtl-hook-open) [class*="metaMessageLines_"]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.crtl-focus-on [class*="metaMessage_"].crtl-hook [class*="metaMessageLines_"]{white-space:pre-line !important;overflow:visible}',
     /* the header row: one line, scrolls sideways, never pushes the chat name or icons out */
@@ -1968,7 +1971,9 @@
   function markHooks() {
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');
     for (var i = 0; i < ms.length; i++) {
-      if (!/^\s*🪝/.test(ms[i].textContent || '')) continue;
+      // the 🪝 may come after an icon the panel draws in front: look at the first few characters
+      var head = (ms[i].textContent || '').slice(0, 12);
+      if (head.indexOf('🪝') < 0) continue;
       ms[i].classList.add('crtl-hook');
       ms[i].addEventListener('click', function () {
         var sel = window.getSelection && window.getSelection();

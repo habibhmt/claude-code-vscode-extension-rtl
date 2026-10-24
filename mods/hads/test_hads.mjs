@@ -468,4 +468,31 @@ const q1 = cnt(); out.endAgainOff = [q1[0] - q0[0], q1[1] - q0[1], q1[2] - q0[2]
 // (6) usage lines are appended, never read and rewritten
 out.usageAppend = usages.length > 0 && !Object.keys(flags).some((k) => k.endsWith('.usage.jsonl')); assert.equal(out.usageAppend, true)
 $.ui.resolve = realResolve
+// the end of an exchange: one warm fork sums up this turn's «دو جمله» (done / not done), shown and logged
+$.sid = 'S'; await H['command.run']($, { args: 'on' }); await H['prompt.submit']($, { text: 'کار کن' }, next)
+$.nowReply = 'ایجنت فایل را خواند. منتظر نیست.'; $.t += mod.GAP; await tool(); await flush()
+$.nowReply = 'ایجنت تست را اجرا کرد. تست سبز شد.'; $.t += mod.GAP; await tool(); await flush()
+$.model.fork = async (o) => { calls.fork.push(o); return /جمع‌بندی/.test(o.prompt)
+  ? { isAnswered: true, usage: {}, text: '{"text": "فایل خوانده و تست سبز شد. commit مانده.", "done": ["خواندنِ فایل", "تست"], "not_done": ["commit"]}' }
+  : { isAnswered: true, usage: {}, text: '{"guesses": []}' } }
+const sf0 = calls.fork.length, sn0 = calls.now.length, se0 = events.length
+$.t += 1; await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
+const sumFork = calls.fork.slice(sf0).find((f) => /جمع‌بندی/.test(f.prompt))
+const rS = await render()
+out.summary = { asked: !!sumFork && /فایل را خواند/.test(sumFork.prompt) && /تست را اجرا کرد/.test(sumFork.prompt), noSonnet: calls.now.length === sn0,
+  shown: find(rS, 'hads-now')?.children[0], done: find(rS, 'hads-sum-done')?.children[0], not: find(rS, 'hads-sum-not')?.children[0],
+  logged: events.slice(se0).filter((e) => e.kind === 'turn_summary').map((e) => e.not_done) }
+assert.deepEqual(out.summary, { asked: true, noSonnet: true, shown: 'فایل خوانده و تست سبز شد. commit مانده.', done: '✓ خواندنِ فایل · تست', not: '✗ commit', logged: [['commit']] })
+// a short turn (fewer than SUMMARY_MIN lines): no summary fork, the plain Sonnet «دو جمله»
+await H['prompt.submit']($, { text: 'سلام' }, next); const sf1 = calls.fork.length, sn1 = calls.now.length
+$.t += 1; await H['turn.complete']($, {}, next); await flush()
+out.shortTurn = { fork: calls.fork.slice(sf1).some((f) => /جمع‌بندی/.test(f.prompt)), sonnet: calls.now.length - sn1 }
+assert.deepEqual(out.shortTurn, { fork: false, sonnet: 1 })
+// an aborted turn (Esc) leaves its lines; the next prompt starts clean, so they never join its summary
+$.nowReply = 'کارِ نیمه‌تمام. قطع شد.'; $.t += mod.GAP; await tool(); await flush(); $.t += mod.GAP; await tool(); await flush()
+await H['turn.complete']($, { isAborted: true }, next); await flush()
+await H['prompt.submit']($, { text: 'کارِ تازه' }, next); $.nowReply = 'کارِ تازه شروع شد. ادامه دارد.'; $.t += mod.GAP; await tool(); await flush()
+const sf2 = calls.fork.length; $.t += 1; await H['turn.complete']($, {}, next); await flush()
+out.newTurnClean = !calls.fork.slice(sf2).some((f) => /جمع‌بندی/.test(f.prompt)); assert.equal(out.newTurnClean, true)
+$.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
 console.log(JSON.stringify(out))

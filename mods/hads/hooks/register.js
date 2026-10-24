@@ -194,10 +194,13 @@ const lastLogged = new Map()
 // guesses pressed into the prompt box, to know at Enter which one Habib sent
 let clicked = []
 
-async function setNow($, text) {
+// every «دو جمله» of the turn now running, per chat: the end of the answer sums them up
+const turnNows = new Map()
+async function setNow($, text, kind = 'now') {
   const id = await $.session.id()
+  if (kind === 'now') turnNows.set(id, [...(turnNows.get(id) || []), text].slice(-40))
   now = { text, for: id }; hidden = false; $.ui.invalidate('ui.render')
-  if (!sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'now', { text }) }
+  if (kind === 'now' && !sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'now', { text }) }
   try {
     const old = (await readHist($)).reverse().map((x) => JSON.stringify(x))
     await $.fs.write(await histPath($), old.slice(-(HIST - 1)).concat(JSON.stringify({ t: await $.clock.now(), text })).join('\n') + '\n')
@@ -321,12 +324,55 @@ async function turnEnd($, p = { guess: true, now: true }, force = false) {
     turnsOf.set(id, seen + 1)
     // also due when this chat shows none (first answer, /clear, an empty or broken reply)
     const due = p.guess && (force || seen % GUESS_EVERY === 0 || madeFor !== id || !guesses.length)
-    await Promise.all([p.now && tellNow($, '', true), due && guessFork($)])
+    await Promise.all([p.now && (async () => { if (!(await summarize($))) await tellNow($, '', true) })(), due && guessFork($)])
   } finally {
     endBusy = false
   }
   // turned off meanwhile: the queued run is dropped, never run on the old flags
   if (endAgain) { endAgain = false; const q = await readFlag($); if (q) await turnEnd($, q) }
+}
+
+// The end of an exchange (Habib, 24 Oct 22:42: «دو جمله … عکس لحظه ای میگیره … جمع بندی نداره …
+// بعد از رفت و برگشت کل اینا رو بده به … یه ایجنت با کشه گرم که … جمعبندی کنه»): one fork of the
+// chat itself (warm cache: the answer was just sent) gets every «دو جمله» of this turn and says
+// what was done and what was not. Shown in place of «دو جمله» and logged as turn_summary.
+// Too few lines, a chat over MAX_FORK or no usable reply: the plain Sonnet «دو جمله», as before.
+export const SUMMARY_MIN = 2
+const SUMMARY_ASK = (lines) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
+  'این «دو جمله»‌ها در همین نوبت، وسطِ کار، هر چند ثانیه نوشته شده‌اند:\n' + lines.map((l, i) => (i + 1) + ') ' + l).join('\n') +
+  '\n\nبا توجه به آن‌ها و جوابِ آخرت، جمع‌بندیِ همین نوبت را بده: چه کارهایی انجام شد و چه کارهایی نشد یا مانده. فارسیِ ساده، با واژه‌های حبیب. ' +
+  'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "done": ["<short>", …], "not_done": ["<short>", …]}'
+export function parseSummary(raw) {
+  try {
+    const m = String(raw || '').match(/\{[\s\S]*\}/)
+    const o = JSON.parse(m ? m[0] : raw)
+    const list = (x) => (Array.isArray(x) ? x : []).filter((y) => typeof y === 'string' && y.trim()).map((y) => y.trim()).slice(0, 8)
+    const text = typeof o?.text === 'string' ? twoSentences(o.text) : ''
+    return text ? { text, done: list(o.done), not_done: list(o.not_done) } : null
+  } catch {
+    return null
+  }
+}
+async function summarize($) {
+  const id = await $.session.id()
+  const lines = turnNows.get(id) || []
+  turnNows.set(id, [])
+  if (lines.length < SUMMARY_MIN) return false
+  let tokens = 0
+  try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
+  if (tokens > MAX_FORK) return false
+  try {
+    const r = await $.model.fork({ prompt: SUMMARY_ASK(lines) })
+    if (r.isAnswered) await logUsage($, 'summary', 'fork', r.usage)
+    const got = r.isAnswered ? parseSummary(r.text) : null
+    if (!got) return false
+    await setNow($, got.text, 'summary')
+    now.summary = got
+    await logEvent($, 'turn_summary', { text: got.text, done: got.done, not_done: got.not_done, from: lines.length })
+    return true
+  } catch {
+    return false
+  }
 }
 
 async function guessFork($) {
@@ -580,6 +626,7 @@ export function register(on) {
   // the prompt's own hooks are written right after it: read them a moment later
   // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
   on('prompt.submit', async ($, e, next) => {
+    try { turnNows.set(await $.session.id(), []) } catch {}
     try {
       const sent = String(e?.text || '').trim()
       if (sent && clicked.length) {
@@ -638,6 +685,7 @@ export function register(on) {
     const id = await $.session.id()
     const g = p.guess && madeFor === id ? guesses : []
     const n = p.now && now.for === id ? now.text : ''
+    const sm = n && now.summary ? now.summary : null
     const a = p.ask && answer && answer.for === id ? answer : null
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
@@ -660,10 +708,14 @@ export function register(on) {
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
     // the panel's rows are user-select:text in VS Code
     if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
-      Text({ dimColor: true, children: ['دو جمله:'] }),
+      Text({ dimColor: true, children: [sm ? 'جمع‌بندی:' : 'دو جمله:'] }),
       Text({ key: 'hads-now', children: [n] }),
       ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (histOpen ? '▴ ' : '') + 'قبلی‌ها ' + fa(hist.length - 1), onPress: () => { histOpen = !histOpen; $.ui.invalidate('ui.render') } })] : []),
     ] }))
+    // the turn's summary: what was done ✓ and what was not ✗, one plain line each
+    if (sm) for (const [k, mark, list] of [['done', '✓', sm.done], ['not', '✗', sm.not_done]]) {
+      if (list.length) rows.push(Text({ key: 'hads-sum-' + k, children: [mark + ' ' + list.join(' · ')] }))
+    }
     // the guesses (1-2): whole sentences, plain text like «دو جمله» (Habib selects and copies
     // them); a small ⤵ puts one in the prompt box, never sends it
     for (let i = 0; i < g.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [

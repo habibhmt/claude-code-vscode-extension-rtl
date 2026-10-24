@@ -18,10 +18,11 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
-  process: { run: async (argv) => { calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
+  process: { run: async (argv, init) => { if (/cat >>/.test(argv?.[2] || '')) { events.push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
+const events = []
 $.t = 0
 $.ctx = 1000
 // no fork reply at first: the end of an answer falls back to the two Sonnet calls
@@ -38,7 +39,8 @@ const render = (e = {}) => H['ui.render']($, { component: 'AbovePrompt', ...e },
 const row = (t) => t.children.find((c) => c.t === 'Box' && (c.children || []).some((x) => x && x.key === 'hads-x'))
 // guess buttons drawn (× left out); 'engine' alone means the mod drew nothing
 const isGuess = (c) => c.t === 'Button' && /^hads-\d+$/.test(String(c.key))
-const guessLabels = (t) => t === 'engine' ? [] : row(t).children.filter(isGuess).map((c) => c.label)
+// the guesses: whole sentences (Text hads-g-i), each with a ⤵ button (hads-i)
+const guessLabels = (t) => t === 'engine' ? [] : [0, 1, 2, 3, 4].map((i) => find(t, 'hads-g-' + i)?.children?.[0]).filter(Boolean)
 // any element by key, however deep
 const find = (t, key) => { if (!t || typeof t !== 'object') return null; if (t.key === key) return t; for (const c of t.children || []) { const f = find(c, key); if (f) return f } return null }
 $.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = {}
@@ -67,8 +69,8 @@ $.sid = 'A'; out.answer = (await again['command.run']($, { args: 'on' })).text; 
 await H['turn.complete']($, {}, next); await flush()
 out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')
 const tree = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-const btns = row(tree).children.filter((c) => c.t === 'Button' && (isGuess(c) || c.key === 'hads-x'))
-out.buttons = btns.map((b) => b.label); assert.deepEqual(out.buttons, ['تست', 'کامیت', '×'])
+const btns = [0, 1].map((i) => find(tree, 'hads-' + i))
+out.buttons = [...guessLabels(tree), ...btns.map((b) => b.label)]; assert.deepEqual(out.buttons, ['آزمون‌ها رو اجرا کن', 'کامیت و پوش کن', '⤵', '⤵'])
 // after /clear (a new chat id) the old row is gone
 $.sid = 'A2'; out.afterClear = await H['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); assert.equal(out.afterClear, 'engine'); $.sid = 'A'
 // a click fills the prompt, never sends
@@ -90,13 +92,13 @@ await H['turn.complete']($, {}, next); await H['turn.complete']($, {}, next); aw
 await new Promise((r) => setTimeout(r, 5)); out.busy = calls.now.length; assert.equal(out.busy, 1)
 release(); await new Promise((r) => setTimeout(r, 5)); release(); await flush()
 out.endNotDropped = calls.now.length; assert.equal(out.endNotDropped, 2); $.nowModel = nowFast
-// at most 5 guesses
 $.reply = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ label: 'g' + i, text: 't' + i })))
 // guesses come every GUESS_EVERY answers: /hads now asks for them at once
 const guessNow = async () => { await H['command.run']($, { args: 'now' }); await flush() }
 await guessNow()
 const t2 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-out.max = row(t2).children.filter((c) => c.t === 'Button' && (isGuess(c) || c.key === 'hads-x')).length; assert.equal(out.max, 6)
+// at most 2 (Habib, 24 Oct: «یکی دو تا بیشتر حدس نشه … جمله کاملش بیاد»)
+out.max = guessLabels(t2).length; assert.equal(out.max, 2)
 // other agents' messages are labelled, not taken as the user's; reminders are cut out
 calls.complete.length = 0
 $.msgs = [{ role: 'user', text: '<system-reminder>یادآوری</system-reminder>\nپیامِ حبیب' },
@@ -113,7 +115,7 @@ assert.equal(out.handoff, true)
 // a click keeps what is already typed
 calls.fill.length = 0; $.typed = 'نیمه‌نوشته'
 const t3 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-await row(t3).children.find((c) => c.t === 'Button').onPress()
+await find(t3, 'hads-0').onPress()
 out.append = calls.fill[0].text; assert.equal(out.append, 'نیمه‌نوشته\nt0'); $.typed = ''
 // no app attached (claude -p): no model call
 calls.complete.length = 0; $.surf = []
@@ -171,14 +173,14 @@ let c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); let c1 = c
 out.oneFork = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.oneFork, [1, 1, 0])
 const t5 = await render()
 out.forkRow = { now: nowText2(t5).children[0], guesses: guessLabels(t5) }
-assert.deepEqual(out.forkRow, { now: 'الف کرد. ب ماند.', guesses: ['یک', 'دو'] })
+assert.deepEqual(out.forkRow, { now: 'الف کرد. ب ماند.', guesses: ['کارِ یک', 'کارِ دو'] })
 out.forkPrompt = /JSON/.test(calls.fork.at(-1).prompt) && /guesses/.test(calls.fork.at(-1).prompt) && !/"now"/.test(calls.fork.at(-1).prompt); assert.equal(out.forkPrompt, true)
 out.turnUsage = (await $.store.get('lastTurnUsage'))?.via; assert.equal(out.turnUsage, 'fork')
 // the next GUESS_EVERY-1 answers: «دو جمله» only, no fork, the guesses stay
 const between = []
 for (let i = 1; i < mod.GUESS_EVERY; i++) { c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt(); between.push([c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]) }
 out.between = between; assert.deepEqual(out.between, Array(mod.GUESS_EVERY - 1).fill([0, 1, 0]))
-out.guessesKept = guessLabels(await render()); assert.deepEqual(out.guessesKept, ['یک', 'دو'])
+out.guessesKept = guessLabels(await render()); assert.deepEqual(out.guessesKept, ['کارِ یک', 'کارِ دو'])
 // a broken fork reply falls back to Sonnet for the guesses, never an empty row
 $.forkReply = { isAnswered: true, text: 'not json', usage: {} }
 c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
@@ -388,7 +390,7 @@ out.guessOff = { labels: guessLabels(t8), asked: calls.fork.length > fk0, now: n
 assert.deepEqual(out.guessOff, { labels: [], asked: false, now: 'فقط این. همین.' })
 // what was made while «حدس» was ticked off never shows up when it comes back
 await find(await render(), 'hads-tick-guess').onPress()
-out.noStale = guessLabels(await render()).includes('نه'); assert.equal(out.noStale, false)
+out.noStale = guessLabels(await render()).includes('نباید'); assert.equal(out.noStale, false)
 await find(await render(), 'hads-tick-guess').onPress()
 // another chat keeps its own ticks
 $.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
@@ -402,5 +404,27 @@ const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ti
 assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
 for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
 out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
+$.ui.resolve = realResolve
+// «دفترِ حدس» (with چتِ ۲۰۵): one line per event, appended, with sid and Tehran iso; «دو جمله» not twice
+const kinds = new Set(events.map((e) => e.kind))
+out.eventKinds = ['now', 'guess', 'ask'].every((k) => kinds.has(k)); assert.equal(out.eventKinds, true)
+out.eventShape = events.every((e) => typeof e.t === 'number' && /\+03:30$/.test(e.iso) && e.sid); assert.equal(out.eventShape, true)
+out.askLogged = events.some((e) => e.kind === 'ask' && e.q && e.a); assert.equal(out.askLogged, true)
+// (this test loads the module more than once; each load is its own process, so look at one)
+out.sameText = [mod.sameText('ایجنت فایل را خواند و منتظر است.', 'ایجنت فایل را خواند و منتظر است!'), mod.sameText('ایجنت فایل را خواند.', 'حبیب عکس فرستاد.')]
+assert.deepEqual(out.sameText, [true, false])
+$.sid = 'TW'; await H['command.run']($, { args: 'on' }); const tw0 = events.length; $.nowReply = 'همان جمله. باز همان.'
+for (let i = 0; i < 3; i++) { $.t += mod.GAP; await H['turn.complete']($, {}, next); await flush() }
+out.noTwin = events.slice(tw0).filter((e) => e.kind === 'now').length; assert.equal(out.noTwin, 1); $.sid = 'A'
+// a guess pressed then sent (as is, or edited) is logged as guess_sent; a plain prompt is not
+$.ui.resolve = () => withInput; $.sid = 'G'; await H['command.run']($, { args: 'on' }); $.reply = '[{"label":"x","text":"تست‌ها رو اجرا کن و نتیجه رو بگو"}]'
+await H['command.run']($, { args: 'now' }); await flush()
+const before = events.length
+const rG = await render(); const shown = guessLabels(rG)[0]
+await find(rG, 'hads-0').onPress()
+await H['prompt.submit']($, { text: shown + ' لطفاً' }, next)
+await H['prompt.submit']($, { text: 'یه چیز دیگه' }, next)
+const after = events.slice(before).map((e) => e.kind + (e.edited ? ':edited' : ''))
+out.guessSent = after; assert.deepEqual(out.guessSent, ['guess_click', 'guess_sent'])
 $.ui.resolve = realResolve
 console.log(JSON.stringify(out))

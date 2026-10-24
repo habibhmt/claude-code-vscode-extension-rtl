@@ -10,7 +10,7 @@ const turnsOf = new Map()
 
 const SYSTEM = [
   'You predict what the user (حبیب) will ask next in a Claude Code session.',
-  'Give 3 to 5 items: both what the user will most likely ask next, and options the user has not',
+  'Give 1 or 2 items: what the user will most likely ask next, or an option the user has not',
   'thought of but that fit the user\'s pattern. Each item is ready to send as the user\'s own message,',
   'in plain Persian, in the user\'s tone. Reply ONLY with JSON: [{"label": "<= 3 words", "text": "<one line>"}].',
 ].join(' ')
@@ -64,7 +64,7 @@ export function parseGuesses(raw) {
     if (!Array.isArray(list)) return []
     return list
       .filter((g) => g && typeof g.label === 'string' && typeof g.text === 'string' && g.text.trim())
-      .slice(0, 5)
+      .slice(0, 2)
       .map((g) => ({ label: g.label.trim().slice(0, 40), text: g.text.trim() }))
   } catch {
     return []
@@ -117,6 +117,7 @@ async function guess($) {
       maxTokens: 600, timeoutMs: 60000,
     })
     guesses = r.isAnswered ? parseGuesses(r.text) : []
+    if (guesses.length) await logEvent($, 'guess', { via: 'sonnet', items: guesses.map((g) => g.text) })
     if (r.isAnswered) try { await $.store.set('lastGuessUsage', r.usage) } catch {}
     if (r.isAnswered) await logUsage($, 'guess', 'sonnet', r.usage)
     madeFor = await $.session.id()
@@ -131,7 +132,7 @@ async function guess($) {
 
 // only the parts ticked on are asked for: fewer output tokens
 const NOW_ASK = '"now": "<exactly two short sentences of plain Persian: what the agent in this chat is doing now and what it waits for, in حبیب\'s own words from the glossary below>"'
-const GUESS_ASK = '"guesses": [3 to 5 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]'
+const GUESS_ASK = '"guesses": [1 or 2 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]'
 const forkPrompt = (p) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   [p.now && NOW_ASK, p.guess && GUESS_ASK].filter(Boolean).join(', ') + '}'
 
@@ -166,9 +167,37 @@ async function readHist($) {
     return []
   }
 }
+// «دفترِ حدس» (with چتِ ۲۰۵, 24 Oct): every «دو جمله», guess, «پرسش» and what Habib did with a
+// guess, one JSON line each in ~/.claude/hads-log/<id>.events.jsonl — no cap, appended, never
+// read back here (a 4 MB read limit would cut a long chat). Their memory index reads it; only
+// «پرسش» and a guess Habib sent go to search, never «دو جمله» or an unsent guess.
+async function logEvent($, kind, data) {
+  try {
+    const t = await $.clock.now(), sid = await $.session.id()
+    const d = new Date(t + 3.5 * 3600e3)
+    const iso = d.toISOString().replace('Z', '+03:30')
+    const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + sid + '.events.jsonl'
+    const line = JSON.stringify({ t, iso, sid, kind, ...data }) + '\n'
+    await $.process.run(['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat >> "$1"', 'sh', f], { stdin: line, timeoutMs: 5000 })
+  } catch {}
+}
+// a «دو جمله» that says what the last one said is not logged again (205: so the log stays readable)
+export function sameText(a, b) {
+  const w = (x) => new Set(String(x || '').split(/\s+/).filter((y) => y.length > 1))
+  const A = w(a), B = w(b)
+  if (!A.size || !B.size) return false
+  let n = 0; for (const x of A) if (B.has(x)) n++
+  return n / Math.max(A.size, B.size) >= 0.8
+}
+// per chat id: one process may serve more than one chat (/clear makes a new id)
+const lastLogged = new Map()
+// guesses pressed into the prompt box, to know at Enter which one Habib sent
+let clicked = []
+
 async function setNow($, text) {
   const id = await $.session.id()
   now = { text, for: id }; hidden = false; $.ui.invalidate('ui.render')
+  if (!sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'now', { text }) }
   try {
     const old = (await readHist($)).reverse().map((x) => JSON.stringify(x))
     await $.fs.write(await histPath($), old.slice(-(HIST - 1)).concat(JSON.stringify({ t: await $.clock.now(), text })).join('\n') + '\n')
@@ -310,6 +339,7 @@ async function guessFork($) {
   }
   if (got?.guesses.length) {
     guesses = got.guesses; madeFor = await $.session.id()
+    await logEvent($, 'guess', { via: 'fork', items: guesses.map((g) => g.text) })
     hidden = false; $.ui.invalidate('ui.render')
   } else await guess($)
 }
@@ -352,8 +382,9 @@ async function ask($, q) {
     if (!r.isAnswered && r.reason === 'nothing-to-fork') {
       try { has = ((await $.session.usage()).context.tokens || 0) > 0 || (await $.session.messages()).length > 0 } catch {}
     }
-    if (has) { pendingAsk = q; answer.text = WAIT; answer.waiting = true }
+    if (has) { pendingAsk = q; answer.text = WAIT; answer.waiting = true; await logEvent($, 'ask_wait', { q }) }
     else answer.text = r.isAnswered ? r.text : (WHY[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
+    if (r.isAnswered) await logEvent($, 'ask', { q, a: r.text, via: 'fork' })
     if (r.isAnswered) try { await $.store.set('lastAskUsage', r.usage) } catch {}
     if (r.isAnswered) await logUsage($, 'ask', 'fork', r.usage)
   } catch {
@@ -532,6 +563,19 @@ export function register(on) {
   })
 
   // the prompt's own hooks are written right after it: read them a moment later
+  // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
+  on('prompt.submit', async ($, e, next) => {
+    try {
+      const sent = String(e?.text || '').trim()
+      if (sent && clicked.length) {
+        const hit = clicked.find((g) => sent.includes(g)) || clicked.find((g) => sameText(g, sent))
+        if (hit) await logEvent($, 'guess_sent', { guess: hit, sent, edited: !sent.includes(hit) })
+        clicked = []
+      }
+    } catch {}
+    return next(e)
+  })
+
   on('classic.UserPromptSubmit', async ($, e, next) => {
     try {
       if (typeof e.transcript_path === 'string') tPath = e.transcript_path
@@ -600,6 +644,17 @@ export function register(on) {
       Text({ key: 'hads-now', children: [n] }),
       ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (histOpen ? '▴ ' : '') + 'قبلی‌ها ' + fa(hist.length - 1), onPress: () => { histOpen = !histOpen; $.ui.invalidate('ui.render') } })] : []),
     ] }))
+    // the guesses (1-2): whole sentences, plain text like «دو جمله» (Habib selects and copies
+    // them); a small ⤵ puts one in the prompt box, never sends it
+    for (let i = 0; i < g.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+      Text({ dimColor: true, children: [i ? '      ' : 'حدس:'] }),
+      Text({ key: 'hads-g-' + i, children: [g[i].text] }),
+      Button({ key: 'hads-' + i, label: '⤵', onPress: () => {
+        clicked = [...clicked.filter((c) => c !== g[i].text), g[i].text].slice(-5)
+        logEvent($, 'guess_click', { text: g[i].text })
+        return fillAppend($, g[i].text)
+      } }),
+    ] }))
     // the earlier ones, newest first, with Tehran date and time; the current one is not repeated
     if (histOpen) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>
       Text({ key: 'hads-hist-' + i, dimColor: true, children: [when(x.t) + ' — ' + x.text] })) }))
@@ -637,11 +692,6 @@ export function register(on) {
     rows.push(Box({
       flexDirection: 'row', columnGap: 1, flexWrap: 'wrap',
       children: [
-        ...(g.length ? [Text({ dimColor: true, children: ['حدس:'] })] : []),
-        ...g.map((x, i) => Button({
-          key: 'hads-' + i, label: x.label,
-          onPress: () => fillAppend($, x.text),
-        })),
         // no Input on mobile: the row stays buttons only
         ...(Input && p.ask ? [Input({
           key: 'hads-ask', value: askText, placeholder: 'پرسش… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',

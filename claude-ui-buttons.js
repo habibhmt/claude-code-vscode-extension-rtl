@@ -146,7 +146,7 @@
     extras: [],
     extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by load()
   };
-  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook: [9, 20], hadsAlpha: [20, 100], lh: [11, 24] };
+  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook: [9, 20], hadsAlpha: [0, 100], lh: [11, 24] };
   var PRESETS = {
     compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  hook: 11, lines: 1, lh: 14 },
     normal:  { chat: 15, code: 12, chrome: 10, btn: 10, hook: 13, lines: 1, lh: 16 },
@@ -248,7 +248,7 @@
        a rounded translucent card, SF text, soft shadow; pill buttons; the ticks as a blue/grey
        segmented look; the ask field with the macOS focus ring. Scoped to .crtl-hads (the page
        script tags the box whose header says «hads plugin»), so other plugins keep their look. */
-    '.crtl-hads{position:relative;margin:4px 8px 6px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-hads-alpha,80%),transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
+    '.crtl-hads{position:relative;margin:4px 8px 6px!important;border-radius:12px!important;overflow:hidden;background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-hads-alpha,80%),transparent)!important;border:.5px solid rgba(128,128,128,.28)!important;box-shadow:0 8px 24px rgba(0,0,0,.28),0 1px 2px rgba(0,0,0,.2)!important;-webkit-backdrop-filter:blur(var(--crtl-hads-blur,16px));backdrop-filter:blur(var(--crtl-hads-blur,16px));font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Vazirmatn,system-ui,sans-serif}',
     /* compact (24 Oct 22:52: «جمع و جور ترش بکن … ارتفاعش کمتر بشه … فرام ده حدس پلاگین رو با اون دو تا دکمه … تو یک خط»):
        the header line holds ▾ ◂ × too, rows and buttons are tighter */
     '.crtl-hads [data-engine-mark]{background:transparent!important;font-size:10px!important;letter-spacing:.02em;opacity:.5;padding:4px 12px 0!important;min-height:20px;line-height:20px;position:static!important}',
@@ -338,7 +338,7 @@
     var lh = (s.lh / 10).toFixed(2);
     var msg = '[class*="messagesContainer_"]';
     var out = [
-      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-size:' + (s.hook || 13) + 'px;--crtl-hads-alpha:' + (s.hadsAlpha || 80) + '%}',
+      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-size:' + (s.hook || 13) + 'px;--crtl-hads-alpha:' + (s.hadsAlpha == null ? 80 : s.hadsAlpha) + '%;--crtl-hads-blur:' + Math.round((s.hadsAlpha == null ? 80 : s.hadsAlpha) / 5) + 'px}',
       accent ? '.crtl-btn{border-color:' + accent + '!important;color:' + accent + '!important}' : '',
       accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
       // the conversation ink follows the theme unless a colour is picked; code
@@ -548,7 +548,9 @@
     var num = document.createElement('input');
     num.type = 'number'; num.min = lo; num.max = hi; num.value = s[field];
     function commit(v) {
-      v = Math.min(hi, Math.max(lo, parseInt(v, 10) || DEF[field]));
+      // 0 is a real value (the «حدس» card fully see-through), not «empty»: only a non-number falls back
+      var n = parseInt(v, 10);
+      v = Math.min(hi, Math.max(lo, isNaN(n) ? DEF[field] : n));
       range.value = v; num.value = v;
       onChange(field, v);
     }

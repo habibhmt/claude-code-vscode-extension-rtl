@@ -2045,7 +2045,8 @@
         bs[b].classList.toggle('crtl-insert', tx === '⤵');
         // ▾ and ×: their row sticks to the top of the box, so they never scroll out of sight
         // the top row is the one holding × (the folded line has ◂ too but no ×: it must stay in the flow)
-        if (tx === '×' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-top');
+        // the top row is the one with ▾ (the one line has × too, but ▸ حدس, never ▾)
+        if (tx === '▾' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-top');
       }
     }
   }

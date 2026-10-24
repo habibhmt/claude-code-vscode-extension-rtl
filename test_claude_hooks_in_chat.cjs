@@ -91,10 +91,10 @@ assert.equal(out.hadsGlass, true)
 // compact: ▾ ◂ × ride on the header line; the one-button state shrinks the card to that button
 out.hadsCompact = /\.crtl-hads \.crtl-hads-top\{position:sticky!important;top:0/.test(btn) && /crtl-hads-dot\{width:max-content/.test(btn) && /toggle\('crtl-hads-dot'/.test(btn)
 assert.equal(out.hadsCompact, true)
-// the top row is found by its ×, never the folded line (which has ◂ but no ×). The band keeps its
+// the top row is found by its ▾, never the folded line (which has × too since 25 Oct 00:13, but no ▾). The band keeps its
 // own scroll (overflow:auto, max 12 lines): «overflow:visible» let the box spill over the chat and the
 // chat stopped scrolling (25 Oct 00:04: «دیگه اسکرول نمیشه»); so the top row sticks to the band's top
-out.topRowSafe = /if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-top\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-top\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-top\) \[data-engine-mark\]\{position:absolute/.test(btn)
+out.topRowSafe = /if \(tx === '▾' && bs\[b\]\.parentElement/.test(btn) && !/if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-top\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-top\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-top\) \[data-engine-mark\]\{position:absolute/.test(btn)
 assert.equal(out.topRowSafe, true)
 out.pageFolds = /--crtl-hook-size/.test(btn) && /sizeRow\('هوک‌ها', 'hook'/.test(btn) && /crtl-hook-open/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-open\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)

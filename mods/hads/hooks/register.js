@@ -16,7 +16,6 @@ const SYSTEM = [
 ].join(' ')
 
 let guesses = []
-let hidden = false
 let busy = false
 // the chat the guesses were made in: after /clear (a new id) they are not shown
 let madeFor = ''
@@ -121,7 +120,6 @@ async function guess($) {
     if (r.isAnswered) try { await $.store.set('lastGuessUsage', r.usage) } catch {}
     if (r.isAnswered) await logUsage($, 'guess', 'sonnet', r.usage)
     madeFor = await $.session.id()
-    hidden = false
     $.ui.invalidate('ui.render')
   } catch {
     guesses = []
@@ -199,7 +197,7 @@ const turnNows = new Map()
 async function setNow($, text, kind = 'now') {
   const id = await $.session.id()
   if (kind === 'now') turnNows.set(id, [...(turnNows.get(id) || []), text].slice(-40))
-  now = { text, for: id }; hidden = false; $.ui.invalidate('ui.render')
+  now = { text, for: id }; $.ui.invalidate('ui.render')
   if (kind !== 'summary' && !sameText(text, lastLogged.get(id))) { lastLogged.set(id, text); await logEvent($, 'now', { text }) }
   try {
     const old = (await readHist($)).reverse().map((x) => JSON.stringify(x))
@@ -412,7 +410,7 @@ async function guessFork($) {
   if (got?.guesses.length) {
     guesses = got.guesses; madeFor = await $.session.id()
     await logEvent($, 'guess', { via: 'fork', items: guesses.map((g) => g.text) })
-    hidden = false; $.ui.invalidate('ui.render')
+    $.ui.invalidate('ui.render')
   } else await guess($)
 }
 
@@ -443,12 +441,12 @@ async function ask($, q) {
       answer = { q, for: id, cold: true,
         text: (cold ? 'کشِ چت سرد است (' + Math.round(idle / 60000) + ' دقیقه بی‌کار' + (cacheExpired ? '، به گفتهٔ خودِ Claude Code' : '') + '): این سؤال حدودِ ' + cost + ' خرج دارد.'
           : 'نمی‌دانم کشِ چت گرم است یا نه؛ اگر سرد باشد این سؤال حدودِ ' + cost + ' خرج دارد.') + ' برای پرسیدن «باشه، بپرس» یا دوباره Enter را بزن.' }
-      hidden = false; $.ui.invalidate('ui.render')
+      $.ui.invalidate('ui.render')
       return
     }
   }
   // this question's own box: × or a newer question may replace `answer` while the fork runs
-  const cur = answer = { q, text: '…', for: id }; askText = ''; hidden = false; $.ui.invalidate('ui.render')
+  const cur = answer = { q, text: '…', for: id }; askText = ''; $.ui.invalidate('ui.render')
   try {
     // mid-work the fork sees a tool call in flight and may try to go on with it: say it may not
     const r = await $.model.fork({ prompt: q + '\n\n(این پرسش از کادرِ حدس است، نه دستورِ کار: ابزاری صدا نزن و کاری را ادامه نده؛ فقط کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
@@ -636,7 +634,7 @@ export function register(on) {
       await $.fs.write(await flagPath($), arg)
       if (arg === 'off') { guesses = []; now = { text: '', for: '' }; answer = null; pendingAsk = null }
       // nothing to tell yet: say when it comes (no fork here, the cache may be cold)
-      else { now = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() }; hidden = false }
+      else { now = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() } }
       $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
@@ -709,7 +707,7 @@ export function register(on) {
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const p = await readFlag($)
-    if (hidden || !p) return next(e)
+    if (!p) return next(e)
     const id = await $.session.id()
     const g = p.guess && madeFor === id ? guesses : []
     const n = p.now && now.for === id ? now.text : ''
@@ -717,7 +715,6 @@ export function register(on) {
     const a = p.ask && answer && answer.for === id ? answer : null
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
-    const close = () => { hidden = true; $.ui.invalidate('ui.render') }
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line
     if (p.dot) {
@@ -728,17 +725,18 @@ export function register(on) {
       const line = Box({ flexDirection: 'row', columnGap: 1, children: [
         Button({ key: 'hads-min', label: '▸ حدس', onPress: () => setMode($, 'open') }),
         ...(n ? [Text({ dimColor: true, children: [n.length > 40 ? n.slice(0, 40) + '…' : n] })] : []),
-        Button({ key: 'hads-to-dot', label: '◂', onPress: () => setMode($, 'dot') }),
+        Button({ key: 'hads-to-dot', label: '×', onPress: () => setMode($, 'dot') }),
       ] })
       return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
     }
     const hist = n || histOpen ? await readHist($) : []
-    // ▾ (fold) and × (close) on top, where they are always in sight however long the box grows
-    // (Habib, 24 Oct 22:41: «اینها باید بالای صفحه باشند که همه جا قابلیت دیدن داشته باشند»)
+    // ▾ (one line) and × (one button) on top, where they are always in sight however long the box
+    // grows (Habib, 24 Oct 22:41: «اینها باید بالای صفحه باشند که همه جا قابلیت دیدن داشته باشند»).
+    // The box never closes all the way: × leaves the one button (25 Oct 00:13: «ضربدر … تک دکمه ای
+    // شدن یعنی کلا هیچوقت بسته نشه … همین سه تا نباشه»)
     const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
       Button({ key: 'hads-min', label: '▾', onPress: () => setMode($, 'min') }),
-      Button({ key: 'hads-to-dot', label: '◂', onPress: () => setMode($, 'dot') }),
-      Button({ key: 'hads-x', label: '×', onPress: close }),
+      Button({ key: 'hads-x', label: '×', onPress: () => setMode($, 'dot') }),
     ] })]
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
     // the panel's rows are user-select:text in VS Code

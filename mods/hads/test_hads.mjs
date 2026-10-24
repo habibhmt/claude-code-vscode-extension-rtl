@@ -502,6 +502,12 @@ out.summaryRules = { whole: /هر فراخوانیِ ابزار و خروجی‌
   numbers: /عدد، ساعت، اسمِ فایل و commit فقط اگر عیناً در خروجیِ یک ابزارِ همین نوبت/.test(sumFork.prompt),
   asked: events.slice(se0).filter((e) => e.kind === 'jambandi_nobat').map((e) => e.khaste_habib) }
 assert.deepEqual(out.summaryRules, { whole: true, hints: true, proof: true, unsure: true, numbers: true, asked: ['کار کن'] })
+// 205, 25 Oct: an evidence proves only what it shows (an edit is «code added», not «it works»)
+out.proofScope = /ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»/.test(sumFork.prompt); assert.equal(out.proofScope, true)
+// a turn started by Claude Code itself or another chat logs no request of Habib's
+out.notHabib = ['Continue from where you left off.', '<task-notification>x</task-notification>', 'This session is being continued from a previous conversation', 'Another Claude session sent a message: <cross-session-message>x</cross-session-message>', 'این کار رو بکن']
+  .map((t) => mod.harfeHabib(t) === mod.matn_bi_harfe_habib)
+assert.deepEqual(out.notHabib, [true, true, true, true, false])
 // a short turn (fewer than SUMMARY_MIN lines): no summary fork, the plain Sonnet «دو جمله»
 await H['prompt.submit']($, { text: 'سلام' }, next); const sf1 = calls.fork.length, sn1 = calls.now.length
 $.t += 1; await H['turn.complete']($, {}, next); await flush()

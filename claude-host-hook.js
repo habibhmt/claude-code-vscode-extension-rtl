@@ -227,16 +227,87 @@
     return { head: shortPaths(first), body: shortPaths(t), dupe: false };
   }
   globalThis.__crtl_hook_khana = readable;
+  // one hook line: the first line is what the folded view shows (mark, time, name, a short head)
+  function khatHook(name, r, t, uuid, sid) {
+    return { type: 'system', subtype: 'informational', level: 'notice', session_id: sid, uuid: uuid,
+      content: '🪝 ' + whenFa(t) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
+  }
   globalThis.__crtl_khat_hook = function (m, now) {
     try {
       if (!m || m.type !== 'system' || m.subtype !== 'hook_response') return m;
       var r = readable(m.output || m.stdout);
       if (!r) return m;
-      var name = m.hook_name || m.hook_event || 'hook';
-      // the first line is what the folded view shows: mark, time, name, a short head
-      return { type: 'system', subtype: 'informational', level: 'notice', session_id: m.session_id, uuid: m.uuid,
-        content: '🪝 ' + whenFa(now || Date.now()) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
+      return khatHook(m.hook_name || m.hook_event || 'hook', r, now || Date.now(), m.uuid, m.session_id);
     } catch (e) { return m; }
+  };
+  // After a reload the page rebuilds the chat from the transcript, which keeps each hook's output
+  // as an attachment, but never draws them: the 🪝 lines were gone (Habib, 25 Oct: «من چند بار
+  // چند بار ریلود میکنم چند چت رو بعد اینو بکشه»). Each one is put back right after the last
+  // message that came before it. Anything wrong leaves the chat as it was.
+  var GOROOH_HOOK = { hook_success: 1, hook_additional_context: 1, hook_system_message: 1 };
+  function transcriptPath(sid) {
+    var fs = require('fs'), path = require('path'), os = require('os');
+    var root = path.join(process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude'), 'projects');
+    var dirs = fs.readdirSync(root);
+    for (var i = 0; i < dirs.length; i++) {
+      var f = path.join(root, dirs[i], sid + '.jsonl');
+      if (fs.existsSync(f)) return f;
+    }
+    return null;
+  }
+  // the transcript's hook lines only: read in 8 MB pieces and searched as bytes, never parsed whole
+  // (a long chat is hundreds of MB; /usr/bin/grep took 0.6 s on 81 MB, this ~0.1 s)
+  var NESHANE_HOOK = Buffer.from('"attachment":{"type":"hook_');
+  function khatHayeHook(f) {
+    var fs = require('fs'), fd = fs.openSync(f, 'r'), out = [], rest = Buffer.alloc(0), piece = Buffer.alloc(8 * 1024 * 1024), n;
+    try {
+      while ((n = fs.readSync(fd, piece, 0, piece.length, null)) > 0) {
+        var buf = Buffer.concat([rest, piece.subarray(0, n)]);
+        var end = buf.lastIndexOf(10);
+        if (end < 0) { rest = buf; continue; }
+        var whole = buf.subarray(0, end + 1);
+        rest = Buffer.from(buf.subarray(end + 1));
+        for (var i = whole.indexOf(NESHANE_HOOK); i >= 0; i = whole.indexOf(NESHANE_HOOK, i + 1)) {
+          var a = whole.lastIndexOf(10, i) + 1, b = whole.indexOf(10, i);
+          out.push(whole.toString('utf8', a, b));
+          i = b;
+        }
+      }
+      if (rest.length && rest.indexOf(NESHANE_HOOK) >= 0) out.push(rest.toString('utf8'));
+    } finally { fs.closeSync(fd); }
+    return out;
+  }
+  globalThis.__crtl_hook_tarikhche = function (messages, sid) {
+    try {
+      if (!Array.isArray(messages) || !messages.length || !/^[0-9a-f-]{36}$/.test(String(sid))) return messages;
+      var f = transcriptPath(String(sid));
+      if (!f) return messages;
+      var first = Date.parse(messages[0].timestamp) || 0;
+      var lines = [];
+      khatHayeHook(f).forEach(function (l) {
+        var o; try { o = JSON.parse(l); } catch (e) { return; }
+        var a = o.attachment;
+        if (!a || !GOROOH_HOOK[a.type] || o.isSidechain) return;
+        var t = Date.parse(o.timestamp);
+        if (!t || t < first) return;
+        var body = Array.isArray(a.content) ? a.content.join('\n') : String(a.content == null ? '' : a.content);
+        var r = readable(body);
+        if (!r) return;
+        // a hook's message (systemMessage) is a line of its own: the live panel prints it apart too
+        if (a.type === 'hook_system_message') r = { head: r.head, body: r.body };
+        if (a.type === 'hook_additional_context') r = { head: 'متنِ تزریقی', body: r.body };
+        lines.push({ t: t, m: khatHook(a.hookName || a.hookEvent || 'hook', r, t, o.uuid || ('crtl-hook-' + t), String(sid)) });
+      });
+      if (!lines.length) return messages;
+      var out = [], j = 0;
+      for (var i = 0; i < messages.length; i++) {
+        var mt = Date.parse(messages[i].timestamp) || 0;
+        while (j < lines.length && lines[j].t < mt) out.push(lines[j++].m);
+        out.push(messages[i]);
+      }
+      while (j < lines.length) out.push(lines[j++].m);
+      return out;
+    } catch (e) { return messages; }
   };
   globalThis.__crtl_tarikh_shamsi = jalali;
 })();

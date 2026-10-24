@@ -434,6 +434,12 @@ if m:
         out = re.sub(r'this\.send\(\{type:"io_message",channelId:([\w$]+),message:([\w$]+),done:!1,hostForwardedAt:Date\.now\(\)\}\)',
                      r'this.send({type:"io_message",channelId:\1,message:(globalThis.__crtl_khat_hook?globalThis.__crtl_khat_hook(\2):\2),done:!1,hostForwardedAt:Date.now()})',
                      out, count=1)
+        # after a reload the page rebuilds the chat from the transcript and never the hook lines
+        # (Habib, 25 Oct: «من چند بار چند بار ریلود میکنم … بعد اینو بکشه»): the reopened chat's
+        # messages pass through __crtl_hook_tarikhche, which puts back each hook's line at its time
+        out = re.sub(r'(readTrailingHookNotices\(([\w$]+),[\w$]+\)[\s\S]{0,600}?return\{type:"get_session_response",messages:this\.stampReplayedFrames\()\[\.\.\.([\w$]+),\.\.\.([\w$]+)\]\)',
+                     r'\1(globalThis.__crtl_hook_tarikhche?globalThis.__crtl_hook_tarikhche([...\3,...\4],\2):[...\3,...\4]))',
+                     out, count=1)
     open(path, 'w', encoding='utf-8').write(out)
 PYEOF
                 rm -f "$css_tmp"

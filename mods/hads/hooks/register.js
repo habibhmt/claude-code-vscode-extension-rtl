@@ -72,6 +72,11 @@ export function parseGuesses(raw) {
 
 const system_reminder_regex = /<system-reminder[\s\S]*?<\/system-reminder>/g
 export const isAgent = (t) => /<cross-session-message|^\s*Another Claude session sent a message/.test(t)
+// what starts a turn but is not Habib's: a task's or another chat's message, or what Claude Code sends
+// by itself after a compact or a resume (205, 25 Oct: «Continue from where you left off.» was logged as
+// his request). Such a turn has no new word of his: the summary says so
+export const matn_bi_harfe_habib = 'حرفِ تازه‌ای از حبیب نبود؛ ادامهٔ کارِ قبلی'
+export const harfeHabib = (t) => !t || isAgent(t) || /^\s*(<task-notification|Continue from where you left off|This session is being continued)/.test(t) ? matn_bi_harfe_habib : t
 
 // Labelled context: Habib's own words, Claude's answers, and other agents'
 // messages kept apart, so guesses follow Habib and still know the story.
@@ -356,7 +361,8 @@ const prompt_jambandi_nobat = (lines, tools) => '(این پیام از مودِ 
   '۲) پیشنهاد، نیت، کاری که فقط گفته شد، یا چیزی که از نوبت‌های قبل می‌دانستی ⇒ anjam_shod نیست. ' +
   '۳) نامطمئن یا سنجیده‌نشده ⇒ anjam_nashod با «چک نشد». ' +
   '۴) عدد، ساعت، اسمِ فایل و commit فقط اگر عیناً در خروجیِ یک ابزارِ همین نوبت آمده. ' +
-  '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ anjam_nashod. فارسیِ ساده، با واژه‌های حبیب. ' +
+  '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ anjam_nashod. ' +
+  '۶) مدرک فقط همان چیزی را ثابت می‌کند که خودش نشان می‌دهد: ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»؛ رفتار فقط با آزمونی که همان رفتار را دید ⇒ وگرنه anjam_nashod «رفتارش آزموده نشد». فارسیِ ساده، با واژه‌های حبیب. ' +
   'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "anjam_shod": ["<short> ⇐ <evidence>", …], "anjam_nashod": ["<short>", …]}'
 export function parseSummary(raw) {
   try {
@@ -666,7 +672,7 @@ export function register(on) {
   // the prompt's own hooks are written right after it: read them a moment later
   // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
   on('prompt.submit', async ($, e, next) => {
-    try { const sid = await $.session.id(); turnNows.set(sid, []); turnTools.set(sid, []); turnAsked.set(sid, String(e?.text || '').trim()) } catch {}
+    try { const sid = await $.session.id(); turnNows.set(sid, []); turnTools.set(sid, []); turnAsked.set(sid, harfeHabib(String(e?.text || '').trim())) } catch {}
     try {
       const sent = String(e?.text || '').trim()
       if (sent && clicked.length) {

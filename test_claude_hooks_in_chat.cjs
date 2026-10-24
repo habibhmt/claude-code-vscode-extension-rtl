@@ -11,7 +11,7 @@ const out = {}
 
 // 1. the host hook: a hook's output becomes one meta line with the Shamsi time; nothing else changes
 const hookSrc = fs.readFileSync(process.env.HOST_HOOK_JS || path.join(dir, 'claude-host-hook.js'), 'utf8')
-const g = { require, globalThis: null, process, console }
+const g = { require, globalThis: null, process, console, Buffer }
 g.globalThis = g
 vm.runInNewContext(hookSrc, g)
 const T = Date.parse('2026-10-24T16:39:00Z')
@@ -35,6 +35,39 @@ const mc = hk(mem).content
 out.memory = { lines: mc.split('\n').length, rawJson: /hookSpecificOutput|\\n|"systemMessage"/.test(mc), shortPath: /11\.md:40/.test(mc) && !/\/Users\/habib/.test(mc), head: mc.split('\n')[0], twice: mc.includes('🧠 حافظه: 2 سابقه') }
 assert.deepEqual(out.memory, { lines: 4, rawJson: false, shortPath: true, head: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · متنِ تزریقی', twice: false })
 out.jalali = [g.__crtl_tarikh_shamsi(2026, 3, 21).join('/'), g.__crtl_tarikh_shamsi(2025, 3, 20).join('/')]
+// after a reload: the hook lines come back from the transcript, each after the message before it
+// (Habib, 25 Oct: «من چند بار چند بار ریلود میکنم چند چت رو بعد اینو بکشه»)
+const confDir = fs.mkdtempSync(path.join(os.tmpdir(), 'crtl-conf-'))
+const SID = '3cf957a7-caa8-4cb3-8194-247ba06b0055'
+fs.mkdirSync(path.join(confDir, 'projects', '-Users-x'), { recursive: true })
+const at = (ts, a, extra = {}) => JSON.stringify({ type: 'attachment', uuid: 'h-' + ts, timestamp: ts, attachment: a, ...extra })
+fs.writeFileSync(path.join(confDir, 'projects', '-Users-x', SID + '.jsonl'), [
+  JSON.stringify({ type: 'user', uuid: 'u1', timestamp: '2026-10-24T05:00:00.000Z', message: { content: 'old' } }),
+  at('2026-10-24T05:00:01.000Z', { type: 'hook_success', hookName: 'UserPromptSubmit', content: 'before the first message shown' }),
+  at('2026-10-24T05:38:01.000Z', { type: 'hook_success', hookName: 'UserPromptSubmit', content: '[09:08 +0330 -- habib]' }),
+  at('2026-10-24T05:38:02.000Z', { type: 'hook_system_message', hookName: 'UserPromptSubmit', content: '🧠 حافظه: 3 سابقه تزریق شد' }),
+  at('2026-10-24T05:38:02.500Z', { type: 'hook_additional_context', hookName: 'UserPromptSubmit', content: ['[حافظه]\n1) /Users/habib/Downloads/x/doc/achar/11.md:40'] }),
+  at('2026-10-24T05:38:03.000Z', { type: 'hook_success', hookName: 'PreToolUse', content: '' }),
+  at('2026-10-24T05:38:04.000Z', { type: 'hook_additional_context', hookName: 'PostToolUse:Bash', content: ['یادآوری'] }, { isSidechain: true }),
+  at('2026-10-24T05:38:05.000Z', { type: 'hook_cancelled', hookName: 'UserPromptSubmit', content: 'x' }),
+].join('\n') + '\n')
+const prevConf = process.env.CLAUDE_CONFIG_DIR; process.env.CLAUDE_CONFIG_DIR = confDir
+const msgs = [{ type: 'user', uuid: 'p1', timestamp: '2026-10-24T05:38:00.000Z' }, { type: 'assistant', uuid: 'p2', timestamp: '2026-10-24T05:39:00.000Z' }]
+const back = g.__crtl_hook_tarikhche(msgs, SID)
+out.reloadHooks = JSON.parse(JSON.stringify(back.map((m) => m.type === 'system' ? m.content.split('\n')[0] : m.uuid)))
+assert.deepEqual(out.reloadHooks, ['p1', '🪝 ۲ آبان ۱۴۰۵ ۰۹:۰۸ · UserPromptSubmit · 🧠 حافظه: 3 سابقه تزریق شد', '🪝 ۲ آبان ۱۴۰۵ ۰۹:۰۸ · UserPromptSubmit · متنِ تزریقی', 'p2'])
+out.reloadShape = back.filter((m) => m.type === 'system').every((m) => m.subtype === 'informational' && m.level === 'notice' && m.session_id === SID && m.uuid) && !/\/Users\/habib/.test(JSON.stringify(back))
+assert.equal(out.reloadShape, true)
+// a session id that is not a uuid, or no transcript: the chat stays as it was
+out.reloadSafe = g.__crtl_hook_tarikhche(msgs, '../x') === msgs && g.__crtl_hook_tarikhche(msgs, '00000000-0000-0000-0000-000000000000') === msgs
+assert.equal(out.reloadSafe, true)
+// a hook line cut by the 8 MB reading piece is still found whole
+fs.writeFileSync(path.join(confDir, 'projects', '-Users-x', SID + '.jsonl'), 'x'.repeat(8 * 1024 * 1024 - 40) + '\n' +
+  at('2026-10-24T05:38:02.000Z', { type: 'hook_system_message', hookName: 'Stop', content: 'سرِ مرز' }) + '\n')
+out.reloadEdge = JSON.parse(JSON.stringify(g.__crtl_hook_tarikhche(msgs, SID).filter((m) => m.type === 'system').map((m) => m.content.split('\n')[0])))
+assert.deepEqual(out.reloadEdge, ['🪝 ۲ آبان ۱۴۰۵ ۰۹:۰۸ · Stop · سرِ مرز'])
+if (prevConf === undefined) delete process.env.CLAUDE_CONFIG_DIR; else process.env.CLAUDE_CONFIG_DIR = prevConf
+fs.rmSync(confDir, { recursive: true, force: true })
 assert.deepEqual(out.jalali, ['1405/1/1', '1403/12/30'])
 
 // 2. the script's own python block on a copy of the installed extension.js
@@ -60,8 +93,9 @@ out.patch = {
   flagAlwaysOn: /\w+\.push\("--include-hook-events"\)/.test(patched) && !/if\(this\.options\.includeHookEvents\)\w+\.push\("--include-hook-events"\)/.test(patched),
   forwardWrapped: /this\.send\(\{type:"io_message",channelId:[^,]+,message:\(globalThis\.__crtl_khat_hook\?globalThis\.__crtl_khat_hook\(\w+\):\w+\),done:!1,hostForwardedAt:Date\.now\(\)\}\)/.test(patched),
   parses: (() => { try { execFileSync(process.execPath, ['--check', extJs]); return true } catch { return false } })(),
+  reloadWrapped: /readTrailingHookNotices\([\w$]+,[\w$]+\)[\s\S]{0,600}?return\{type:"get_session_response",messages:this\.stampReplayedFrames\(\(globalThis\.__crtl_hook_tarikhche\?globalThis\.__crtl_hook_tarikhche\(\[\.\.\.[\w$]+,\.\.\.[\w$]+\],[\w$]+\):\[\.\.\.[\w$]+,\.\.\.[\w$]+\]\)\)/.test(patched),
 }
-assert.deepEqual(out.patch, { flagAlwaysOn: true, forwardWrapped: true, parses: true })
+assert.deepEqual(out.patch, { flagAlwaysOn: true, forwardWrapped: true, parses: true, reloadWrapped: true })
 // a bundle that names the args and the message with $ (esbuild does): still matched
 const pyDollar = py.replace("src = open(path + '.backup', encoding='utf-8').read()", "src = open(path + '.backup', encoding='utf-8').read().replace('if(this.options.includeHookEvents)a.push(', 'if(this.options.includeHookEvents)$a.push(').replace(',message:K1,done:!1,hostForwardedAt', ',message:K$,done:!1,hostForwardedAt')")
 fs.writeFileSync(path.join(tmp, 'p2.py'), pyDollar)

@@ -579,20 +579,49 @@ $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
 $.sid = 'K'; await H['command.run']($, { args: 'on' }); await H['prompt.submit']($, { text: 'اپ رو چک کن' }, next)
 $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
 $.forkReply = { isAnswered: true, usage: {}, text: '{"text": "اپ چک شد. گزارش مانده.", "anjam_shod": ["چک ⇐ ls"], "anjam_nashod": [], "hads": [{"label": "x", "text": "پوش کن"}], "nakarde": [], ' +
-  '"khodkar": [{"kar": "چکِ اپ", "rah": "شبیه‌سازِ iOS", "chera": "حبیب گفته خودت امتحان کن"}, {"kar": "حرفِ قبلیِ حبیب", "rah": "hafeze_search.py", "chera": ""}], ' +
+  '"khodkar": [{"kar": "چکِ اپ", "abzar": "Bash: xcrun simctl", "chek": "عکس از شبیه‌ساز", "chera": "حبیب گفته خودت امتحان کن"}, {"kar": "حرفِ قبلیِ حبیب", "abzar": "hafeze_search.py", "chera": ""}], ' +
   '"cron": [{"kar": "چکِ نسخهٔ افزونه", "zaman": "هر روز ۰۸:۰۰ (0 8 * * *)", "rah": "launchd"}]}' }
 const k0 = calls.fork.length, kn0 = calls.now.length, ke0 = events.length
 $.t += 1; await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
 const khForks = calls.fork.slice(k0), rKh = await render()
 calls.fill.length = 0; await find(rKh, 'hads-kh-dokme-0').onPress({}); await find(rKh, 'hads-cr-dokme-0').onPress({})
 out.yekFork = { forks: khForks.length, all: /جمع‌بندی/.test(khForks[0]?.prompt) && /"hads"/.test(khForks[0]?.prompt) && /"nakarde"/.test(khForks[0]?.prompt) && /"khodkar"/.test(khForks[0]?.prompt) && /"cron"/.test(khForks[0]?.prompt),
+  tools: ['Agent', 'Bash', 'Read', 'Write', 'Edit', 'NotebookEdit', 'Glob', 'Grep', 'LSP', 'WebSearch', 'WebFetch', 'Monitor', 'CronCreate', 'CronList', 'CronDelete', 'ScheduleWakeup', 'RemoteTrigger', 'PushNotification',
+    'SendUserFile', 'SendMessage', 'ListAgents', 'TaskCreate', 'TaskGet', 'TaskList', 'TaskUpdate', 'TaskStop', 'Workflow', 'Skill', 'ToolSearch', 'WaitForMcpServers', 'ListMcpResourcesTool', 'ReadMcpResourceTool',
+    'EnterWorktree', 'ExitWorktree', 'EnterPlanMode', 'ExitPlanMode', 'Artifact', 'AskUserQuestion', 'ReportFindings', 'SendFeedback', 'ShareOnboardingGuide', 'SubagentHandback', 'TodoWrite', 'PowerShell', 'EndConversation'].filter((n) => !new RegExp('\\b' + n + '\\b').test(khForks[0]?.prompt)),
   rules: /hafeze_search/.test(khForks[0]?.prompt) && /سرچ در چت‌های قبلی برای حرفِ حبیب/.test(khForks[0]?.prompt) && /کامپیوتر یوز/.test(khForks[0]?.prompt) && /CDP/.test(khForks[0]?.prompt), sonnet: calls.now.length - kn0,
   now: find(rKh, 'hads-now')?.children[0], kh: [0, 1].map((i) => find(rKh, 'hads-kh-' + i)?.children[0]), cr: find(rKh, 'hads-cr-0')?.children[0],
   fill: calls.fill.map((f) => f.text), logged: events.slice(ke0).filter((e) => e.kind === 'khodkar' || e.kind === 'cron').map((e) => e.kind) }
-assert.deepEqual(out.yekFork, { forks: 1, all: true, rules: true, sonnet: 0, now: 'اپ چک شد. گزارش مانده.',
-  kh: ['چکِ اپ ⇐ شبیه‌سازِ iOS — حبیب گفته خودت امتحان کن', 'حرفِ قبلیِ حبیب ⇐ hafeze_search.py'], cr: 'چکِ نسخهٔ افزونه ⇐ هر روز ۰۸:۰۰ (0 8 * * *) — launchd',
-  fill: ['این را خودت انجام بده و از من نپرس: چکِ اپ ⇐ با شبیه‌سازِ iOS. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان.', 'برای این کار کرون‌جاب بساز و با خرابکاریِ عمدی بسنج که اجرا می‌شود: چکِ نسخهٔ افزونه ⇐ هر روز ۰۸:۰۰ (0 8 * * *) (launchd)'],
+assert.deepEqual(out.yekFork, { forks: 1, all: true, tools: [], rules: true, sonnet: 0, now: 'اپ چک شد. گزارش مانده.',
+  kh: ['چکِ اپ ⇐ Bash: xcrun simctl · چک: عکس از شبیه‌ساز — حبیب گفته خودت امتحان کن', 'حرفِ قبلیِ حبیب ⇐ hafeze_search.py'], cr: 'چکِ نسخهٔ افزونه ⇐ هر روز ۰۸:۰۰ (0 8 * * *) — launchd',
+  fill: ['این را خودت انجام بده و از من نپرس: چکِ اپ ⇐ با Bash: xcrun simctl؛ نتیجه را خودت چک کن: عکس از شبیه‌ساز. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان.', 'برای این کار کرون‌جاب بساز و با خرابکاریِ عمدی بسنج که اجرا می‌شود: چکِ نسخهٔ افزونه ⇐ هر روز ۰۸:۰۰ (0 8 * * *) (launchd)'],
   logged: ['cron', 'khodkar'] })
+// a reload of VS Code (a new process, every variable empty) shows the same box again, «قبلی‌ها» too
+// (Habib, 25 Oct 18:09: «وقتی که VS Code رو ریلود میکنیم اون متنایی که تو پنجره هدس هست اونا همه پاک میشه»)
+const radif_ha = (t) => ['hads-now', 'hads-g-0', 'hads-kh-0', 'hads-kh-1', 'hads-cr-0'].map((k) => find(t, k)?.children?.[0] || null)
+const ghabl = radif_ha(rKh)
+const reload = await import((process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href) + '?reload')
+const RL = {}; reload.register((ev, a, b) => { RL[ev] = b || a; return { catch() {} } })
+const rRl = await RL['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.reload = { same: JSON.stringify(radif_ha(rRl)) === JSON.stringify(ghabl), full: ghabl.every(Boolean), summary: find(rRl, 'hads-sum-anjam_shod')?.children[0],
+  file: !!flags['/h/.claude/hads-log/K.akharin.json'] }
+assert.deepEqual(out.reload, { same: true, full: true, summary: '✓ چک ⇐ ls', file: true })
+// the order of the parts (Habib, 25 Oct 18:01: «اگه حدس اوله میشه ردیف یک»): the ticks and the rows
+// follow ~/.claude/hads-tartib, the same in every chat; ▾ × stay first, the ticks last
+const tartib_kelid = (t) => { const o = []; const w = (x) => { if (!x || typeof x !== 'object') return; if (x.key) o.push(x.key); for (const c of x.children || []) w(c) }; w(t); return o }
+flags['/h/.claude/hads-tartib'] = 'cron do_jomle hads\n'
+const rT = await render(), kT = tartib_kelid(rT)
+out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.slice(10)),
+  rows: ['hads-cr-0', 'hads-now', 'hads-g-0', 'hads-kh-0'].map((k) => kT.indexOf(k)).every((x, i, a) => x > 0 && (!i || x > a[i - 1])),
+  top: kT[0], last: kT[kT.length - 1].startsWith('hads-tick-'), field: !!find(rT, 'hads-tartib') }
+assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook'], rows: true, top: 'hads-top', last: true, field: false })
+// VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
+const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
+const rV = await render({ surface: 'vscode' }); const fld = find(rV, 'hads-tartib')
+await fld.onInput('khodkar hads hads chizi')
+out.tartibField = { value: fld.value, file: flags['/h/.claude/hads-tartib'], notMobile: !find(await render({ surface: 'mobile' }), 'hads-tartib') }
+assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads nakarde khodkar porsesh hook', file: 'khodkar hads nakarde cron do_jomle porsesh hook\n', notMobile: true })
+$.ui.resolve = keepResolve; delete flags['/h/.claude/hads-tartib']
 // ticked off: not asked, not shown
 await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
 const k1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()

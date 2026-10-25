@@ -282,6 +282,10 @@
     '.crtl-hads button.crtl-gozashtan-dar-kadr{border-radius:50%!important;padding:0 6px!important;min-width:0}',
     '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:0 8px!important;height:22px;min-width:14em;outline:none!important;transition:box-shadow .15s}',
     '.crtl-hads input[class*="input_"]:focus{border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.4)!important}',
+    /* the ticks are dragged to reorder the parts; the field the new order goes through is never seen */
+    '.crtl-hads button[data-press-key^="hads-tick-"]{cursor:grab}',
+    '.crtl-hads button.crtl-dragging{outline:1px dashed currentColor;cursor:grabbing}',
+    '.crtl-hads form:has(input[data-press-key="hads-tartib"]){display:none!important}',
     '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
@@ -2020,6 +2024,60 @@
     });
   }
 
+  // «حدس»: drag a tick onto another to move its part there (Habib, 25 Oct 18:01: «این دکمه ها باید
+  // قابلیت جابجایی داشته باشن و با جابجا شدن ردیفشون عوض بشه. یعنی اگه حدس اوله میشه ردیف یک»).
+  // Under DRAG_PX it is the tick's own click; past it the click is swallowed and the new order goes
+  // to the mod through its hidden field (hads-tartib), which saves it and lays the rows out again.
+  function ferestadan_tartib_hads(card, keys) {
+    var inp = card.querySelector('input[data-press-key="hads-tartib"]');
+    if (!inp) return false;
+    // the field is React's: set the value its own way, then the input event it listens to
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(inp, keys.join(' '));
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  }
+  function keshidan_tik_hads(b, card) {
+    b.dataset.crtlKesh = '1';
+    // on the button itself: it runs before the click reaches the panel's own handler
+    b.addEventListener('click', function (e) {
+      if (!b.dataset.dragged) return;
+      e.stopPropagation(); e.preventDefault();
+    }, true);
+    b.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      var x0 = e.clientX, y0 = e.clientY, moved = false;
+      function move(ev) {
+        if (!moved && Math.abs(ev.clientX - x0) + Math.abs(ev.clientY - y0) > DRAG_PX) {
+          moved = true; b.classList.add('crtl-dragging');
+        }
+      }
+      function up(ev) {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        b.classList.remove('crtl-dragging');
+        if (!moved) return;
+        b.dataset.dragged = '1';
+        setTimeout(function () { delete b.dataset.dragged; }, 0);
+        var tgt = document.elementFromPoint(ev.clientX, ev.clientY);
+        tgt = tgt && tgt.closest ? tgt.closest('button[data-press-key^="hads-tick-"]') : null;
+        if (!tgt || tgt === b || !card.contains(tgt)) return;
+        var ticks = card.querySelectorAll('button[data-press-key^="hads-tick-"]');
+        var keys = [];
+        for (var i = 0; i < ticks.length; i++) keys.push(ticks[i].getAttribute('data-press-key').slice(10));
+        var from = b.getAttribute('data-press-key').slice(10), to = tgt.getAttribute('data-press-key').slice(10);
+        var r = tgt.getBoundingClientRect();
+        // the row's own direction: right-to-left, the right half of a tick is before it
+        var rtl = getComputedStyle(tgt.parentElement || tgt).direction === 'rtl';
+        var before = rtl ? ev.clientX > r.left + r.width / 2 : ev.clientX < r.left + r.width / 2;
+        keys.splice(keys.indexOf(from), 1);
+        keys.splice(keys.indexOf(to) + (before ? 0 : 1), 0, from);
+        ferestadan_tartib_hads(card, keys);
+      }
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+    });
+  }
+
   // hooks in the chat: tag the 🪝 meta lines, open/close them on a click (not when the click
   // ends a text selection), and mark focus view, where the panel folds the rest
   function neshan_hook_va_hads() {
@@ -2049,6 +2107,7 @@
       card.classList.toggle('crtl-hads-tak-dokme', bs.length === 1 && /^حدس/.test((bs[0].textContent || '').trim()));
       for (var b = 0; b < bs.length; b++) {
         var tx = (bs[b].textContent || '').trim();
+        if (/^hads-tick-/.test(bs[b].getAttribute('data-press-key') || '') && !bs[b].dataset.crtlKesh) keshidan_tik_hads(bs[b], card);
         bs[b].classList.toggle('crtl-tik-roshan', tx.charAt(0) === '✓');
         bs[b].classList.toggle('crtl-tik-khamush', tx.charAt(0) === '✗');
         bs[b].classList.toggle('crtl-gozashtan-dar-kadr', tx === '⤵');

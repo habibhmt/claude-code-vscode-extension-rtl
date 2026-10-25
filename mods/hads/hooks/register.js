@@ -156,11 +156,51 @@ const ghaede_nakarde = (anjam) => '\n\n«nakarde» (نکرده‌ها): کلِ �
   '۵) مهم‌ترین اول: آنچه حبیب رویش تأکید کرد، یا قدیمی‌تر و فراموش‌شده. ' +
   (anjam.length ? '۶) حبیب این‌ها را خودش «انجام شد» زد؛ هرگز دوباره نیاورشان، حتی با کلمه‌های دیگر: ' + anjam.map((x) => '«' + x + '»').join(' · ') + '. ' : '') +
   'نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
-const prompt_fork_khodkar = '"khodkar": [all of them, 0 or more, each {"kar": "<کاری که الان در این چت در جریان است یا ایجنت می‌خواهد از حبیب بپرسد/به او بسپارد، کوتاه>", "rah": "<با کدام وسیله خودش انجامش می‌دهد، دقیق: فرمان، ابزار یا مسیر>", "chera": "<یک جملهٔ کوتاه: چرا لازم نیست از حبیب بپرسد>"}]'
-const ghaede_khodkar = '\n\n«khodkar» (خودکار): از میانِ کارهایی که الان در همین چت در جریان است، هر کاری را بیاور که ایجنت می‌تواند خودش انجام بدهد و نباید از حبیب بپرسد یا به او بسپارد («چک کن به من بگو»، «امتحان کن»، «ببین درست است؟»، «کدام را می‌خواهی؟»)، بی‌سقف. ' +
-  'وسیله‌ها: ابزارهای Claude Code (Bash، خواندن و نوشتنِ فایل، سرچِ وب، WebFetch، subagent، Monitor، cron و schedule، hook)؛ کرومِ CDP ِ خودِ ایجنت (تبِ پس‌زمینه، بی‌جلوآوردنِ پنجره؛ کرومِ بی‌پنجره فقط برای آزمون)؛ کامپیوتر یوز (فقط کارِ ۲۰۳ است ⇒ «با پیام به ۲۰۳»)؛ شبیه‌ساز (iOS، اندروید)؛ اتومات کردن (launchd، اسکریپت، نگهبان)؛ ' +
-  'و سرچ در چت‌های قبلی برای حرفِ حبیب در موردِ مشابه (`python3 ~/Downloads/205th-day-mother-of-all-agent/abzar/hafeze_search.py --hame "<سؤال>" 5`، یا grep در `~/.claude/projects/*/*.jsonl`) و تصمیم طبقِ همان حرف؛ مثلاً برای چکِ یک اپ: اول پیدا کن اپ مالِ کدام پروژه است و حبیب قبلاً درباره‌اش چه گفته. ' +
-  'نیاور: رمز، کدِ پیامکی، پول، کارِ دست یا تنِ حبیب، و چیزی که قانونِ حبیب صریحاً با او گذاشته. قابلیتی که در این چت استفاده نشده و کار را عقب انداخته، اول بیاید. نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
+// Habib, 25 Oct 18:08: «منظورم کل ابزارهایی هست که توی کلود کد برای ایجنت ها موجوده. و این ابزارها
+// باید سرچ به وب بکنی که لیست کاملش رو در بیاری و توی پرومپتت بیاری که ایجنت چک بکنه و بررسی بکنه و
+// پیشنهاداشو بده». The built-in tools as code.claude.com/docs/en/tools-reference lists them (read 25 Oct
+// 2026), then the MCP ones and this Mac's own ways (Habib's rules: computer use only by ۲۰۳, each agent its own Chrome)
+export const abzar_ha_ye_claude_code = [
+  ['Agent', 'ساب‌ایجنت با کانتکستِ جدا برای یک کار (پیش‌فرض Sonnet؛ تعداد و مدل با اجازهٔ حبیب)'],
+  ['Bash', 'هر فرمانِ شل: آزمون، اسکریپت، git، curl، شبیه‌سازِ iOS (xcrun simctl)، launchd و crontab، عکسِ پنجره بی‌جلوآوردن (screencapture -x -o -l)'],
+  ['Read', 'خواندنِ فایل، عکس و PDF'],
+  ['Write', 'ساختن یا بازنویسیِ فایل'],
+  ['Edit', 'ویرایشِ دقیقِ فایل'],
+  ['NotebookEdit', 'ویرایشِ سلولِ Jupyter'],
+  ['Glob', 'پیدا کردنِ فایل با الگو'],
+  ['Grep', 'گشتن در متنِ فایل‌ها'],
+  ['LSP', 'تعریف، ارجاع و خطای تایپِ کد از language server'],
+  ['WebSearch', 'سرچِ وب'],
+  ['WebFetch', 'خواندنِ یک صفحهٔ وب'],
+  ['Monitor', 'فرمانی در پس‌زمینه که هر خطِ خروجی‌اش (لاگ، تغییرِ فایل، وضعیت، پیامِ WebSocket) به ایجنت می‌رسد'],
+  ['CronCreate، CronList، CronDelete', 'کارِ زمان‌دار یا تکراری در همین چت'],
+  ['ScheduleWakeup', 'نوبتِ بعدیِ /loop را خودِ ایجنت تعیین می‌کند'],
+  ['RemoteTrigger', 'کارِ زمان‌دارِ ابری روی claude.ai (/schedule)'],
+  ['PushNotification', 'خبر به دسکتاپ و گوشیِ حبیب وقتی کارِ طولانی تمام شد'],
+  ['SendUserFile', 'فرستادنِ فایل، گزارش یا عکس به دستگاهِ حبیب'],
+  ['SendMessage، ListAgents', 'پیام به ایجنتِ دیگر یا چتِ دیگرِ همین مک (۲۰۳ برای کامپیوتر یوز، منشی برای کروم)'],
+  ['TaskCreate، TaskGet، TaskList، TaskUpdate، TaskStop', 'فهرستِ کارها و توقفِ کارِ پس‌زمینه'],
+  ['Workflow', 'چند ساب‌ایجنت با هم در پس‌زمینه (فقط با خواستِ صریحِ حبیب)'],
+  ['Skill', 'اجرای اسکیل، مثلاً chrome-cdp، nazer، remember'],
+  ['ToolSearch، WaitForMcpServers', 'بار کردنِ ابزارهای پنهان و صبر برای سرورِ MCP'],
+  ['ListMcpResourcesTool، ReadMcpResourceTool', 'خواندنِ منابعِ سرورهای MCP'],
+  ['EnterWorktree، ExitWorktree', 'کار روی کپیِ جدای git'],
+  ['EnterPlanMode، ExitPlanMode', 'نقشه پیش از کد'],
+  ['Artifact', 'صفحهٔ HTML روی claude.ai برای دیدن یا فرستادن'],
+  ['AskUserQuestion', 'پنجرهٔ سؤال؛ فقط برای تصمیمی که واقعاً مالِ حبیب است'],
+  ['ReportFindings، SendFeedback، ShareOnboardingGuide، SubagentHandback، TodoWrite، PowerShell، EndConversation', 'ابزارهای خاص؛ کم لازم می‌شوند'],
+  ['کامپیوتر یوز (MCP)', 'دیدنِ صفحهٔ مک، کلیک و تایپ در اپ‌ها و دیدنِ نتیجه با عکس؛ قانونِ حبیب: فقط ۲۰۳ ⇒ با SendMessage به ۲۰۳'],
+  ['کرومِ CDP ِ خودِ ایجنت (اسکیلِ chrome-cdp)', 'سایت در تبِ پس‌زمینه، کلیک، خواندنِ متنِ صفحه، عکس با Page.captureScreenshot؛ پنجره هرگز جلو نیاید؛ کرومِ بی‌پنجره فقط برای آزمون'],
+  ['Claude in Chrome (/chrome) و مرورگرِ داخلی', 'مرورگر با لاگینِ خودِ حبیب: فرم، کنسول، ضبطِ GIF'],
+  ['hook و mod', 'کاری که خودکار پیش یا پس از هر ابزار یا پیام اجرا شود (settings.json)'],
+  ['سرچ در چت‌های قبلی', 'python3 ~/Downloads/205th-day-mother-of-all-agent/abzar/hafeze_search.py --hame "<سؤال>" 5 ⇒ حبیب در موردِ مشابه چه گفت'],
+]
+const prompt_fork_khodkar = '"khodkar": [all of them, 0 or more, each {"kar": "<کاری که الان در این چت جاری است و ایجنت آن را از حبیب می‌پرسد یا به او می‌سپارد، کوتاه>", "abzar": "<کدام ابزار از فهرست، دقیق: اسمِ ابزار و فرمان یا مسیر>", "chek": "<ایجنت نتیجه را خودش چطور می‌بیند و می‌سنجد>", "chera": "<یک جملهٔ کوتاه: چرا لازم نیست از حبیب بپرسد>"}]'
+const ghaede_khodkar = '\n\n«khodkar» (خودکار): این فهرستِ کاملِ ابزارهای ایجنت در Claude Code است (code.claude.com/docs/en/tools-reference، خوانده‌شده ۲۵ اکت ۲۰۲۶):\n' +
+  abzar_ha_ye_claude_code.map(([n, t]) => '- ' + n + ': ' + t).join('\n') + '\n' +
+  'یکی‌یکی چک و بررسی کن: در کارهایی که الان در همین چت جاری است، کدام ابزار کاری را که ایجنت از حبیب می‌پرسد یا به او می‌سپارد («چک کن به من بگو»، «امتحان کن»، «ببین درست است؟»، «ریلود کن و عکس بفرست») خودش انجام می‌دهد و نتیجه‌اش را خودش چک می‌کند. پیشنهادهایت را بده، بی‌سقف. ' +
+  'ابزاری که در این چت استفاده نشده و کار را عقب انداخته، اول بیاید. پیش از هر تصمیم، سرچ در چت‌های قبلی برای حرفِ حبیب در موردِ مشابه و تصمیم طبقِ همان حرف؛ مثلاً برای چکِ یک اپ، اول پیدا کن اپ مالِ کدام پروژه است و حبیب قبلاً درباره‌اش چه گفته. ' +
+  'نیاور: رمز، کدِ پیامکی، پول، کارِ دست یا تنِ حبیب، و چیزی که قانونِ حبیب صریحاً با او گذاشته. نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
 // «کرون‌جاب» (Habib, 25 Oct 16:52: «کرون جا درست کنه … با توجه به اون کارایی که من مشخص میکنم اون
 // کاراییش که میخوره»): of the work Habib named, what fits a job that runs by itself on a schedule
 const prompt_fork_cron = '"cron": [all of them, 0 or more, each {"kar": "<کاری که حبیب در این چت مشخص کرد و به کرون‌جاب می‌خورد>", "zaman": "<کی اجرا شود، به فارسی و با عبارتِ cron، مثلاً هر روز ۰۸:۰۰ (0 8 * * *)>", "rah": "<با چه ساخته شود: launchd، crontab، یا CronCreate/schedule ِ Claude Code، و فرمانش>"}]'
@@ -177,11 +217,11 @@ export function khandan_nakarde(list) {
     .filter((x) => x && typeof x.harf === 'string' && x.harf.trim() && typeof x.chera === 'string')
     .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim() }))
 }
-// «خودکار» from the fork's reply: all of them, each with the work, the means, and why not to ask
+// «خودکار» from the fork's reply: all of them, each with the work, the tool, how the agent checks it, and why not to ask
 export function khandan_khodkar(list) {
   return (Array.isArray(list) ? list : [])
-    .filter((x) => x && typeof x.kar === 'string' && x.kar.trim() && typeof x.rah === 'string' && x.rah.trim())
-    .map((x) => ({ kar: x.kar.trim(), rah: x.rah.trim(), chera: typeof x.chera === 'string' ? x.chera.trim() : '' }))
+    .filter((x) => x && typeof x.kar === 'string' && x.kar.trim() && typeof x.abzar === 'string' && x.abzar.trim())
+    .map((x) => ({ kar: x.kar.trim(), abzar: x.abzar.trim(), chek: typeof x.chek === 'string' ? x.chek.trim() : '', chera: typeof x.chera === 'string' ? x.chera.trim() : '' }))
 }
 export function khandan_cron(list) {
   return (Array.isArray(list) ? list : [])
@@ -625,6 +665,59 @@ const masir_file_chat = async ($) => (await $.env.get('HOME')) + '/.claude/hads-
 export const bakhsh_ha = [['hads', 'حدس'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها']]
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
 // name glued from pieces): a part ticked off, and the other settings
+export const esm_bakhsh = Object.fromEntries(bakhsh_ha)
+// What the box shows, kept per chat in ~/.claude/hads-log/<id>.akharin.json, so a reload of VS Code (a new
+// process, every variable empty) shows it again (Habib, 25 Oct 18:09: «وقتی که VS Code رو ریلود میکنیم اون
+// متنایی که تو پنجره هدس هست اونا همه پاک میشه و صفر میشه. بعد از قبلی ها توش باشه»). Written when it
+// changes, read back once per chat; «قبلی‌ها» have their own file and come back with «دو جمله».
+const masir_akharin = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.akharin.json'
+const tasvir_akharin = (id) => JSON.stringify({
+  do_jomle: do_jomle_akhar.for === id && do_jomle_akhar.text ? { text: do_jomle_akhar.text, summary: do_jomle_akhar.summary || null } : null,
+  ...(hads_baraye_chat === id ? { hads: hads_akhar, nakarde: nakarde_akhar, khodkar: khodkar_akhar, cron: cron_akhar } : {}),
+  porsesh: javab_porsesh && javab_porsesh.for === id && !javab_porsesh.cold && !javab_porsesh.waiting && javab_porsesh.text !== '…' ? { q: javab_porsesh.q, text: javab_porsesh.text } : null,
+})
+const akharin_zakhire = new Map()
+async function zakhire_akharin($, id) {
+  const t = tasvir_akharin(id)
+  if (akharin_zakhire.get(id) === t) return
+  akharin_zakhire.set(id, t)
+  try { await $.fs.write(await masir_akharin($), t + '\n') } catch {}
+}
+const akharin_bargashte = new Set()
+async function bargardandan_akharin($, id) {
+  if (akharin_bargashte.has(id)) return
+  akharin_bargashte.add(id)
+  let o = null
+  try { o = JSON.parse(String(await $.fs.read(await masir_akharin($)))) } catch {}
+  if (o?.do_jomle?.text && do_jomle_akhar.for !== id) {
+    const sm = o.do_jomle.summary ? khandan_jambandi(JSON.stringify(o.do_jomle.summary)) : null
+    do_jomle_akhar = { text: String(o.do_jomle.text), for: id, ...(sm ? { summary: sm } : {}) }
+  }
+  if (o && hads_baraye_chat !== id && (o.hads || o.nakarde || o.khodkar || o.cron)) {
+    hads_akhar = khandan_hads(JSON.stringify(o.hads || []))
+    nakarde_akhar = hanuz_nakarde(khandan_nakarde(o.nakarde), await khandan_nakarde_anjam($))
+    khodkar_akhar = khandan_khodkar(o.khodkar); cron_akhar = khandan_cron(o.cron); hads_baraye_chat = id
+  }
+  if (o?.porsesh?.text && !javab_porsesh) javab_porsesh = { q: String(o.porsesh.q || ''), text: String(o.porsesh.text), for: id }
+}
+// the order of the parts, the same in every chat (Habib, 25 Oct 18:01: «این دکمه ها باید قابلیت جابجایی
+// داشته باشن و با جابجا شدن ردیفشون عوض بشه. یعنی اگه حدس اوله میشه ردیف یک»): one line of part
+// names in ~/.claude/hads-tartib; a part it lacks comes after, in bakhsh_ha's order
+export function khandan_tartib(text) {
+  const kol = bakhsh_ha.map(([k]) => k)
+  const ba = [...new Set(String(text || '').trim().split(/\s+/).filter((w) => kol.includes(w)))]
+  return [...ba, ...kol.filter((k) => !ba.includes(k))]
+}
+const masir_tartib = async ($) => (await $.env.get('HOME')) + '/.claude/hads-tartib'
+async function khandan_tartib_file($) {
+  try { return khandan_tartib(String(await $.fs.read(await masir_tartib($)))) } catch { return khandan_tartib('') }
+}
+async function taghir_tartib($, v) {
+  const tazeh = khandan_tartib(v)
+  if (tazeh.join(' ') === (await khandan_tartib_file($)).join(' ')) return
+  try { await $.fs.write(await masir_tartib($), tazeh.join(' ') + '\n') } catch {}
+  $.ui.invalidate('ui.render')
+}
 export const kalame_khamush = { hads: '-hads', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg' }
 async function khandan_file_chat($) {
@@ -846,6 +939,8 @@ export function register(on) {
     const p = await khandan_file_chat($)
     if (!p) return next(e)
     const id = await $.session.id()
+    await bargardandan_akharin($, id)
+    zakhire_akharin($, id)
     const g = p.hads && hads_baraye_chat === id ? hads_akhar : []
     const nk = p.nakarde && hads_baraye_chat === id ? nakarde_akhar : []
     const kh = p.khodkar && hads_baraye_chat === id ? khodkar_akhar : []
@@ -878,20 +973,23 @@ export function register(on) {
       Button({ key: 'hads-min', label: '▾', onPress: () => taghir_halat($, 'yek_khat') }),
       Button({ key: 'hads-x', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
     ] })]
+    // each part's rows, laid out below in Habib's order (the ticks' order): ▾ × stay on top, the ticks last
+    const goruh = Object.fromEntries(bakhsh_ha.map(([k]) => [k, []]))
+    const tartib = await khandan_tartib_file($)
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
     // the panel's rows are user-select:text in VS Code
-    if (n) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+    if (n) goruh.do_jomle.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [sm ? 'جمع‌بندی:' : 'دو جمله:'] }),
       Text({ key: 'hads-now', children: [n] }),
       ...(hist.length > 1 ? [Button({ key: 'hads-hist', label: (ghablia_baz ? '▴ ' : '') + 'قبلی‌ها ' + adad_farsi(hist.length - 1), onPress: () => { ghablia_baz = !ghablia_baz; $.ui.invalidate('ui.render') } })] : []),
     ] }))
     // the turn's summary: what was done ✓ and what was not ✗, one plain line each
     if (sm) for (const [k, mark, list] of [['anjam_shod', '✓', sm.anjam_shod], ['anjam_nashod', '✗', sm.anjam_nashod]]) {
-      if (list.length) rows.push(Text({ key: 'hads-sum-' + k, children: [mark + ' ' + list.join(' · ')] }))
+      if (list.length) goruh.do_jomle.push(Text({ key: 'hads-sum-' + k, children: [mark + ' ' + list.join(' · ')] }))
     }
     // the guesses (1-2): whole sentences, plain text like «دو جمله» (Habib selects and copies
     // them); a small ⤵ puts one in the prompt box, never sends it
-    for (let i = 0; i < g.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+    for (let i = 0; i < g.length; i++) goruh.hads.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '      ' : 'حدس:'] }),
       Text({ key: 'hads-g-' + i, children: [g[i].text] }),
       Button({ key: 'hads-' + i, label: '⤵', onPress: () => {
@@ -901,7 +999,7 @@ export function register(on) {
       } }),
     ] }))
     // «نکرده‌ها»: Habib's words, when he said them, and why it is still not done; ⤵ asks for it again
-    for (let i = 0; i < nk.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+    for (let i = 0; i < nk.length; i++) goruh.nakarde.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '        ' : 'نکرده:'] }),
       Text({ key: 'hads-nk-' + i, children: ['«' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '') + ' — ' + nk[i].chera] }),
       Button({ key: 'hads-nk-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم و هنوز نکردی، انجامش بده: «' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '')) }),
@@ -909,25 +1007,25 @@ export function register(on) {
       Button({ key: 'hads-nk-anjam-' + i, label: '✓ انجام شد', onPress: () => anjam_shod_zadan($, nk[i].harf) }),
     ] }))
     // «خودکار»: what the model can do by itself, and with what; ⤵ tells the chat to do it, not ask
-    for (let i = 0; i < kh.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+    for (let i = 0; i < kh.length; i++) goruh.khodkar.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '         ' : 'خودکار:'] }),
-      Text({ key: 'hads-kh-' + i, children: [kh[i].kar + ' ⇐ ' + kh[i].rah + (kh[i].chera ? ' — ' + kh[i].chera : '')] }),
-      Button({ key: 'hads-kh-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را خودت انجام بده و از من نپرس: ' + kh[i].kar + ' ⇐ با ' + kh[i].rah + '. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان.') }),
+      Text({ key: 'hads-kh-' + i, children: [kh[i].kar + ' ⇐ ' + kh[i].abzar + (kh[i].chek ? ' · چک: ' + kh[i].chek : '') + (kh[i].chera ? ' — ' + kh[i].chera : '')] }),
+      Button({ key: 'hads-kh-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را خودت انجام بده و از من نپرس: ' + kh[i].kar + ' ⇐ با ' + kh[i].abzar + (kh[i].chek ? '؛ نتیجه را خودت چک کن: ' + kh[i].chek : '') + '. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان.') }),
     ] }))
     // «کرون‌جاب»: work Habib named that fits a scheduled job; ⤵ asks the chat to make it
-    for (let i = 0; i < cr.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+    for (let i = 0; i < cr.length; i++) goruh.cron.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '           ' : 'کرون‌جاب:'] }),
       Text({ key: 'hads-cr-' + i, children: [cr[i].kar + ' ⇐ ' + cr[i].zaman + (cr[i].rah ? ' — ' + cr[i].rah : '')] }),
       Button({ key: 'hads-cr-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'برای این کار کرون‌جاب بساز و با خرابکاریِ عمدی بسنج که اجرا می‌شود: ' + cr[i].kar + ' ⇐ ' + cr[i].zaman + (cr[i].rah ? ' (' + cr[i].rah + ')' : '')) }),
     ] }))
     // the earlier ones, newest first, with Tehran date and time; the current one is not repeated
-    if (ghablia_baz) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>
+    if (ghablia_baz) goruh.do_jomle.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>
       Text({ key: 'hads-hist-' + i, dimColor: true, children: [zaman_miladi(x.t) + ' — ' + x.text] })) }))
     // «هوک‌ها»: small = one line each, had_hook_kuchak_harf long; big = the last had_hook_bozorg_radif, each at most
     // had_hook_bozorg_harf long (a SessionStart handoff is pages: whole, it filled the band)
     const hkAll = p.hook && hook_ha.for === id ? hook_ha.list : []
     const hk = hkAll.slice(-(p.hook_bozorg ? had_hook_bozorg_radif : had_hook_kuchak_radif))
-    if (hk.length) rows.push(Box({ flexDirection: 'column', children: [
+    if (hk.length) goruh.hook.push(Box({ flexDirection: 'column', children: [
       Box({ flexDirection: 'row', columnGap: 1, children: [
         Text({ dimColor: true, children: ['هوک‌ها (' + adad_farsi(hkAll.length) + (hkAll.length > hk.length ? '، ' + adad_farsi(hk.length) + ' تای آخر' : '') + '):'] }),
         Button({ key: 'hads-hook-size', label: p.hook_bozorg ? 'کوچک' : 'بزرگ', onPress: async () => {
@@ -939,7 +1037,7 @@ export function register(on) {
         ? Text({ key: 'hads-hook-' + i, children: [(h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + ':\n' + (h.text.length > had_hook_bozorg_harf ? h.text.slice(0, had_hook_bozorg_harf - 1) + '…' : h.text)] })
         : Text({ key: 'hads-hook-' + i, dimColor: true, children: [(() => { const l = khat_hook(h); return l.length > had_hook_kuchak_harf ? l.slice(0, had_hook_kuchak_harf - 1) + '…' : l })()] })),
     ] }))
-    if (a) rows.push(Box({
+    if (a) goruh.porsesh.push(Box({
       flexDirection: 'column',
       children: [
         Text({ dimColor: true, children: ['پرسش: ' + a.q] }),
@@ -952,6 +1050,7 @@ export function register(on) {
         ] }),
       ],
     }))
+    for (const k of tartib) rows.push(...goruh[k])
     // the guesses, «پرسش» and the ticks come last, next to the prompt: a big band above can
     // never push them out of sight
     rows.push(Box({
@@ -964,8 +1063,12 @@ export function register(on) {
         }),
         // Enter on the screen, for whoever does not want the key
         Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => porsesh_kon($, matn_porsesh) })] : []),
-        // one tick per part, for this chat only
-        ...bakhsh_ha.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tik_zadan($, k) })),
+        // one tick per part, for this chat only, in Habib's order
+        ...tartib.map((k) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + esm_bakhsh[k], onPress: () => tik_zadan($, k) })),
+        // VS Code only: the ticks are dragged there (claude-ui-buttons.js), which writes the new order
+        // here; the field itself is hidden by that script
+        ...(Input && e.surface === 'vscode' ? [Input({ key: 'hads-tartib', value: tartib.join(' '), placeholder: 'ترتیبِ بخش‌ها',
+          onInput: (v) => taghir_tartib($, v), onSubmit: (v) => taghir_tartib($, v) })] : []),
       ],
     }))
     return Box({ flexDirection: 'column', children: theirs ? [theirs, ...rows] : rows })

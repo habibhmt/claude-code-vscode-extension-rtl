@@ -18,10 +18,12 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
-  process: { run: async (argv, init) => { if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
+  process: { run: async (argv, init) => { if (/hafeze_dayere\.py$/.test(argv?.[0] || '')) { const sid = argv[argv.indexOf('--chat') + 1]; calls.dayere = [...(calls.dayere || []), argv.slice(1)]; if (argv[1] === 'set' && !$.dayereBroken && !$.dayereSetIgnored) dayere[sid] = argv[2]; return { exitCode: 0, stdout: $.dayereBroken ? 'Traceback\n' : JSON.stringify({ dayere: dayere[sid] || 'poshe', az: 'sarasari' }) + '\n' } } if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
+// ۲۰۵'s memory-scope setting, per chat id, as its hafeze_dayere.py keeps it
+const dayere = {}
 const events = []
 const usages = []
 $.t = 0
@@ -613,7 +615,7 @@ flags['/h/.claude/hads-tartib'] = 'cron do_jomle hads\n'
 const rT = await render(), kT = tartib_kelid(rT)
 out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.slice(10)),
   rows: ['hads-cr-0', 'hads-now', 'hads-g-0', 'hads-kh-0'].map((k) => kT.indexOf(k)).every((x, i, a) => x > 0 && (!i || x > a[i - 1])),
-  top: kT[0], last: kT[kT.length - 1].startsWith('hads-tick-'), field: !!find(rT, 'hads-tartib') }
+  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-hook hads-hafeze', field: !!find(rT, 'hads-tartib') }
 assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook'], rows: true, top: 'hads-top', last: true, field: false })
 // VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
 const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
@@ -622,6 +624,27 @@ await fld.onInput('khodkar hads hads chizi')
 out.tartibField = { value: fld.value, file: flags['/h/.claude/hads-tartib'], notMobile: !find(await render({ surface: 'mobile' }), 'hads-tartib') }
 assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads nakarde khodkar porsesh hook', file: 'khodkar hads nakarde cron do_jomle porsesh hook\n', notMobile: true })
 $.ui.resolve = keepResolve; delete flags['/h/.claude/hads-tartib']
+// «🔎 حافظه» (Habib to ۲۰۵, 25 Oct 18:30: «بله، بسازید»): the label is what ۲۰۵'s `get` says; a press moves
+// this chat one on (همین چت ⇐ همین پروژه ⇐ همهٔ پروژه‌ها ⇐ همین چت) and no other chat; /hads hafeze works with the box off
+const hafeze_label = async () => { await flush(); await new Promise((r) => setTimeout(r, 5)); return find(await render(), 'hads-hafeze')?.label }
+const lb0 = await hafeze_label()
+const labels = [lb0]
+for (let i = 0; i < 3; i++) { await find(await render(), 'hads-hafeze').onPress(); labels.push(await hafeze_label()) }
+const kSid = $.sid; $.sid = 'K2'; await H['command.run']($, { args: 'on' }); const otherLb = await hafeze_label(); $.sid = kSid
+out.hafeze = { labels, other: otherLb, store: { K: dayere.K, K2: dayere.K2 }, sets: calls.dayere.filter((a) => a[0] === 'set').map((a) => a[1] + '>' + a[3]),
+  logged: events.filter((e) => e.kind === 'hafeze_dayere').map((e) => e.hast) }
+assert.deepEqual(out.hafeze, { labels: ['🔎 حافظه: همین پروژه', '🔎 حافظه: همهٔ پروژه‌ها', '🔎 حافظه: همین چت', '🔎 حافظه: همین پروژه'], other: '🔎 حافظه: همین پروژه',
+  store: { K: 'poshe', K2: undefined }, sets: ['hame>K', 'chat>K', 'poshe>K'], logged: ['hame', 'chat', 'poshe'] })
+// a write that did not take (the file refused it): the label still says what get says, not what was asked
+$.dayereSetIgnored = true; await find(await render(), 'hads-hafeze').onPress(); out.hafezeTruth = [await hafeze_label(), dayere.K]; $.dayereSetIgnored = false
+assert.deepEqual(out.hafezeTruth, ['🔎 حافظه: همین پروژه', 'poshe'])
+// the command, with the box off; a word that is no scope is refused; a broken command is said, not guessed
+await H['command.run']($, { args: 'off' })
+const hc1 = await H['command.run']($, { args: 'hafeze hame' }), hc2 = await H['command.run']($, { args: 'hafeze koja' })
+$.dayereBroken = true; const hc3 = await H['command.run']($, { args: 'hafeze' }); $.dayereBroken = false
+out.hafezeCmd = [hc1.text, hc2.text, hc3.text, dayere.K]
+assert.deepEqual(out.hafezeCmd, ['دایرهٔ سرچِ حافظه برای همین چت: همهٔ پروژه‌ها', 'یکی از این‌ها: /hads hafeze chat | poshe | hame', 'فرمانِ حافظهٔ ۲۰۵ جواب نداد', 'hame'])
+await H['command.run']($, { args: 'on' })
 // ticked off: not asked, not shown
 await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
 const k1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()

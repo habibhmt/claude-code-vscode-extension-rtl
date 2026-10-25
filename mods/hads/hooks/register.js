@@ -666,6 +666,39 @@ export const bakhsh_ha = [['hads', 'حدس'], ['nakarde', 'نکرده‌ها'], 
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
 // name glued from pieces): a part ticked off, and the other settings
 export const esm_bakhsh = Object.fromEntries(bakhsh_ha)
+// «🔎 حافظه»: how wide this chat's memory search reaches (Habib to ۲۰۵, 25 Oct 18:03: «این قابلیت سرچ کردن
+// باید قابل تنظیم باشه که … فقط از توی چت خودش باشه یا از توی چتای توی پروژه خودش باشه یا از توی کل چتای
+// موجود در کل پروژه ها»; built here, 18:30: «بله، بسازید»). ۲۰۵ owns the file (hafeze_tanzim.json): its
+// command writes and reads it, the label shows what its `get` says, a press moves only this chat one on
+export const dayere_ha = ['chat', 'poshe', 'hame']
+export const esm_dayere = { chat: 'همین چت', poshe: 'همین پروژه', hame: 'همهٔ پروژه‌ها' }
+const masir_hafeze_dayere = async ($) => (await $.env.get('HOME')) + '/Downloads/205th-day-mother-of-all-agent/abzar/hafeze_dayere.py'
+// per chat id: what `get` last said (undefined: not asked yet; null: no answer)
+const dayere_har_chat = new Map()
+async function hafeze_dayere($, ...args) {
+  try {
+    const r = await $.process.run([await masir_hafeze_dayere($), ...args, '--chat', await $.session.id()], { timeoutMs: 15000 })
+    const o = JSON.parse(String(r.stdout || '').trim().split('\n').pop())
+    return dayere_ha.includes(o?.dayere) ? o.dayere : null
+  } catch {
+    return null
+  }
+}
+async function khandan_dayere($) {
+  const id = await $.session.id()
+  dayere_har_chat.set(id, await hafeze_dayere($, 'get'))
+  $.ui.invalidate('ui.render')
+}
+async function taghir_dayere($, be) {
+  const id = await $.session.id()
+  const cur = dayere_har_chat.get(id)
+  const next = be || dayere_ha[(dayere_ha.indexOf(cur) + 1) % dayere_ha.length]
+  await hafeze_dayere($, 'set', next)
+  // the label is what get says after the write, never what was asked for
+  await khandan_dayere($)
+  await benevis_daftar($, 'hafeze_dayere', { khaste: next, hast: dayere_har_chat.get(id) })
+  return dayere_har_chat.get(id)
+}
 // What the box shows, kept per chat in ~/.claude/hads-log/<id>.akharin.json, so a reload of VS Code (a new
 // process, every variable empty) shows it again (Habib, 25 Oct 18:09: «وقتی که VS Code رو ریلود میکنیم اون
 // متنایی که تو پنجره هدس هست اونا همه پاک میشه و صفر میشه. بعد از قبلی ها توش باشه»). Written when it
@@ -835,7 +868,7 @@ async function tik_zadan($, key) {
 export function register(on) {
   on('session.start', async ($, e, next) => {
     try {
-      await $.command.register({ name: 'hads', description: 'حدس: on | off | now | ask <پرسش>', argumentHint: '[on|off|now|ask …]', immediate: true })
+      await $.command.register({ name: 'hads', description: 'حدس: on | off | now | ask <پرسش> | hafeze chat|poshe|hame', argumentHint: '[on|off|now|ask …|hafeze …]', immediate: true })
     } catch {}
     return next(e)
   })
@@ -867,6 +900,13 @@ export function register(on) {
       else { do_jomle_akhar = { text: 'حدس روشن شد؛ بعد از جوابِ بعدی دو جمله و دکمه‌ها می‌آید.', for: await $.session.id() } }
       $.ui.invalidate('ui.render')
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
+    }
+    // works with the box off too
+    if (arg.startsWith('hafeze')) {
+      const be = arg.slice(6).trim()
+      if (be && !dayere_ha.includes(be)) return { text: 'یکی از این‌ها: /hads hafeze chat | poshe | hame' }
+      const hast = be ? await taghir_dayere($, be) : (await khandan_dayere($), dayere_har_chat.get(await $.session.id()))
+      return { text: hast ? 'دایرهٔ سرچِ حافظه برای همین چت: ' + esm_dayere[hast] : 'فرمانِ حافظهٔ ۲۰۵ جواب نداد' }
     }
     if (arg.startsWith('ask ') && !(await khandan_file_chat($))?.porsesh) return { text: 'پرسش در این چت خاموش است' }
     if (arg.startsWith('ask ')) { $.clock.after(0, () => porsesh_kon($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
@@ -941,6 +981,7 @@ export function register(on) {
     const id = await $.session.id()
     await bargardandan_akharin($, id)
     zakhire_akharin($, id)
+    if (!dayere_har_chat.has(id)) { dayere_har_chat.set(id, null); khandan_dayere($) }
     const g = p.hads && hads_baraye_chat === id ? hads_akhar : []
     const nk = p.nakarde && hads_baraye_chat === id ? nakarde_akhar : []
     const kh = p.khodkar && hads_baraye_chat === id ? khodkar_akhar : []
@@ -1065,6 +1106,8 @@ export function register(on) {
         Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => porsesh_kon($, matn_porsesh) })] : []),
         // one tick per part, for this chat only, in Habib's order
         ...tartib.map((k) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + esm_bakhsh[k], onPress: () => tik_zadan($, k) })),
+        // not a part: it stays after the ticks, outside their order
+        Button({ key: 'hads-hafeze', label: '🔎 حافظه: ' + (dayere_har_chat.get(id) ? esm_dayere[dayere_har_chat.get(id)] : '…'), onPress: () => taghir_dayere($) }),
         // VS Code only: the ticks are dragged there (claude-ui-buttons.js), which writes the new order
         // here; the field itself is hidden by that script
         ...(Input && e.surface === 'vscode' ? [Input({ key: 'hads-tartib', value: tartib.join(' '), placeholder: 'ترتیبِ بخش‌ها',

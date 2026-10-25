@@ -18,7 +18,7 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
-  process: { run: async (argv, init) => { if (/hafeze_dayere\.py$/.test(argv?.[0] || '')) { const sid = argv[argv.indexOf('--chat') + 1]; calls.dayere = [...(calls.dayere || []), argv.slice(1)]; if (argv[1] === 'set' && !$.dayereBroken && !$.dayereSetIgnored) dayere[sid] = argv[2]; return { exitCode: 0, stdout: $.dayereBroken ? 'Traceback\n' : JSON.stringify({ dayere: dayere[sid] || 'poshe', az: 'sarasari' }) + '\n' } } if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
+  process: { run: async (argv, init) => { if (argv?.[0] === 'grep') { calls.sanad = [...(calls.sanad || []), argv]; const t = argv[5] in flags ? flags[argv[5]] : $.files[argv[5]]; return { exitCode: t !== undefined && String(t).includes(argv[4]) ? 0 : 1, stdout: '' } } if (argv?.[0] === 'git') { calls.git = [...(calls.git || []), argv]; return { exitCode: 0, stdout: argv.includes('-200') ? ($.gitLog || '') : ($.gitRecent || '') } } if (/hafeze_dayere\.py$/.test(argv?.[0] || '')) { const sid = argv[argv.indexOf('--chat') + 1]; calls.dayere = [...(calls.dayere || []), argv.slice(1)]; if (argv[1] === 'set' && !$.dayereBroken && !$.dayereSetIgnored) dayere[sid] = argv[2]; return { exitCode: 0, stdout: $.dayereBroken ? 'Traceback\n' : JSON.stringify({ dayere: dayere[sid] || 'poshe', az: 'sarasari' }) + '\n' } } if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
@@ -225,6 +225,26 @@ $.ctx = 1000; await find(await render(), 'hads-tick-nakarde').onPress({}); const
 out.nakardeOff = { forked: calls.fork.length > nk2, asked: calls.fork.slice(nk2).some((f) => /nakarde/.test(f.prompt)), shown: !!find(await render(), 'hads-nk-0') }
 assert.deepEqual(out.nakardeOff, { forked: true, asked: false, shown: false })
 await find(await render(), 'hads-tick-nakarde').onPress({}); $.ctx = 1000
+// a stale «نکرده» (Habib through ۲۰۵, 25 Oct 19:08: «بله، بسازد»): the fork sees the project's last commits and
+// gives a check; one whose file holds the text, or whose project's commits say it, is not shown, and is logged
+{
+  $.gitRecent = '3a6013f 10-25 19:04 fix: حافظه'; $.gitLog = 'feat: دکمهٔ حافظه\nbody'; $.files['/x/tanzim.json'] = '{"ollama_ha": 1}'
+  const keepReply = $.forkReply, sv0 = events.length, sf0 = calls.fork.length
+  $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ hads: [], nakarde: [
+    { harf: 'ollama رو اضافه کن', zaman: '', chera: 'هنوز در تنظیم نیست', sanad: { file: '/x/tanzim.json', matn: 'ollama_ha' } },
+    { harf: 'دکمه رو بساز', zaman: '', chera: 'ساخته نشده', sanad: { git: '/proj', matn: 'دکمهٔ حافظه' } },
+    { harf: 'لاگ رو عوض کن', zaman: '', chera: 'هنوز ۱۱۴۳۴', sanad: { file: '/x/tanzim.json', matn: '11435' } },
+    { harf: 'عکس بگیر', zaman: '', chera: 'نگرفتی' },
+    { harf: 'بد', zaman: '', chera: 'سند بی‌مسیر', sanad: { file: 'nisbi.txt', matn: 'x' } }] }) }
+  await H['command.run']($, { args: 'now' }); await flush()
+  const pr = calls.fork.slice(sf0).map((f) => f.prompt).join('\n'), rS = await render()
+  out.nakardeSanad = { shown: [0, 1, 2, 3].map((i) => find(rS, 'hads-nk-' + i)?.children[0]).filter(Boolean).map((x) => x.split('»')[0].slice(1)),
+    prompt: /3a6013f 10-25 19:04 fix: حافظه/.test(pr) && /۷\) چیزی که بیرون از این چت انجام شده/.test(pr) && /"sanad"/.test(pr),
+    logged: events.slice(sv0).filter((e) => e.kind === 'nakarde_ba_sanad').map((e) => e.anjam_shode.map((x) => x.harf)),
+    root: calls.git.some((a) => a[2] === '/proj' && a.includes('-20')), onlyWhole: (calls.sanad || []).every((a) => a[5].startsWith('/')) }
+  assert.deepEqual(out.nakardeSanad, { shown: ['لاگ رو عوض کن', 'عکس بگیر', 'بد'], prompt: true, logged: [['ollama رو اضافه کن', 'دکمه رو بساز']], root: true, onlyWhole: true })
+  $.forkReply = keepReply
+}
 $.sid = 'A'
 // mid-work uses only the last three messages
 $.msgs = Array.from({ length: 10 }, (_, i) => ({ role: 'user', text: 'پیامِ-' + i }))
@@ -255,7 +275,8 @@ $.forkReply = { isAnswered: true, text: 'یعنی دکمه ساخته شد.', us
 const box = row(await render()).children.find((c) => c.t === 'Input')
 await box.onSubmit('این یعنی چی؟'); await flush()
 out.ask = { fork: calls.fork.length, fill: calls.fill.length, submit: calls.submit.length }; assert.deepEqual(out.ask, { fork: 1, fill: 0, submit: 0 })
-const ansText = (t) => t.children.filter((c) => c.t === 'Box' && c.flexDirection === 'column').flatMap((c) => c.children).filter((c) => c.t === 'Text').map((c) => c.children[0])
+// every plain text in the box (the answer sits in its part's own box since 25 Oct 19:10)
+const ansText = (t) => { const o = []; const w = (x) => { if (!x || typeof x !== 'object') return; if (x.t === 'Text' && typeof x.children?.[0] === 'string') o.push(x.children[0]); for (const c of x.children || []) w(c) }; w(t); return o }
 out.askShown = ansText(await render()).includes('یعنی دکمه ساخته شد.'); assert.equal(out.askShown, true)
 out.askUsage = (await $.store.get('kharj_akhar_porsesh'))?.cache_read_input_tokens; assert.equal(out.askUsage, 3)
 // after /clear the fork has nothing, and the chat has nothing either: a plain message, never an empty answer
@@ -615,8 +636,10 @@ flags['/h/.claude/hads-tartib'] = 'cron do_jomle hads\n'
 const rT = await render(), kT = tartib_kelid(rT)
 out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.slice(10)),
   rows: ['hads-cr-0', 'hads-now', 'hads-g-0', 'hads-kh-0'].map((k) => kT.indexOf(k)).every((x, i, a) => x > 0 && (!i || x > a[i - 1])),
-  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-hook hads-hafeze', field: !!find(rT, 'hads-tartib') }
-assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook'], rows: true, top: 'hads-top', last: true, field: false })
+  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-hook hads-hafeze', field: !!find(rT, 'hads-tartib'),
+  // one box per part that has rows, in the same order (the page script keeps each from shrinking)
+  bakhsh: kT.filter((k) => k.startsWith('hads-bakhsh-')).map((k) => k.slice(12)) }
+assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
 // VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
 const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
 const rV = await render({ surface: 'vscode' }); const fld = find(rV, 'hads-tartib')

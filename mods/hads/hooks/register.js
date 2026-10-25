@@ -147,14 +147,18 @@ const prompt_fork_hads = '"hads": [1 or 2 of {"label": "<= 3 words", "text": "<o
 // «نکرده‌ها»: the fork has read the whole chat, every tool's output included. Its rules come from two
 // Sonnet audits of this chat (25 Oct 03:33): only Habib's own words; done means a tool proved it; his
 // later word replaces the earlier; a promise not kept counts; other items first than last time
-const prompt_fork_nakarde = () => '"nakarde": [all of them, 0 or more, each {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>"}]'
-const ghaede_nakarde = (anjam) => '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
+const prompt_fork_nakarde = () => '"nakarde": [all of them, 0 or more, each {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>", "sanad": <اختیاری: {"file": "<مسیرِ کاملِ فایلی که اگر انجام شده بود این متن در آن بود>", "matn": "<آن متن، کوتاه و عیناً>"} یا {"git": "<مسیرِ کاملِ پوشهٔ پروژه>", "matn": "<کلمه‌ای که در پیامِ commit ِ آن کار می‌آمد>"}>}]'
+const ghaede_nakarde = (anjam, commit_ha = '') => '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
   '۱) فقط حرفِ خودِ حبیب. پیامِ ایجنتِ دیگر، system-reminder، task-notification و «Continue from where you left off» حرفِ حبیب نیست؛ حرفی از حبیب که ایجنتی عینش را نقل کرده حساب است. ' +
   '۲) «انجام شد» یعنی خروجیِ یک ابزار در همین چت ثابتش کرد (آزمونِ سبز، commit، فایلِ نوشته‌شده). «انجام می‌دهم» یا «منتظرِ …» انجام نیست. ' +
   '۳) حرفِ تازه‌ترِ حبیب جای حرفِ قدیمی‌اش را می‌گیرد؛ چیزی که بعداً رد یا عوض کرد، نکرده نیست. ' +
   '۴) قولی که به حبیب یا به ایجنتِ دیگر دادی و عمل نکردی («می‌پرسم»، «خبر می‌دهم»، «بعد از ریلود می‌زنم») هم نکرده است. ' +
   '۵) مهم‌ترین اول: آنچه حبیب رویش تأکید کرد، یا قدیمی‌تر و فراموش‌شده. ' +
   (anjam.length ? '۶) حبیب این‌ها را خودش «انجام شد» زد؛ هرگز دوباره نیاورشان، حتی با کلمه‌های دیگر: ' + anjam.map((x) => '«' + x + '»').join(' · ') + '. ' : '') +
+  // Habib, 25 Oct 19:08, through ۲۰۵: «بله، بسازد» — a «نکرده» whose reason is stale (done outside this
+  // chat, by a file or a commit) must not stay: the fork gives a check, the mod reads the file or the log
+  '۷) چیزی که بیرون از این چت انجام شده هم نکرده نیست: حالِ امروزِ پروژه را از commit‌های زیر بخوان، و برای هر نکرده‌ای که با یک فایل یا commit سنجیدنی است sanad بده؛ پیش از نمایش، فایل یا git log خوانده می‌شود و اگر آن متن آنجا بود، آن ردیف نمی‌آید. ' +
+  (commit_ha ? '\ncommit‌های اخیرِ این پروژه (تازه به قدیم):\n' + commit_ha + '\n' : '') +
   'نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
 // Habib, 25 Oct 18:08: «منظورم کل ابزارهایی هست که توی کلود کد برای ایجنت ها موجوده. و این ابزارها
 // باید سرچ به وب بکنی که لیست کاملش رو در بیاری و توی پرومپتت بیاری که ایجنت چک بکنه و بررسی بکنه و
@@ -206,7 +210,7 @@ const ghaede_khodkar = '\n\n«khodkar» (خودکار): این فهرستِ کا
 const prompt_fork_cron = '"cron": [all of them, 0 or more, each {"kar": "<کاری که حبیب در این چت مشخص کرد و به کرون‌جاب می‌خورد>", "zaman": "<کی اجرا شود، به فارسی و با عبارتِ cron، مثلاً هر روز ۰۸:۰۰ (0 8 * * *)>", "rah": "<با چه ساخته شود: launchd، crontab، یا CronCreate/schedule ِ Claude Code، و فرمانش>"}]'
 const ghaede_cron = '\n\n«cron» (کرون‌جاب): از میانِ کارهایی که حبیب در همین چت مشخص کرد، هر کدام که تکراری است یا باید سرِ وقت یا هر چند وقت خودش اجرا یا چک شود (چکِ نسخه، نگهبان، گزارشِ روزانه، پاک کردنِ دفتر، …)، بی‌سقف. کرون‌جابی که در همین چت ساخته شده و کار می‌کند نیاور. نامطمئن ⇒ نیاور. هیچ نبود ⇒ [].'
 const prompt_fork_bakhsh_ha = (p, anjam) => [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads, p.nakarde && prompt_fork_nakarde(), p.khodkar && prompt_fork_khodkar, p.cron && prompt_fork_cron].filter(Boolean)
-const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam) : '') + (p.khodkar ? ghaede_khodkar : '') + (p.cron ? ghaede_cron : '')
+const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha) : '') + (p.khodkar ? ghaede_khodkar : '') + (p.cron ? ghaede_cron : '')
 const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   prompt_fork_bakhsh_ha(p, anjam).join(', ') + '}' + ghaede_bakhsh_ha(p, anjam)
 
@@ -215,7 +219,35 @@ const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس�
 export function khandan_nakarde(list) {
   return (Array.isArray(list) ? list : [])
     .filter((x) => x && typeof x.harf === 'string' && x.harf.trim() && typeof x.chera === 'string')
-    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim() }))
+    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}) }))
+}
+// a check the mod can run itself: an absolute file that would hold the text, or a project whose commit
+// messages would; anything else is no check
+export function khandan_sanad(x) {
+  if (!x || typeof x !== 'object' || typeof x.matn !== 'string' || !x.matn.trim()) return null
+  const matn = x.matn.trim().slice(0, 200)
+  if (typeof x.file === 'string' && x.file.startsWith('/')) return { file: x.file, matn }
+  if (typeof x.git === 'string' && x.git.startsWith('/')) return { git: x.git, matn }
+  return null
+}
+async function sanad_dare($, sanad) {
+  if (!sanad) return false
+  try {
+    if (sanad.file) return (await $.process.run(['grep', '-F', '-q', '--', sanad.matn, sanad.file], { timeoutMs: 5000 })).exitCode === 0
+    const r = await $.process.run(['git', '-C', sanad.git, 'log', '-200', '--format=%s%n%b'], { timeoutMs: 5000 })
+    return r.exitCode === 0 && String(r.stdout || '').includes(sanad.matn)
+  } catch {
+    return false
+  }
+}
+// the project's last commits, newest first, for the fork to see what is done today
+async function commit_ha_ye_akhir($) {
+  try {
+    const r = await $.process.run(['git', '-C', await $.session.root(), 'log', '-20', '--date=format:%m-%d %H:%M', '--format=%h %ad %s'], { timeoutMs: 5000 })
+    return r.exitCode === 0 ? String(r.stdout || '').trim().slice(0, 4000) : ''
+  } catch {
+    return ''
+  }
 }
 // «خودکار» from the fork's reply: all of them, each with the work, the tool, how the agent checks it, and why not to ask
 export function khandan_khodkar(list) {
@@ -552,7 +584,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   // has it, so a big chat forks for them too
   if (tokens <= had_fork_context_token || p.nakarde || p.khodkar || p.cron || pj) {
     try {
-      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron }
+      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '' }
       const anjam = khaste.nakarde ? await khandan_nakarde_anjam($) : []
       const r = await $.model.fork({ prompt: pj ? prompt_jambandi_nobat(pj.lines, pj.tools, khaste, anjam) : prompt_fork(khaste, anjam) })
       got = r.isAnswered ? khandan_javab_fork(r.text) : null
@@ -562,7 +594,11 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
     } catch {}
   } else if (pj) jambandi_shod = await jambandi($, pj)
   if (p.nakarde && got) {
-    nakarde_akhar = hanuz_nakarde(got.nakarde, await khandan_nakarde_anjam($)); hads_baraye_chat = await $.session.id()
+    // a «نکرده» its own check finds done (the file has it, a commit says it) is not shown, and is logged
+    const ba_sanad = []
+    for (const x of got.nakarde) if (await sanad_dare($, x.sanad)) ba_sanad.push(x)
+    if (ba_sanad.length) await benevis_daftar($, 'nakarde_ba_sanad', { anjam_shode: ba_sanad.map((x) => ({ harf: x.harf, sanad: x.sanad })) })
+    nakarde_akhar = hanuz_nakarde(got.nakarde.filter((x) => !ba_sanad.includes(x)), await khandan_nakarde_anjam($)); hads_baraye_chat = await $.session.id()
     await benevis_daftar($, 'nakarde', { rah: 'fork', nakarde_ha: nakarde_akhar })
     $.ui.invalidate('ui.render')
   }
@@ -1097,7 +1133,9 @@ export function register(on) {
         ] }),
       ],
     }))
-    for (const k of tartib) rows.push(...goruh[k])
+    // one box per part: the page script (claude-ui-buttons.js) keeps a part's height from shrinking back,
+    // so a new «دو جمله» does not make the rows below it jump (Habib, 25 Oct 19:08)
+    for (const k of tartib) if (goruh[k].length) rows.push(Box({ key: 'hads-bakhsh-' + k, flexDirection: 'column', children: goruh[k] }))
     // the guesses, «پرسش» and the ticks come last, next to the prompt: a big band above can
     // never push them out of sight
     rows.push(Box({

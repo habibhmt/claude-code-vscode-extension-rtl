@@ -283,8 +283,11 @@
     '.crtl-hads input[class*="input_"]{border-radius:7px!important;border:.5px solid rgba(128,128,128,.42)!important;background:rgba(0,0,0,.16)!important;padding:0 8px!important;height:22px;min-width:14em;outline:none!important;transition:box-shadow .15s}',
     '.crtl-hads input[class*="input_"]:focus{border-color:#0a84ff!important;box-shadow:0 0 0 3px rgba(10,132,255,.4)!important}',
     /* the ticks are dragged to reorder the parts; the field the new order goes through is never seen */
-    '.crtl-hads button[data-press-key^="hads-tick-"]{cursor:grab}',
-    '.crtl-hads button.crtl-dragging{outline:1px dashed currentColor;cursor:grabbing}',
+    '.crtl-hads button[data-press-key^="hads-tick-"]{cursor:grab;-webkit-user-select:none!important;user-select:none!important;-webkit-user-drag:none}',
+    '.crtl-hads button.crtl-dragging{position:relative;z-index:5;pointer-events:none;opacity:.85;box-shadow:0 4px 12px rgba(0,0,0,.35)!important;cursor:grabbing}',
+    /* where the dragged tick will land: a blue bar on that side of the tick under the pointer */
+    '.crtl-hads button.crtl-jaye-ghabl{box-shadow:inset -3px 0 0 #0a84ff!important}',
+    '.crtl-hads button.crtl-jaye-baad{box-shadow:inset 3px 0 0 #0a84ff!important}',
     '.crtl-hads form:has(input[data-press-key="hads-tartib"]){display:none!important}',
     '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
@@ -2045,30 +2048,48 @@
     }, true);
     b.addEventListener('mousedown', function (e) {
       if (e.button !== 0) return;
-      var x0 = e.clientX, y0 = e.clientY, moved = false;
+      // the panel's text is selectable: without this a press-and-move selects the label, or drags the
+      // selection natively, and no mouseup ever comes (Habib, 25 Oct 19:08: «اکثرا نمیشه جابجاش کرد»)
+      e.preventDefault();
+      var x0 = e.clientX, y0 = e.clientY, moved = false, last = null;
+      function zir(ev) {
+        var t = document.elementFromPoint(ev.clientX, ev.clientY);
+        t = t && t.closest ? t.closest('button[data-press-key^="hads-tick-"]') : null;
+        return t && t !== b && card.contains(t) ? t : null;
+      }
+      function ghabl(t, ev) {
+        var r = t.getBoundingClientRect();
+        // the row's own direction: right-to-left, the right half of a tick is before it
+        var rtl = getComputedStyle(t.parentElement || t).direction === 'rtl';
+        return rtl ? ev.clientX > r.left + r.width / 2 : ev.clientX < r.left + r.width / 2;
+      }
+      function pak_jay() { if (last) last.classList.remove('crtl-jaye-ghabl', 'crtl-jaye-baad'); last = null; }
       function move(ev) {
         if (!moved && Math.abs(ev.clientX - x0) + Math.abs(ev.clientY - y0) > DRAG_PX) {
           moved = true; b.classList.add('crtl-dragging');
         }
+        if (!moved) return;
+        b.style.transform = 'translate(' + (ev.clientX - x0) + 'px,' + (ev.clientY - y0) + 'px)';
+        var t = zir(ev);
+        pak_jay();
+        if (t) { last = t; t.classList.add(ghabl(t, ev) ? 'crtl-jaye-ghabl' : 'crtl-jaye-baad'); }
       }
       function up(ev) {
         document.removeEventListener('mousemove', move);
         document.removeEventListener('mouseup', up);
+        pak_jay();
         b.classList.remove('crtl-dragging');
+        b.style.transform = '';
         if (!moved) return;
         b.dataset.dragged = '1';
         setTimeout(function () { delete b.dataset.dragged; }, 0);
-        var tgt = document.elementFromPoint(ev.clientX, ev.clientY);
-        tgt = tgt && tgt.closest ? tgt.closest('button[data-press-key^="hads-tick-"]') : null;
-        if (!tgt || tgt === b || !card.contains(tgt)) return;
+        var tgt = zir(ev);
+        if (!tgt) return;
         var ticks = card.querySelectorAll('button[data-press-key^="hads-tick-"]');
         var keys = [];
         for (var i = 0; i < ticks.length; i++) keys.push(ticks[i].getAttribute('data-press-key').slice(10));
         var from = b.getAttribute('data-press-key').slice(10), to = tgt.getAttribute('data-press-key').slice(10);
-        var r = tgt.getBoundingClientRect();
-        // the row's own direction: right-to-left, the right half of a tick is before it
-        var rtl = getComputedStyle(tgt.parentElement || tgt).direction === 'rtl';
-        var before = rtl ? ev.clientX > r.left + r.width / 2 : ev.clientX < r.left + r.width / 2;
+        var before = ghabl(tgt, ev);
         keys.splice(keys.indexOf(from), 1);
         keys.splice(keys.indexOf(to) + (before ? 0 : 1), 0, from);
         ferestadan_tartib_hads(card, keys);
@@ -2076,6 +2097,58 @@
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
     });
+  }
+
+  // «حدس» must not jump when «دو جمله» or a part changes (Habib, 25 Oct 19:08: «وقتی که یه خبر جدید میاد یا دو
+  // جمله جدید میاد نپره»): the band and the «دو جمله» part never shrink back while the box stays as it is
+  // (their tallest height is their least); a press on a button inside, a change of state or a resized window
+  // lets them fit again. Scrolled to the end, the band stays at the end.
+  function ertefa_mohtava(el) {
+    var cs = getComputedStyle(el);
+    if (cs.boxSizing === 'border-box') return el.offsetHeight;
+    return el.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0);
+  }
+  function sabet_hads(card) {
+    var band = card.querySelector('[class*="band_"]');
+    if (!band) return;
+    if (band.dataset.crtlSabet) { band.__crtl_negah && band.__crtl_negah(); return; }
+    band.dataset.crtlSabet = '1';
+    var payin = false, bishtarin = new WeakMap(), negah_dar_kar = false;
+    function rahakardan() { band.style.minHeight = ''; var o = band.querySelectorAll('.crtl-hads-sabet'); for (var i = 0; i < o.length; i++) { o[i].style.minHeight = ''; o[i].classList.remove('crtl-hads-sabet'); } bishtarin = new WeakMap(); }
+    function negah_dar(el) {
+      el.style.minHeight = '';
+      var h = ertefa_mohtava(el), m = bishtarin.get(el) || 0;
+      if (h > m) { m = h; bishtarin.set(el, m); }
+      el.style.minHeight = m + 'px'; el.classList.add('crtl-hads-sabet');
+    }
+    function do_jomle_bakhsh() {
+      var ls = band.querySelectorAll('span[class*="text_"]');
+      for (var i = 0; i < ls.length; i++) {
+        var t = (ls[i].textContent || '').trim();
+        if (t !== 'دو جمله:' && t !== 'جمع‌بندی:') continue;
+        // the part's own box: the label's row, then the box that holds that row
+        var row = ls[i].parentElement, part = row && row.parentElement;
+        return part && part !== band ? part : row;
+      }
+      return null;
+    }
+    function negah() {
+      if (negah_dar_kar) return;
+      negah_dar_kar = true;
+      try {
+        if (card.classList.contains('crtl-hads-tak-dokme') || !card.querySelector('.crtl-hads-radif-bala')) { rahakardan(); return; }
+        var dj = do_jomle_bakhsh();
+        if (dj) negah_dar(dj);
+        negah_dar(band);
+        if (payin) band.scrollTop = band.scrollHeight;
+      } finally { negah_dar_kar = false; }
+    }
+    band.__crtl_negah = negah;
+    band.addEventListener('scroll', function () { payin = band.scrollHeight - band.scrollTop - band.clientHeight < 6; }, { passive: true });
+    card.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('button')) { rahakardan(); setTimeout(negah, 0); } }, true);
+    window.addEventListener('resize', function () { rahakardan(); negah(); });
+    new MutationObserver(negah).observe(band, { childList: true, subtree: true, characterData: true });
+    negah();
   }
 
   // hooks in the chat: tag the 🪝 meta lines, open/close them on a click (not when the click
@@ -2103,6 +2176,7 @@
       if (!card) continue;
       card.classList.add('crtl-hads');
       var bs = card.querySelectorAll('button');
+      sabet_hads(card);
       // only the «حدس ▸» button left: the card shrinks to it
       card.classList.toggle('crtl-hads-tak-dokme', bs.length === 1 && /^حدس/.test((bs[0].textContent || '').trim()));
       for (var b = 0; b < bs.length; b++) {

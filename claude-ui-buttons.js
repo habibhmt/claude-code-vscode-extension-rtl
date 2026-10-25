@@ -2022,7 +2022,7 @@
 
   // hooks in the chat: tag the 🪝 meta lines, open/close them on a click (not when the click
   // ends a text selection), and mark focus view, where the panel folds the rest
-  function markHooks() {
+  function neshan_hook_va_hads() {
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');
     for (var i = 0; i < ms.length; i++) {
       // the 🪝 may come after an icon the panel draws in front: look at the first few characters
@@ -2059,8 +2059,8 @@
       }
     }
   }
-  setInterval(markHooks, 700);
-  window.__crtlMarkHooks = markHooks;
+  setInterval(neshan_hook_va_hads, 700);
+  window.__crtl_neshan_hook_va_hads = neshan_hook_va_hads;
 
   var tries = 0;
   var timer = setInterval(function () {

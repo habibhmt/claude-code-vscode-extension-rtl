@@ -243,6 +243,22 @@ await find(await render(), 'hads-tick-nakarde').onPress({}); $.ctx = 1000
     logged: events.slice(sv0).filter((e) => e.kind === 'nakarde_ba_sanad').map((e) => e.anjam_shode.map((x) => x.harf)),
     root: calls.git.some((a) => a[2] === '/proj' && a.includes('-20')), onlyWhole: (calls.sanad || []).every((a) => a[5].startsWith('/')) }
   assert.deepEqual(out.nakardeSanad, { shown: ['لاگ رو عوض کن', 'عکس بگیر', 'بد'], prompt: true, logged: [['ollama رو اضافه کن', 'دکمه رو بساز']], root: true, onlyWhole: true })
+  // what a check put aside is never hidden for good: one line counts them and opens them (۲۰۵, 19:17)
+  const lineNks = find(rS, 'hads-nks')?.label; await find(rS, 'hads-nks').onPress(); const rO = await render()
+  calls.fill.length = 0; await find(rO, 'hads-nks-dokme-0').onPress()
+  out.nakardeKenar = { line: lineNks, open: [0, 1].map((i) => find(rO, 'hads-nks-' + i)?.children[0]), fill: /خودت بسنج واقعاً انجام شده یا نه: «ollama رو اضافه کن»/.test(calls.fill[0]?.text || '') }
+  assert.deepEqual(out.nakardeKenar, { line: '▸ ۲ نکرده با سند کنار رفت', open: ['«ollama رو اضافه کن» — هست: «ollama_ha» در /x/tanzim.json', '«دکمه رو بساز» — هست: «دکمهٔ حافظه» در commit‌های /proj'], fill: true })
+  await find(rO, 'hads-nks').onPress()
+  // after a reload the line is there again
+  await new Promise((r) => setTimeout(r, 5))
+  const rl2 = await import((process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href) + '?reload2')
+  const RL2 = {}; rl2.register((ev, a, b) => { RL2[ev] = b || a; return { catch() {} } })
+  out.nakardeKenarReload = find(await RL2['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-nks')?.label
+  assert.equal(out.nakardeKenarReload, '▸ ۲ نکرده با سند کنار رفت')
+  // a word too short to prove anything is no check: «dayere» is in the file, yet the row stays
+  $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ hads: [], nakarde: [{ harf: 'دایره رو بساز', zaman: '', chera: 'نیست', sanad: { file: '/x/tanzim.json', matn: 'ollama' } }] }) }
+  await H['command.run']($, { args: 'now' }); await flush()
+  out.sanadKutah = find(await render(), 'hads-nk-0')?.children[0]?.startsWith('«دایره رو بساز»'); assert.equal(out.sanadKutah, true)
   $.forkReply = keepReply
 }
 $.sid = 'A'

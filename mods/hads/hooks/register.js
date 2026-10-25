@@ -19,6 +19,10 @@ let hads_akhar = []
 // «نکرده‌ها» (Habib, 25 Oct 04:22: «چه کارایی حبیب بهت گفته و نکردی و مثل حدس دو تا توی هر دفعه
 // داده بشه»): what he asked in this chat that is still not done, two each time, made with the guesses
 let nakarde_akhar = []
+// the «نکرده» rows a check found done (its file or a commit says so): not in the list, but one small
+// line counts them and opens them, so a loose check never hides real work for good (۲۰۵, 25 Oct 19:17)
+let nakarde_ba_sanad_akhar = []
+let nakarde_ba_sanad_baz = false
 // «خودکار» (Habib, 25 Oct 16:48: «کارهایی که خود مدل میتونه انجام بده … جوری که مدل هی نخواد از من
 // بپرسه … به تعداد هیچ محدود نباشه»): of the work now running in this chat, what the model can do
 // by itself with its tools instead of asking Habib, and how; made with the guesses, in the same fork
@@ -223,9 +227,12 @@ export function khandan_nakarde(list) {
 }
 // a check the mod can run itself: an absolute file that would hold the text, or a project whose commit
 // messages would; anything else is no check
+export const had_kamtarin_harf_sanad = 8
 export function khandan_sanad(x) {
   if (!x || typeof x !== 'object' || typeof x.matn !== 'string' || !x.matn.trim()) return null
   const matn = x.matn.trim().slice(0, 200)
+  // a word that short is in too many files to prove anything ("dayere", "on")
+  if ([...matn].length < had_kamtarin_harf_sanad) return null
   if (typeof x.file === 'string' && x.file.startsWith('/')) return { file: x.file, matn }
   if (typeof x.git === 'string' && x.git.startsWith('/')) return { git: x.git, matn }
   return null
@@ -598,6 +605,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
     const ba_sanad = []
     for (const x of got.nakarde) if (await sanad_dare($, x.sanad)) ba_sanad.push(x)
     if (ba_sanad.length) await benevis_daftar($, 'nakarde_ba_sanad', { anjam_shode: ba_sanad.map((x) => ({ harf: x.harf, sanad: x.sanad })) })
+    nakarde_ba_sanad_akhar = ba_sanad
     nakarde_akhar = hanuz_nakarde(got.nakarde.filter((x) => !ba_sanad.includes(x)), await khandan_nakarde_anjam($)); hads_baraye_chat = await $.session.id()
     await benevis_daftar($, 'nakarde', { rah: 'fork', nakarde_ha: nakarde_akhar })
     $.ui.invalidate('ui.render')
@@ -748,7 +756,7 @@ async function taghir_dayere($, be) {
 const masir_akharin = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.akharin.json'
 const tasvir_akharin = (id) => JSON.stringify({
   do_jomle: do_jomle_akhar.for === id && do_jomle_akhar.text ? { text: do_jomle_akhar.text, summary: do_jomle_akhar.summary || null } : null,
-  ...(hads_baraye_chat === id ? { hads: hads_akhar, nakarde: nakarde_akhar, khodkar: khodkar_akhar, cron: cron_akhar } : {}),
+  ...(hads_baraye_chat === id ? { hads: hads_akhar, nakarde: nakarde_akhar, nakarde_ba_sanad: nakarde_ba_sanad_akhar, khodkar: khodkar_akhar, cron: cron_akhar } : {}),
   porsesh: javab_porsesh && javab_porsesh.for === id && !javab_porsesh.cold && !javab_porsesh.waiting && javab_porsesh.text !== '…' ? { q: javab_porsesh.q, text: javab_porsesh.text } : null,
 })
 const akharin_zakhire = new Map()
@@ -771,6 +779,7 @@ async function bargardandan_akharin($, id) {
   if (o && hads_baraye_chat !== id && (o.hads || o.nakarde || o.khodkar || o.cron)) {
     hads_akhar = khandan_hads(JSON.stringify(o.hads || []))
     nakarde_akhar = hanuz_nakarde(khandan_nakarde(o.nakarde), await khandan_nakarde_anjam($))
+    nakarde_ba_sanad_akhar = khandan_nakarde(o.nakarde_ba_sanad)
     khodkar_akhar = khandan_khodkar(o.khodkar); cron_akhar = khandan_cron(o.cron); hads_baraye_chat = id
   }
   if (o?.porsesh?.text && !javab_porsesh) javab_porsesh = { q: String(o.porsesh.q || ''), text: String(o.porsesh.text), for: id }
@@ -899,7 +908,7 @@ async function tik_zadan($, key) {
   p[key] = !p[key]
   await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
   if (!p.hads) hads_akhar = []
-  if (!p.nakarde) nakarde_akhar = []
+  if (!p.nakarde) { nakarde_akhar = []; nakarde_ba_sanad_akhar = [] }
   if (!p.khodkar) khodkar_akhar = []
   if (!p.cron) cron_akhar = []
   if (!p.do_jomle) do_jomle_akhar = { text: '', for: '' }
@@ -1026,6 +1035,7 @@ export function register(on) {
     if (!dayere_har_chat.has(id)) { dayere_har_chat.set(id, null); khandan_dayere($) }
     const g = p.hads && hads_baraye_chat === id ? hads_akhar : []
     const nk = p.nakarde && hads_baraye_chat === id ? nakarde_akhar : []
+    const nks = p.nakarde && hads_baraye_chat === id ? nakarde_ba_sanad_akhar : []
     const kh = p.khodkar && hads_baraye_chat === id ? khodkar_akhar : []
     const cr = p.cron && hads_baraye_chat === id ? cron_akhar : []
     const n = p.do_jomle && do_jomle_akhar.for === id ? do_jomle_akhar.text : ''
@@ -1088,6 +1098,14 @@ export function register(on) {
       Button({ key: 'hads-nk-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم و هنوز نکردی، انجامش بده: «' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '')) }),
       // Habib: «یه گزینه داشته باشه که من بزنم نه انجام شده و جزو نکرده ها نباشه دیگه»
       Button({ key: 'hads-nk-anjam-' + i, label: '✓ انجام شد', onPress: () => anjam_shod_zadan($, nk[i].harf) }),
+    ] }))
+    // the ones a check put aside: one line with their count; opened, each with what was found where
+    if (nks.length) goruh.nakarde.push(Box({ flexDirection: 'column', children: [
+      Button({ key: 'hads-nks', dimColor: true, label: (nakarde_ba_sanad_baz ? '▴ ' : '▸ ') + adad_farsi(nks.length) + ' نکرده با سند کنار رفت', onPress: () => { nakarde_ba_sanad_baz = !nakarde_ba_sanad_baz; $.ui.invalidate('ui.render') } }),
+      ...(nakarde_ba_sanad_baz ? nks.map((x, i) => Box({ flexDirection: 'row', columnGap: 1, children: [
+        Text({ key: 'hads-nks-' + i, dimColor: true, children: ['«' + x.harf + '» — هست: «' + x.sanad.matn + '» در ' + (x.sanad.file || 'commit‌های ' + x.sanad.git)] }),
+        Button({ key: 'hads-nks-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم؛ «نکرده‌ها» با سند کنارش گذاشت («' + x.sanad.matn + '» در ' + (x.sanad.file || x.sanad.git) + '). خودت بسنج واقعاً انجام شده یا نه: «' + x.harf + '»') }),
+      ] })) : []),
     ] }))
     // «خودکار»: what the model can do by itself, and with what; ⤵ tells the chat to do it, not ask
     for (let i = 0; i < kh.length; i++) goruh.khodkar.push(Box({ flexDirection: 'row', columnGap: 1, children: [

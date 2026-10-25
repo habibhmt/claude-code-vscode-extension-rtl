@@ -219,12 +219,12 @@
         var h = o.hookSpecificOutput || {};
         var ctx = typeof h.additionalContext === 'string' ? h.additionalContext.trim() : '';
         var sys = typeof o.systemMessage === 'string' ? o.systemMessage.trim() : '';
-        if (ctx) return { head: sys ? 'متنِ تزریقی' : ctx.split('\n')[0], body: kutah_kardan_masir(ctx), dupe: !!sys };
+        if (ctx) return { head: sys ? 'متنِ تزریقی' : ctx.split('\n')[0], body: kutah_kardan_masir(ctx) };
         return null;
       }
     }
     var first = t.split('\n')[0];
-    return { head: kutah_kardan_masir(first), body: kutah_kardan_masir(t), dupe: false };
+    return { head: kutah_kardan_masir(first), body: kutah_kardan_masir(t) };
   }
   globalThis.__crtl_hook_khana = khana_baraye_habib;
   // one hook line: the first line is what the folded view shows (mark, time, name, a short head)

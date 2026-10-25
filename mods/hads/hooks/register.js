@@ -428,7 +428,7 @@ const matn_dalil_bi_javab = {
   'empty-reply': 'جوابی نیامد؛ دوباره بپرس.',
   aborted: 'نیمه‌کاره ماند؛ دوباره بپرس.',
 }
-async function bepors($, q) {
+async function porsesh_kon($, q) {
   if (!String(q).trim()) return
   // off in this chat, or «پرسش» unticked: nothing would be drawn, so no fork is paid for
   if (!(await khandan_file_chat($))?.porsesh) return
@@ -662,7 +662,7 @@ export function register(on) {
       return { text: 'حدس برای همین چت ' + (arg === 'off' ? 'خاموش شد' : 'روشن شد') }
     }
     if (arg.startsWith('ask ') && !(await khandan_file_chat($))?.porsesh) return { text: 'پرسش در این چت خاموش است' }
-    if (arg.startsWith('ask ')) { $.clock.after(0, () => bepors($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
+    if (arg.startsWith('ask ')) { $.clock.after(0, () => porsesh_kon($, arg.slice(4).trim())); return { text: 'پرسش رفت؛ جوابش در کادرِ حدس می‌آید.' } }
     // /hads now: asked for, so the guesses come now whatever the count
     const pn = await khandan_file_chat($)
     if (!pn) return { text: 'حدس در این چت خاموش است؛ اول /hads on' }
@@ -697,7 +697,7 @@ export function register(on) {
     if (!e.agentId) {
       try { zaman_akharin_kar = await $.clock.now(); kash_sard_shod = false } catch {}
       // a «پرسش» that waited for this answer goes now
-      if (porsesh_montazer && !e.isAborted) { const q = porsesh_montazer; porsesh_montazer = null; $.clock.after(0, () => bepors($, q)) }
+      if (porsesh_montazer && !e.isAborted) { const q = porsesh_montazer; porsesh_montazer = null; $.clock.after(0, () => porsesh_kon($, q)) }
     }
     const p = !e.agentId && !e.isAborted && (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
     if (p?.hook) $.clock.after(500, () => { zaman_khandan_hook = 0; return khandan_hook_az_transcript($) })
@@ -809,7 +809,7 @@ export function register(on) {
         Text({ children: [a.text] }),
         Box({ flexDirection: 'row', columnGap: 1, children: [
           // a cold warning asks once more by a press, not only by Enter
-          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => bepors($, a.q) })] : []),
+          ...(a.cold ? [Button({ key: 'hads-ans-go', label: 'باشه، بپرس', onPress: () => porsesh_kon($, a.q) })] : []),
           Button({ key: 'hads-ans-fill', label: 'بفرست به کادر', onPress: () => gozashtan_dar_kadr($, a.q + '\n' + a.text) }),
           Button({ key: 'hads-ans-x', label: '×', onPress: () => { javab_porsesh = null; $.ui.invalidate('ui.render') } }),
         ] }),
@@ -823,10 +823,10 @@ export function register(on) {
         // no Input on mobile: the row stays buttons only
         ...(Input && p.porsesh ? [Input({
           key: 'hads-ask', value: matn_porsesh, placeholder: 'پرسش… (مثلِ btw، به چت نمی‌رسد · Esc = برگشت به کادر)',
-          onInput: (v) => { matn_porsesh = v }, onSubmit: (v) => bepors($, v),
+          onInput: (v) => { matn_porsesh = v }, onSubmit: (v) => porsesh_kon($, v),
         }),
         // Enter on the screen, for whoever does not want the key
-        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => bepors($, matn_porsesh) })] : []),
+        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => porsesh_kon($, matn_porsesh) })] : []),
         // one tick per part, for this chat only
         ...bakhsh_ha.map(([k, name]) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + name, onPress: () => tik_zadan($, k) })),
       ],

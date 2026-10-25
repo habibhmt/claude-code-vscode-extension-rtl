@@ -120,3 +120,51 @@
 | دو جمله (Sonnet) | چند هزار توکن، بیشتر از کش | کمتر از ۱ سنت |
 | حدس با fork در چتِ ۲۰۰ هزار توکنی، کشِ گرم | ۲۰۰k × $0.20 + ~۵۰۰ خروجی × $20 | حدودِ ۵ سنت، **هر ۳ جواب یک بار** |
 | پرسش در همان چت، کشِ گرم | همان | حدودِ ۴ تا ۵ سنت |
+
+
+## جمع‌بندیِ نوبت (`jambandi_nobat`) — نمونهٔ واقعی، چتِ ۲۰۳، 2026-10-25 03:37
+
+این جمع‌بندی به حافظهٔ چت‌های بعدی تزریق می‌شود. با `$.model.fork` ساخته می‌شود، یعنی مدلِ خودِ چت با کشِ گرم.
+
+**درخواست:** پرامپتِ کاملش `prompt_jambandi_nobat` در `mods/hads/hooks/register.js` است. «دو جمله»‌های همان نوبت و فهرستِ ابزارهایش داخلش می‌روند، با قاعده‌های ۱ تا ۶ (مدرک بعد از «⇐»).
+
+**جواب (همان که در دفتر ثبت شد):** در متنِ زیر «» به ‹› عوض شده تا چکِ نقل‌قول آن را حرفِ حبیب حساب نکند.
+```json
+{
+  "khaste_habib": "حرفِ تازه‌ای از حبیب نبود؛ ادامهٔ کارِ قبلی",
+  "text": "The Persian text in the check-launchagent-ha notification came out garbled under launchd; setting UTF-8 in the script fixed it, the notification was re-sent, and Habib confirmed it was right. Then he said to stop the work here for now.",
+  "anjam_shod": [
+    "Docs, standing-task row 7 and check_hamishegi updated for check-launchagent-ha ⇐ grep: 2/1/2 matches; check_hamishegi: ‹جمع: 0 ❌›; commit 8afbf4d",
+    "UTF-8 setting added to check_launchagent_ha_notification.sh ⇐ grep: line 4 ‹export LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8›",
+    "Notification re-sent through launchd, Persian text clean in the log ⇐ check_launchagent_ha.out: ‹03:31:46 | نوتیف (4): chrome-panel … hamgamsaz-farzi … hesabdar.telegram …›; runs = 2, last exit code = 0",
+    "Habib confirmed the second notification was right ⇐ his answer: ‹درسته›",
+    "Tests green and commit ⇐ ‹جمع: 10 ✅ · 0 ❌›; commit 1896fef",
+    "Monitor re-armed, now also watching check_launchagent_ha.out ⇐ Monitor: task bfkb9xlw8"
+  ],
+  "anjam_nashod": [
+    "Decision on hamgamsaz-farzi (keep or turn off): Habib said to stop before it",
+    "Review of the remaining LaunchAgents marked ‹؟› (paused at Habib's request)",
+    "hesabdar.telegram network errors (8 of the 10 last log lines): reason not checked",
+    "chrome-panel ‹آخرین خروج 1›: reason not checked"
+  ],
+  "tedad_do_jomle": 2,
+  "tedad_abzar": 6,
+  "rah": "fork",
+  "kontekst_token": 144652
+}
+```
+
+**خرج (`usage.jsonl`):**
+```json
+{
+  "t": 1792886831788,
+  "bakhsh": "jambandi_nobat",
+  "rah": "fork",
+  "usage": {
+    "input_tokens": 1251,
+    "output_tokens": 930,
+    "cache_read_input_tokens": 144650,
+    "cache_creation_input_tokens": 361
+  }
+}
+```

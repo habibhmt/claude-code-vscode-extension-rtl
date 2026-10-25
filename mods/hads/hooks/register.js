@@ -437,6 +437,8 @@ async function chat_kuchak($) {
 // The guesses: one fork over the whole chat (its own model, the cache this answer just
 // warmed) every hads_har_chand_javab answers; a chat over had_fork_context_token, or no usable reply, asks Sonnet.
 async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false) {
+  // the scope may have been changed elsewhere (a terminal, the file): the label is read again each answer
+  khandan_dayere($).catch(() => {})
   if (!p.hads && !p.do_jomle && !p.nakarde && !p.khodkar && !p.cron) return
   if (akhar_javab_dar_kar) { akhar_javab_dobare = true; return }
   akhar_javab_dar_kar = true; zaman_akhar_javab = await $.clock.now()
@@ -677,7 +679,11 @@ const masir_hafeze_dayere = async ($) => (await $.env.get('HOME')) + '/Downloads
 const dayere_har_chat = new Map()
 async function hafeze_dayere($, ...args) {
   try {
-    const r = await $.process.run([await masir_hafeze_dayere($), ...args, '--chat', await $.session.id()], { timeoutMs: 15000 })
+    // the chat's own folder too: a chat its memory has not indexed yet is not known by id alone, and the
+    // folder layer would be missed (۲۰۵, 19:01: in 203's folder, get without it said poshe, the hook used chat)
+    let poshe = ''
+    try { poshe = await $.session.root() } catch {}
+    const r = await $.process.run([await masir_hafeze_dayere($), ...args, '--chat', await $.session.id(), ...(poshe ? ['--poshe', poshe] : [])], { timeoutMs: 15000 })
     const o = JSON.parse(String(r.stdout || '').trim().split('\n').pop())
     return dayere_ha.includes(o?.dayere) ? o.dayere : null
   } catch {

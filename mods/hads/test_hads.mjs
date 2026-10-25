@@ -644,6 +644,11 @@ const hc1 = await H['command.run']($, { args: 'hafeze hame' }), hc2 = await H['c
 $.dayereBroken = true; const hc3 = await H['command.run']($, { args: 'hafeze' }); $.dayereBroken = false
 out.hafezeCmd = [hc1.text, hc2.text, hc3.text, dayere.K]
 assert.deepEqual(out.hafezeCmd, ['دایرهٔ سرچِ حافظه برای همین چت: همهٔ پروژه‌ها', 'یکی از این‌ها: /hads hafeze chat | poshe | hame', 'فرمانِ حافظهٔ ۲۰۵ جواب نداد', 'hame'])
+// the chat's folder goes with every call; a change made elsewhere shows at the next answer, no reload
+out.hafezePoshe = calls.dayere.every((a) => a.slice(-2).join(' ') === '--poshe /proj')
+assert.equal(out.hafezePoshe, true)
+await H['command.run']($, { args: 'on' }); dayere.K = 'chat'; await H['turn.complete']($, {}, next); await flush()
+out.hafezeTaze = await hafeze_label(); assert.equal(out.hafezeTaze, '🔎 حافظه: همین چت')
 await H['command.run']($, { args: 'on' })
 // ticked off: not asked, not shown
 await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()

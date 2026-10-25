@@ -189,7 +189,7 @@ c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
 out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
 // a chat over MAX_FORK tokens never forks for the guesses alone («نکرده‌ها» ticked off)
 const fileF = flags['/h/.claude/hads-on/F']; flags['/h/.claude/hads-on/F'] = 'on -nakarde'
-$.forkReply = { isAnswered: true, text: '{"hads": []}', usage: {} }; $.ctx = mod.had_fork_kontekst_token + 1
+$.forkReply = { isAnswered: true, text: '{"hads": []}', usage: {} }; $.ctx = mod.had_fork_context_token + 1
 c0 = cnt(); await H['command.run']($, { args: 'now' }); await flush(); c1 = cnt()
 out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1])
 // «نکرده‌ها» (Habib, 25 Oct 04:22): two each time, with the guesses; they need the whole chat, so even a
@@ -275,7 +275,7 @@ $.t += 1; await H['turn.complete']($, {}, next); await flush()
 const rSel = await render()
 out.nowSelectable = find(rSel, 'hads-now')?.t === 'Text' && !JSON.stringify(rSel).includes('copy'); assert.equal(out.nowSelectable, true)
 // a cold cache (idle past COLD): the first Enter only tells the cost, the second asks
-$.t += mod.kash_sard_ms + 1; $.ctx = 200000; const f0 = calls.fork.length
+$.t += mod.cache_sard_ms + 1; $.ctx = 200000; const f0 = calls.fork.length
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
 out.coldWarn = calls.fork.length === f0 && ansText(await render()).some((x) => /\$1\.00 تا \$1\.60/.test(x)); assert.equal(out.coldWarn, true)
 await row(await render()).children.find((c) => c.t === 'Input').onSubmit('سرد؟'); await flush()
@@ -422,7 +422,7 @@ await F['turn.complete']($, {}, next); await new Promise((r) => setTimeout(r, 5)
 $.ui.resolve = realResolve; $.sid = 'A'
 // the numbers agreed with Habib and the ناظر (تعریفِ ۱۲): a change must turn this red
 // GUESS_EVERY: Habib 24 Oct «حدسو بذار مدل اصلی بکنه … چند تا پیام به چند تا پیام»
-out.pinned = [mod.do_jomle_fasele_ms, mod.had_fork_kontekst_token, mod.hads_har_chand_javab]; assert.deepEqual(out.pinned, [60000, 400000, 3])
+out.pinned = [mod.do_jomle_fasele_ms, mod.had_fork_context_token, mod.hads_har_chand_javab]; assert.deepEqual(out.pinned, [60000, 400000, 3])
 // ticks: one per part, this chat only; a part ticked off is neither drawn nor asked for
 $.sid = 'A'; $.ui.resolve = () => withInput; await H['command.run']($, { args: 'on' })
 const ticks = (t) => PARTS_KEYS.map((k) => find(t, 'hads-tick-' + k)?.label)
@@ -565,7 +565,7 @@ const sumTool = calls.fork.slice(sf4).find((f) => /جمع‌بندی/.test(f.pro
 out.toolTurn = !!sumTool && /git status/.test(sumTool.prompt); assert.equal(out.toolTurn, true)
 // a chat over MAX_FORK: still its own warm fork, never Sonnet (Habib, 24 Oct 23:37: «با مدل اصلی»)
 await H['prompt.submit']($, { text: 'کار در چتِ بزرگ' }, next); $.t += 1; await tool({ command: 'npm test' }); await flush()
-$.ctx = mod.had_fork_kontekst_token + 1; const savedNow = $.nowModel
+$.ctx = mod.had_fork_context_token + 1; const savedNow = $.nowModel
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: 'خط' } }
 $.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: o.maxTokens === 500 ? '{"text": "تست اجرا شد.", "anjam_shod": ["تست"], "anjam_nashod": []}' : $.reply } }
 $.model.fork = async (o) => { calls.fork.push(o); return /جمع‌بندی/.test(o.prompt) ? { isAnswered: true, usage: {}, text: '{"text": "تست اجرا شد.", "anjam_shod": ["تست ⇐ npm test"], "anjam_nashod": []}' } : { isAnswered: true, usage: {}, text: '{"hads": []}' } }
@@ -587,8 +587,10 @@ out.noOldNames = { kinds: events.filter((e) => kind_ghadim.includes(e.kind)).len
 assert.deepEqual(out.noOldNames, { kinds: 0, fields: 0, usage: 0, words: [], ghablia: 0 })
 // the source: exported names lower snake_case, never a name glued as '-' + k or 'x_' + y
 const src = fsN.readFileSync(new URL('./hooks/register.js', import.meta.url), 'utf8')
-out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glued: (src.match(/'[-+]' \+ |'[a-z]+_' \+ /g) || []) }
-assert.deepEqual(out.esmRule, { upper: [], glued: [] })
+out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glued: (src.match(/'[-+]' \+ |'[a-z]+_' \+ /g) || []),
+  // an English word keeps its English spelling (91, بندِ ۲: «کلمهٔ انگلیسی با اسپلِ درست»): cache, context, copy — not kash, kontekst, kopi (Habib, 25 Oct 05:24: «اسم copy»)
+  bad_spell: [...new Set(src.match(/\b[a-z_]*(kash|kontekst|kopi|profail|menyu|sesheen)[a-z_]*\b/g) || [])] }
+assert.deepEqual(out.esmRule, { upper: [], glued: [], bad_spell: [] })
 // 25 Oct 02:20 («اسمِ تابع‌های داخلِ کد … بزن»): the functions and the chat-wide variables have Habib's words too
 const codeOnly = src.replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
 out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa", "bepors"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))

@@ -71,5 +71,5 @@
 | جمع‌بندی | `jambandi_nobat`، `anjam_shod` (✓)، `anjam_nashod` (✗)، `khaste_habib` (پیامِ عینِ حبیب) | دفتر |
 | قبلی‌ها | `had_ghablia_tedad` = ۵۰، فایلِ `<id>.do_jomle_ghablia.jsonl` | `register.js` |
 | سه حالت | `baz` · `yek_khat` · `tak_dokme` | فایلِ چت |
-| حد | پیشوندِ `had_` (مثلاً `had_fork_kontekst_token` = ۴۰۰٬۰۰۰) | `register.js` |
+| حد | پیشوندِ `had_` (مثلاً `had_fork_context_token` = ۴۰۰٬۰۰۰) | `register.js` |
 | واحد | آخرِ اسم: `_ms` · `_token` · `_harf` · `_radif` · `_px` · `_darsad` · `_usd` | همه‌جا |

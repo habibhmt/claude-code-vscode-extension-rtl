@@ -27,13 +27,13 @@ let hads_baraye_chat = ''
 // after each answer and, at most every do_jomle_fasele_ms ms, after a tool. One call at a time.
 export const do_jomle_fasele_ms = 60000
 // over this many tokens of chat even a warm fork costs too much: Sonnet on the last messages
-export const had_fork_kontekst_token = 400000
+export const had_fork_context_token = 400000
 // idle longer than this and the chat's cache is likely gone: «پرسش» warns first. The TTL is
 // 1 h (Claude Code says so: «Prompt cache warm, about 58 min left»); a model switch tells
-// the real one (classic.PostModelSwitch cache_ttl), a 5 min TTL makes it kash_sard_5m_ms.
-export const kash_sard_ms = 55 * 60000
-export const kash_sard_5m_ms = 4 * 60000
-let kash_sard_bad_az_ms = kash_sard_ms
+// the real one (classic.PostModelSwitch cache_ttl), a 5 min TTL makes it cache_sard_5m_ms.
+export const cache_sard_ms = 55 * 60000
+export const cache_sard_5m_ms = 4 * 60000
+let cache_sard_bad_az_ms = cache_sard_ms
 const prompt_system_do_jomle = [
   'In exactly two short sentences of plain Persian, tell حبیب what the agent in this Claude Code',
   'session is doing right now and what it is waiting for. Use the words of the glossary given, not',
@@ -51,7 +51,7 @@ let akhar_javab_dobare = false
 // last time the chat itself talked to the model (an answer's end, a tool): the cache's age
 let zaman_akharin_kar = 0
 // set by classic.SessionStart on a resume: Claude Code's own word that the cache is gone
-let kash_sard_shod = false
+let cache_sard_shod = false
 // a «پرسش» that came before the fork had anything to read (resume, a turn still running):
 // asked by itself when the next answer ends
 let porsesh_montazer = null
@@ -203,10 +203,10 @@ export function khandan_javab_fork(raw) {
 }
 
 // $ per million tokens written to the cache (5 min, 1 h), for the cold «بپرس» warning
-const gheymat_kash_neveshtan_usd = { 'opus-5-5': [5, 8], 'sonnet-5-5': [2.5, 4], 'haiku-5-5': [0.125, 0.2] }
-export function kharj_kash_sard(model, tokens) {
-  const k = Object.keys(gheymat_kash_neveshtan_usd).find((x) => String(model).includes(x)) || 'opus-5-5'
-  return gheymat_kash_neveshtan_usd[k].map((p) => (tokens * p) / 1e6)
+const gheymat_cache_neveshtan_usd = { 'opus-5-5': [5, 8], 'sonnet-5-5': [2.5, 4], 'haiku-5-5': [0.125, 0.2] }
+export function kharj_cache_sard(model, tokens) {
+  const k = Object.keys(gheymat_cache_neveshtan_usd).find((x) => String(model).includes(x)) || 'opus-5-5'
+  return gheymat_cache_neveshtan_usd[k].map((p) => (tokens * p) / 1e6)
 }
 
 // «قبلی‌ها»: every «دو جمله» with its time, this chat only (~/.claude/hads-log/<id>.do_jomle_ghablia.jsonl,
@@ -362,12 +362,12 @@ async function begu_do_jomle($, tool, force, viaFork = false) {
 }
 
 async function chat_kuchak($) {
-  try { return ((await $.session.usage()).context.tokens || 0) <= had_fork_kontekst_token } catch { return false }
+  try { return ((await $.session.usage()).context.tokens || 0) <= had_fork_context_token } catch { return false }
 }
 
 // The end of an answer. «دو جمله»: Sonnet on the last messages, every answer (cheap).
 // The guesses: one fork over the whole chat (its own model, the cache this answer just
-// warmed) every hads_har_chand_javab answers; a chat over had_fork_kontekst_token, or no usable reply, asks Sonnet.
+// warmed) every hads_har_chand_javab answers; a chat over had_fork_context_token, or no usable reply, asks Sonnet.
 async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false) {
   if (!p.hads && !p.do_jomle && !p.nakarde) return
   if (akhar_javab_dar_kar) { akhar_javab_dobare = true; return }
@@ -445,7 +445,7 @@ async function jambandi($) {
     await benevis_do_jomle($, got.text, 'jambandi_nobat')
     do_jomle_akhar.summary = got
     // what Habib asked in this turn, word for word from his own message (not the model's retelling)
-    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', kontekst_token: tokens })
+    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', context_token: tokens })
     return true
   } catch {
     return false
@@ -457,12 +457,12 @@ async function hads_ba_fork($, p = { hads: true }) {
   let tokens = 0
   try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
   // «نکرده‌ها» need the whole chat: only the chat's own fork has it, so a big chat forks for them too
-  if (tokens <= had_fork_kontekst_token || p.nakarde) {
+  if (tokens <= had_fork_context_token || p.nakarde) {
     try {
       const khaste = { hads: !!p.hads, nakarde: !!p.nakarde }
       const r = await $.model.fork({ prompt: prompt_fork(khaste, khaste.nakarde ? await khandan_nakarde_anjam($) : []) })
       got = r.isAnswered ? khandan_javab_fork(r.text) : null
-      if (got?.hads.length) try { await $.store.set('kharj_akhar_hads_fork', { rah: 'fork', kontekst_token: tokens, usage: r.usage }) } catch {}
+      if (got?.hads.length) try { await $.store.set('kharj_akhar_hads_fork', { rah: 'fork', context_token: tokens, usage: r.usage }) } catch {}
       if (r.isAnswered) await benevis_kharj($, khaste.nakarde ? (khaste.hads ? 'hads_va_nakarde' : 'nakarde') : 'hads', 'fork', r.usage)
     } catch {}
   }
@@ -495,16 +495,16 @@ async function porsesh_kon($, q) {
   // Known only from this process's own activity or the resume's numbers; no word means no warning
   // is claimed as fact.
   const idle = zaman_akharin_kar ? (await $.clock.now()) - zaman_akharin_kar : -1
-  const cold = kash_sard_shod || idle > kash_sard_bad_az_ms
+  const cold = cache_sard_shod || idle > cache_sard_bad_az_ms
   if ((cold || idle < 0) && !(javab_porsesh?.cold && javab_porsesh.q === q && javab_porsesh.for === id)) {
     let tokens = 0, model = ''
     try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
     try { model = await $.session.model() } catch {}
     if (tokens > 0) {
-      const [a, b] = kharj_kash_sard(model, tokens)
+      const [a, b] = kharj_cache_sard(model, tokens)
       const cost = '$' + a.toFixed(2) + ' تا $' + b.toFixed(2) + ' (' + Math.round(tokens / 1000) + 'k توکن)'
       javab_porsesh = { q, for: id, cold: true,
-        text: (cold ? 'کشِ چت سرد است (' + Math.round(idle / 60000) + ' دقیقه بی‌کار' + (kash_sard_shod ? '، به گفتهٔ خودِ Claude Code' : '') + '): این سؤال حدودِ ' + cost + ' خرج دارد.'
+        text: (cold ? 'کشِ چت سرد است (' + Math.round(idle / 60000) + ' دقیقه بی‌کار' + (cache_sard_shod ? '، به گفتهٔ خودِ Claude Code' : '') + '): این سؤال حدودِ ' + cost + ' خرج دارد.'
           : 'نمی‌دانم کشِ چت گرم است یا نه؛ اگر سرد باشد این سؤال حدودِ ' + cost + ' خرج دارد.') + ' برای پرسیدن «باشه، بپرس» یا دوباره Enter را بزن.' }
       $.ui.invalidate('ui.render')
       return
@@ -523,7 +523,7 @@ async function porsesh_kon($, q) {
     if (has) { porsesh_montazer = q; cur.text = matn_porsesh_montazer; cur.waiting = true; await benevis_daftar($, 'porsesh_montazer', { porsesh_matn: q }) }
     else cur.text = r.isAnswered ? r.text : (matn_dalil_bi_javab[r.reason] || 'جوابی نیامد (' + r.reason + ')؛ دوباره بپرس.')
     // the fork just read the whole chat into the cache: it is warm for the next question
-    if (r.isAnswered) { try { zaman_akharin_kar = await $.clock.now() } catch {} kash_sard_shod = false }
+    if (r.isAnswered) { try { zaman_akharin_kar = await $.clock.now() } catch {} cache_sard_shod = false }
     if (r.isAnswered) await benevis_daftar($, 'porsesh', { porsesh_matn: q, javab_matn: r.text, rah: 'fork' })
     if (r.isAnswered) try { await $.store.set('kharj_akhar_porsesh', r.usage) } catch {}
     if (r.isAnswered) await benevis_kharj($, 'porsesh', 'fork', r.usage)
@@ -686,15 +686,15 @@ export function register(on) {
     try {
       if (typeof e.transcript_path === 'string') masir_transcript = e.transcript_path
       if (typeof e.seconds_since_last_response === 'number') zaman_akharin_kar = (await $.clock.now()) - e.seconds_since_last_response * 1000
-      kash_sard_shod = e.prompt_cache_likely_expired === true
+      cache_sard_shod = e.prompt_cache_likely_expired === true
     } catch {}
     return next(e)
   })
   // a model switch tells the TTL; the new model's cache starts cold
   on('classic.PostModelSwitch', async ($, e, next) => {
     try {
-      kash_sard_bad_az_ms = e.cache_ttl === '5m' ? kash_sard_5m_ms : kash_sard_ms
-      if (e.from_model !== e.to_model) kash_sard_shod = true
+      cache_sard_bad_az_ms = e.cache_ttl === '5m' ? cache_sard_5m_ms : cache_sard_ms
+      if (e.from_model !== e.to_model) cache_sard_shod = true
     } catch {}
     return next(e)
   })
@@ -743,7 +743,7 @@ export function register(on) {
 
   on('turn.complete', async ($, e, next) => {
     if (!e.agentId) {
-      try { zaman_akharin_kar = await $.clock.now(); kash_sard_shod = false } catch {}
+      try { zaman_akharin_kar = await $.clock.now(); cache_sard_shod = false } catch {}
       // a «پرسش» that waited for this answer goes now
       if (porsesh_montazer && !e.isAborted) { const q = porsesh_montazer; porsesh_montazer = null; $.clock.after(0, () => porsesh_kon($, q)) }
     }
@@ -765,7 +765,7 @@ export function register(on) {
         $.clock.after(0, async () => { try { const sid = await $.session.id(); abzar_ha_ye_nobat.set(sid, [...(abzar_ha_ye_nobat.get(sid) || []), what.slice(0, 120)].slice(-30)) } catch {} })
         $.clock.after(0, async () => {
           try {
-            zaman_akharin_kar = await $.clock.now(); kash_sard_shod = false
+            zaman_akharin_kar = await $.clock.now(); cache_sard_shod = false
             const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
             if (p?.hook) await khandan_hook_az_transcript($)
             if (p?.do_jomle) await begu_do_jomle($, what, false, p.do_jomle_fork && (await chat_kuchak($)))

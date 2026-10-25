@@ -19,11 +19,12 @@ const band=`(function(){var e=React.createElement;window.__presses=[];window.__i
 function Field(){var s=React.useState(window.__order.join(' '));return e('form',{className:'field_HKVJBw',onSubmit:function(v){v.preventDefault()}},
  e('input',{className:'input_HKVJBw','data-press-key':'hads-tartib',value:s[0],onChange:function(v){s[1](v.target.value);window.__inputs.push(v.target.value)}}))}
 function T(t){return e('span',{className:'text_HKVJBw'},t)}
-function Band(){var n=React.useState('یک. دو.'),x=React.useState(3);window.__setNow=n[1];window.__setRows=x[1];
+function Band(){var n=React.useState('یک. دو.'),x=React.useState(3),m=React.useState(false);window.__setNow=n[1];window.__setRows=x[1];window.__setSum=m[1];
  return e('div',{className:'card_x'},e('div',{'data-engine-mark':''},'From the hads plugin'),
  e('div',{className:'band_mLbNFw',style:{overflow:'auto',maxHeight:'220px',width:'420px',userSelect:'text'}},e('div',{className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},
   e('div',{className:'box_HKVJBw',style:{display:'flex'}},e('button',{type:'button',className:'button_HKVJBw','data-press-key':'hads-min'},'▾'),e('button',{type:'button',className:'button_HKVJBw','data-press-key':'hads-x'},'×')),
-  e('div',{key:'dj',className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},e('div',{className:'box_HKVJBw',style:{display:'flex',gap:'4px'}},T('دو جمله:'),e('span',{id:'now',className:'text_HKVJBw'},n[0]))),
+  e('div',{key:'dj',className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},e('div',{className:'box_HKVJBw',style:{display:'flex',gap:'4px'}},T(m[0]?'جمع‌بندی:':'دو جمله:'),e('span',{id:'now',className:'text_HKVJBw'},n[0])),
+   m[0]&&T('✓ کارِ یک · کارِ دو · کارِ سه · کارِ چهار · کارِ پنج · کارِ شش · کارِ هفت · کارِ هشت · کارِ نه · کارِ ده'),m[0]&&T('✗ کارِ یازده · کارِ دوازده · کارِ سیزده · کارِ چهارده · کارِ پانزده · کارِ شانزده')),
   e('div',{key:'hd',id:'hadsPart',className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},Array.from({length:x[0]},function(_,i){return e('div',{key:i,className:'box_HKVJBw'},T(i?'      ':'حدس:'),T('حدسِ شمارهٔ '+i))})),
   e('div',{className:'box_HKVJBw',style:{display:'flex',flexWrap:'wrap',gap:'4px'}},
    window.__order.map(function(k){return e('button',{key:k,type:'button',className:'button_HKVJBw','data-press-key':'hads-tick-'+k,style:{padding:'2px 10px'},onClick:function(){window.__presses.push(k)}},'✓ '+window.__names[k])}),
@@ -87,6 +88,23 @@ ReactDOM.createRoot(document.getElementById('root')).render(e(Band));})()`;
   await p.evaluate(()=>window.__setNow('کوتاه. تمام.'));await p.waitForTimeout(60);const krt=await yHads();
   out.noJump={rowsStay:Math.abs(lng[0]-krt[0])<1,bandStays:Math.abs(lng[1]-krt[1])<1,grew:lng[1]>0};
   assert.deepEqual(out.noJump,{rowsStay:true,bandStays:true,grew:true});
+  // scrolled a little up from the end, a shorter «دو جمله» leaves the rows in sight where they were (the box once
+  // let go of its height to measure it, and the browser pulled the scroll up)
+  await p.evaluate(()=>window.__setRows(14));await p.evaluate(()=>window.__setNow(window.__LONG));await p.waitForTimeout(60);
+  await p.evaluate(()=>{const b=document.querySelector('[class*="band_"]');b.scrollTop=b.scrollHeight-b.clientHeight-12;b.dispatchEvent(new Event('scroll'))});await p.waitForTimeout(30);
+  const y0=await yHads();await p.evaluate(()=>window.__setNow('کوتاه.'));await p.waitForTimeout(60);const y1=await yHads();
+  out.noClamp=Math.abs(y0[0]-y1[0])<1;assert.equal(out.noClamp,true);
+  await p.evaluate(()=>{window.__setRows(3);window.__setNow('کوتاه. تمام.')});await p.waitForTimeout(60);
+  // «جای خالی»: the turn's end puts the tall «جمع‌بندی» there; the next turn's first short «دو جمله» takes only its own
+  // height (Habib, 26 Oct 01:57: «یه جای خالی بزرگ زیر دو جمله ای به وجود اومده»)
+  const fitDj=()=>p.evaluate(()=>{const s=document.getElementById('now'),part=s.parentElement.parentElement;let h=0;for(const c of part.children)h+=c.getBoundingClientRect().height;return part.getBoundingClientRect().height-h});
+  await p.evaluate(()=>{window.__setSum(true);window.__setNow(window.__LONG)});await p.waitForTimeout(60);
+  await p.evaluate(()=>{window.__setSum(false);window.__setNow('کوتاه.')});await p.waitForTimeout(60);
+  out.noGap=await fitDj()<2;assert.equal(out.noGap,true);
+  // and within the turn, a shorter line still keeps the rows below in place
+  await p.evaluate(()=>window.__setNow(window.__LONG));await p.waitForTimeout(60);const t0=await yHads();
+  await p.evaluate(()=>window.__setNow('کوتاه.'));await p.waitForTimeout(60);const t1=await yHads();
+  out.turnStays=Math.abs(t0[0]-t1[0])<1;assert.equal(out.turnStays,true);
   // a press on a button inside lets the box fit again
   await p.locator('[data-press-key="hads-tick-porsesh"]').click();await p.waitForTimeout(60);const fit=await yHads();
   out.fitAfterPress=fit[0]<krt[0]-1;assert.equal(out.fitAfterPress,true);

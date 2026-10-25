@@ -2100,23 +2100,28 @@
   }
 
   // «حدس» must not jump when «دو جمله» or a part changes (Habib, 25 Oct 19:08: «وقتی که یه خبر جدید میاد یا دو
-  // جمله جدید میاد نپره»): the band and the «دو جمله» part never shrink back while the box stays as it is
-  // (their tallest height is their least); a press on a button inside, a change of state or a resized window
-  // lets them fit again. Scrolled to the end, the band stays at the end.
+  // جمله جدید میاد نپره»): within a turn the band and the «دو جمله» part never shrink back (their tallest height
+  // is their least); a turn's end or start («جمع‌بندی:» ⇄ «دو جمله:»), a press on a button inside, a change of
+  // state or a resized window lets them fit again, so a tall «جمع‌بندی» leaves no empty space under the next
+  // short line (26 Oct 01:57: «یه جای خالی بزرگ زیر دو جمله ای به وجود اومده»). The height is read from the
+  // children, never by letting go of it: let go, the browser pulled a scrolled band up. Scrolled to the end,
+  // the band stays at the end.
   function ertefa_mohtava(el) {
-    var cs = getComputedStyle(el);
-    if (cs.boxSizing === 'border-box') return el.offsetHeight;
-    return el.clientHeight - parseFloat(cs.paddingTop || 0) - parseFloat(cs.paddingBottom || 0);
+    var cs = getComputedStyle(el), c = el.children, h = 0;
+    if (c.length) h = c[c.length - 1].getBoundingClientRect().bottom - c[0].getBoundingClientRect().top;
+    h += parseFloat(cs.paddingTop || 0) + parseFloat(cs.paddingBottom || 0);
+    if (cs.boxSizing === 'border-box') h += parseFloat(cs.borderTopWidth || 0) + parseFloat(cs.borderBottomWidth || 0);
+    var max = parseFloat(cs.maxHeight);
+    return max >= 0 && max < h ? max : h;
   }
   function sabet_hads(card) {
     var band = card.querySelector('[class*="band_"]');
     if (!band) return;
     if (band.dataset.crtlSabet) { band.__crtl_negah && band.__crtl_negah(); return; }
     band.dataset.crtlSabet = '1';
-    var payin = false, bishtarin = new WeakMap(), negah_dar_kar = false;
+    var payin = false, bishtarin = new WeakMap(), negah_dar_kar = false, barchasb = null;
     function rahakardan() { band.style.minHeight = ''; var o = band.querySelectorAll('.crtl-hads-sabet'); for (var i = 0; i < o.length; i++) { o[i].style.minHeight = ''; o[i].classList.remove('crtl-hads-sabet'); } bishtarin = new WeakMap(); }
     function negah_dar(el) {
-      el.style.minHeight = '';
       var h = ertefa_mohtava(el), m = bishtarin.get(el) || 0;
       if (h > m) { m = h; bishtarin.set(el, m); }
       el.style.minHeight = m + 'px'; el.classList.add('crtl-hads-sabet');
@@ -2128,7 +2133,7 @@
         if (t !== 'دو جمله:' && t !== 'جمع‌بندی:') continue;
         // the part's own box: the label's row, then the box that holds that row
         var row = ls[i].parentElement, part = row && row.parentElement;
-        return part && part !== band ? part : row;
+        return { el: part && part !== band ? part : row, barchasb: t };
       }
       return null;
     }
@@ -2136,9 +2141,10 @@
       if (negah_dar_kar) return;
       negah_dar_kar = true;
       try {
-        if (card.classList.contains('crtl-hads-tak-dokme') || !card.querySelector('.crtl-hads-radif-bala')) { rahakardan(); return; }
-        var dj = do_jomle_bakhsh();
-        if (dj) negah_dar(dj);
+        if (card.classList.contains('crtl-hads-tak-dokme') || !card.querySelector('.crtl-hads-radif-bala')) { rahakardan(); barchasb = null; return; }
+        var dj = do_jomle_bakhsh(), b = dj ? dj.barchasb : null;
+        if (b !== barchasb) { rahakardan(); barchasb = b; }
+        if (dj) negah_dar(dj.el);
         negah_dar(band);
         if (payin) band.scrollTop = band.scrollHeight;
       } finally { negah_dar_kar = false; }

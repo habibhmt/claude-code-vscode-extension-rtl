@@ -564,34 +564,23 @@ out.bigSummary = { via: events.slice(se5).filter((e) => e.kind === 'jambandi_nob
 assert.deepEqual(out.bigSummary, { via: ['fork'], sonnetSummary: false })
 $.ctx = 1000; $.nowModel = savedNow; $.guessModel = slow
 $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
-// تعریفِ ۱۰ (اسمِ متغیر), 25 Oct: a chat's file written with the old words still works, read as the new
-$.ui.resolve = () => withInput; $.sid = 'OLD'; flags['/h/.claude/hads-on/OLD'] = 'on -guess -hooks min'
-const rOld = await render()
-out.oldWords = { line: find(rOld, 'hads-min')?.label, ticks: !!find(rOld, 'hads-tick-hads') }
-await find(rOld, 'hads-min').onPress({}); out.oldWords.file = flags['/h/.claude/hads-on/OLD']
-assert.deepEqual(out.oldWords, { line: '▸ حدس', ticks: false, file: 'on -hads -hook' })
-// «قبلی‌ها» kept in the old file (<id>.now.jsonl) still shows until the new one is written
-$.sid = 'OLDH'; flags['/h/.claude/hads-on/OLDH'] = 'on'; flags['/h/.claude/hads-log/OLDH.now.jsonl'] = JSON.stringify({ t: 1, text: 'قدیمی' }) + '\n'
-$.forkReply = { isAnswered: true, text: '{}', usage: {} }; $.nowReply = 'تازه. همین.'; $.t += 1; await H['turn.complete']($, {}, next); await flush()
-out.oldHist = String(flags['/h/.claude/hads-log/OLDH.do_jomle_ghablia.jsonl'] || '').split('\n').filter(Boolean).map((l) => JSON.parse(l).text)
-assert.deepEqual(out.oldHist, ['قدیمی', 'تازه. همین.'])
-$.ui.resolve = realResolve; $.sid = 'A'
-// the old → new table is one table: the JSON chat 205 reads is the same as the mod's own
+// تعریفِ ۱۰ (اسمِ متغیر): every name the mod writes is a new one. The old names, written out here only
+// to look for them (Habib, 25 Oct 02:58: «دیگه اثری ازش نباشه»; the mod no longer reads them)
 const fsN = await import('node:fs')
-const jsonPath = new URL('./esm_ghadim.json', import.meta.url)
-out.esmGhadimJson = JSON.stringify(JSON.parse(fsN.readFileSync(jsonPath, 'utf8'))) === JSON.stringify(mod.esm_ghadim); assert.equal(out.esmGhadimJson, true)
-// every name the mod writes is a new name: no old kind, field or word left in what it logs and keeps
-const oldKinds = Object.keys(mod.esm_ghadim.kind_daftar), oldFields = Object.keys(mod.esm_ghadim.khane_daftar)
-out.noOldNames = { kinds: events.filter((e) => oldKinds.includes(e.kind)).length, fields: events.filter((e) => Object.keys(e).some((k) => oldFields.includes(k))).length,
-  usage: usages.filter((u) => 'part' in u || 'via' in u || Object.keys(mod.esm_ghadim.bakhsh_kharj).includes(u.bakhsh)).length,
-  words: Object.entries(flags).filter(([k, v]) => k.includes('/hads-on/') && k !== '/h/.claude/hads-on/OLD' && String(v).split(' ').some((w) => w in mod.esm_ghadim.kalame_file)).map(([k, v]) => k + '=' + v) }
-assert.deepEqual(out.noOldNames, { kinds: 0, fields: 0, usage: 0, words: [] })
+const kind_ghadim = ['now', 'guess', 'guess_click', 'guess_sent', 'ask', 'ask_wait', 'turn_summary']
+const khane_ghadim = ['items', 'guess', 'sent', 'edited', 'q', 'a', 'asked', 'done', 'not_done', 'from', 'tools', 'via', 'tokens']
+const kalame_ghadim = ['-guess', '-now', '-ask', '-hooks', '+midfork', 'min', 'dot', 'hookbig']
+out.noOldNames = { kinds: events.filter((e) => kind_ghadim.includes(e.kind)).length, fields: events.filter((e) => Object.keys(e).some((k) => khane_ghadim.includes(k))).length,
+  usage: usages.filter((u) => 'part' in u || 'via' in u || ['now', 'guess', 'ask', 'summary', 'end'].includes(u.bakhsh)).length,
+  words: Object.entries(flags).filter(([k, v]) => k.includes('/hads-on/') && String(v).split(' ').some((w) => kalame_ghadim.includes(w))).map(([k, v]) => k + '=' + v),
+  ghablia: Object.keys(flags).filter((k) => k.endsWith('.now.jsonl')).length }
+assert.deepEqual(out.noOldNames, { kinds: 0, fields: 0, usage: 0, words: [], ghablia: 0 })
 // the source: exported names lower snake_case, never a name glued as '-' + k or 'x_' + y
 const src = fsN.readFileSync(new URL('./hooks/register.js', import.meta.url), 'utf8')
 out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glued: (src.match(/'[-+]' \+ |'[a-z]+_' \+ /g) || []) }
 assert.deepEqual(out.esmRule, { upper: [], glued: [] })
 // 25 Oct 02:20 («اسمِ تابع‌های داخلِ کد … بزن»): the functions and the chat-wide variables have Habib's words too
-const codeOnly = src.replace(/export const esm_ghadim = \{[\s\S]*?\n\}\n/, '').replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
-out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "histPathGhadim", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa", "bepors"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))
+const codeOnly = src.replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa", "bepors"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))
 assert.deepEqual(out.esmTabe, [])
 console.log(JSON.stringify(out))

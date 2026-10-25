@@ -188,13 +188,12 @@ export function kharj_kash_sard(model, tokens) {
 // the last had_ghablia_tedad); newest first on screen
 export const had_ghablia_tedad = 50
 const masir_ghablia = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.do_jomle_ghablia.jsonl'
-// the file's name before 25 Oct (تعریفِ ۱۰): read when the new one is not there yet
-const masir_ghablia_ghadim = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.now.jsonl'
 async function khandan_ghablia($) {
-  for (const f of [await masir_ghablia($), await masir_ghablia_ghadim($)]) {
-    try { return String(await $.fs.read(f)).split('\n').filter(Boolean).map((l) => JSON.parse(l)).reverse() } catch {}
+  try {
+    return String(await $.fs.read(await masir_ghablia($))).split('\n').filter(Boolean).map((l) => JSON.parse(l)).reverse()
+  } catch {
+    return []
   }
-  return []
 }
 // «دفترِ حدس» (with چتِ ۲۰۵, 24 Oct): every «دو جمله», guess, «پرسش» and what Habib did with a
 // guess, one JSON line each in ~/.claude/hads-log/<id>.events.jsonl — no cap, appended, never
@@ -539,20 +538,9 @@ export const bakhsh_ha = [['hads', 'حدس'], ['nakarde', 'نکرده‌ها'], 
 // name glued from pieces): a part ticked off, and the other settings
 export const kalame_khamush = { hads: '-hads', nakarde: '-nakarde', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg' }
-// names used before 25 Oct 2026 (تعریفِ ۱۰): old lines and old files are never rewritten; whoever
-// reads them (this mod, the chat 205 index) turns each old name into the new one with this table
-export const esm_ghadim = {
-  kalame_file: { '-guess': '-hads', '-now': '-do_jomle', '-ask': '-porsesh', '-hooks': '-hook', '+midfork': '+do_jomle_fork', min: 'yek_khat', dot: 'tak_dokme', hookbig: 'hook_bozorg' },
-  kind_daftar: { now: 'do_jomle', guess: 'hads', guess_click: 'hads_zadan', guess_sent: 'hads_ferestade', ask: 'porsesh', ask_wait: 'porsesh_montazer', turn_summary: 'jambandi_nobat' },
-  khane_daftar: { items: 'hads_ha', guess: 'hads_matn', sent: 'matn_ferestade', edited: 'virayesh_shod', q: 'porsesh_matn', a: 'javab_matn', asked: 'khaste_habib', done: 'anjam_shod', not_done: 'anjam_nashod', from: 'tedad_do_jomle', tools: 'tedad_abzar', via: 'rah', tokens: 'kontekst_token' },
-  // end: the one fork at an answer's end that made «دو جمله» and the guesses together (v2, 24 Oct)
-  bakhsh_kharj: { now: 'do_jomle', guess: 'hads', ask: 'porsesh', summary: 'jambandi_nobat', end: 'akhar_javab' },
-  khane_kharj: { part: 'bakhsh', via: 'rah' },
-}
 async function khandan_file_chat($) {
   try {
-    // a file written before 25 Oct holds the old words: read as the new ones
-    const w = String(await $.fs.read(await masir_file_chat($))).trim().split(/\s+/).map((x) => esm_ghadim.kalame_file[x] || x)
+    const w = String(await $.fs.read(await masir_file_chat($))).trim().split(/\s+/)
     if (w[0] !== 'on') return null
     return { ...Object.fromEntries(bakhsh_ha.map(([k]) => [k, !w.includes(kalame_khamush[k])])),
       ...Object.fromEntries(Object.entries(kalame_tanzim).map(([k, kalame]) => [k, w.includes(kalame)])) }

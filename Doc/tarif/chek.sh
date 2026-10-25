@@ -3,9 +3,10 @@
 cd "$(dirname "$0")/../.." || exit 2
 export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
 bad=0
-# tests 02 and 03 start a headless Google Chrome (no window, a throwaway profile); NO_CHROME=1 skips them.
+# tests 02 and 03 are «شبیه‌سازیِ افزونه در کروم» (Habib's word, 25 Oct 04:59): a Google Chrome with no window
+# and a throwaway profile builds the panel page and checks it; NO_CHROME=1 skips them.
 # Habib 22 Oct: no Chrome for now; 25 Oct 04:30, question window: «بله، بی‌پنجره اشکال ندارد»
-skip() { echo "⏭  $1 — رد شد: کروم فعلاً ممنوع"; }
+skip() { echo "⏭  $1 — رد شد: شبیه‌سازیِ افزونه در کروم زده نشد (NO_CHROME)"; }
 ok()  { echo "✅ $1"; }
 no()  { echo "❌ $1 — $2"; bad=$((bad+1)); }
 o=$(node mods/hads/test_hads.mjs 2>/dev/null)
@@ -15,12 +16,12 @@ o=$(node mods/hads/test_hads.mjs 2>/dev/null)
 [[ $o == *'"noOldNames":{"kinds":0,"fields":0,"usage":0,"words":[],"ghablia":0}'* && $o == *'"esmRule":{"upper":[],"glued":[]}'* ]] && ok "۱۰ اسمِ متغیر" || no "۱۰ اسمِ متغیر" "اسمِ قدیمی، اسمِ بزرگ‌حرف یا اسمِ چسبانده در کد"
 if [[ -n $NO_CHROME ]]; then skip "۰۲ نوارِ بالا"; else
 o=$(node test_claude_top_buttons.cjs 2>/dev/null)
-[[ $o == *'"topCount":14'* && $o == *'"hadsText":["/hads on","/hads off"]'* && $o == *'"dragTyped":""'* && $o == *'"submitted":0'* && $o == *'"notInBanner":true'* ]] && ok "۰۲ نوارِ بالا" || no "۰۲ نوارِ بالا" "آزمون جوابِ درست نداد"
+[[ $o == *'"topCount":14'* && $o == *'"hadsText":["/hads on","/hads off"]'* && $o == *'"dragTyped":""'* && $o == *'"submitted":0'* && $o == *'"notInBanner":true'* ]] && ok "۰۲ نوارِ بالا (شبیه‌سازیِ افزونه در کروم)" || no "۰۲ نوارِ بالا" "آزمون جوابِ درست نداد"
 fi
 if [[ -n $NO_CHROME ]]; then skip "۰۳ ساعتِ پیام"; else
 o=$(node test_claude_stamp.cjs 2>/dev/null)
 n=$(cat ~/.vscode/extensions/anthropic.claude-code-*/webview/index.js 2>/dev/null | grep -c "data-message-stamp")
-[[ $o == *'"answerClearsDot":true'* && $o == *'"promptInBubble":true'* && $n -gt 0 ]] && ok "۰۳ ساعتِ پیام" || no "۰۳ ساعتِ پیام" "آزمون یا اسمِ data-message-stamp"
+[[ $o == *'"answerClearsDot":true'* && $o == *'"promptInBubble":true'* && $n -gt 0 ]] && ok "۰۳ ساعتِ پیام (شبیه‌سازیِ افزونه در کروم)" || no "۰۳ ساعتِ پیام" "آزمون یا اسمِ data-message-stamp"
 fi
 z=0; for f in ~/.*/extensions/anthropic.claude-code-*; do [ "$(grep -c crtl-panel "$f/extension.js" 2>/dev/null)" -gt 0 ] || z=$((z+1)); done
 l=$(launchctl list | grep -c com.habib.fix-rtl-claude)

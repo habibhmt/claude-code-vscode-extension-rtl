@@ -187,10 +187,32 @@ out.guessesKept = guessLabels(await render()); assert.deepEqual(out.guessesKept,
 $.forkReply = { isAnswered: true, text: 'not json', usage: {} }
 c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
 out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
-// a chat over MAX_FORK tokens never forks
+// a chat over MAX_FORK tokens never forks for the guesses alone («نکرده‌ها» ticked off)
+const fileF = flags['/h/.claude/hads-on/F']; flags['/h/.claude/hads-on/F'] = 'on -nakarde'
 $.forkReply = { isAnswered: true, text: '{"hads": []}', usage: {} }; $.ctx = mod.had_fork_kontekst_token + 1
 c0 = cnt(); await H['command.run']($, { args: 'now' }); await flush(); c1 = cnt()
-out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1]); $.ctx = 1000
+out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1])
+// «نکرده‌ها» (Habib, 25 Oct 04:22): two each time, with the guesses; they need the whole chat, so even a
+// big chat forks for them; Habib's words, when, why; the prompt carries the audit's rules and last time's items
+flags['/h/.claude/hads-on/F'] = fileF
+$.forkReply = { isAnswered: true, usage: {}, text: '{"hads": [{"label": "x", "text": "تست بزن"}], "nakarde": [{"harf": "اسمای قدیم رو جدید کن", "zaman": "۲۵ اکت ۰۲:۵۸", "chera": "۲۰۵ هنوز ریلود نشده"}, {"harf": "عکس بگیر", "zaman": "۲۵ اکت ۰۲:۲۸", "chera": "گفتی منتظرِ حبیب"}, {"harf": "سومی", "zaman": "", "chera": "نباید بیاید"}]}' }
+const nk0 = calls.fork.length, ev0 = events.length; await H['command.run']($, { args: 'now' }); await flush()
+const nkPrompt = calls.fork.slice(nk0).map((f) => f.prompt).join('\n')
+const rN = await render()
+out.nakarde = { fork: calls.fork.length - nk0, rules: /فقط حرفِ خودِ حبیب/.test(nkPrompt) && /خروجیِ یک ابزار در همین چت ثابتش کرد/.test(nkPrompt) && /حرفِ تازه‌ترِ حبیب جای حرفِ قدیمی‌اش/.test(nkPrompt) && /قولی که به حبیب یا به ایجنتِ دیگر دادی/.test(nkPrompt),
+  shown: [0, 1, 2].map((i) => find(rN, 'hads-nk-' + i)?.children[0]).filter(Boolean),
+  logged: events.slice(ev0).filter((e) => e.kind === 'nakarde').map((e) => e.nakarde_ha.length) }
+assert.deepEqual(out.nakarde, { fork: 1, rules: true, shown: ['«اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸) — ۲۰۵ هنوز ریلود نشده', '«عکس بگیر» (۲۵ اکت ۰۲:۲۸) — گفتی منتظرِ حبیب'], logged: [2] })
+// ⤵ puts it in the prompt box (never sends); the next time the prompt names last time's items so others come first
+calls.fill.length = 0; await find(rN, 'hads-nk-dokme-0').onPress({}); out.nakardeFill = calls.fill.map((f) => f.text)
+assert.deepEqual(out.nakardeFill, ['این را گفته بودم و هنوز نکردی، انجامش بده: «اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸)'])
+const nk1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
+out.nakardeGhabli = /دفعهٔ قبل این‌ها را آوردی.*«اسمای قدیم رو جدید کن»/.test(calls.fork.slice(nk1).map((f) => f.prompt).join('\n')); assert.equal(out.nakardeGhabli, true)
+// ticked off: not asked for, not shown
+$.ctx = 1000; await find(await render(), 'hads-tick-nakarde').onPress({}); const nk2 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
+out.nakardeOff = { forked: calls.fork.length > nk2, asked: calls.fork.slice(nk2).some((f) => /nakarde/.test(f.prompt)), shown: !!find(await render(), 'hads-nk-0') }
+assert.deepEqual(out.nakardeOff, { forked: true, asked: false, shown: false })
+await find(await render(), 'hads-tick-nakarde').onPress({}); $.ctx = 1000
 $.sid = 'A'
 // mid-work uses only the last three messages
 $.msgs = Array.from({ length: 10 }, (_, i) => ({ role: 'user', text: 'پیامِ-' + i }))
@@ -409,8 +431,8 @@ out.noStale = guessLabels(await render()).includes('نباید'); assert.equal(o
 await find(await render(), 'hads-tick-hads').onPress()
 // another chat keeps its own ticks
 $.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
-// «حدس» and «دو جمله» both off: no model call at an answer's end or during work
-await find(await render(), 'hads-tick-do_jomle').onPress()
+// «حدس», «نکرده‌ها» and «دو جمله» all off: no model call at an answer's end or during work
+await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress()
 const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); const z1 = cnt()
 out.bothOff = [z1[0] - z0[0], z1[1] - z0[1], z1[2] - z0[2]]; assert.deepEqual(out.bothOff, [0, 0, 0])
 // «پرسش» off: no box; the ticks stay so it can come back
@@ -418,6 +440,7 @@ await find(await render(), 'hads-tick-porsesh').onPress()
 const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ticks(t9) }
 assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
 for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
+await find(await render(), 'hads-tick-nakarde').onPress()
 out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
 $.ui.resolve = realResolve
 // «دفترِ حدس» (with چتِ ۲۰۵): one line per event, appended, with sid and Tehran iso; «دو جمله» not twice
@@ -463,7 +486,7 @@ await H['command.run']($, { args: 'ask منتظر' }); await flush()
 await H['command.run']($, { args: 'off' }); await H['command.run']($, { args: 'on' }); const wq0 = calls.fork.length; $.t = $.t || 1e12
 $.model.fork = async (o) => { calls.fork.push(o); return { isAnswered: true, text: '{}', usage: {} } }
 await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
-out.waitDropped = !calls.fork.slice(wq0).some((f) => /منتظر/.test(f.prompt)); assert.equal(out.waitDropped, true)
+out.waitDropped = !calls.fork.slice(wq0).some((f) => /^منتظر/.test(f.prompt)); assert.equal(out.waitDropped, true)
 $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
 // (2) off: /hads now, /hads ask and a waiting «پرسش» never pay for a model call
 await H['command.run']($, { args: 'off' }); const off0 = cnt()

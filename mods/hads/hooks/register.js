@@ -16,6 +16,9 @@ const prompt_system_hads = [
 ].join(' ')
 
 let hads_akhar = []
+// «نکرده‌ها» (Habib, 25 Oct 04:22: «چه کارایی حبیب بهت گفته و نکردی و مثل حدس دو تا توی هر دفعه
+// داده بشه»): what he asked in this chat that is still not done, two each time, made with the guesses
+let nakarde_akhar = []
 let hads_dar_kar = false
 // the chat the guesses were made in: after /clear (a new id) they are not shown
 let hads_baraye_chat = ''
@@ -136,17 +139,39 @@ async function hads_ba_sonnet($) {
 // only the parts ticked on are asked for: fewer output tokens
 const prompt_fork_do_jomle = '"do_jomle": "<exactly two short sentences of plain Persian: what the agent in this chat is doing now and what it waits for, in حبیب\'s own words from the glossary below>"'
 const prompt_fork_hads = '"hads": [1 or 2 of {"label": "<= 3 words", "text": "<one line, ready to send as حبیب\'s next message, in his tone>"}]'
-const prompt_fork = (p) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
-  [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads].filter(Boolean).join(', ') + '}'
+// «نکرده‌ها»: the fork has read the whole chat, every tool's output included. Its rules come from two
+// Sonnet audits of this chat (25 Oct 03:33): only Habib's own words; done means a tool proved it; his
+// later word replaces the earlier; a promise not kept counts; other items first than last time
+const prompt_fork_nakarde = (ghabli) => '"nakarde": [0 to 2 of {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>"}]'
+const ghaede_nakarde = (ghabli) => '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و کارهایی را پیدا کن که حبیب خواست و هنوز انجام نشده. ' +
+  '۱) فقط حرفِ خودِ حبیب. پیامِ ایجنتِ دیگر، system-reminder، task-notification و «Continue from where you left off» حرفِ حبیب نیست؛ حرفی از حبیب که ایجنتی عینش را نقل کرده حساب است. ' +
+  '۲) «انجام شد» یعنی خروجیِ یک ابزار در همین چت ثابتش کرد (آزمونِ سبز، commit، فایلِ نوشته‌شده). «انجام می‌دهم» یا «منتظرِ …» انجام نیست. ' +
+  '۳) حرفِ تازه‌ترِ حبیب جای حرفِ قدیمی‌اش را می‌گیرد؛ چیزی که بعداً رد یا عوض کرد، نکرده نیست. ' +
+  '۴) قولی که به حبیب یا به ایجنتِ دیگر دادی و عمل نکردی («می‌پرسم»، «خبر می‌دهم»، «بعد از ریلود می‌زنم») هم نکرده است. ' +
+  '۵) مهم‌ترین اول: آنچه حبیب رویش تأکید کرد، یا قدیمی‌تر و فراموش‌شده. ' +
+  (ghabli.length ? '۶) دفعهٔ قبل این‌ها را آوردی؛ اگر نکردهٔ دیگری هست، اول آن را بیاور: ' + ghabli.map((x) => '«' + x.harf + '»').join(' · ') + '. ' : '') +
+  'نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
+const prompt_fork = (p, ghabli = []) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
+  [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads, p.nakarde && prompt_fork_nakarde(ghabli)].filter(Boolean).join(', ') + '}' +
+  (p.nakarde ? ghaede_nakarde(ghabli) : '')
 
-// {do_jomle, hads} from the fork's reply; null when it has neither
+// «نکرده‌ها» from the fork's reply: at most two, each with Habib's words, when, and why
+export function khandan_nakarde(list) {
+  return (Array.isArray(list) ? list : [])
+    .filter((x) => x && typeof x.harf === 'string' && x.harf.trim() && typeof x.chera === 'string')
+    .slice(0, 2)
+    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim() }))
+}
+
+// {do_jomle, hads, nakarde} from the fork's reply; null when it has none
 export function khandan_javab_fork(raw) {
   try {
     const m = String(raw || '').match(/\{[\s\S]*\}/)
     const o = JSON.parse(m ? m[0] : raw)
     const n = typeof o?.do_jomle === 'string' ? kutah_be_do_jomle(o.do_jomle) : ''
     const g = Array.isArray(o?.hads) ? khandan_hads(JSON.stringify(o.hads)) : []
-    return n || g.length ? { do_jomle: n, hads: g } : null
+    const nk = khandan_nakarde(o?.nakarde)
+    return n || g.length || nk.length || Array.isArray(o?.nakarde) ? { do_jomle: n, hads: g, nakarde: nk } : null
   } catch {
     return null
   }
@@ -320,7 +345,7 @@ async function chat_kuchak($) {
 // The guesses: one fork over the whole chat (its own model, the cache this answer just
 // warmed) every hads_har_chand_javab answers; a chat over had_fork_kontekst_token, or no usable reply, asks Sonnet.
 async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false) {
-  if (!p.hads && !p.do_jomle) return
+  if (!p.hads && !p.do_jomle && !p.nakarde) return
   if (akhar_javab_dar_kar) { akhar_javab_dobare = true; return }
   akhar_javab_dar_kar = true; zaman_akhar_javab = await $.clock.now()
   try {
@@ -328,8 +353,9 @@ async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false)
     const seen = tedad_javab_har_chat.get(id) || 0
     tedad_javab_har_chat.set(id, seen + 1)
     // also due when this chat shows none (first answer, /clear, an empty or broken reply)
-    const due = p.hads && (force || seen % hads_har_chand_javab === 0 || hads_baraye_chat !== id || !hads_akhar.length)
-    await Promise.all([p.do_jomle && (async () => { if (!(await jambandi($))) await begu_do_jomle($, '', true) })(), due && hads_ba_fork($)])
+    // «نکرده‌ها» come with the guesses, on the same answers
+    const due = (p.hads || p.nakarde) && (force || seen % hads_har_chand_javab === 0 || hads_baraye_chat !== id || (p.hads && !hads_akhar.length))
+    await Promise.all([p.do_jomle && (async () => { if (!(await jambandi($))) await begu_do_jomle($, '', true) })(), due && hads_ba_fork($, p)])
   } finally {
     akhar_javab_dar_kar = false
   }
@@ -402,18 +428,26 @@ async function jambandi($) {
   }
 }
 
-async function hads_ba_fork($) {
+async function hads_ba_fork($, p = { hads: true }) {
   let got = null
   let tokens = 0
   try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
-  if (tokens <= had_fork_kontekst_token) {
+  // «نکرده‌ها» need the whole chat: only the chat's own fork has it, so a big chat forks for them too
+  if (tokens <= had_fork_kontekst_token || p.nakarde) {
     try {
-      const r = await $.model.fork({ prompt: prompt_fork({ hads: true }) })
+      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde }
+      const r = await $.model.fork({ prompt: prompt_fork(khaste, nakarde_akhar) })
       got = r.isAnswered ? khandan_javab_fork(r.text) : null
       if (got?.hads.length) try { await $.store.set('kharj_akhar_hads_fork', { rah: 'fork', kontekst_token: tokens, usage: r.usage }) } catch {}
-      if (r.isAnswered) await benevis_kharj($, 'hads', 'fork', r.usage)
+      if (r.isAnswered) await benevis_kharj($, khaste.nakarde ? (khaste.hads ? 'hads_va_nakarde' : 'nakarde') : 'hads', 'fork', r.usage)
     } catch {}
   }
+  if (p.nakarde && got) {
+    nakarde_akhar = got.nakarde; hads_baraye_chat = await $.session.id()
+    await benevis_daftar($, 'nakarde', { rah: 'fork', nakarde_ha: nakarde_akhar })
+    $.ui.invalidate('ui.render')
+  }
+  if (!p.hads) return
   if (got?.hads.length) {
     hads_akhar = got.hads; hads_baraye_chat = await $.session.id()
     await benevis_daftar($, 'hads', { rah: 'fork', hads_ha: hads_akhar.map((g) => g.text) })
@@ -500,10 +534,10 @@ async function gozashtan_dar_kadr($, text) {
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
 const masir_file_chat = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 // The file holds `on`, then the parts ticked off: `on -hads -porsesh`. h-on turns all of them on.
-export const bakhsh_ha = [['hads', 'حدس'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها']]
+export const bakhsh_ha = [['hads', 'حدس'], ['nakarde', 'نکرده‌ها'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها']]
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
 // name glued from pieces): a part ticked off, and the other settings
-export const kalame_khamush = { hads: '-hads', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook' }
+export const kalame_khamush = { hads: '-hads', nakarde: '-nakarde', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg' }
 // names used before 25 Oct 2026 (تعریفِ ۱۰): old lines and old files are never rewritten; whoever
 // reads them (this mod, the chat 205 index) turns each old name into the new one with this table
@@ -620,6 +654,7 @@ async function tik_zadan($, key) {
   p[key] = !p[key]
   await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
   if (!p.hads) hads_akhar = []
+  if (!p.nakarde) nakarde_akhar = []
   if (!p.do_jomle) do_jomle_akhar = { text: '', for: '' }
   if (!p.porsesh) { javab_porsesh = null; porsesh_montazer = null }
   $.ui.invalidate('ui.render')
@@ -733,6 +768,7 @@ export function register(on) {
     if (!p) return next(e)
     const id = await $.session.id()
     const g = p.hads && hads_baraye_chat === id ? hads_akhar : []
+    const nk = p.nakarde && hads_baraye_chat === id ? nakarde_akhar : []
     const n = p.do_jomle && do_jomle_akhar.for === id ? do_jomle_akhar.text : ''
     const sm = n && do_jomle_akhar.summary ? do_jomle_akhar.summary : null
     const a = p.porsesh && javab_porsesh && javab_porsesh.for === id ? javab_porsesh : null
@@ -782,6 +818,12 @@ export function register(on) {
         benevis_daftar($, 'hads_zadan', { text: g[i].text })
         return gozashtan_dar_kadr($, g[i].text)
       } }),
+    ] }))
+    // «نکرده‌ها»: Habib's words, when he said them, and why it is still not done; ⤵ asks for it again
+    for (let i = 0; i < nk.length; i++) rows.push(Box({ flexDirection: 'row', columnGap: 1, children: [
+      Text({ dimColor: true, children: [i ? '        ' : 'نکرده:'] }),
+      Text({ key: 'hads-nk-' + i, children: ['«' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '') + ' — ' + nk[i].chera] }),
+      Button({ key: 'hads-nk-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم و هنوز نکردی، انجامش بده: «' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '')) }),
     ] }))
     // the earlier ones, newest first, with Tehran date and time; the current one is not repeated
     if (ghablia_baz) rows.push(Box({ flexDirection: 'column', children: hist.slice(1, 11).map((x, i) =>

@@ -18,7 +18,7 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
-  process: { run: async (argv, init) => { if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
+  process: { run: async (argv, init) => { if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
@@ -202,12 +202,22 @@ const rN = await render()
 out.nakarde = { fork: calls.fork.length - nk0, rules: /فقط حرفِ خودِ حبیب/.test(nkPrompt) && /خروجیِ یک ابزار در همین چت ثابتش کرد/.test(nkPrompt) && /حرفِ تازه‌ترِ حبیب جای حرفِ قدیمی‌اش/.test(nkPrompt) && /قولی که به حبیب یا به ایجنتِ دیگر دادی/.test(nkPrompt),
   shown: [0, 1, 2].map((i) => find(rN, 'hads-nk-' + i)?.children[0]).filter(Boolean),
   logged: events.slice(ev0).filter((e) => e.kind === 'nakarde').map((e) => e.nakarde_ha.length) }
-assert.deepEqual(out.nakarde, { fork: 1, rules: true, shown: ['«اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸) — ۲۰۵ هنوز ریلود نشده', '«عکس بگیر» (۲۵ اکت ۰۲:۲۸) — گفتی منتظرِ حبیب'], logged: [2] })
+// no cap on how many (Habib, 25 Oct 04:53: «محدودیت نداشته باشن تعدادشون»)
+assert.deepEqual(out.nakarde, { fork: 1, rules: true, shown: ['«اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸) — ۲۰۵ هنوز ریلود نشده', '«عکس بگیر» (۲۵ اکت ۰۲:۲۸) — گفتی منتظرِ حبیب', '«سومی» — نباید بیاید'], logged: [3] })
 // ⤵ puts it in the prompt box (never sends); the next time the prompt names last time's items so others come first
 calls.fill.length = 0; await find(rN, 'hads-nk-dokme-0').onPress({}); out.nakardeFill = calls.fill.map((f) => f.text)
 assert.deepEqual(out.nakardeFill, ['این را گفته بودم و هنوز نکردی، انجامش بده: «اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸)'])
+// «✓ انجام شد» (Habib, 25 Oct 04:53: «یه گزینه داشته باشه که من بزنم نه انجام شده … و اون دیگه توی نکرده ها نیاد»):
+// gone at once, kept in the chat's own file, the fork is told never to bring it, and a reply that brings it anyway is dropped
+await find(await render(), 'hads-nk-anjam-0').onPress({})
+const rDone = await render(); const afterDone = [0, 1, 2].map((i) => find(rDone, 'hads-nk-' + i)?.children[0]).filter(Boolean)
 const nk1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
-out.nakardeGhabli = /دفعهٔ قبل این‌ها را آوردی.*«اسمای قدیم رو جدید کن»/.test(calls.fork.slice(nk1).map((f) => f.prompt).join('\n')); assert.equal(out.nakardeGhabli, true)
+const nkPrompt1 = calls.fork.slice(nk1).map((f) => f.prompt).join('\n')
+const rFork = await render(); const afterFork = [0, 1, 2].map((i) => find(rFork, 'hads-nk-' + i)?.children[0]).filter(Boolean)
+out.nakardeAnjam = { now: afterDone.length, file: String(flags['/h/.claude/hads-on/F'.replace('hads-on', 'hads-log') + '.nakarde_anjam_shod.jsonl'] || '').includes('اسمای قدیم رو جدید کن'),
+  told: /حبیب این‌ها را خودش «انجام شد» زد.*«اسمای قدیم رو جدید کن»/.test(nkPrompt1), back: afterFork.some((x) => x.includes('اسمای قدیم رو جدید کن')),
+  logged: events.some((e) => e.kind === 'nakarde_anjam_shod' && e.harf === 'اسمای قدیم رو جدید کن') }
+assert.deepEqual(out.nakardeAnjam, { now: 2, file: true, told: true, back: false, logged: true })
 // ticked off: not asked for, not shown
 $.ctx = 1000; await find(await render(), 'hads-tick-nakarde').onPress({}); const nk2 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
 out.nakardeOff = { forked: calls.fork.length > nk2, asked: calls.fork.slice(nk2).some((f) => /nakarde/.test(f.prompt)), shown: !!find(await render(), 'hads-nk-0') }

@@ -8,7 +8,7 @@ def build_ui(repo, defaults):
     # No Claude host protocol, VS Code API interception or session assumptions.
     start = s.index('  // acquireVsCodeApi()')
     end = s.index("  window.addEventListener('error'", start)
-    s = s[:start] + '  function askSession() {}\n  function paintSession() {}\n' + s[end:]
+    s = s[:start] + '  function porsidan_shenase_chat() {}\n  function neshan_shenase_chat() {}\n' + s[end:]
     start = s.index('  var DEFAULT_COMMANDS = [')
     end = s.index('\n  /* ---------------- settings', start)
     commands = [
@@ -21,21 +21,21 @@ def build_ui(repo, defaults):
     start = s.index("    // this chat's names")
     end = s.index('    // presets', start)
     s = s[:start] + s[end:]
-    start = s.index("    tools.appendChild(btn('sel'")
-    end = s.index("    tools.appendChild(btn(s.quoteMenu", start)
+    start = s.index("    tools.appendChild(sakht_dokme('sel'")
+    end = s.index("    tools.appendChild(sakht_dokme(s.quoteMenu", start)
     s = s[:start] + s[end:]
-    start = s.index("    toggles.appendChild(btn(s.collapse")
+    start = s.index("    toggles.appendChild(sakht_dokme(s.collapse")
     end = s.index("    toggles.appendChild(", start + 10)
     s = s[:start] + s[end:]
-    s = s.replace('if (s.collapse) {', 'if (false) {').replace('    wireBlocks();', '')
-    s = s.replace("    panel.appendChild(sizeRow('حواشی', 'chrome', s, set));", '')
-    s = s.replace("guard('glossary', wireGlossary)();", '')
-    s = s.replace('lines.concat(mirrorParity(), clampReport())', 'lines.concat(clampReport())')
+    s = s.replace('if (s.collapse) {', 'if (false) {').replace('    jam_kardan_fekr_va_abzar();', '')
+    s = s.replace("    panel.appendChild(radif_andaze('حواشی', 'chrome', s, set));", '')
+    s = s.replace("negahban_khata('glossary', vazhe_name_ru_kalame)();", '')
+    s = s.replace('lines.concat(barabari_kadr_va_ayne(), gozaresh_khat_payam_jam())', 'lines.concat(gozaresh_khat_payam_jam())')
     # Scope the table mode to Codex; do not change Claude's shared implementation.
     s = s.replace("overflow-x:auto!important;white-space:nowrap!important}",
                   "overflow-x:auto!important;white-space:nowrap!important;min-width:0!important}")
     s = s.replace("    // Thinking / tool-call chatter", "    if (s.tableScroll) { out.push('[class*=\"messagesContainer_\"] table :is(th,td){white-space:nowrap!important}'); }\n    // Thinking / tool-call chatter")
-    s = s.replace('  function applyCss(s) {', '  function applyCss(s) {\n    document.documentElement.dataset.crtlTableMode = s.tableScroll ? "scroll" : "free";')
+    s = s.replace('  function emal_andaze_va_rang(s) {', '  function emal_andaze_va_rang(s) {\n    document.documentElement.dataset.crtlTableMode = s.tableScroll ? "scroll" : "free";')
     mappings = {
         '[class*="messagesContainer_"]': '.thread-scroll-container',
         '[class*="userMessage_"]': '[data-user-message-bubble]',

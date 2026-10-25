@@ -29,18 +29,17 @@
    - واحد آخرِ اسم: `_ms`، `_token`، `_harf`، `_radif`، `_px`، `_darsad`، `_usd`.
    - کامل و بی‌چسباندن: نه `'-' + k`؛ جدولِ صریح، تا هر اسم با `grep` پیدا شود.
    - تغییرِ اسم یعنی همه‌جا: کد، آزمون، تعریف، واژه‌نامه.
-   - خطِ قدیمیِ دفتر و فایلِ قدیمی دست نمی‌خورد؛ هنگامِ خواندن با `esm_ghadim` به اسمِ تازه برمی‌گردد.
+   - خواندنِ اسمِ قدیم (`esm_ghadim`) از ۲۵ اکت ۰۴:۵۵ برداشته شد؛ دفترها یک بار به اسمِ تازه برگشتند.
    - اسمِ تازه فقط با «بله»ی حبیب. فهرستِ واژه ⇐ اسم در `00_vazhe_name.md`، بخشِ `اسم در کد`.
 2. **کی/کجا:** از ۲۵ اکت ۲۰۲۶، همهٔ پروژهٔ ۱۳۶.
 3. **عمداً نیست (استثنا، با دلیل):**
    - واژه‌های عمومی که همه‌جا یک معنی دارند: `t`، `iso`، `sid`، `kind`، `text`، `label`، و `usage` (اسمِ خودِ API).
    - دستورهای `/hads on|off|now|ask` و دکمه‌های `h-on`/`h-off`: واژهٔ خودِ حبیب.
    - شناسهٔ جعبه‌های صفحه (`hads-x`، `hads-tick-…`): متغیر نیستند؛ قاعدهٔ ۹۱ بندِ ۸ هم همین را می‌گوید.
-   - اسم‌های قدیمیِ پیش از من در `claude-ui-buttons.js` (`chat`، `btn`، `KEY`، …).
+   - در `claude-ui-buttons.js` فقط ۲۵ کارِ کوچکِ درونِ یک کارِ دیگر (مثلِ `move`، `up`) و ثابت‌ها (`KEY`، `DEF`) ماندند؛ حبیب: «اکی». ۶۲ کارِ سطحِ فایل ۲۵ اکت ۰۵:۵۴ عوض شد (پایین).
 4. **باطل می‌شود اگر:**
    - در کد اسمِ قدیمی، اسمِ بزرگ‌حرفِ صادرشده، یا اسمِ چسبانده بیاید.
    - دفتر یا فایلِ چت با اسمِ قدیمی نوشته شود.
-   - فایلِ قدیمی دیگر خوانده نشود.
    - جدولِ JSON با جدولِ کد فرق کند.
    - حبیب بگوید `با واژه‌های من نیست`.
 5. **چک:**
@@ -114,3 +113,73 @@
 - واژهٔ فارسی با حروفِ لاتین می‌ماند (`do_jomle`، `dokme`، `kharj`). واژهٔ انگلیسی، همان املای انگلیسی را دارد (`copy`، `cache`، `context`، `profile`، `menu`، `panel`).
 - دفترها: `kontekst_token` ⇐ `context_token` شد، با پشتیبان در سطلِ زباله. چتی که هنوز ریلود نشده تا ریلود با اسمِ قدیم می‌نویسد.
 - چک: `"esmRule":{…,"bad_spell":[]}`. خرابکاری زده شد: یک `kash_` برگشت ⇒ قرمز.
+
+## ۶۲ کارِ `claude-ui-buttons.js` (۲۵ اکت ۰۵:۵۴، حبیب: «بزن همه ۶۲ تا رو عوض کن»)
+
+| قدیم | تازه |
+|---|---|
+| `sidFromState` | `khandan_shenase_chat_az_state` |
+| `askSession` | `porsidan_shenase_chat` |
+| `paintSession` | `neshan_shenase_chat` |
+| `guard` | `negahban_khata` |
+| `fresh` | `tanzim_pishfarz` |
+| `load` | `khandan_tanzim` |
+| `seedTop` | `gozashtan_dokme_pishfarz_bala` |
+| `sharedProfileNames` | `esm_profile_moshtarak` |
+| `save` | `zakhire_tanzim` |
+| `commands` | `dokme_ha` |
+| `applyCss` | `emal_andaze_va_rang` |
+| `input` | `kadr_tayp` |
+| `caretToEnd` | `bordan_cursor_be_akhar` |
+| `insertLines` | `gozashtan_khat_ha_dar_kadr` |
+| `type` | `neveshtan_dar_kadr` |
+| `typeLine` | `gozashtan_khat_dar_kadr` |
+| `send` | `ferestadan_payam` |
+| `setValue` | `jaygozini_matn_kadr` |
+| `clickMenu` | `click_menu` |
+| `btn` | `sakht_dokme` |
+| `row` | `sakht_radif` |
+| `sizeRow` | `radif_andaze` |
+| `wireHoverIntent` | `baz_shodan_ba_hover` |
+| `wireExpand` | `baz_kardan_payam` |
+| `wireBlocks` | `jam_kardan_fekr_va_abzar` |
+| `findBar` | `navar_jostojo` |
+| `closePanel` | `bastan_panel` |
+| `wireGlossary` | `vazhe_name_ru_kalame` |
+| `wirePanelDismiss` | `bastan_panel_ba_click_birun` |
+| `closeFind` | `bastan_jostojo` |
+| `wireFindEscape` | `bastan_jostojo_ba_esc` |
+| `clearMarks` | `pak_kardan_neshane` |
+| `withExtra` | `ba_matn_vizhe` |
+| `copyConversation` | `copy_hame` |
+| `quoteInto` | `naghl_dar_kadr` |
+| `ctxMenu` | `menu_rast_click` |
+| `wireQuoteMenu` | `menu_naghl` |
+| `counterTick` | `shomarande_nevise_tik` |
+| `syncCounter` | `shomarande_nevise` |
+| `applyPos` | `emal_ja_dokme` |
+| `makeDraggable` | `keshidani_kardan` |
+| `diagnose` | `tashkhis_khata` |
+| `clampReport` | `gozaresh_khat_payam_jam` |
+| `mirrorParity` | `barabari_kadr_va_ayne` |
+| `copyText` | `copy_matn` |
+| `exportable` | `tanzim_baraye_copy` |
+| `panelNote` | `neveshtan_yaddasht_panel` |
+| `copySettings` | `copy_tanzim` |
+| `loadFromFile` | `khandan_tanzim_az_file` |
+| `applyImported` | `emal_tanzim_vared_shode` |
+| `sideOf` | `samt_dokme` |
+| `topHost` | `ja_navar_bala` |
+| `runCommand` | `ejraye_dokme` |
+| `wireTopDrag` | `keshidan_navar_bala` |
+| `renderTop` | `sakht_navar_bala` |
+| `watchTop` | `payesh_navar_bala` |
+| `renderBars` | `sakht_dokme_kenar` |
+| `renderPanel` | `sakht_panel_aa` |
+| `renderToggle` | `sakht_dokme_charkhdande` |
+| `syncPanelRoom` | `ja_baz_kardan_baraye_panel` |
+| `rerender` | `sakht_dobare` |
+| `build` | `sakht_hame` |
+
+- `chatgpt-adapter.py` هم که این فایل را برای ChatGPT برش می‌دهد، با همین اسم‌ها به‌روز شد.
+- چک: `node test_claude_hooks_in_chat.cjs` (`btnTabe` باید `[]` باشد).

@@ -39,7 +39,7 @@
     var d = e.data;
     if (!d) return;
     if (d.type === 'crtl-session-info') {
-      if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; paintSession(); }
+      if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; neshan_shenase_chat(); }
       return;
     }
     var m = d.type === 'from-extension' && d.message;
@@ -51,21 +51,21 @@
   // its own sessionID in the tab's vscode state — read it, never write it.
   // vsApi exists only once the app has called acquireVsCodeApi; calling it
   // here first would change the app's start-up order.
-  function sidFromState() {
+  function khandan_shenase_chat_az_state() {
     try {
       var st = vsApi && vsApi.getState ? vsApi.getState() : null;
       var sid = st && st.sessionID;
       return typeof sid === 'string' && /^[0-9a-f-]{36}$/.test(sid) ? sid : '';
     } catch (e) { return ''; }
   }
-  function askSession() {
-    if (!SESSION.sid) SESSION.sid = sidFromState();
+  function porsidan_shenase_chat() {
+    if (!SESSION.sid) SESSION.sid = khandan_shenase_chat_az_state();
     SESSION.name = ''; SESSION.title = ''; SESSION.remote = ''; SESSION.card = ''; SESSION.pending = true;
-    paintSession();
+    neshan_shenase_chat();
     var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
     if (api && SESSION.sid) api.postMessage({ type: 'crtl-session-info', sid: SESSION.sid });
   }
-  function paintSession() {
+  function neshan_shenase_chat() {
     [['crtl-sess-title', SESSION.title], ['crtl-sess-remote', SESSION.remote], ['crtl-sess-name', SESSION.name], ['crtl-sess-id', SESSION.sid]].forEach(function (f) {
       var el = document.getElementById(f[0]);
       if (!el) return;
@@ -80,7 +80,7 @@
     ERRORS.push((e.message || 'error') + ' @ ' + (e.filename || '?') + ':' + (e.lineno || '?'));
     if (ERRORS.length > 6) ERRORS.shift();
   });
-  function guard(name, fn) {
+  function negahban_khata(name, fn) {
     return function () {
       try { return fn.apply(this, arguments); }
       catch (err) { ERRORS.push(name + ': ' + (err && err.message ? err.message : err)); throw err; }
@@ -144,7 +144,7 @@
     // on = ticked · pos = 'start' | 'end' · btn = also on the copy button
     // under a reply. List order decides who goes first.
     extras: [],
-    extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by load()
+    extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by khandan_tanzim()
   };
   var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook_font_px: [9, 20], hads_pori_darsad: [0, 100], lh: [11, 24] };
   var PRESETS = {
@@ -160,7 +160,7 @@
   // would share DEF's own `pos` and `profiles` objects — dragging a column or
   // saving a profile then wrote into the defaults themselves, and "rst" handed
   // those same polluted objects back. Everything nested gets its own copy.
-  function fresh() {
+  function tanzim_pishfarz() {
     var d = Object.assign({}, DEF);
     try { d = JSON.parse(JSON.stringify(d)); } catch (e) { d.pos = {}; d.profiles = {}; }
     if (!d.pos || typeof d.pos !== 'object') d.pos = {};
@@ -170,16 +170,16 @@
 
   // names before 25 Oct 2026 (تعریفِ ۱۰ ِ پروژه): a value saved under the old name is read as the new one
   var esm_ghadim_tanzim = { hook: 'hook_font_px', hadsAlpha: 'hads_pori_darsad' };
-  function load() {
+  function khandan_tanzim() {
     var s;
     try {
       var raw = JSON.parse(localStorage.getItem(KEY) || '{}');
       Object.keys(esm_ghadim_tanzim).forEach(function (ghadim) {
         if (ghadim in raw) { if (!(esm_ghadim_tanzim[ghadim] in raw)) raw[esm_ghadim_tanzim[ghadim]] = raw[ghadim]; delete raw[ghadim]; }
       });
-      s = Object.assign(fresh(), raw);
+      s = Object.assign(tanzim_pishfarz(), raw);
     }
-    catch (e) { s = fresh(); }
+    catch (e) { s = tanzim_pishfarz(); }
     Object.keys(LIMITS).forEach(function (k) {
       var lo = LIMITS[k][0], hi = LIMITS[k][1];
       if (typeof s[k] !== 'number' || isNaN(s[k])) s[k] = DEF[k];
@@ -201,13 +201,13 @@
         s.extras.push({ text: old, on: true, pos: s.extraPos === 'start' ? 'start' : 'end', btn: !!s.extraOnCopyBtn });
       s.extraText = '';
     }
-    seedTop(s);
+    gozashtan_dokme_pishfarz_bala(s);
     return s;
   }
   // A list saved before the top row existed never reads DEFAULT_COMMANDS
   // again, so each default top button is appended to it once. `seeded`
   // remembers every label handed over, so one the user deleted stays gone.
-  function seedTop(s) {
+  function gozashtan_dokme_pishfarz_bala(s) {
     var seeded = Array.isArray(s.seeded) ? s.seeded.slice() : [];
     var saved = Array.isArray(s.commands) && s.commands.length;
     DEFAULT_COMMANDS.forEach(function (c) {
@@ -218,11 +218,11 @@
     });
     s.seeded = seeded;
   }
-  function sharedProfileNames() {
+  function esm_profile_moshtarak() {
     return (DEF.profiles && typeof DEF.profiles === 'object') ? Object.keys(DEF.profiles) : [];
   }
-  function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
-  function commands(s) {
+  function zakhire_tanzim(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function dokme_ha(s) {
     if (Array.isArray(s.commands) && s.commands.length) return s.commands;
     return DEFAULT_COMMANDS;
   }
@@ -338,7 +338,7 @@
     '#crtl-ctx button:hover{background:rgba(127,127,127,.28)}'
   ].join('');
 
-  function applyCss(s) {
+  function emal_andaze_va_rang(s) {
     var el = document.getElementById('crtl-size-style');
     if (!el) {
       el = document.createElement('style');
@@ -427,7 +427,7 @@
   }
 
   /* ---------------- composer helpers ---------------- */
-  function input() {
+  function kadr_tayp() {
     return document.querySelector('[aria-label="Message input"]')
         || document.querySelector('textarea')
         || document.querySelector('[contenteditable="true"]');
@@ -439,7 +439,7 @@
   // break to it, so a quote followed by typing ended up glued onto the quote's
   // last line. Text goes in the same way the app puts it in: caret at the end,
   // plain runs through insertText, every newline through insertLineBreak.
-  function caretToEnd(el) {
+  function bordan_cursor_be_akhar(el) {
     var sel = window.getSelection();
     if (!sel) return;
     var r = document.createRange();
@@ -449,7 +449,7 @@
     sel.addRange(r);
   }
 
-  function insertLines(text) {
+  function gozashtan_khat_ha_dar_kadr(text) {
     var parts = String(text).replace(/\r\n?/g, '\n').split('\n');
     parts.forEach(function (run, i) {
       if (i > 0) document.execCommand('insertLineBreak');
@@ -457,9 +457,9 @@
     });
   }
 
-  function type(el, text) {
+  function neveshtan_dar_kadr(el, text) {
     el.focus();
-    if (el.isContentEditable) { caretToEnd(el); insertLines(text); return; }
+    if (el.isContentEditable) { bordan_cursor_be_akhar(el); gozashtan_khat_ha_dar_kadr(text); return; }
     var proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
     Object.getOwnPropertyDescriptor(proto.prototype, 'value').set
       .call(el, (el.value ? el.value + ' ' : '') + text);
@@ -468,12 +468,12 @@
 
   // Top-row texts are whole sentences: each one starts on its own line
   // instead of being glued to whatever is already in the composer.
-  function typeLine(el, text) {
+  function gozashtan_khat_dar_kadr(el, text) {
     el.focus();
     if (el.isContentEditable) {
-      caretToEnd(el);
+      bordan_cursor_be_akhar(el);
       if ((el.textContent || '').trim()) document.execCommand('insertLineBreak');
-      insertLines(text);
+      gozashtan_khat_ha_dar_kadr(text);
       return;
     }
     var proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
@@ -482,7 +482,7 @@
     el.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  function send(el) {
+  function ferestadan_payam(el) {
     ['keydown', 'keypress', 'keyup'].forEach(function (t) {
       el.dispatchEvent(new KeyboardEvent(t, {
         key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true
@@ -490,11 +490,11 @@
     });
   }
 
-  function setValue(el, v) {
+  function jaygozini_matn_kadr(el, v) {
     el.focus();
     if (el.isContentEditable) {
       document.execCommand('selectAll', false, null);
-      if (v) insertLines(v);
+      if (v) gozashtan_khat_ha_dar_kadr(v);
       else document.execCommand('delete', false, null);
       return;
     }
@@ -504,7 +504,7 @@
   }
 
   // Open the actions menu ("/") and click an item by its label, then clean up.
-  function clickMenu(label) {
+  function click_menu(label) {
     function hit() {
       var nodes = document.querySelectorAll('[role="option"],[role="menuitem"],button,li,div');
       for (var i = 0; i < nodes.length; i++) {
@@ -516,11 +516,11 @@
       return false;
     }
     if (hit()) return;
-    var el = input();
+    var el = kadr_tayp();
     if (!el) return;
     function read() { return (el.isContentEditable ? el.textContent : el.value) || ''; }
     var before = read();
-    setValue(el, '/');
+    jaygozini_matn_kadr(el, '/');
     setTimeout(function () {
       hit();
       setTimeout(function () {
@@ -528,13 +528,13 @@
         // writes into the composer itself, and restoring `before` on top of
         // that threw the item's own text away.
         var now = read();
-        if (now === '/' || now === '') setValue(el, before);
+        if (now === '/' || now === '') jaygozini_matn_kadr(el, before);
       }, 120);
     }, 350);
   }
 
   /* ---------------- small DOM helpers ---------------- */
-  function btn(label, title, onClick, cls) {
+  function sakht_dokme(label, title, onClick, cls) {
     var b = document.createElement('button');
     b.className = 'crtl-btn' + (cls ? ' ' + cls : '');
     b.type = 'button';
@@ -544,7 +544,7 @@
     return b;
   }
 
-  function row(labelText, control) {
+  function sakht_radif(labelText, control) {
     var r = document.createElement('div');
     r.className = 'crtl-row';
     var l = document.createElement('label');
@@ -555,7 +555,7 @@
   }
 
   // a slider and a number box that stay in sync and share one commit path
-  function sizeRow(labelText, field, s, onChange) {
+  function radif_andaze(labelText, field, s, onChange) {
     var lo = LIMITS[field][0], hi = LIMITS[field][1];
     var wrap = document.createElement('div');
     wrap.className = 'crtl-row';
@@ -583,7 +583,7 @@
   // it on the way somewhere else. The message now opens only after the pointer
   // has rested on it for HOVER_DELAY ms, and closes as soon as it leaves.
   var HOVER_DELAY = 700;
-  function wireHoverIntent() {
+  function baz_shodan_ba_hover() {
     if (document.__crtlHoverWired) return;
     document.__crtlHoverWired = true;
     var timer = null, pending = null;
@@ -605,11 +605,11 @@
   }
 
   /* ---------------- click-to-expand on user messages ---------------- */
-  function wireExpand() {
+  function baz_kardan_payam() {
     if (document.__crtlExpandWired) return;
     document.__crtlExpandWired = true;
     document.addEventListener('click', function (e) {
-      var s = load();
+      var s = khandan_tanzim();
       if (!s.lines) return;
       // A click meant for a link, a button or a text selection must reach the
       // app untouched — swallowing it stole the first click on anything
@@ -638,11 +638,11 @@
   }
 
   // Clicking a folded Thinking/tool-call block pins it open.
-  function wireBlocks() {
+  function jam_kardan_fekr_va_abzar() {
     if (document.__crtlBlocksWired) return;
     document.__crtlBlocksWired = true;
     document.addEventListener('click', function (e) {
-      if (!load().collapse) return;
+      if (!khandan_tanzim().collapse) return;
       var n = e.target;
       while (n && n !== document.body) {
         var c = typeof n.className === 'string' ? n.className : '';
@@ -656,9 +656,9 @@
   }
 
   /* ---------------- find in conversation ---------------- */
-  function findBar() {
+  function navar_jostojo() {
     var old = document.getElementById('crtl-find');
-    if (old) { old.remove(); clearMarks(); return; }
+    if (old) { old.remove(); pak_kardan_neshane(); return; }
     var box = document.createElement('div');
     box.id = 'crtl-find';
     box.className = 'crtl-panel crtl-open';
@@ -672,7 +672,7 @@
     info.className = 'crtl-note';
     var idx = 0, hits = [];
     function run() {
-      clearMarks();
+      pak_kardan_neshane();
       hits = [];
       idx = 0;
       var q = inp.value.trim();
@@ -690,7 +690,7 @@
     }
     inp.addEventListener('input', run);
     inp.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); closeFind(); return; }
+      if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); bastan_jostojo(); return; }
       if (e.key !== 'Enter' || !hits.length) return;
       e.preventDefault();
       idx = (idx + 1) % hits.length;
@@ -701,7 +701,7 @@
     close.type = 'button';
     close.textContent = '✕ بستن (Esc)';
     close.className = 'crtl-btn';
-    close.addEventListener('click', closeFind);
+    close.addEventListener('click', bastan_jostojo);
     box.appendChild(inp);
     box.appendChild(info);
     box.appendChild(close);
@@ -711,11 +711,11 @@
 
   // Escape has to reach this from anywhere: the app swallows keys inside the
   // composer, so the listener sits on the document in the capture phase.
-  function closePanel() {
+  function bastan_panel() {
     var p = document.getElementById('crtl-panel');
     if (!p || !p.classList.contains('crtl-open')) return false;
     p.classList.remove('crtl-open');
-    syncPanelRoom(p);
+    ja_baz_kardan_baraye_panel(p);
     return true;
   }
 
@@ -727,7 +727,7 @@
   // get a dotted underline; resting on one for GLOSS_DELAY ms opens its card.
   // A new card shows up after the patch re-runs and the window reloads.
   var GLOSS_DELAY = 600;
-  function wireGlossary() {
+  function vazhe_name_ru_kalame() {
     var G = window.__CRTL_GLOSSARY;
     if (!G || document.__crtlGlossWired) return;
     document.__crtlGlossWired = true;
@@ -812,16 +812,16 @@
 
     var box = null, timer = null, hideT = null, cur = null;
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-    function row(k, v, cls) { return v ? '<div class="r"><span class="k">' + k + ':</span> <span class="' + (cls || '') + '">' + v + '</span></div>' : ''; }
+    function sakht_radif(k, v, cls) { return v ? '<div class="r"><span class="k">' + k + ':</span> <span class="' + (cls || '') + '">' + v + '</span></div>' : ''; }
     function render(name) {
       return G[name].map(function (e) {
         var h = '<div class="h">' + esc(name) + '  <span class="k">(' + esc(e.p) + ')</span></div>';
-        h += row('یعنی', esc(e.yani));
-        if (e.val) h += row('مقدار فعلی در برگه', '<span dir="ltr">' + esc(e.val.v) + '</span>');
-        h += row('نویسنده', esc(e.ozv));
-        if (e.kh && e.kh.length) h += row('خواننده‌ها', esc(e.kh.join('، ')));
-        h += row('چرا', esc(e.chera));
-        h += row('تأیید', esc(e.tayid), /پیشنهاد/.test(e.tayid || '') ? 'pend' : '');
+        h += sakht_radif('یعنی', esc(e.yani));
+        if (e.val) h += sakht_radif('مقدار فعلی در برگه', '<span dir="ltr">' + esc(e.val.v) + '</span>');
+        h += sakht_radif('نویسنده', esc(e.ozv));
+        if (e.kh && e.kh.length) h += sakht_radif('خواننده‌ها', esc(e.kh.join('، ')));
+        h += sakht_radif('چرا', esc(e.chera));
+        h += sakht_radif('تأیید', esc(e.tayid), /پیشنهاد/.test(e.tayid || '') ? 'pend' : '');
         // "maghz/maghz.py:61,124" ⇒ a link that opens the file at line 61
         if (e.loc && e.loc.length) h += '<div class="r"><span class="k">فایل:خط</span>' + e.loc.map(function (l) {
           var m = /^(.*?):(\d+)/.exec(l), f = m ? m[1] : l;
@@ -893,7 +893,7 @@
     }, true);
   }
 
-  function wirePanelDismiss() {
+  function bastan_panel_ba_click_birun() {
     if (document.__crtlDismissWired) return;
     document.__crtlDismissWired = true;
     document.addEventListener('mousedown', function (e) {
@@ -902,26 +902,26 @@
       if (p.contains(e.target)) return;
       // the gear column carries the aA toggle; let it do its own toggling
       if (e.target.closest && e.target.closest('.crtl-bar')) return;
-      closePanel();
+      bastan_panel();
     }, true);
   }
 
-  function closeFind() {
+  function bastan_jostojo() {
     var box = document.getElementById('crtl-find');
     if (!box) return false;
     box.remove();
-    clearMarks();
+    pak_kardan_neshane();
     return true;
   }
-  function wireFindEscape() {
+  function bastan_jostojo_ba_esc() {
     if (document.__crtlFindEscWired) return;
     document.__crtlFindEscWired = true;
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape' && e.key !== 'Esc') return;
-      if (closeFind() || closePanel()) { e.preventDefault(); e.stopPropagation(); }
+      if (bastan_jostojo() || bastan_panel()) { e.preventDefault(); e.stopPropagation(); }
     }, true);
   }
-  function clearMarks() {
+  function pak_kardan_neshane() {
     var m = document.querySelectorAll('.crtl-hit');
     for (var i = 0; i < m.length; i++) m[i].classList.remove('crtl-hit');
   }
@@ -929,8 +929,8 @@
   // the text from the aA panel, glued before or after — a blank line between
   // from = 'menu' (right-click: every ticked text) or 'btn' (the copy button
   // under a reply: only ticked texts that also have their 📋 on)
-  function withExtra(text, from) {
-    var list = (load().extras || []).filter(function (x) {
+  function ba_matn_vizhe(text, from) {
+    var list = (khandan_tanzim().extras || []).filter(function (x) {
       return x && x.on && String(x.text || '').trim() && (from !== 'btn' || x.btn);
     });
     var pick = function (start) {
@@ -956,7 +956,7 @@
     var wrapped = function (t) {
       var hit = Date.now() < armedUntil;
       armedUntil = 0;
-      if (hit && typeof t === 'string') t = withExtra(t, 'btn');
+      if (hit && typeof t === 'string') t = ba_matn_vizhe(t, 'btn');
       return orig(t);
     };
     wrapped.__crtl = true;
@@ -964,7 +964,7 @@
   })();
 
   /* ---------------- copy the conversation ---------------- */
-  function copyConversation() {
+  function copy_hame() {
     var root = document.querySelector('[class*="messagesContainer_"]');
     if (!root) return 'گفتگویی پیدا نشد';
     var parts = [];
@@ -976,22 +976,22 @@
     });
     var md = parts.join('\n\n---\n\n');
     var msg = parts.length + ' پیام کپی شد';
-    copyText(md, function () { panelNote(msg); },
-             function () { panelNote('کلیپ‌بورد اجازه نداد'); });
+    copy_matn(md, function () { neveshtan_yaddasht_panel(msg); },
+             function () { neveshtan_yaddasht_panel('کلیپ‌بورد اجازه نداد'); });
     return msg;
   }
 
   /* ---------------- quote a selection into the composer ---------------- */
-  function quoteInto(text, asQuote) {
-    var el = input();
+  function naghl_dar_kadr(text, asQuote) {
+    var el = kadr_tayp();
     if (!el) return;
     var body = asQuote ? text.split('\n').map(function (l) { return '> ' + l; }).join('\n') : text;
     var cur = el.isContentEditable ? el.textContent : el.value;
     // start the quote on its own line when the composer already has something
-    type(el, (cur && !/\n$/.test(cur) ? '\n' : '') + body + '\n\n');
+    neveshtan_dar_kadr(el, (cur && !/\n$/.test(cur) ? '\n' : '') + body + '\n\n');
   }
 
-  function ctxMenu() {
+  function menu_rast_click() {
     var m = document.getElementById('crtl-ctx');
     if (m) return m;
     m = document.createElement('div');
@@ -1004,12 +1004,12 @@
     return m;
   }
 
-  function wireQuoteMenu() {
+  function menu_naghl() {
     if (document.__crtlCtxWired) return;
     document.__crtlCtxWired = true;
 
     document.addEventListener('contextmenu', function (e) {
-      if (!load().quoteMenu) return;
+      if (!khandan_tanzim().quoteMenu) return;
       var sel = window.getSelection();
       var text = sel ? sel.toString().trim() : '';
       if (!text) return;
@@ -1025,34 +1025,34 @@
       if (!inside) return;
 
       e.preventDefault();
-      var m = ctxMenu();
+      var m = menu_rast_click();
       m.textContent = '';
       var short = text.length > 30 ? text.slice(0, 30) + '…' : text;
 
       [
-        ['⧉ کپی با الصاق متن ویژه', function () { copyText(withExtra(text, 'menu')); }],
-        ['↩︎ نقل‌قول در چت', function () { quoteInto(text, true); }],
-        ['✎ بدون علامت نقل‌قول', function () { quoteInto(text, false); }],
-        ['⧉ کپی', function () { copyText(text); }],
+        ['⧉ کپی با الصاق متن ویژه', function () { copy_matn(ba_matn_vizhe(text, 'menu')); }],
+        ['↩︎ نقل‌قول در چت', function () { naghl_dar_kadr(text, true); }],
+        ['✎ بدون علامت نقل‌قول', function () { naghl_dar_kadr(text, false); }],
+        ['⧉ کپی', function () { copy_matn(text); }],
         ['🔍 جست‌وجوی همین متن', function () {
           var box = document.getElementById('crtl-find');
-          if (!box) findBar();
+          if (!box) navar_jostojo();
           var inp = document.querySelector('#crtl-find input');
           if (inp) { inp.value = text.slice(0, 60); inp.dispatchEvent(new Event('input')); }
         }],
         ['؟ بپرس دربارهٔ «' + short + '»', function () {
-          quoteInto(text, true);
-          var el = input();
-          if (el) type(el, 'دربارهٔ این بخش توضیح بده: ');
+          naghl_dar_kadr(text, true);
+          var el = kadr_tayp();
+          if (el) neveshtan_dar_kadr(el, 'دربارهٔ این بخش توضیح بده: ');
         }]
-      ].forEach(function (row) {
+      ].forEach(function (sakht_radif) {
         var b = document.createElement('button');
         b.type = 'button';
-        b.textContent = row[0];
+        b.textContent = sakht_radif[0];
         b.addEventListener('click', function (ev) {
           ev.preventDefault();
           m.style.display = 'none';
-          row[1]();
+          sakht_radif[1]();
         });
         m.appendChild(b);
       });
@@ -1074,7 +1074,7 @@
       var text = sel ? sel.toString().trim() : '';
       if (!text) return;
       e.preventDefault();
-      quoteInto(text, true);
+      naghl_dar_kadr(text, true);
     });
   }
 
@@ -1084,10 +1084,10 @@
   // counter is on, and the expensive usage scan runs once every ten ticks.
   var counterTimer = null, usageCache = '', usageTick = 0;
 
-  function counterTick() {
+  function shomarande_nevise_tik() {
     var tag = document.getElementById('crtl-count');
     if (!tag) return;
-    var el = input();
+    var el = kadr_tayp();
     var txt = el ? (el.isContentEditable ? el.textContent : el.value) || '' : '';
     if (usageTick-- <= 0) {
       usageTick = 10;
@@ -1102,11 +1102,11 @@
     tag.textContent = txt.length + ' نویسه' + (usageCache ? ' · ' + usageCache : '');
   }
 
-  function syncCounter(s) {
+  function shomarande_nevise(s) {
     if (s.counter && !counterTimer) {
       usageTick = 0;
-      counterTimer = setInterval(counterTick, 1000);
-      counterTick();
+      counterTimer = setInterval(shomarande_nevise_tik, 1000);
+      shomarande_nevise_tik();
     } else if (!s.counter && counterTimer) {
       clearInterval(counterTimer);
       counterTimer = null;
@@ -1116,7 +1116,7 @@
   }
 
   /* ---------------- dragging the button columns ---------------- */
-  function applyPos(bar, s) {
+  function emal_ja_dokme(bar, s) {
     var p = s.pos[bar.dataset.side];
     if (p && typeof p.y === 'number') {
       bar.style.bottom = 'auto';
@@ -1128,7 +1128,7 @@
     }
   }
 
-  function makeDraggable(bar, grip) {
+  function keshidani_kardan(bar, grip) {
     grip.addEventListener('mousedown', function (e) {
       e.preventDefault();
       var rect = bar.getBoundingClientRect();
@@ -1142,9 +1142,9 @@
       function up(ev) {
         document.removeEventListener('mousemove', move);
         document.removeEventListener('mouseup', up);
-        var s = load();
+        var s = khandan_tanzim();
         s.pos[bar.dataset.side] = { x: ev.clientX - dx, y: ev.clientY - dy };
-        save(s);
+        zakhire_tanzim(s);
       }
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
@@ -1155,7 +1155,7 @@
   /* ---------------- self-diagnosis ---------------- */
   // "It stopped working" is unactionable from here, so the panel can report
   // exactly which anchor the patch failed to find, plus any captured error.
-  function diagnose() {
+  function tashkhis_khata() {
     function n(sel) { try { return document.querySelectorAll(sel).length; } catch (e) { return 'ERR'; } }
     var st = document.getElementById('crtl-size-style');
     var lsOK = 'yes';
@@ -1167,7 +1167,7 @@
       'message_           : ' + n('[class*="message_"]'),
       'thinking/toolCall  : ' + n('[class*="thinking"],[class*="Thinking"],[class*="toolCall"],[class*="ToolCall"]'),
       'messageInput_      : ' + n('[class*="messageInput_"]'),
-      'composer found     : ' + (input() ? 'yes (' + (input().tagName || '?') + ')' : 'NO'),
+      'composer found     : ' + (kadr_tayp() ? 'yes (' + (kadr_tayp().tagName || '?') + ')' : 'NO'),
       'button bars        : ' + n('.crtl-bar:not(.crtl-gear)'),
       'settings panels    : ' + n('#crtl-panel') + ' (class .crtl-panel: ' + n('.crtl-panel') + ')',
       'size <style>       : ' + (st ? st.textContent.length + ' chars' : 'MISSING'),
@@ -1179,11 +1179,11 @@
       'copy (async API)   : ' + (navigator.clipboard && navigator.clipboard.writeText ? 'present' : 'absent'),
       'errors             : ' + (ERRORS.length ? ERRORS.join(' | ') : 'none')
     ];
-    return lines.concat(mirrorParity(), clampReport()).join('\n');
+    return lines.concat(barabari_kadr_va_ayne(), gozaresh_khat_payam_jam()).join('\n');
   }
 
   // How many lines a collapsed user message actually ends up showing.
-  function clampReport() {
+  function gozaresh_khat_payam_jam() {
     var m = document.querySelector('[class*="userMessage_"]');
     if (!m) return ['', 'user message      : none on screen'];
     var c = m.querySelector('[class*="content_"]') || m;
@@ -1191,7 +1191,7 @@
     var lh = parseFloat(cs.lineHeight) || 0;
     var shown = lh ? Math.round(c.clientHeight / lh * 10) / 10 : '?';
     return ['', 'user message clamp:',
-      '  setting        ' + load().lines + ' line(s)',
+      '  setting        ' + khandan_tanzim().lines + ' line(s)',
       '  target found   ' + (c === m ? 'content_ MISSING (fell back to userMessage_)' : 'content_'),
       '  line-clamp     ' + (cs.webkitLineClamp || cs.getPropertyValue('-webkit-line-clamp') || 'none'),
       '  rendered lines ' + shown];
@@ -1200,7 +1200,7 @@
   // The composer paints its text transparent and shows an absolutely positioned
   // mirror instead, so the two layers must agree on every metric. Any row that
   // says MISMATCH is a caret landing in the wrong place.
-  function mirrorParity() {
+  function barabari_kadr_va_ayne() {
     var inp = document.querySelector('[class*="messageInput_"]');
     var mir = document.querySelector('[class*="mentionMirror_"]');
     if (!inp || !mir) return ['', 'input vs mirror   : ' + (inp ? 'mirror MISSING' : 'input MISSING')];
@@ -1225,7 +1225,7 @@
   // permissions policy anyway; the old execCommand path still works because it
   // runs synchronously inside the click gesture. Both are tried, and failure is
   // reported honestly.
-  function copyText(txt, onOK, onFail) {
+  function copy_matn(txt, onOK, onFail) {
     var tmp = document.createElement('textarea');
     tmp.value = txt;
     tmp.setAttribute('readonly', '');
@@ -1253,8 +1253,8 @@
   // The webview cannot write to disk on its own, but it can hand the browser a
   // file to save and read one the user picks — which is all that is needed to
   // carry a profile from one IDE to another.
-  function exportable() {
-    var cur = load();
+  function tanzim_baraye_copy() {
+    var cur = khandan_tanzim();
     return { chat: cur.chat, code: cur.code, chrome: cur.chrome, btn: cur.btn,
              lines: cur.lines, side: cur.side, collapse: cur.collapse,
              tableScroll: cur.tableScroll, accent: cur.accent,
@@ -1264,7 +1264,7 @@
              profiles: cur.profiles, commands: cur.commands };
   }
 
-  function panelNote(msg) {
+  function neveshtan_yaddasht_panel(msg) {
     var n = document.querySelector('#crtl-panel .crtl-note');
     if (n) n.textContent = msg;
   }
@@ -1274,21 +1274,21 @@
   // The webview CSP is `default-src 'none'`, so writing a file from here is
   // impossible — no blob download, no save picker. The clipboard is the one
   // channel that always works, so copy-here / paste-there is the main route.
-  function copySettings() {
-    var txt = JSON.stringify(exportable(), null, 2);
+  function copy_tanzim() {
+    var txt = JSON.stringify(tanzim_baraye_copy(), null, 2);
     var ta = document.getElementById('crtl-io');
     // the text lands in the visible box first, so a blocked clipboard still
     // leaves something the user can select and copy by hand
     if (ta) { ta.value = txt; }
-    copyText(txt,
-      function () { panelNote('کپی شد ✓ — در IDE دیگر داخل همین کادر پیست کن'); },
+    copy_matn(txt,
+      function () { neveshtan_yaddasht_panel('کپی شد ✓ — در IDE دیگر داخل همین کادر پیست کن'); },
       function () {
         if (ta) { ta.focus(); ta.select(); }
-        panelNote('کلیپ‌بورد اجازه نداد — متن در کادر انتخاب شد، Cmd+C بزن');
+        neveshtan_yaddasht_panel('کلیپ‌بورد اجازه نداد — متن در کادر انتخاب شد، Cmd+C بزن');
       });
   }
 
-  function loadFromFile() {
+  function khandan_tanzim_az_file() {
     var inp = document.createElement('input');
     inp.type = 'file';
     inp.accept = '.json,application/json';
@@ -1298,35 +1298,35 @@
       inp.remove();
       if (!f) return;
       var r = new FileReader();
-      r.onload = function () { applyImported(String(r.result), f.name); };
-      r.onerror = function () { panelNote('فایل خوانده نشد'); };
+      r.onload = function () { emal_tanzim_vared_shode(String(r.result), f.name); };
+      r.onerror = function () { neveshtan_yaddasht_panel('فایل خوانده نشد'); };
       r.readAsText(f);
     });
     document.body.appendChild(inp);
     inp.click();
   }
 
-  function applyImported(txt, fileName) {
+  function emal_tanzim_vared_shode(txt, fileName) {
     var incoming;
     try { incoming = JSON.parse(txt); }
-    catch (e) { panelNote('این فایل JSON معتبر نیست'); return; }
+    catch (e) { neveshtan_yaddasht_panel('این فایل JSON معتبر نیست'); return; }
     if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) {
-      panelNote('ساختار فایل درست نیست'); return;
+      neveshtan_yaddasht_panel('ساختار فایل درست نیست'); return;
     }
-    var cur = load();
+    var cur = khandan_tanzim();
     var mergedProfiles = Object.assign({}, cur.profiles, incoming.profiles || {});
     var merged = Object.assign(cur, incoming);
     merged.profiles = mergedProfiles;
-    save(merged);
+    zakhire_tanzim(merged);
     draftCommands = null;
-    applyCss(load());
-    rerender();
-    panelNote('«' + (fileName || FILE_NAME) + '» خوانده شد ✓ — ' +
+    emal_andaze_va_rang(khandan_tanzim());
+    sakht_dobare();
+    neveshtan_yaddasht_panel('«' + (fileName || FILE_NAME) + '» خوانده شد ✓ — ' +
               Object.keys(mergedProfiles).length + ' پروفایل');
   }
 
   /* ---------------- rendering ---------------- */
-  function sideOf(cmd, s) {
+  function samt_dokme(cmd, s) {
     if (cmd.side === 'top') return 'top';
     if (s.side === 'left' || s.side === 'right') return s.side;
     return cmd.side || 'right';
@@ -1335,7 +1335,7 @@
   // The empty stretch of the header between the chat name and its icons.
   // Found by shape, not by hashed class, and null when a new Claude build
   // moves it — the caller then falls back to the left column.
-  function topHost() {
+  function ja_navar_bala() {
     var sp = document.querySelectorAll('[class*="headerSpacer_"]');
     for (var i = 0; i < sp.length; i++) {
       var head = sp[i].closest('[class*="header_"]');
@@ -1344,18 +1344,18 @@
     return null;
   }
 
-  function runCommand(c, line) {
-    if (c.menu) { clickMenu(c.menu); return; }
-    var el = input();
+  function ejraye_dokme(c, line) {
+    if (c.menu) { click_menu(c.menu); return; }
+    var el = kadr_tayp();
     if (!el) return;
-    if (line) typeLine(el, c.text || ''); else type(el, c.text);
-    if (c.send) setTimeout(function () { send(el); }, 60);
+    if (line) gozashtan_khat_dar_kadr(el, c.text || ''); else neveshtan_dar_kadr(el, c.text);
+    if (c.send) setTimeout(function () { ferestadan_payam(el); }, 60);
   }
 
   // Drag a top button onto another to move it there. Under 5px of travel
   // it is a plain click; past that the click that follows is swallowed.
   var DRAG_PX = 5;
-  function wireTopDrag(b, bar) {
+  function keshidan_navar_bala(b, bar) {
     b.addEventListener('mousedown', function (e) {
       if (e.button !== 0) return;
       var x0 = e.clientX, y0 = e.clientY, moved = false;
@@ -1377,41 +1377,41 @@
         var r = tgt.getBoundingClientRect();
         // the row runs right-to-left: dropping on a button's right half puts it before that button
         var before = ev.clientX > r.left + r.width / 2;
-        var cur = load();
-        var list = commands(cur).slice();
+        var cur = khandan_tanzim();
+        var list = dokme_ha(cur).slice();
         var from = +b.dataset.i, to = +tgt.dataset.i;
         var item = list.splice(from, 1)[0];
         if (from < to) to--;
         list.splice(before ? to : to + 1, 0, item);
-        cur.commands = list; save(cur);
+        cur.commands = list; zakhire_tanzim(cur);
         draftCommands = null;
-        rerender();
+        sakht_dobare();
       }
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
     });
   }
 
-  function renderTop(s) {
+  function sakht_navar_bala(s) {
     var old = document.querySelectorAll('.crtl-top');
     for (var i = 0; i < old.length; i++) {
       if (old[i].parentNode) old[i].parentNode.classList.remove('crtl-top-host');
       old[i].remove();
     }
-    var all = commands(s);
-    var host = topHost();
-    if (!host || !all.some(function (c) { return sideOf(c, s) === 'top'; })) return !!host;
+    var all = dokme_ha(s);
+    var host = ja_navar_bala();
+    if (!host || !all.some(function (c) { return samt_dokme(c, s) === 'top'; })) return !!host;
     var bar = document.createElement('div');
     bar.className = 'crtl-bar crtl-top';
     bar.dataset.side = 'top';
     all.forEach(function (c, idx) {
-      if (sideOf(c, s) !== 'top') return;
-      var b = btn(c.label, c.text || c.menu || '', function () {
+      if (samt_dokme(c, s) !== 'top') return;
+      var b = sakht_dokme(c.label, c.text || c.menu || '', function () {
         if (b.dataset.dragged) return;
-        runCommand(c, true);
+        ejraye_dokme(c, true);
       });
       b.dataset.i = idx;
-      wireTopDrag(b, bar);
+      keshidan_navar_bala(b, bar);
       bar.appendChild(b);
     });
     bar.addEventListener('wheel', function (e) {
@@ -1425,29 +1425,29 @@
 
   // React rebuilds the header on a session switch, taking the row with it.
   var topWatch = null;
-  function watchTop() {
+  function payesh_navar_bala() {
     if (topWatch) return;
     topWatch = setInterval(function () {
-      var s = load();
-      if (!commands(s).some(function (c) { return sideOf(c, s) === 'top'; })) return;
+      var s = khandan_tanzim();
+      if (!dokme_ha(s).some(function (c) { return samt_dokme(c, s) === 'top'; })) return;
       var bar = document.querySelector('.crtl-top');
-      var host = topHost();
+      var host = ja_navar_bala();
       if (bar && host && host.contains(bar)) return;
       if (!bar && !host && document.querySelector('.crtl-bar[data-side="left"] [data-top]')) return;
-      if (host && !document.querySelector('[data-top]')) { renderTop(s); return; }
-      rerender();
+      if (host && !document.querySelector('[data-top]')) { sakht_navar_bala(s); return; }
+      sakht_dobare();
     }, 1500);
   }
 
-  function renderBars(s) {
+  function sakht_dokme_kenar(s) {
     var old = document.querySelectorAll('.crtl-bar:not(.crtl-top)');
     for (var i = 0; i < old.length; i++) old[i].remove();
-    var topOK = renderTop(s);
-    watchTop();
+    var topOK = sakht_navar_bala(s);
+    payesh_navar_bala();
 
     ['left', 'right'].forEach(function (side) {
-      var items = commands(s).filter(function (c) {
-        var at = sideOf(c, s);
+      var items = dokme_ha(s).filter(function (c) {
+        var at = samt_dokme(c, s);
         return at === side || (at === 'top' && !topOK && side === 'left');
       });
       if (!items.length) return;
@@ -1463,21 +1463,21 @@
 
       items.forEach(function (c) {
         var top = c.side === 'top';
-        var b = btn(c.label, c.text || c.menu || '', function () { runCommand(c, top); });
+        var b = sakht_dokme(c.label, c.text || c.menu || '', function () { ejraye_dokme(c, top); });
         if (top) b.dataset.top = '1';
         bar.appendChild(b);
       });
 
       document.body.appendChild(bar);
-      applyPos(bar, s);
-      makeDraggable(bar, grip);
+      emal_ja_dokme(bar, s);
+      keshidani_kardan(bar, grip);
     });
   }
 
   var draftCommands = null;      // unsaved text sitting in the JSON editor
   var draftProfileName = '';     // profile name typed but not saved yet
 
-  function renderPanel(s) {
+  function sakht_panel_aa(s) {
     var old = document.getElementById('crtl-panel');
     var wasOpen = old && old.classList.contains('crtl-open');
     if (old) old.remove();
@@ -1493,10 +1493,10 @@
     note.className = 'crtl-note';
 
     function set(field, value) {
-      var cur = load();
+      var cur = khandan_tanzim();
       cur[field] = value;
-      save(cur);
-      applyCss(cur);
+      zakhire_tanzim(cur);
+      emal_andaze_va_rang(cur);
     }
 
     // this chat's names — re-read every time the panel opens. One button
@@ -1513,14 +1513,14 @@
       val.style.cssText = 'flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:text' +
         (f[2] === 'title' || f[2] === 'remote' ? '' : ';direction:ltr');
       if (f[2] === 'title' || f[2] === 'remote') val.dir = 'auto';
-      panel.appendChild(row(f[0], val));
+      panel.appendChild(sakht_radif(f[0], val));
     });
     var cpRow = document.createElement('div');
     cpRow.className = 'crtl-actions';
-    var cpAll = btn('کپی همه', 'همهٔ مشخصات این چت را یک‌جا کپی کن — برای پیام دادن از دستگاه دیگر', function () {
+    var cpAll = sakht_dokme('کپی همه', 'همهٔ مشخصات این چت را یک‌جا کپی کن — برای پیام دادن از دستگاه دیگر', function () {
       var v = SESSION.card;
       if (!v) { cpAll.textContent = 'هنوز آماده نیست'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); return; }
-      copyText(v, function () { cpAll.textContent = '✓ کپی شد'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); },
+      copy_matn(v, function () { cpAll.textContent = '✓ کپی شد'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); },
         function () { cpAll.textContent = '✗'; setTimeout(function () { cpAll.textContent = 'کپی همه'; }, 1200); });
     });
     cpRow.appendChild(cpAll);
@@ -1531,21 +1531,21 @@
     var presetRow = document.createElement('div');
     presetRow.className = 'crtl-actions';
     [['فشرده', 'compact'], ['معمولی', 'normal'], ['درشت', 'large']].forEach(function (p) {
-      presetRow.appendChild(btn(p[0], 'پیش‌تنظیم ' + p[0], function () {
-        var cur = Object.assign(load(), PRESETS[p[1]]);
-        save(cur); applyCss(cur); rerender();
+      presetRow.appendChild(sakht_dokme(p[0], 'پیش‌تنظیم ' + p[0], function () {
+        var cur = Object.assign(khandan_tanzim(), PRESETS[p[1]]);
+        zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }));
     });
-    panel.appendChild(row('پیش‌تنظیم', presetRow));
+    panel.appendChild(sakht_radif('پیش‌تنظیم', presetRow));
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // sizes
-    panel.appendChild(sizeRow('متن گفتگو', 'chat', s, set));
-    panel.appendChild(sizeRow('کد و جدول', 'code', s, set));
-    panel.appendChild(sizeRow('حواشی', 'chrome', s, set));
-    panel.appendChild(sizeRow('دکمه‌ها', 'btn', s, set));
-    panel.appendChild(sizeRow('هوک‌ها', 'hook_font_px', s, set));
-    panel.appendChild(sizeRow('پُری کادرِ حدس ٪', 'hads_pori_darsad', s, set));
+    panel.appendChild(radif_andaze('متن گفتگو', 'chat', s, set));
+    panel.appendChild(radif_andaze('کد و جدول', 'code', s, set));
+    panel.appendChild(radif_andaze('حواشی', 'chrome', s, set));
+    panel.appendChild(radif_andaze('دکمه‌ها', 'btn', s, set));
+    panel.appendChild(radif_andaze('هوک‌ها', 'hook_font_px', s, set));
+    panel.appendChild(radif_andaze('پُری کادرِ حدس ٪', 'hads_pori_darsad', s, set));
 
     var lhRange = document.createElement('input');
     lhRange.type = 'range';
@@ -1564,38 +1564,38 @@
     lhWrap.className = 'crtl-row';
     lhWrap.style.cssText = 'flex:1;gap:6px';
     lhWrap.appendChild(lhRange); lhWrap.appendChild(lhNum);
-    panel.appendChild(row('فاصلهٔ خطوط', lhWrap));
+    panel.appendChild(sakht_radif('فاصلهٔ خطوط', lhWrap));
 
     var opa = document.createElement('input');
     opa.type = 'range'; opa.min = 20; opa.max = 100; opa.value = s.opacity;
     opa.addEventListener('input', function () { set('opacity', parseInt(opa.value, 10)); });
-    panel.appendChild(row('شفافیت', opa));
+    panel.appendChild(sakht_radif('شفافیت', opa));
 
     var color = document.createElement('input');
     color.type = 'color';
     color.value = s.accent || '#888888';
     color.style.cssText = 'width:44px;height:20px;padding:0;border:0;background:none';
-    color.addEventListener('change', function () { set('accent', color.value); rerender(); });
+    color.addEventListener('change', function () { set('accent', color.value); sakht_dobare(); });
     var colorWrap = document.createElement('div');
     colorWrap.className = 'crtl-actions';
     colorWrap.appendChild(color);
-    colorWrap.appendChild(btn('بی‌رنگ', 'برگشت به رنگ خود تم', function () {
-      var cur = load(); cur.accent = ''; save(cur); applyCss(cur); rerender();
+    colorWrap.appendChild(sakht_dokme('بی‌رنگ', 'برگشت به رنگ خود تم', function () {
+      var cur = khandan_tanzim(); cur.accent = ''; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
     }));
-    panel.appendChild(row('رنگ دکمه‌ها', colorWrap));
+    panel.appendChild(sakht_radif('رنگ دکمه‌ها', colorWrap));
 
     var ink = document.createElement('input');
     ink.type = 'color';
     ink.value = s.textColor || '#dddddd';
     ink.style.cssText = 'width:44px;height:20px;padding:0;border:0;background:none';
-    ink.addEventListener('change', function () { set('textColor', ink.value); rerender(); });
+    ink.addEventListener('change', function () { set('textColor', ink.value); sakht_dobare(); });
     var inkWrap = document.createElement('div');
     inkWrap.className = 'crtl-actions';
     inkWrap.appendChild(ink);
-    inkWrap.appendChild(btn('بی‌رنگ', 'برگشت به رنگ متن خود تم', function () {
-      var cur = load(); cur.textColor = ''; save(cur); applyCss(cur); rerender();
+    inkWrap.appendChild(sakht_dokme('بی‌رنگ', 'برگشت به رنگ متن خود تم', function () {
+      var cur = khandan_tanzim(); cur.textColor = ''; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
     }));
-    panel.appendChild(row('رنگ متن', inkWrap));
+    panel.appendChild(sakht_radif('رنگ متن', inkWrap));
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
 
     // user-message line count
@@ -1607,7 +1607,7 @@
       lineSel.appendChild(opt);
     });
     lineSel.addEventListener('change', function () { set('lines', parseInt(lineSel.value, 10)); });
-    panel.appendChild(row('پیام خودت', lineSel));
+    panel.appendChild(sakht_radif('پیام خودت', lineSel));
 
     // button placement
     var sideSel = document.createElement('select');
@@ -1618,24 +1618,24 @@
       sideSel.appendChild(opt);
     });
     sideSel.addEventListener('change', function () {
-      var cur = load(); cur.side = sideSel.value; cur.pos = {}; save(cur); rerender();
+      var cur = khandan_tanzim(); cur.side = sideSel.value; cur.pos = {}; zakhire_tanzim(cur); sakht_dobare();
     });
-    panel.appendChild(row('جای دکمه‌ها', sideSel));
+    panel.appendChild(sakht_radif('جای دکمه‌ها', sideSel));
 
     // toggles
     var toggles = document.createElement('div');
     toggles.className = 'crtl-actions';
-    toggles.appendChild(btn(s.collapse ? 'جمع: روشن' : 'جمع: خاموش',
+    toggles.appendChild(sakht_dokme(s.collapse ? 'جمع: روشن' : 'جمع: خاموش',
       'کوچک‌کردن بخش‌های Thinking و tool call', function () {
-        var cur = load(); cur.collapse = !cur.collapse; save(cur); applyCss(cur); rerender();
+        var cur = khandan_tanzim(); cur.collapse = !cur.collapse; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }));
-    toggles.appendChild(btn(s.tableScroll ? 'جدول: اسکرول' : 'جدول: آزاد',
+    toggles.appendChild(sakht_dokme(s.tableScroll ? 'جدول: اسکرول' : 'جدول: آزاد',
       'اسکرول افقی برای جدول و کد پهن', function () {
-        var cur = load(); cur.tableScroll = !cur.tableScroll; save(cur); applyCss(cur); rerender();
+        var cur = khandan_tanzim(); cur.tableScroll = !cur.tableScroll; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }));
-    toggles.appendChild(btn(s.hidden ? 'دکمه‌ها: مخفی' : 'دکمه‌ها: پیدا',
+    toggles.appendChild(sakht_dokme(s.hidden ? 'دکمه‌ها: مخفی' : 'دکمه‌ها: پیدا',
       'مخفی/نمایش ستون دکمه‌ها — میانبر: Ctrl+Alt+B', function () {
-        var cur = load(); cur.hidden = !cur.hidden; save(cur); applyCss(cur); rerender();
+        var cur = khandan_tanzim(); cur.hidden = !cur.hidden; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }));
     panel.appendChild(toggles);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
@@ -1649,7 +1649,7 @@
     ph.textContent = names.length ? '— انتخاب —' : '— خالی —';
     ph.value = '';
     profSel.appendChild(ph);
-    var fromFile = sharedProfileNames();
+    var fromFile = esm_profile_moshtarak();
     names.forEach(function (n) {
       var o = document.createElement('option');
       o.textContent = n + (fromFile.indexOf(n) !== -1 ? '  ⇩' : '');
@@ -1658,12 +1658,12 @@
     });
     profSel.addEventListener('change', function () {
       if (!profSel.value) return;
-      var cur = load();
+      var cur = khandan_tanzim();
       var snap = cur.profiles[profSel.value] || {};
-      save(Object.assign(cur, snap));
-      applyCss(load()); rerender();
+      zakhire_tanzim(Object.assign(cur, snap));
+      emal_andaze_va_rang(khandan_tanzim()); sakht_dobare();
     });
-    panel.appendChild(row('پروفایل', profSel));
+    panel.appendChild(sakht_radif('پروفایل', profSel));
 
     // Electron never implemented window.prompt — it returns undefined, so the
     // old `if (!name) return;` bailed out every single time and saving a
@@ -1678,7 +1678,7 @@
     profName.addEventListener('input', function () { draftProfileName = profName.value; });
 
     function saveProfile() {
-      var cur = load();
+      var cur = khandan_tanzim();
       var name = (profName.value || '').trim() ||
                  ('پروفایل ' + (Object.keys(cur.profiles).length + 1));
       cur.profiles[name] = {
@@ -1687,9 +1687,9 @@
         tableScroll: cur.tableScroll, accent: cur.accent, opacity: cur.opacity,
         textColor: cur.textColor, lh: cur.lh
       };
-      save(cur);
+      zakhire_tanzim(cur);
       draftProfileName = '';
-      rerender();
+      sakht_dobare();
       var n = document.querySelector('#crtl-panel .crtl-note');
       if (n) n.textContent = 'پروفایل «' + name + '» ذخیره شد ✓';
     }
@@ -1698,12 +1698,12 @@
     });
 
     profRow.appendChild(profName);
-    profRow.appendChild(btn('ذخیره', 'تنظیمات فعلی را با همین نام نگه دار (Enter هم کار می‌کند)', saveProfile));
-    profRow.appendChild(btn('حذف', 'پاک‌کردن پروفایل انتخاب‌شده', function () {
+    profRow.appendChild(sakht_dokme('ذخیره', 'تنظیمات فعلی را با همین نام نگه دار (Enter هم کار می‌کند)', saveProfile));
+    profRow.appendChild(sakht_dokme('حذف', 'پاک‌کردن پروفایل انتخاب‌شده', function () {
       if (!profSel.value) return;
-      var cur = load();
+      var cur = khandan_tanzim();
       delete cur.profiles[profSel.value];
-      save(cur); rerender();
+      zakhire_tanzim(cur); sakht_dobare();
     }));
     panel.appendChild(profRow);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
@@ -1711,20 +1711,20 @@
     // conversation tools
     var tools = document.createElement('div');
     tools.className = 'crtl-actions';
-    tools.appendChild(btn('جست‌وجو', 'جست‌وجو در گفتگو — Ctrl+Alt+F', findBar));
-    tools.appendChild(btn('کپی گفتگو', 'کپی کل گفتگو به مارک‌داون', function () {
-      note.textContent = copyConversation();
+    tools.appendChild(sakht_dokme('جست‌وجو', 'جست‌وجو در گفتگو — Ctrl+Alt+F', navar_jostojo));
+    tools.appendChild(sakht_dokme('کپی گفتگو', 'کپی کل گفتگو به مارک‌داون', function () {
+      note.textContent = copy_hame();
     }));
-    tools.appendChild(btn('sel', 'کدی که در ادیتور (فایل باز، نه چت) انتخاب کرده‌ای را به گفتگو اضافه می‌کند — همان Add selection در منوی /', function () {
-      clickMenu('Add selection');
+    tools.appendChild(sakht_dokme('sel', 'کدی که در ادیتور (فایل باز، نه چت) انتخاب کرده‌ای را به گفتگو اضافه می‌کند — همان Add selection در منوی /', function () {
+      click_menu('Add selection');
     }));
-    tools.appendChild(btn(s.quoteMenu ? 'راست‌کلیک: روشن' : 'راست‌کلیک: خاموش',
+    tools.appendChild(sakht_dokme(s.quoteMenu ? 'راست‌کلیک: روشن' : 'راست‌کلیک: خاموش',
       'منوی نقل‌قول روی متن انتخاب‌شده — میانبر: Ctrl+Alt+Q', function () {
-        var cur = load(); cur.quoteMenu = !cur.quoteMenu; save(cur); rerender();
+        var cur = khandan_tanzim(); cur.quoteMenu = !cur.quoteMenu; zakhire_tanzim(cur); sakht_dobare();
       }));
-    tools.appendChild(btn(s.counter ? 'شمارنده: روشن' : 'شمارنده: خاموش',
+    tools.appendChild(sakht_dokme(s.counter ? 'شمارنده: روشن' : 'شمارنده: خاموش',
       'شمارندهٔ نویسه و مصرف کانتکست', function () {
-        var cur = load(); cur.counter = !cur.counter; save(cur); rerender();
+        var cur = khandan_tanzim(); cur.counter = !cur.counter; zakhire_tanzim(cur); sakht_dobare();
       }));
     panel.appendChild(tools);
 
@@ -1739,14 +1739,14 @@
     exBox.style.cssText = 'display:flex;flex-direction:column;gap:2px;min-width:0';
     panel.appendChild(exBox);
     var exEdit = null;   // null | row index | 'new'
-    function exSave(list) { var cur = load(); cur.extras = list; save(cur); }
+    function exSave(list) { var cur = khandan_tanzim(); cur.extras = list; zakhire_tanzim(cur); }
     function exMini(label, title, on) {
-      var b = btn(label, title, on);
+      var b = sakht_dokme(label, title, on);
       b.style.cssText = 'flex:none;padding:0 3px;min-width:0;font-size:.85em;line-height:1.5';
       return b;
     }
     function paintExtras() {
-      var list = load().extras;
+      var list = khandan_tanzim().extras;
       exBox.textContent = '';
       list.forEach(function (x, k) {
         if (exEdit === k) return exBox.appendChild(exEditor(x.text, k));
@@ -1813,7 +1813,7 @@
       bar.appendChild(exMini('ذخیره', 'ذخیره', function () {
         var v = ta.value.trim();
         if (!v) { ta.focus(); return; }
-        var list = load().extras;
+        var list = khandan_tanzim().extras;
         if (k === 'new') list.push({ text: v, on: true, pos: 'end', btn: false });
         else list[k].text = v;
         exSave(list); exEdit = null; paintExtras();
@@ -1833,7 +1833,7 @@
     // name — it keeps opening that menu) · where it sits · delete.
     note.textContent = 'دکمه‌ها (کلمه · متن · جا):';
     panel.appendChild(note);
-    if (draftCommands === null) draftCommands = JSON.parse(JSON.stringify(commands(s)));
+    if (draftCommands === null) draftCommands = JSON.parse(JSON.stringify(dokme_ha(s)));
     var list = document.createElement('div');
     list.id = 'crtl-cmds';
     draftCommands.forEach(function (c, i) {
@@ -1867,8 +1867,8 @@
       where.value = c.side === 'top' || c.side === 'left' ? c.side : 'right';
       where.addEventListener('change', function () { c.side = where.value; });
       r.appendChild(word); r.appendChild(body); r.appendChild(where);
-      r.appendChild(btn('×', 'حذفِ این دکمه', function () {
-        draftCommands.splice(i, 1); renderPanel(load());
+      r.appendChild(sakht_dokme('×', 'حذفِ این دکمه', function () {
+        draftCommands.splice(i, 1); sakht_panel_aa(khandan_tanzim());
       }));
       list.appendChild(r);
     });
@@ -1876,23 +1876,23 @@
 
     var acts = document.createElement('div');
     acts.className = 'crtl-actions';
-    acts.appendChild(btn('+ دکمهٔ تازه', 'یک ردیفِ خالی اضافه کن', function () {
+    acts.appendChild(sakht_dokme('+ دکمهٔ تازه', 'یک ردیفِ خالی اضافه کن', function () {
       draftCommands.push({ label: '', text: '', side: 'top', send: false });
-      renderPanel(load());
+      sakht_panel_aa(khandan_tanzim());
     }));
-    acts.appendChild(btn('ذخیرهٔ دکمه‌ها', 'اعمالِ این فهرست', function () {
-      var cur = load();
+    acts.appendChild(sakht_dokme('ذخیرهٔ دکمه‌ها', 'اعمالِ این فهرست', function () {
+      var cur = khandan_tanzim();
       cur.commands = draftCommands.filter(function (c) { return String(c.label || '').trim(); });
-      save(cur);
+      zakhire_tanzim(cur);
       draftCommands = null;
-      rerender();
+      sakht_dobare();
       var n = document.querySelector('#crtl-panel .crtl-note');
       if (n) n.textContent = 'ذخیره شد ✓';
     }));
-    acts.appendChild(btn('لیست پیش‌فرض', 'برگشت لیست دکمه‌ها به حالت اولیه', function () {
-      var cur = load(); cur.commands = null; save(cur);
+    acts.appendChild(sakht_dokme('لیست پیش‌فرض', 'برگشت لیست دکمه‌ها به حالت اولیه', function () {
+      var cur = khandan_tanzim(); cur.commands = null; zakhire_tanzim(cur);
       draftCommands = null;
-      rerender();
+      sakht_dobare();
     }));
     panel.appendChild(acts);
     panel.appendChild(document.createElement('div')).className = 'crtl-sep';
@@ -1910,25 +1910,25 @@
     ioBox.style.height = '52px';
     // pasting is the whole point, so it applies itself without another click
     ioBox.addEventListener('paste', function () {
-      setTimeout(function () { if (ioBox.value.trim()) applyImported(ioBox.value, 'پیست'); }, 0);
+      setTimeout(function () { if (ioBox.value.trim()) emal_tanzim_vared_shode(ioBox.value, 'پیست'); }, 0);
     });
     panel.appendChild(ioBox);
 
     var fileRow = document.createElement('div');
     fileRow.className = 'crtl-actions';
-    fileRow.appendChild(btn('کپی تنظیمات', 'همهٔ تنظیمات و پروفایل‌ها را کپی کن', copySettings));
-    fileRow.appendChild(btn('اعمال', 'آنچه در کادر بالا پیست کرده‌ای را اعمال کن', function () {
-      if (!ioBox.value.trim()) { panelNote('کادر خالی است'); return; }
-      applyImported(ioBox.value, 'پیست');
+    fileRow.appendChild(sakht_dokme('کپی تنظیمات', 'همهٔ تنظیمات و پروفایل‌ها را کپی کن', copy_tanzim));
+    fileRow.appendChild(sakht_dokme('اعمال', 'آنچه در کادر بالا پیست کرده‌ای را اعمال کن', function () {
+      if (!ioBox.value.trim()) { neveshtan_yaddasht_panel('کادر خالی است'); return; }
+      emal_tanzim_vared_shode(ioBox.value, 'پیست');
     }));
-    fileRow.appendChild(btn('از فایل', 'به‌جای پیست، یک فایل تنظیمات را باز کن', loadFromFile));
+    fileRow.appendChild(sakht_dokme('از فایل', 'به‌جای پیست، یک فایل تنظیمات را باز کن', khandan_tanzim_az_file));
     panel.appendChild(fileRow);
 
     var acts2 = document.createElement('div');
     acts2.className = 'crtl-actions';
-    acts2.appendChild(btn('تست', 'گزارش تشخیص — چه چیزی پیدا شد و چه خطایی رخ داده', function () {
-      var report = diagnose();
-      copyText(report);
+    acts2.appendChild(sakht_dokme('تست', 'گزارش تشخیص — چه چیزی پیدا شد و چه خطایی رخ داده', function () {
+      var report = tashkhis_khata();
+      copy_matn(report);
       var box = document.getElementById('crtl-diag');
       if (!box) {
         box = document.createElement('pre');
@@ -1941,11 +1941,11 @@
       box.textContent = report;
       note.textContent = 'گزارش در کلیپ‌بورد کپی شد';
     }));
-    acts2.appendChild(btn('rst', 'برگشت همه‌چیز به پیش‌فرض — شامل جای دکمه‌ها و پروفایل‌ها', function () {
+    acts2.appendChild(sakht_dokme('rst', 'برگشت همه‌چیز به پیش‌فرض — شامل جای دکمه‌ها و پروفایل‌ها', function () {
       draftCommands = null;
-      save(fresh());
-      applyCss(load());
-      rerender();
+      zakhire_tanzim(tanzim_pishfarz());
+      emal_andaze_va_rang(khandan_tanzim());
+      sakht_dobare();
     }));
     panel.appendChild(acts2);
 
@@ -1953,7 +1953,7 @@
     return panel;
   }
 
-  function renderToggle(s) {
+  function sakht_dokme_charkhdande(s) {
     var old = document.querySelector('.crtl-gear');
     if (old) old.remove();
     var wrap = document.createElement('div');
@@ -1963,19 +1963,19 @@
     var count = document.createElement('div');
     count.id = 'crtl-count';
     wrap.appendChild(count);
-    wrap.appendChild(btn('aA', 'تنظیمات اندازه و دکمه‌ها', function () {
+    wrap.appendChild(sakht_dokme('aA', 'تنظیمات اندازه و دکمه‌ها', function () {
       var p = document.getElementById('crtl-panel');
       if (!p) return;
       p.classList.toggle('crtl-open');
-      if (p.classList.contains('crtl-open')) askSession(); else paintSession();
-      syncPanelRoom(p);
+      if (p.classList.contains('crtl-open')) porsidan_shenase_chat(); else neshan_shenase_chat();
+      ja_baz_kardan_baraye_panel(p);
     }));
     document.body.appendChild(wrap);
   }
 
   // The open panel is position:fixed, so the conversation has to be told to
   // step aside; otherwise the panel simply sits on top of the text.
-  function syncPanelRoom(panel) {
+  function ja_baz_kardan_baraye_panel(panel) {
     var open = !!(panel && panel.classList.contains('crtl-open'));
     var side = open ? (panel.dataset.side === 'left' ? 'left' : 'right') : '';
     var root = document.documentElement;
@@ -1983,39 +1983,39 @@
     root.classList.toggle('crtl-panel-left', side === 'left');
   }
 
-  function rerender() {
-    var s = load();
-    applyCss(s);
-    renderBars(s);
-    renderPanel(s);
-    renderToggle(s);
-    syncCounter(s);   // renderToggle rebuilds #crtl-count, so this runs last
-    syncPanelRoom(document.getElementById('crtl-panel'));
+  function sakht_dobare() {
+    var s = khandan_tanzim();
+    emal_andaze_va_rang(s);
+    sakht_dokme_kenar(s);
+    sakht_panel_aa(s);
+    sakht_dokme_charkhdande(s);
+    shomarande_nevise(s);   // sakht_dokme_charkhdande rebuilds #crtl-count, so this runs last
+    ja_baz_kardan_baraye_panel(document.getElementById('crtl-panel'));
   }
 
-  function build() {
+  function sakht_hame() {
     if (document.getElementById('crtl-panel')) return;
-    if (!input()) return;
+    if (!kadr_tayp()) return;
     var style = document.createElement('style');
     style.textContent = CSS;
     document.head.appendChild(style);
-    wireExpand();
-    wireHoverIntent();
-    wireBlocks();
-    wireQuoteMenu();
-    wireFindEscape();
-    guard('glossary', wireGlossary)();
-    wirePanelDismiss();
-    rerender();
+    baz_kardan_payam();
+    baz_shodan_ba_hover();
+    jam_kardan_fekr_va_abzar();
+    menu_naghl();
+    bastan_jostojo_ba_esc();
+    negahban_khata('glossary', vazhe_name_ru_kalame)();
+    bastan_panel_ba_click_birun();
+    sakht_dobare();
 
     // Ctrl+Alt+B hides or shows the button columns
     document.addEventListener('keydown', function (e) {
       if (e.ctrlKey && e.altKey && (e.key === 'b' || e.key === 'B')) {
-        var cur = load(); cur.hidden = !cur.hidden; save(cur); applyCss(cur); rerender();
+        var cur = khandan_tanzim(); cur.hidden = !cur.hidden; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }
       if (e.ctrlKey && e.altKey && (e.key === 'f' || e.key === 'F')) {
         e.preventDefault();
-        findBar();
+        navar_jostojo();
       }
     });
   }
@@ -2064,8 +2064,8 @@
 
   var tries = 0;
   var timer = setInterval(function () {
-    build();
+    sakht_hame();
     if (document.getElementById('crtl-panel') || ++tries > 60) clearInterval(timer);
   }, 500);
-  document.addEventListener('DOMContentLoaded', build);
+  document.addEventListener('DOMContentLoaded', sakht_hame);
 })();

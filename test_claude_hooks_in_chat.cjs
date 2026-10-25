@@ -117,7 +117,7 @@ assert.equal(out.panelSelectable, true)
 out.hadsCard = /hads plugin/.test(btn) && /card\.classList\.add\('crtl-hads'\)/.test(btn) && /\.crtl-hads\{[^']*border-radius:12px/.test(btn) && /crtl-tik-roshan\{background:#0a84ff/.test(btn)
 assert.equal(out.hadsCard, true)
 // its see-through level is a setting in the aA panel (24 Oct 22:45: «ترانسپرنسی»)
-out.hadsAlpha = /var\(--crtl-hads-pori-darsad,80%\),transparent/.test(btn) && /sizeRow\('پُری کادرِ حدس ٪', 'hads_pori_darsad'/.test(btn) && /--crtl-hads-pori-darsad:' \+ \(s\.hads_pori_darsad/.test(btn)
+out.hadsAlpha = /var\(--crtl-hads-pori-darsad,80%\),transparent/.test(btn) && /radif_andaze\('پُری کادرِ حدس ٪', 'hads_pori_darsad'/.test(btn) && /--crtl-hads-pori-darsad:' \+ \(s\.hads_pori_darsad/.test(btn)
 assert.equal(out.hadsAlpha, true)
 // down to 0: fully see-through, no blur; 0 is kept, not turned back into the default (24 Oct 23:03)
 out.hadsGlass = /hads_pori_darsad: \[0, 100\]/.test(btn) && /--crtl-hads-tari-px:/.test(btn) && /blur\(var\(--crtl-hads-tari-px/.test(btn) && /isNaN\(n\) \? DEF\[field\] : n/.test(btn) && !/\(s\.hads_pori_darsad \|\| 80\)/.test(btn)
@@ -130,7 +130,7 @@ assert.equal(out.hadsCompact, true)
 // chat stopped scrolling (25 Oct 00:04: «دیگه اسکرول نمیشه»); so the top row sticks to the band's top
 out.topRowSafe = /if \(tx === '▾' && bs\[b\]\.parentElement/.test(btn) && !/if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-radif-bala\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-radif-bala\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-radif-bala\) \[data-engine-mark\]\{position:absolute!important;top:7px;left:76px;right:auto/.test(btn)
 assert.equal(out.topRowSafe, true)
-out.pageFolds = /--crtl-hook-font-px/.test(btn) && /sizeRow\('هوک‌ها', 'hook_font_px'/.test(btn) && /crtl-hook-baz/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-baz\)[^']*nowrap/.test(btn)
+out.pageFolds = /--crtl-hook-font-px/.test(btn) && /radif_andaze\('هوک‌ها', 'hook_font_px'/.test(btn) && /crtl-hook-baz/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-baz\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)
 // folded whatever the focus view: no rule may open them by focus (24 Oct 22:55)
 out.foldAlways = /crtl-hook:not\(\.crtl-hook-baz\)\{max-height:1\.9em!important/.test(btn) && !/\.crtl-focus-on [^']*crtl-hook/.test(btn)
@@ -144,6 +144,10 @@ out.esmUi = { table: /var esm_ghadim_tanzim = \{ hook: 'hook_font_px', hadsAlpha
   hostTabe: ['readable', 'whenFa', 'jalali', 'shortPaths', 'khatHook', 'khatHayeHook', 'transcriptPath', 'GOROOH_HOOK', 'NESHANE_HOOK']
     .filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(hookSrc.slice(hookSrc.indexOf('// Hooks in the chat.')).replace(/\/\/.*$/gm, ''))) }
 assert.deepEqual(out.esmUi, { table: true, old: [], host: true, hostTabe: [] })
+// the 62 file-level functions of the buttons file with Habib's words too (25 Oct 05:54: «بزن همه ۶۲ تا رو عوض کن»)
+out.btnTabe = ['sidFromState', 'askSession', 'paintSession', 'guard', 'fresh', 'load', 'seedTop', 'sharedProfileNames', 'save', 'commands', 'applyCss', 'input', 'caretToEnd', 'insertLines', 'type', 'typeLine', 'send', 'setValue', 'clickMenu', 'btn', 'row', 'sizeRow', 'wireHoverIntent', 'wireExpand', 'wireBlocks', 'findBar', 'closePanel', 'wireGlossary', 'wirePanelDismiss', 'closeFind', 'wireFindEscape', 'clearMarks', 'withExtra', 'copyConversation', 'quoteInto', 'ctxMenu', 'wireQuoteMenu', 'counterTick', 'syncCounter', 'applyPos', 'makeDraggable', 'diagnose', 'clampReport', 'mirrorParity', 'copyText', 'exportable', 'panelNote', 'copySettings', 'loadFromFile', 'applyImported', 'sideOf', 'topHost', 'runCommand', 'wireTopDrag', 'renderTop', 'watchTop', 'renderBars', 'renderPanel', 'renderToggle', 'syncPanelRoom', 'rerender', 'build']
+  .filter((x) => new RegExp('(?<![\\w$.\'-])' + x + '\\s*\\(').test(btn.replace(/\/\/.*$/gm, '').replace(/'(?:\\.|[^'\\])*'/g, "''")))
+assert.deepEqual(out.btnTabe, [])
 // a user message keeps the app's own up-down scroll: the hook lines under it are not clamped, and
 // «overflow:hidden» cut them with no way to scroll (25 Oct 00:09: «کادر پیامهای من هم اسکرول نمیشه»)
 out.userMsgScrolls = /userMessage_"\]:not\(\.crtl-expanded\)\{overflow-x:hidden!important\}/.test(btn) && !/userMessage_"\]:not\(\.crtl-expanded\)\{overflow:hidden/.test(btn)

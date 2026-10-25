@@ -188,7 +188,7 @@ $.forkReply = { isAnswered: true, text: 'not json', usage: {} }
 c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
 out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
 // a chat over MAX_FORK tokens never forks for the guesses alone («نکرده‌ها» ticked off)
-const fileF = flags['/h/.claude/hads-on/F']; flags['/h/.claude/hads-on/F'] = 'on -nakarde'
+const fileF = flags['/h/.claude/hads-on/F']; flags['/h/.claude/hads-on/F'] = 'on -nakarde -khodkar -cron'
 $.forkReply = { isAnswered: true, text: '{"hads": []}', usage: {} }; $.ctx = mod.had_fork_context_token + 1
 c0 = cnt(); await H['command.run']($, { args: 'now' }); await flush(); c1 = cnt()
 out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1])
@@ -442,7 +442,7 @@ await find(await render(), 'hads-tick-hads').onPress()
 // another chat keeps its own ticks
 $.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
 // «حدس», «نکرده‌ها» and «دو جمله» all off: no model call at an answer's end or during work
-await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress()
+await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
 const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); const z1 = cnt()
 out.bothOff = [z1[0] - z0[0], z1[1] - z0[1], z1[2] - z0[2]]; assert.deepEqual(out.bothOff, [0, 0, 0])
 // «پرسش» off: no box; the ticks stay so it can come back
@@ -450,7 +450,7 @@ await find(await render(), 'hads-tick-porsesh').onPress()
 const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ticks(t9) }
 assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
 for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
-await find(await render(), 'hads-tick-nakarde').onPress()
+await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
 out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
 $.ui.resolve = realResolve
 // «دفترِ حدس» (with چتِ ۲۰۵): one line per event, appended, with sid and Tehran iso; «دو جمله» not twice
@@ -574,6 +574,31 @@ out.bigSummary = { via: events.slice(se5).filter((e) => e.kind === 'jambandi_nob
 assert.deepEqual(out.bigSummary, { via: ['fork'], sonnetSummary: false })
 $.ctx = 1000; $.nowModel = savedNow; $.guessModel = slow
 $.model.fork = async (o) => { calls.fork.push(o); return $.forkReply }
+// «خودکار» and «کرون‌جاب» (Habib, 25 Oct 16:48 and 16:52), and ONE fork for everything at an answer's end:
+// the summary, guesses, «نکرده‌ها», «خودکار», «کرون‌جاب» together («نه هر کدوم یکی یه دفعه»)
+$.sid = 'K'; await H['command.run']($, { args: 'on' }); await H['prompt.submit']($, { text: 'اپ رو چک کن' }, next)
+$.t += mod.do_jomle_fasele_ms; await tool(); await flush()
+$.forkReply = { isAnswered: true, usage: {}, text: '{"text": "اپ چک شد. گزارش مانده.", "anjam_shod": ["چک ⇐ ls"], "anjam_nashod": [], "hads": [{"label": "x", "text": "پوش کن"}], "nakarde": [], ' +
+  '"khodkar": [{"kar": "چکِ اپ", "rah": "شبیه‌سازِ iOS", "chera": "حبیب گفته خودت امتحان کن"}, {"kar": "حرفِ قبلیِ حبیب", "rah": "hafeze_search.py", "chera": ""}], ' +
+  '"cron": [{"kar": "چکِ نسخهٔ افزونه", "zaman": "هر روز ۰۸:۰۰ (0 8 * * *)", "rah": "launchd"}]}' }
+const k0 = calls.fork.length, kn0 = calls.now.length, ke0 = events.length
+$.t += 1; await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
+const khForks = calls.fork.slice(k0), rKh = await render()
+calls.fill.length = 0; await find(rKh, 'hads-kh-dokme-0').onPress({}); await find(rKh, 'hads-cr-dokme-0').onPress({})
+out.yekFork = { forks: khForks.length, all: /جمع‌بندی/.test(khForks[0]?.prompt) && /"hads"/.test(khForks[0]?.prompt) && /"nakarde"/.test(khForks[0]?.prompt) && /"khodkar"/.test(khForks[0]?.prompt) && /"cron"/.test(khForks[0]?.prompt),
+  rules: /hafeze_search/.test(khForks[0]?.prompt) && /سرچ در چت‌های قبلی برای حرفِ حبیب/.test(khForks[0]?.prompt) && /کامپیوتر یوز/.test(khForks[0]?.prompt) && /CDP/.test(khForks[0]?.prompt), sonnet: calls.now.length - kn0,
+  now: find(rKh, 'hads-now')?.children[0], kh: [0, 1].map((i) => find(rKh, 'hads-kh-' + i)?.children[0]), cr: find(rKh, 'hads-cr-0')?.children[0],
+  fill: calls.fill.map((f) => f.text), logged: events.slice(ke0).filter((e) => e.kind === 'khodkar' || e.kind === 'cron').map((e) => e.kind) }
+assert.deepEqual(out.yekFork, { forks: 1, all: true, rules: true, sonnet: 0, now: 'اپ چک شد. گزارش مانده.',
+  kh: ['چکِ اپ ⇐ شبیه‌سازِ iOS — حبیب گفته خودت امتحان کن', 'حرفِ قبلیِ حبیب ⇐ hafeze_search.py'], cr: 'چکِ نسخهٔ افزونه ⇐ هر روز ۰۸:۰۰ (0 8 * * *) — launchd',
+  fill: ['این را خودت انجام بده و از من نپرس: چکِ اپ ⇐ با شبیه‌سازِ iOS. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان.', 'برای این کار کرون‌جاب بساز و با خرابکاریِ عمدی بسنج که اجرا می‌شود: چکِ نسخهٔ افزونه ⇐ هر روز ۰۸:۰۰ (0 8 * * *) (launchd)'],
+  logged: ['cron', 'khodkar'] })
+// ticked off: not asked, not shown
+await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
+const k1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
+out.khodkarOff = { asked: calls.fork.slice(k1).some((f) => /"khodkar"|"cron"/.test(f.prompt)), shown: !!find(await render(), 'hads-kh-0') || !!find(await render(), 'hads-cr-0'), file: flags['/h/.claude/hads-on/K'] }
+assert.deepEqual(out.khodkarOff, { asked: false, shown: false, file: 'on -khodkar -cron' })
+$.sid = 'A'
 // تعریفِ ۱۰ (اسمِ متغیر): every name the mod writes is a new one. The old names, written out here only
 // to look for them (Habib, 25 Oct 02:58: «دیگه اثری ازش نباشه»; the mod no longer reads them)
 const fsN = await import('node:fs')

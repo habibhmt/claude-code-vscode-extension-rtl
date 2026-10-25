@@ -9,6 +9,7 @@ bad=0
 skip() { echo "⏭  $1 — رد شد: شبیه‌سازیِ افزونه در کروم زده نشد (NO_CHROME)"; }
 ok()  { echo "✅ $1"; }
 no()  { echo "❌ $1 — $2"; bad=$((bad+1)); }
+tail -n +3 Doc/ghanoon_az_91/10_tarif_esm_motaghayer_v1.md | cmp -s - "$HOME/1-MY-WORK/91th-minimal-2/doc/tarif/10_tarif_esm_motaghayer_v1.md" && ok "۱۰ج کپیِ قانونِ ۹۱ تازه است" || no "۱۰ج کپیِ قانونِ ۹۱ تازه است" "اصل در ۹۱ عوض شده؛ دوباره کپی کن"
 o=$(node mods/hads/test_hads.mjs 2>/dev/null)
 [[ $o == *'"nakarde":{"fork":1,"rules":true'* && $o == *'"nakardeAnjam":{"now":2,"file":true,"told":true,"back":false,"logged":true}'* && $o == *'"nakardeOff":{"forked":true,"asked":false,"shown":false}'* ]] && ok "۱۴ نکرده‌ها" || no "۱۴ نکرده‌ها" "آزمون جوابِ درست نداد"
 [[ $o == *'"defaultOff":0'* && $o == *'"otherChat":0'* && $o == *'"aAfterBOff":"on"'* && $o == *'"projectFiles":0'* && $o == *'"afterClear":"engine"'* && $o == *'"model":"claude-sonnet-5-5"'* && $o == *'"submit":0'* ]] && ok "۰۱ حدس" || no "۰۱ حدس" "آزمون جوابِ درست نداد"

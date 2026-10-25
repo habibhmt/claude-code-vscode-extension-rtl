@@ -588,7 +588,7 @@ assert.deepEqual(out.noOldNames, { kinds: 0, fields: 0, usage: 0, words: [], gha
 // the source: exported names lower snake_case, never a name glued as '-' + k or 'x_' + y
 const src = fsN.readFileSync(new URL('./hooks/register.js', import.meta.url), 'utf8')
 out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glued: (src.match(/'[-+]' \+ |'[a-z]+_' \+ /g) || []),
-  // an English word keeps its English spelling (91, بندِ ۲: «کلمهٔ انگلیسی با اسپلِ درست»): cache, context, copy — not kash, kontekst, kopi (Habib, 25 Oct 05:24: «اسم copy»)
+  // an English word keeps its English spelling (91, بندِ ۲: کلمهٔ انگلیسی با اسپلِ درست): cache, context, copy — not kash, kontekst, kopi (Habib, 25 Oct 05:24: «اسم copy»)
   bad_spell: [...new Set(src.match(/\b[a-z_]*(kash|kontekst|kopi|profail|menyu|sesheen)[a-z_]*\b/g) || [])] }
 assert.deepEqual(out.esmRule, { upper: [], glued: [], bad_spell: [] })
 // 25 Oct 02:20 («اسمِ تابع‌های داخلِ کد … بزن»): the functions and the chat-wide variables have Habib's words too

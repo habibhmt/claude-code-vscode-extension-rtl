@@ -3,7 +3,8 @@
 cd "$(dirname "$0")/../.." || exit 2
 export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
 bad=0
-# tests 02 and 03 start a headless Google Chrome; NO_CHROME=1 skips them (Habib 22 Oct 05:25: no Chrome for now)
+# tests 02 and 03 start a headless Google Chrome (no window, a throwaway profile); NO_CHROME=1 skips them.
+# Habib 22 Oct: no Chrome for now; 25 Oct 04:30, question window: «بله، بی‌پنجره اشکال ندارد»
 skip() { echo "⏭  $1 — رد شد: کروم فعلاً ممنوع"; }
 ok()  { echo "✅ $1"; }
 no()  { echo "❌ $1 — $2"; bad=$((bad+1)); }

@@ -403,14 +403,18 @@
       out.push('[class*="userMessage_"]:not(.crtl-expanded) [class*="truncationGradient"]{display:none!important}');
       out.push('[class*="userMessage_"]:not(.crtl-expanded).crtl-hovered [class*="content_"]' +
         '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
-      // a plugin's own prompt («Prompt from the hads plugin»: the «خودکار» the mod sends) is drawn like Habib's own:
-      // one line, and under the mouse all of it (26 Oct 05:28: «نحوه دیدنش عین ددیدن پیاما یهودم باشه -موس روش
-      // بمونه باز بشه کامل»). The app caps it at 40vh and scrolls inside; hovered, that cap lets go
-      out.push('[class*="userMessageContainer_"]:has([class*="promptLabel_"]) [class*="userMessage_"].crtl-hovered{max-height:none!important;overflow-y:visible!important}');
     } else {
       out.push('[class*="userMessage_"] [class*="content_"]{display:block!important;' +
         '-webkit-line-clamp:unset!important;max-height:none!important}');
     }
+
+    // a message from another session or from a plugin (the «خودکار» of the hads mod) keeps a look of its own, the
+    // panel's peer-message row: no box, grey, italic; one line, all of it under the mouse (Habib, 26 Oct 05:31:
+    // «اگه فرمت خاص تر داشته باشه بهتره مثل پیامای خودم نباشه قبلا پیامای سشن های دیگه یه فرمتی داشت که که خوب
+    // بود … برش گردون به همون حالت قبل و همین خودکار رو هم مثل فرمت همون بکنش»). Marked by neshan_hook_va_hads
+    out.push('[class*="userMessage_"].crtl-payam-digar{border-color:transparent!important;background:transparent!important;' +
+      'color:var(--app-secondary-foreground)!important;opacity:.8;font-style:italic!important;padding:8px!important}');
+    out.push('[class*="userMessage_"].crtl-payam-digar.crtl-hovered{opacity:1;max-height:none!important;overflow-y:visible!important}');
 
     // wide content scrolls inside its own box instead of stretching the page
     if (s.tableScroll) {
@@ -2164,6 +2168,14 @@
   // hooks in the chat: tag the 🪝 meta lines, open/close them on a click (not when the click
   // ends a text selection), and mark focus view, where the panel folds the rest
   function neshan_hook_va_hads() {
+    // messages that are not Habib's: another session's, or a plugin's own prompt (its «Prompt from …» label)
+    var um = document.querySelectorAll('[class*="userMessage_"]');
+    for (var u = 0; u < um.length; u++) {
+      var ct = um[u].closest('[class*="userMessageContainer_"]');
+      var digar = !!(ct && ct.querySelector('[class*="promptLabel_"]')) ||
+        /^\s*Another Claude session sent a message/.test((um[u].textContent || '').slice(0, 80));
+      if (digar !== um[u].classList.contains('crtl-payam-digar')) um[u].classList.toggle('crtl-payam-digar', digar);
+    }
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');
     for (var i = 0; i < ms.length; i++) {
       // the 🪝 may come after an icon the panel draws in front: look at the first few characters

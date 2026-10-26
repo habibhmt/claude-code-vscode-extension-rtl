@@ -465,6 +465,19 @@ PYEOF
                 else
                     { cat "$ext_dir/index.js.backup"; echo ""; echo ";"; cat "$BUTTONS_JS"; } > "$ext_dir/index.js"
                 fi
+                # An AskUserQuestion (the question window) and its answer are never folded into
+                # the focus view's «N tool calls» row: they stay in the chat whatever the focus
+                # button says (Habib, 26 Oct 19:27: «یه کاری بکن که همیشه دیده بشه کاری به اون
+                # دکمه فوکوس نداشته باش»). No match in a new build: the file is left as it is.
+                python3 - "$ext_dir/index.js" <<'PYEOF' || true
+import re, sys
+path = sys.argv[1]
+s = open(path, encoding='utf-8').read()
+s = re.sub(r'([\w$]+=([\w$]+)\.type==="user"\?[\w$]+\(\2\):[\w$]+\(\2\)\|\|)(\2\.type==="assistant"&&\(\2\.isSynthetic\?)',
+           r'\1\2.type==="assistant"&&\2.content.some(function(c){return c.content.type==="tool_use"&&c.content.name==="AskUserQuestion"})||\3',
+           s, count=1)
+open(path, 'w', encoding='utf-8').write(s)
+PYEOF
             fi
 
             # Self-test: a broken injection would take the whole panel down,

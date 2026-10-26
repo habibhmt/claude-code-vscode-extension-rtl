@@ -712,7 +712,22 @@ out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با 
   third: calls.submit.length, file: flags['/h/.claude/hads-log/X.khodkar_ferestade.json'],
   logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
 assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
-  nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"]}\n', logged: 2 })
+  nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"]}\n', logged: 2 })
+// an excuse gets a new way, not a wait (Habib, 26 Oct 07:44): the fork is told what was sent and to answer excuses; the same
+// work with a NEW way goes again, the same way does not; an excuse does not take a «نکرده» out
+{
+  const lastP = calls.fork[calls.fork.length - 1].prompt
+  khX[0] = { kar: 'چکِ اپ', abzar: 'SendMessage به ۲۰۳ (کامپیوتر یوز)', chek: 'عکسِ ۲۰۳' }
+  const s0 = calls.submit.length
+  await dowr([])
+  const sub4 = calls.submit.slice(s0).map((c) => c.text)
+  out.bahane = { told: /قبلاً به چت فرستادی \(کار ⇐ راه\): «چکِ اپ ⇐ Bash: xcrun simctl»/.test(lastP) && /بهانه، راهکار می‌خواهد نه صبر/.test(lastP) && /۲۰۳/.test(lastP),
+    nakardeRule: /بهانهٔ ایجنت .* آن را از نکرده بیرون نمی‌برد؛ فقط دو چیز بیرونش می‌برد: حبیب گفته باشد نه، یا انجام شدنش با خروجیِ یک ابزار دیده شود/.test(lastP),
+    newWay: sub4.length === 1 && /۱\. چکِ اپ ⇐ با SendMessage به ۲۰۳/.test(sub4[0]) && !/سرچِ حرفِ حبیب/.test(sub4[0]),
+    header: /منتظر نمان/.test(sub4[0] || '') }
+  assert.deepEqual(out.bahane, { told: true, nakardeRule: true, newWay: true, header: true })
+}
+
 // «هوک‌ها» in the box: no emoji, and a hook's message beside its injected text is left out (26 Oct 05:36)
 out.hookBiEmoji = [mod.bi_emoji('📌 🧠 حافظه: 3 سابقه ✅'), mod.bi_payam_tekrari([{ kind: 'hook_system_message', name: 'U', t: 1000 }, { kind: 'hook_additional_context', name: 'U', t: 1500 }, { kind: 'hook_system_message', name: 'Stop', t: 1000 }]).map((h) => h.kind + ':' + h.name)]
 assert.deepEqual(out.hookBiEmoji, ['حافظه: 3 سابقه', ['hook_additional_context:U', 'hook_system_message:Stop']])

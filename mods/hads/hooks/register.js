@@ -171,7 +171,8 @@ const ghaede_nakarde = (anjam, commit_ha = '', ferestade = []) => '\n\n«nakarde
   '۷) چیزی که بیرون از این چت انجام شده هم نکرده نیست: حالِ امروزِ پروژه را از commit‌های زیر بخوان، و برای هر نکرده‌ای که با یک فایل یا commit سنجیدنی است sanad بده؛ پیش از نمایش، فایل یا git log خوانده می‌شود و اگر آن متن آنجا بود، آن ردیف نمی‌آید. ' +
   (commit_ha ? '\ncommit‌های اخیرِ این پروژه (تازه به قدیم):\n' + commit_ha + '\n' : '') +
   // Habib, 26 Oct 03:06: «اگه انجام نشدن به صورت نکرده بیان»: what the mod sent as «خودکار» is his ask too
-  (ferestade.length ? '۸) این «خودکار»ها را مودِ «حدس» به خواستِ حبیب به چت فرستاد و حکمِ خواستهٔ حبیب را دارند (استثنای قاعدهٔ ۱): هر کدام انجام نشده، در nakarde بیاور با harf = عینِ همین متن: ' + ferestade.map((x) => '«' + x + '»').join(' · ') + '. ' : '') +
+  // 26 Oct 07:44: «مگر اینکه حبیب بگوید نه انوقت نکرده حذف شود یا دیده شود که کار انجام شده»
+  (ferestade.length ? '۸) این «خودکار»ها را مودِ «حدس» به خواستِ حبیب به چت فرستاد و حکمِ خواستهٔ حبیب را دارند (استثنای قاعدهٔ ۱): هر کدام انجام نشده، در nakarde بیاور با harf = عینِ همین متن: ' + ferestade.map((x) => '«' + x + '»').join(' · ') + '. بهانهٔ ایجنت («الان نمی‌شود»، «منتظرِ ریلود/پنجره/…») آن را از نکرده بیرون نمی‌برد؛ فقط دو چیز بیرونش می‌برد: حبیب گفته باشد نه، یا انجام شدنش با خروجیِ یک ابزار دیده شود. ' : '') +
   'نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
 // Habib, 25 Oct 18:08: «منظورم کل ابزارهایی هست که توی کلود کد برای ایجنت ها موجوده. و این ابزارها
 // باید سرچ به وب بکنی که لیست کاملش رو در بیاری و توی پرومپتت بیاری که ایجنت چک بکنه و بررسی بکنه و
@@ -213,17 +214,22 @@ export const abzar_ha_ye_claude_code = [
   ['سرچ در چت‌های قبلی', 'python3 ~/1-MY-WORK/205th-day-mother-of-all-agent/abzar/hafeze_search.py --hame "<سؤال>" 5 ⇒ حبیب در موردِ مشابه چه گفت'],
 ]
 const prompt_fork_khodkar = '"khodkar": [all of them, 0 or more, each {"kar": "<کاری که الان در این چت جاری است و ایجنت آن را از حبیب می‌پرسد یا به او می‌سپارد، کوتاه>", "abzar": "<کدام ابزار از فهرست، دقیق: اسمِ ابزار و فرمان یا مسیر>", "chek": "<ایجنت نتیجه را خودش چطور می‌بیند و می‌سنجد>", "chera": "<یک جملهٔ کوتاه: چرا لازم نیست از حبیب بپرسد>"}]'
-const ghaede_khodkar = '\n\n«khodkar» (خودکار): این فهرستِ کاملِ ابزارهای ایجنت در Claude Code است (code.claude.com/docs/en/tools-reference، خوانده‌شده ۲۵ اکت ۲۰۲۶):\n' +
+const ghaede_khodkar = (ferestade = []) => '\n\n«khodkar» (خودکار): این فهرستِ کاملِ ابزارهای ایجنت در Claude Code است (code.claude.com/docs/en/tools-reference، خوانده‌شده ۲۵ اکت ۲۰۲۶):\n' +
   abzar_ha_ye_claude_code.map(([n, t]) => '- ' + n + ': ' + t).join('\n') + '\n' +
   'یکی‌یکی چک و بررسی کن: در کارهایی که الان در همین چت جاری است، کدام ابزار کاری را که ایجنت از حبیب می‌پرسد یا به او می‌سپارد («چک کن به من بگو»، «امتحان کن»، «ببین درست است؟»، «ریلود کن و عکس بفرست») خودش انجام می‌دهد و نتیجه‌اش را خودش چک می‌کند. پیشنهادهایت را بده، بی‌سقف. ' +
   'ابزاری که در این چت استفاده نشده و کار را عقب انداخته، اول بیاید. پیش از هر تصمیم، سرچ در چت‌های قبلی برای حرفِ حبیب در موردِ مشابه و تصمیم طبقِ همان حرف؛ مثلاً برای چکِ یک اپ، اول پیدا کن اپ مالِ کدام پروژه است و حبیب قبلاً درباره‌اش چه گفته. ' +
-  'نیاور: رمز، کدِ پیامکی، پول، کارِ دست یا تنِ حبیب، و چیزی که قانونِ حبیب صریحاً با او گذاشته. نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
+  'نیاور: رمز، کدِ پیامکی، پول، کارِ دست یا تنِ حبیب، و چیزی که قانونِ حبیب صریحاً با او گذاشته. نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.' +
+  // Habib, 26 Oct 07:44: «اتفاقا این رو برای همین میخوام که مدل منتظر نمونه و یه راه حلی پیدا کنه براش نه اینکه با منتظر بودن
+  // کار رو به تعویق بندازه — به مدل بگو بهونه های مدل رو سعی کنه براش یه راهکاری پیذا کنه از کارهای قبلی و تجارب قبلی و با
+  // راهکار جدید تاکید کنه به انجام کار مگه با دستورر مخالف حبیب»
+  (ferestade.length ? '\nاین‌ها را قبلاً به چت فرستادی (کار ⇐ راه): ' + ferestade.map((x) => '«' + x + '»').join(' · ') + '. همان کار با همان راه را دوباره نساز، حتی با کلمه‌های دیگر. ' : '\n') +
+  'بهانه، راهکار می‌خواهد نه صبر: اگر ایجنت کاری را نکرد و بهانه آورد («الان نمی‌شود»، «منتظرِ ریلود / جلو آمدنِ پنجره / حبیب / تمام شدنِ کارِ پس‌زمینه»)، منتظر نمان؛ از کارها و تجربه‌های قبلیِ همین چت و چت‌های قبلی (سرچ در چت‌های قبلی) برای همان بهانه راهکار پیدا کن، مثلاً ایجنتِ دیگری که آن ابزار را دارد (کامپیوتر یوز ⇐ ۲۰۳)، و همان کار را با راهِ تازه بیاور؛ در chera بنویس بهانه چه بود و چرا راهِ تازه از پسش برمی‌آید. فقط اگر حبیب صریحاً خلافش را گفته، نیاور.'
 // «کرون‌جاب» (Habib, 25 Oct 16:52: «کرون جا درست کنه … با توجه به اون کارایی که من مشخص میکنم اون
 // کاراییش که میخوره»): of the work Habib named, what fits a job that runs by itself on a schedule
 const prompt_fork_cron = '"cron": [all of them, 0 or more, each {"kar": "<کاری که حبیب در این چت مشخص کرد و به کرون‌جاب می‌خورد>", "zaman": "<کی اجرا شود، به فارسی و با عبارتِ cron، مثلاً هر روز ۰۸:۰۰ (0 8 * * *)>", "rah": "<با چه ساخته شود: launchd، crontab، یا CronCreate/schedule ِ Claude Code، و فرمانش>"}]'
 const ghaede_cron = '\n\n«cron» (کرون‌جاب): از میانِ کارهایی که حبیب در همین چت مشخص کرد، هر کدام که تکراری است یا باید سرِ وقت یا هر چند وقت خودش اجرا یا چک شود (چکِ نسخه، نگهبان، گزارشِ روزانه، پاک کردنِ دفتر، …)، بی‌سقف. کرون‌جابی که در همین چت ساخته شده و کار می‌کند نیاور. نامطمئن ⇒ نیاور. هیچ نبود ⇒ [].'
 const prompt_fork_bakhsh_ha = (p, anjam) => [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads, p.nakarde && prompt_fork_nakarde(), p.khodkar && prompt_fork_khodkar, p.cron && prompt_fork_cron].filter(Boolean)
-const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || []) : '') + (p.khodkar ? ghaede_khodkar : '') + (p.cron ? ghaede_cron : '')
+const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || []) : '') + (p.khodkar ? ghaede_khodkar(p.khodkar_rah || []) : '') + (p.cron ? ghaede_cron : '')
 const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   prompt_fork_bakhsh_ha(p, anjam).join(', ') + '}' + ghaede_bakhsh_ha(p, anjam)
 
@@ -606,13 +612,14 @@ async function khandan_khodkar_ferestade($) {
     let o = null
     try { o = JSON.parse(String(await $.fs.read(await masir_khodkar_ferestade($)))) } catch {}
     const list = (x) => (Array.isArray(x) ? x.filter((k) => typeof k === 'string') : [])
-    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde) })
+    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde), rah: list(o?.rah) })
   }
   return khodkar_ferestade_har_chat.get(id)
 }
+const kelid_rah = (x) => x.kar + ' ⇐ ' + x.abzar
 const dar_list = (list, kar) => list.some((k) => k === kar || hamun_matn(k, kar))
 export function matn_ferestadan_khodkar(kh, nk) {
-  const parts = ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر یکی را نمی‌شود یا نباید انجام داد، بگو چرا.']
+  const parts = ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر راهی که آمده نشد، منتظر نمان: از کارها و تجربه‌های قبلی یا ایجنتِ دیگری که ابزارش را دارد راهِ تازه پیدا کن و انجامش بده؛ فقط اگر خلافِ دستورِ حبیب است انجام نده و بگو کدام دستور.']
   if (kh.length) parts.push(kh.map((x, i) => adad_farsi(i + 1) + '. ' + x.kar + ' ⇐ با ' + x.abzar + (x.chek ? '؛ چک: ' + x.chek : '')).join('\n'))
   if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => adad_farsi(i + 1) + '. ' + x.harf + (x.chera ? ' — ' + x.chera : '')).join('\n'))
   return parts.join('\n\n')
@@ -624,10 +631,13 @@ async function ferestadan_khodkar($) {
   baraye_ferestadan_har_chat.delete(id)
   if (!b || (!b.khodkar.length && !b.nakarde.length)) return
   const f = await khandan_khodkar_ferestade($)
-  const kh = b.khodkar.filter((x) => !dar_list(f.khodkar, x.kar))
+  // once per work AND way: the same work with a new way (an excuse answered) goes again; a work sent before the
+  // ways were kept counts by its work alone
+  const qadimi = f.khodkar.filter((k) => !f.rah.some((r) => r.startsWith(k + ' ⇐ ')))
+  const kh = b.khodkar.filter((x) => !dar_list(f.rah, kelid_rah(x)) && !dar_list(qadimi, x.kar))
   const nk = b.nakarde.filter((x) => !dar_list(f.nakarde, x.harf))
   if (!kh.length && !nk.length) return
-  f.khodkar.push(...kh.map((x) => x.kar)); f.nakarde.push(...nk.map((x) => x.harf))
+  f.khodkar.push(...kh.map((x) => x.kar)); f.rah.push(...kh.map(kelid_rah)); f.nakarde.push(...nk.map((x) => x.harf))
   try { await $.fs.write(await masir_khodkar_ferestade($), JSON.stringify(f) + '\n') } catch {}
   await benevis_daftar($, 'khodkar_ferestade', { khodkar_ha: kh, nakarde_ha: nk.map((x) => x.harf) })
   $.ui.invalidate('ui.render')
@@ -650,7 +660,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   if (tokens <= had_fork_context_token || p.nakarde || p.khodkar || p.cron || pj) {
     try {
       const ferestade = await khandan_khodkar_ferestade($)
-      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [] }
+      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [], khodkar_rah: p.khodkar ? ferestade.rah.slice(-20) : [] }
       const anjam = khaste.nakarde ? await khandan_nakarde_anjam($) : []
       const r = await $.model.fork({ prompt: pj ? prompt_jambandi_nobat(pj.lines, pj.tools, khaste, anjam) : prompt_fork(khaste, anjam) })
       got = r.isAnswered ? khandan_javab_fork(r.text) : null

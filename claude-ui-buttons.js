@@ -403,13 +403,9 @@
       out.push('[class*="userMessage_"]:not(.crtl-expanded) [class*="truncationGradient"]{display:none!important}');
       out.push('[class*="userMessage_"]:not(.crtl-expanded).crtl-hovered [class*="content_"]' +
         '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
-      // a plugin's own prompt («Prompt from the hads plugin»: the «خودکار» the mod sends) is shown whole: its
-      // first line is only "The hads plugin sent a message:" (Habib, 26 Oct 05:07: «چرا پیامای خودکار توی صفحه
-      // دیده نمیشن متنشون»)
-      out.push('[class*="userMessageContainer_"]:has([class*="promptLabel_"]) [class*="content_"]' +
-        '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
-      // and under the mouse, all of it, like Habib's own: the app caps the message at 40vh and scrolls inside
-      // (26 Oct 05:24: «قابلیت کامل دیدن متنش نیست مثل پیامای خودم که کامل نشونشون میده اگ هروشون بمونم»)
+      // a plugin's own prompt («Prompt from the hads plugin»: the «خودکار» the mod sends) is drawn like Habib's own:
+      // one line, and under the mouse all of it (26 Oct 05:28: «نحوه دیدنش عین ددیدن پیاما یهودم باشه -موس روش
+      // بمونه باز بشه کامل»). The app caps it at 40vh and scrolls inside; hovered, that cap lets go
       out.push('[class*="userMessageContainer_"]:has([class*="promptLabel_"]) [class*="userMessage_"].crtl-hovered{max-height:none!important;overflow-y:visible!important}');
     } else {
       out.push('[class*="userMessage_"] [class*="content_"]{display:block!important;' +

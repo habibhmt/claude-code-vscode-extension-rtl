@@ -22,8 +22,8 @@ const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px 
   await p.waitForTimeout(100);
   const h=(id)=>p.evaluate((id)=>document.querySelector('#'+id+' [class*="content_"]').getBoundingClientRect().height,id);
   out.plugin=await h('p'); out.own=await h('u');
-  out.whole=out.plugin>=4*18-1; out.ownClamped=out.own<2*18;
-  assert.deepEqual([out.whole,out.ownClamped],[true,true]);
+  out.sameAsOwn=out.plugin===out.own&&out.own<2*18;
+  assert.equal(out.sameAsOwn,true);
   // under the mouse the app's own cap (40vh, here 40px) lets go: the whole message is in sight
   const bubble=(id)=>p.evaluate((id)=>document.querySelector('#'+id+' [class*="userMessage_"]').getBoundingClientRect().height,id);
   out.capped=await bubble('p');

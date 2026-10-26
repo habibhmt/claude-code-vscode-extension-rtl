@@ -1,0 +1,1047 @@
+# شناسنامهٔ متغیرهای ۱۳۶ — یک بلوک برای هر متغیر (استانداردِ ۹۱؛ حبیب ۲۷ اکت ۰۰:۰۰، پنجرهٔ سؤال «بله، شروع کن»).
+# عدد این‌جا نیست: ⟦اسم⟧ جای مقدار است، که فقط در کد است. جدولِ کامل: Doc/jadval_motaghayerha.md (ساخته با Doc/abzar/jadval_motaghayer.py).
+# tayid «پیشنهاد — تأییدنشده» یعنی اسم بعد از ۲۵ اکت ۰۶:۰۷ آمده و هنوز «بله» ِ حبیب را ندارد (فهرست: Doc/esm_pishnahadi.md).
+
+[model_do_jomle_va_hads]
+yani = "کجا: مودِ حدس · چیه: مدلی که «دو جمله» و حدسِ پشتیبان (وقتی fork نمی‌شود) با آن ساخته می‌شود · مثال: ⟦model_do_jomle_va_hads⟧"
+chera = "حبیب «دو جمله»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_fork_context_token"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[hads_har_chand_javab]
+yani = "کجا: آخرِ هر جواب · چیه: حدس و نکرده و خودکار و کرون هر چند جواب یک بار ساخته شوند · مثال: هر ⟦hads_har_chand_javab⟧ جواب یک fork"
+chera = "حبیب «حدسو بذار مدل اصلی بکنه … منتها مثلاً چند تا پیام به چند تا پیام»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["tedad_javab_har_chat"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[tedad_javab_har_chat]
+yani = "چند جواب در هر چت دیده شده، از بالا آمدنِ همین پروسه؛ برای «هر چند جواب یک بار»"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["hads_har_chand_javab"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[prompt_system_hads]
+yani = "دستورِ Sonnet برای حدس وقتی fork نمی‌شود: ۱ یا ۲ پیامِ بعدیِ حبیب، با لحنِ خودش"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["model_do_jomle_va_hads"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[hads_akhar]
+yani = "آخرین حدس‌هایی که کادر نشان می‌دهد"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["hads_baraye_chat"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[nakarde_akhar]
+yani = "آخرین «نکرده»‌ها (خواسته‌های حبیب که هنوز انجام نشده)، برای کادر"
+chera = "حبیب 25 Oct 04:22 «نکرده‌ها» · «چه کارایی حبیب بهت گفته و نکردی و مثل حدس دو تا توی هر دفعه داده بشه»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["nakarde_ba_sanad_akhar"]
+tarif = "14"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[nakarde_ba_sanad_akhar]
+yani = "«نکرده»‌هایی که سندشان (فایل یا commit) نشان داد انجام شده؛ در یک خطِ کوچک شمرده می‌شوند"
+chera = "حبیب 25 Oct 19:17 «نکرده»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["nakarde_akhar", "had_kamtarin_harf_sanad"]
+tarif = "14"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 19:20)"
+
+[nakarde_ba_sanad_baz]
+yani = "خطِ «با سند کنار رفت» باز است یا بسته"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["nakarde_ba_sanad_akhar"]
+tarif = "14"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 19:20)"
+
+[khodkar_akhar]
+yani = "آخرین «خودکار»ها: کاری که ایجنت خودش با ابزارش می‌تواند بکند به‌جای پرسیدن از حبیب"
+chera = "حبیب 25 Oct 16:48 «خودکار» · «کارهایی که خود مدل میتونه انجام بده … جوری که مدل هی نخواد از من بپرسه … به تعداد هیچ محدود نباشه»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["khodkar_ferestade_har_chat"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
+
+[cron_akhar]
+yani = "آخرین «کرون‌جاب»‌ها: کارهای تکراری که حبیب گفت و به اجرای خودکار سرِ وقت می‌خورند"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
+
+[hads_dar_kar]
+yani = "یک ساختِ حدس در راه است؛ دومی هم‌زمان شروع نمی‌شود"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[hads_baraye_chat]
+yani = "حدس‌ها مالِ کدام چت‌اند؛ بعد از /clear (چتِ تازه) نشان داده نمی‌شوند"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["hads_akhar"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[do_jomle_fasele_ms]
+yani = "کجا: وسطِ کار، بعد از هر ابزار · چیه: کمترین فاصلهٔ دو «دو جمله» · مثال: هر ⟦do_jomle_fasele_ms⟧ میلی‌ثانیه حداکثر یکی"
+chera = "حبیب «دو جمله»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["model_do_jomle_va_hads"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_fork_context_token]
+yani = "کجا: آخرِ جواب · چیه: اگر چت از این بزرگ‌تر باشد fork گران است و Sonnet روی پیام‌های آخر کار می‌کند · مثال: بیش از ⟦had_fork_context_token⟧ توکن"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["model_do_jomle_va_hads"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[cache_sard_ms]
+yani = "کجا: «پرسش» · چیه: بیکاریِ بیش از این یعنی کشِ چت احتمالاً سرد شده و «پرسش» اول هشدار می‌دهد (کشِ یک‌ساعته)"
+chera = "حبیب «پرسش» · «Prompt cache warm, about 58 min left»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["cache_sard_5m_ms", "cache_sard_bad_az_ms"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[cache_sard_5m_ms]
+yani = "همان، وقتی کشِ چت پنج‌دقیقه‌ای است"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["cache_sard_ms"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[cache_sard_bad_az_ms]
+yani = "کدام یک از دو بالایی الان به کار می‌رود (بسته به کشِ چت)"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["cache_sard_ms", "cache_sard_5m_ms"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[prompt_system_do_jomle]
+yani = "دستورِ Sonnet برای «دو جمله»: دو جملهٔ ساده که ایجنت الان چه می‌کند و منتظرِ چیست، با واژه‌نامهٔ حبیب"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[do_jomle_akhar]
+yani = "آخرین «دو جمله» و چتش"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[do_jomle_dar_kar]
+yani = "یک «دو جمله» در راه است"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["do_jomle_dobare"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[do_jomle_dobare]
+yani = "وقتی یکی در راه بود، یکی دیگر خواسته شد؛ بعدش ساخته می‌شود"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["do_jomle_dar_kar"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[zaman_do_jomle_akhar]
+yani = "ساعتِ آخرین «دو جمله»، برای فاصلهٔ ⟦do_jomle_fasele_ms⟧"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["do_jomle_fasele_ms"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[zaman_akhar_javab]
+yani = "ساعتِ آخرین پایانِ جواب؛ پایانِ جواب بر «دو جمله»ٔ وسطِ کار که دیرتر رسید می‌چربد"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[akhar_javab_dar_kar]
+yani = "کارِ آخرِ جواب در راه است"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["akhar_javab_dobare"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[akhar_javab_dobare]
+yani = "جوابی وسطِ کارِ قبلی تمام شد؛ بعدش انجام می‌شود، گم نمی‌شود"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["akhar_javab_dar_kar"]
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[zaman_akharin_kar]
+yani = "آخرین باری که خودِ چت با مدل حرف زد؛ سنِ کش"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["cache_sard_ms"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[cache_sard_shod]
+yani = "Claude Code خودش بعد از resume گفت کش رفته"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["cache_sard_ms"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[porsesh_montazer]
+yani = "«پرسش»ی که پیش از آماده بودنِ fork آمد؛ آخرِ جوابِ بعدی خودش پرسیده می‌شود"
+chera = "حبیب «پرسش»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["matn_porsesh_montazer"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[javab_porsesh]
+yani = "جوابِ آخرین «پرسش» (fork با کشِ گرم)؛ هرگز به چت نمی‌رود"
+chera = "حبیب «بپرس»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["matn_porsesh"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[matn_porsesh]
+yani = "متنی که حبیب در جعبهٔ «پرسش» نوشته"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["javab_porsesh"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[prompt_ha]
+yani = "پرومپت‌های ذخیره‌شدهٔ «پرسش» (همهٔ چت‌ها یکی، در فایل)"
+chera = "حبیب 26 Oct 05:41 «پرسش» · «اون بپرس یه قسمت پرومپت هم داشته باشه که توش بتونم متن بزارم و بشه یک دکمه … دکمه ادیت و ذخیره هم داشته باشه … اون سوالی که از مدل با کش گرم میپرسیم با این پرومپت پرسیده بشه»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["prompt_entekhab_har_chat", "had_harf_dokme_prompt"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
+
+[prompt_entekhab_har_chat]
+yani = "کدام پرومپت در هر چت روشن است"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["prompt_ha"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
+
+[prompt_virayesh]
+yani = "پرومپتی که الان با ✎ در حالِ ویرایش است"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["prompt_ha"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
+
+[system_reminder_regex]
+yani = "الگوی بخش‌های system-reminder که از متنِ پیام‌ها کنار گذاشته می‌شوند"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[matn_bi_harfe_habib]
+yani = "وقتی نوبت با پیامِ خودِ حبیب شروع نشده (کار، چتِ دیگر، Continue)، به‌جای «خواستهٔ حبیب» این می‌آید"
+chera = "حبیب «Continue from where you left off.»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[prompt_fork_do_jomle]
+yani = "تکهٔ دستورِ fork برای «دو جمله»؛ فقط بخش‌های روشن خواسته می‌شوند"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[prompt_fork_hads]
+yani = "تکهٔ دستورِ fork برای حدس"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[abzar_ha_ye_claude_code]
+yani = "فهرستِ کاملِ ابزارهای ایجنت در Claude Code، برای «خودکار» (از سندِ رسمی)"
+chera = "حبیب 25 Oct 18:08 «منظورم کل ابزارهایی هست که توی کلود کد برای ایجنت ها موجوده. و این ابزارها باید سرچ به وب بکنی که لیست کاملش رو در بیاری و توی پرومپتت بیاری که ایجنت چک بکنه و بررسی بکنه و پیشنهاداشو بده»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["prompt_fork_khodkar"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
+
+[prompt_fork_khodkar]
+yani = "تکهٔ دستورِ fork برای «خودکار»"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["abzar_ha_ye_claude_code"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
+
+[prompt_fork_cron]
+yani = "تکهٔ دستورِ fork برای «کرون‌جاب»"
+chera = "حبیب 25 Oct 16:52 «کرون‌جاب» · «کرون جا درست کنه … با توجه به اون کارایی که من مشخص میکنم اون کاراییش که میخوره»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["ghaede_cron"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
+
+[ghaede_cron]
+yani = "قاعده‌های «کرون‌جاب» در دستورِ fork"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["prompt_fork_cron"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
+
+[had_kamtarin_harf_sanad]
+yani = "کجا: سندِ «نکرده» · چیه: متنِ سند کوتاه‌تر از این چک حساب نمی‌شود · مثال: کمتر از ⟦had_kamtarin_harf_sanad⟧ حرف"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["nakarde_ba_sanad_akhar"]
+tarif = "14"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 19:20)"
+
+[nakarde_anjam_har_chat]
+yani = "«نکرده»‌هایی که حبیب در هر چت خودش «✓ انجام شد» زد"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[gheymat_cache_neveshtan_usd]
+yani = "دلار برای هر میلیون توکنِ نوشتنِ کش (پنج‌دقیقه‌ای و یک‌ساعته)، برای هشدارِ «پرسش» با کشِ سرد"
+chera = "حبیب «بپرس»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["gheymat_tamas_usd"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_ghablia_tedad]
+yani = "کجا: «قبلی‌ها» · چیه: چند «دو جمله»ٔ قبلی نگه داشته و نشان داده شود · مثال: ⟦had_ghablia_tedad⟧ تای آخر"
+chera = "حبیب «قبلی‌ها» · «دو جمله»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[do_jomle_akhar_dar_daftar]
+yani = "آخرین «دو جمله» که در دفتر نوشته شد، برای هر چت (یک پروسه چند چت می‌تواند داشته باشد)"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[hads_zade_shode]
+yani = "حدس‌هایی که در کادرِ نوشتن گذاشته شدند، تا با Enter معلوم شود کدام رفت"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "01"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[do_jomle_ha_ye_nobat]
+yani = "همهٔ «دو جمله»‌های نوبتِ در جریان، برای جمع‌بندیِ آخرِ جواب"
+chera = "حبیب «دو جمله»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["had_kamtarin_do_jomle_jambandi"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[mah_miladi]
+yani = "اسمِ کوتاهِ ماه‌های میلادی، مثلِ تاریخ‌نویسیِ حبیب («۲۴ اکت ۱۸:۵۷»)"
+chera = "حبیب «۲۴ اکت ۱۸:۵۷»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["mah_shamsi"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[mah_shamsi]
+yani = "اسمِ ماه‌های شمسی برای تاریخِ خطِ هوک‌ها (در مود و در وصلهٔ میزبان، دو جا)"
+chera = "حبیب «۳ آبان ۱۴۰۵ ۲۰:۰۹» · «اگر که ساعت تاریخ شمسی باشه چه بهتر»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["mah_miladi"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_do_jomle_harf]
+yani = "کجا: «دو جمله» · چیه: بیشترین حرف · مثال: بلندتر از ⟦had_do_jomle_harf⟧ حرف با … کوتاه می‌شود"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[gheymat_tamas_usd]
+yani = "کجا: جدولِ «تماس‌ها» · چیه: دلار برای هر میلیون توکن: ورودی، خروجی، نوشتنِ کش، خواندنِ کش؛ برای Sonnet و fork (Opus) · از جدولِ ۲۰۳ (ertebat_claude.py)"
+chera = "حبیب 26 Oct 21:54 «تماس‌ها» · «حدس»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_tamas_riz"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[had_tamas_riz]
+yani = "کجا: حالتِ بزرگِ جدولِ «تماس‌ها» · چیه: چند تماسِ آخر ریز به ریز · مثال: ⟦had_tamas_riz⟧ تای آخر"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["gheymat_tamas_usd"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[neshane_amar]
+yani = "نشانهٔ اولِ خطِ پنهانی که دادهٔ جدولِ «تماس‌ها» را به صفحه می‌برد"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["NESHANE_AMAR"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[amar_cache]
+yani = "دادهٔ جدولِ «تماس‌ها» که چند ثانیه نگه داشته می‌شود تا هر رسمِ کادر فایل را دوباره نخواند"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["neshane_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[had_kamtarin_do_jomle_jambandi]
+yani = "کجا: آخرِ جواب · چیه: با کمتر از این «دو جمله» در نوبت جمع‌بندی ساخته نمی‌شود · مثال: ⟦had_kamtarin_do_jomle_jambandi⟧"
+chera = "حبیب 24 Oct 22:42 «دو جمله … عکس لحظه ای میگیره … جمع بندی نداره … بعد از رفت و برگشت کل اینا رو بده به … یه ایجنت با کشه گرم که … جمعبندی کنه» · «دو جمله»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["do_jomle_ha_ye_nobat"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[abzar_ha_ye_nobat]
+yani = "ابزارهایی که در نوبتِ در جریان صدا زده شدند"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[khaste_habib_nobat]
+yani = "پیامِ خودِ حبیب که نوبت را شروع کرد"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[khodkar_ferestade_har_chat]
+yani = "«خودکار»ها و «نکرده»‌هایی که به چت فرستاده شدند، با شمارِ هر کار"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["had_ferestadan_kar"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 03:39)"
+
+[baraye_ferestadan_har_chat]
+yani = "«خودکار»هایی که در صفِ فرستادن به چت‌اند"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["khodkar_ferestade_har_chat"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 03:39)"
+
+[had_ferestadan_kar]
+yani = "کجا: «خودکار» · چیه: یک کار چند بار به چت برود؛ بارِ آخر با درخواستِ کمک از حبیب، بعدش دیگر نه · مثال: ⟦had_ferestadan_kar⟧ بار"
+chera = "حبیب 26 Oct 07:50 «خودکار» · «نکرده»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["matn_bar_sevom"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 07:52)"
+
+[matn_bar_sevom]
+yani = "متنی که بارِ آخرِ فرستادنِ یک کار اضافه می‌شود: «اول به زبانِ ساده به حبیب توضیح بده و کمک بخواه»"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_ferestadan_kar"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 07:52)"
+
+[matn_porsesh_montazer]
+yani = "پیامِ کادر وقتی «پرسش» باید تا جوابِ بعدی صبر کند"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["porsesh_montazer"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[matn_dalil_bi_javab]
+yani = "دلیلِ ساده‌ای که کادر وقتی fork جواب نداد نشان می‌دهد"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_harf_dokme_prompt]
+yani = "کجا: دکمه‌های پرومپتِ «پرسش» · چیه: بیشترین حرفِ روی دکمه · مثال: بلندتر از ⟦had_harf_dokme_prompt⟧ حرف با …"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["prompt_ha"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
+
+[bakhsh_ha]
+yani = "بخش‌های کادرِ حدس و اسمِ فارسیِ هر کدام (تیک‌ها)"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["esm_bakhsh", "kalame_khamush"]
+tarif = "16"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[esm_bakhsh]
+yani = "همان، به شکلِ جدولِ اسم ⇐ واژه"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["bakhsh_ha"]
+tarif = "16"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
+
+[dayere_ha]
+yani = "دایره‌های سرچِ حافظه: همین چت، همین پروژه، همهٔ پروژه‌ها"
+chera = "حبیب 25 Oct 18:03 «🔎 حافظه» · «این قابلیت سرچ کردن باید قابل تنظیم باشه که … فقط از توی چت خودش باشه یا از توی چتای توی پروژه خودش باشه یا از توی کل چتای موجود در کل پروژه ها»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["esm_dayere", "dayere_har_chat"]
+tarif = "17"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:38)"
+
+[esm_dayere]
+yani = "اسمِ فارسیِ هر دایره"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["dayere_ha"]
+tarif = "17"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:38)"
+
+[dayere_har_chat]
+yani = "دایرهٔ سرچِ حافظه برای هر چت"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["dayere_ha"]
+tarif = "17"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:38)"
+
+[akharin_zakhire]
+yani = "آخرین وضعی که برای هر چت در فایل نوشته شد (حدس‌ها، نکرده‌ها …)، برای برگرداندن بعد از ریلود"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["akharin_bargashte"]
+tarif = "16"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
+
+[akharin_bargashte]
+yani = "چت‌هایی که وضعشان بعد از ریلود یک بار برگردانده شد"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["akharin_zakhire"]
+tarif = "16"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
+
+[kalame_khamush]
+yani = "کلمهٔ هر بخشِ خاموش در فایلِ چت (مثلِ -hads)؛ کامل نوشته شده تا با grep پیدا شود"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["bakhsh_ha", "kalame_tanzim"]
+tarif = "10"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[kalame_tanzim]
+yani = "کلمه‌های دیگرِ فایلِ چت: حالتِ کادر و تنظیم‌ها"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["kalame_khamush"]
+tarif = "13"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[ghablia_baz]
+yani = "«قبلی‌ها» باز است"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["had_ghablia_tedad"]
+tarif = "12"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_hook_transcript_khat]
+yani = "کجا: «هوک‌ها» · چیه: چند خطِ آخرِ فایلِ چت برای پیدا کردنِ هوک‌ها خوانده شود · مثال: ⟦had_hook_transcript_khat⟧ خط"
+chera = "حبیب «هوک‌ها»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_hook_transcript_byte"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_hook_transcript_byte]
+yani = "همان، به بایت: بیش از این از تهِ فایل خوانده نمی‌شود"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_hook_transcript_khat"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[hook_transcript_grep]
+yani = "الگوی خط‌های هوک در فایلِ چت"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_hook_kuchak_harf]
+yani = "کجا: «هوک‌ها» · چیه: بیشترین حرفِ هر خطِ کوچک · مثال: ⟦had_hook_kuchak_harf⟧ حرف"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_hook_kuchak_radif"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[masir_transcript]
+yani = "مسیرِ فایلِ چتِ همین چت"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[hook_ha]
+yani = "هوک‌هایی که برای کادر خوانده شد، و چتش"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[zaman_khandan_hook]
+yani = "ساعتِ آخرین خواندنِ هوک‌ها"
+chera = ""
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_hook_kuchak_radif]
+yani = "کجا: «هوک‌ها» · چیه: چند هوکِ آخر در حالتِ کوچک · مثال: ⟦had_hook_kuchak_radif⟧ ردیف"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_hook_bozorg_radif"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_hook_bozorg_radif]
+yani = "همان در حالتِ بزرگ"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_hook_bozorg_harf"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_hook_bozorg_harf]
+yani = "بیشترین حرفِ هر هوک در حالتِ بزرگ"
+chera = ""
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_hook_bozorg_radif"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[ERRORS]
+yani = "خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[SESSION]
+yani = "چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود)"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "02"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[DEFAULT_COMMANDS]
+yani = "دکمه‌های پیش‌فرضِ نوارِ بالا"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["DEF"]
+tarif = "02"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[KEY]
+yani = "کلیدِ localStorage ِ تنظیم‌های پنل"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[DEF]
+yani = "تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها)"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["LIMITS", "PRESETS", "KEY"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[LIMITS]
+yani = "کمترین و بیشترینِ هر اندازه در پنل"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[PRESETS]
+yani = "حالت‌های آمادهٔ اندازه‌ها"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[esm_ghadim_tanzim]
+yani = "اسمِ قدیمِ دو تنظیم ⇐ اسمِ تازه؛ مقدارِ ذخیره‌شده با اسمِ قدیم خوانده می‌شود"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["DEF"]
+tarif = "10"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[CSS]
+yani = "همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[HOVER_DELAY]
+yani = "کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: ⟦HOVER_DELAY⟧"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[GLOSS_DELAY]
+yani = "کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: ⟦GLOSS_DELAY⟧"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "06"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[counterTimer]
+yani = "زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["usageCache", "usageTick"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[usageCache]
+yani = "آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["counterTimer"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[usageTick]
+yani = "شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار)"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["counterTimer"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[FILE_NAME]
+yani = "اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[DRAG_PX]
+yani = "کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = []
+tarif = "02"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[topWatch]
+yani = "نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "02"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[draftCommands]
+yani = "متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["DEFAULT_COMMANDS"]
+tarif = "02"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[draftProfileName]
+yani = "اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[NESHANE_AMAR]
+yani = "همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند"
+chera = "حبیب 26 Oct 21:54 «سمت چپ که خالیه یه جدول کوچیک بذار … قابل جابجایی … یک ساعت اخیر 24 ساعت اخیر کل … خودکار رو عمودی بنویس … اگر بزرگش بکنم … ریز بریز با مقدار مقادیر کامل»"
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["neshane_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[KELID_JA_AMAR]
+yani = "کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد"
+chera = "حبیب 26 Oct 21:54 «سمت چپ که خالیه یه جدول کوچیک بذار … قابل جابجایی … یک ساعت اخیر 24 ساعت اخیر کل … خودکار رو عمودی بنویس … اگر بزرگش بکنم … ریز بریز با مقدار مقادیر کامل»"
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["ja_kuchak_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[sotun_amar]
+yani = "ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["radif_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[radif_amar]
+yani = "ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["sotun_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[amar_matn_akhar]
+yani = "آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[amar_bozorg]
+yani = "جدولِ «تماس‌ها» در حالتِ بزرگ است"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["ja_kuchak_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+
+[ja_kuchak_amar]
+yani = "جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["amar_bozorg", "KELID_JA_AMAR"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:48)"
+
+[amar_dar_rah]
+yani = "یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه)"
+chera = "حبیب 26 Oct 23:12 «اون کلمات گاهی میاد تو کادر بسته حدس»"
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = []
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:18)"
+
+[tries]
+yani = "چند بار صفحه برای سوار شدنِ پنل گشته شد"
+chera = ""
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["timer"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[timer]
+yani = "زمان‌سنجِ همان گشتن"
+chera = ""
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["tries"]
+tarif = "04"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[gorooh_hook]
+yani = "نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند"
+chera = "حبیب 25 Oct «من چند بار چند بار ریلود میکنم چند چت رو بعد اینو بکشه»"
+ozv = "mizban"
+noe = "sabet"
+ba_motaghayerha = ["neshane_hook"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[neshane_hook]
+yani = "بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا"
+chera = ""
+ozv = "mizban"
+noe = "sabet"
+ba_motaghayerha = ["gorooh_hook"]
+tarif = "11"
+tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"

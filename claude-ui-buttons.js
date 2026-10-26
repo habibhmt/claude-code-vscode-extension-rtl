@@ -1352,13 +1352,19 @@
   // The empty stretch of the header between the chat name and its icons.
   // Found by shape, not by hashed class, and null when a new Claude build
   // moves it — the caller then falls back to the left column.
+  // The chat header's spacer is preferred; a header without the chat name (some chats
+  // opened by a ?session= link) still takes the row.
   function ja_navar_bala() {
     var sp = document.querySelectorAll('[class*="headerSpacer_"]');
+    var any = null;
     for (var i = 0; i < sp.length; i++) {
       var head = sp[i].closest('[class*="header_"]');
-      if (head && head.querySelector('[class*="titleText_"]')) return sp[i];
+      if (!head) continue;
+      if (head.querySelector('[class*="titleText_"]')) return sp[i];
+      // not the "Auto mode is enabled" banner, which is a header_ with its own spacer
+      if (!any && !head.querySelector('[class*="headerTitle_"]')) any = sp[i];
     }
-    return null;
+    return any;
   }
 
   function ejraye_dokme(c, line) {
@@ -1450,7 +1456,8 @@
       var bar = document.querySelector('.crtl-top');
       var host = ja_navar_bala();
       if (bar && host && host.contains(bar)) return;
-      if (!bar && !host && document.querySelector('.crtl-bar[data-side="left"] [data-top]')) return;
+      // no header yet (a chat still loading): wait for it, never draw the row elsewhere
+      if (!host) return;
       if (host && !document.querySelector('[data-top]')) { sakht_navar_bala(s); return; }
       sakht_dobare();
     }, 1500);
@@ -1459,13 +1466,14 @@
   function sakht_dokme_kenar(s) {
     var old = document.querySelectorAll('.crtl-bar:not(.crtl-top)');
     for (var i = 0; i < old.length; i++) old[i].remove();
-    var topOK = sakht_navar_bala(s);
+    sakht_navar_bala(s);
     payesh_navar_bala();
 
     ['left', 'right'].forEach(function (side) {
       var items = dokme_ha(s).filter(function (c) {
         var at = samt_dokme(c, s);
-        return at === side || (at === 'top' && !topOK && side === 'left');
+        // "top" buttons live only in the header row; without a header they wait (payesh_navar_bala)
+        return at === side;
       });
       if (!items.length) return;
       var bar = document.createElement('div');

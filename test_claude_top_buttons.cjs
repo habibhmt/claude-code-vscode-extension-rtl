@@ -120,11 +120,12 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await p.waitForTimeout(2000);
   out.rebuilt=await p.$$eval('.header_aqhumA [class*="headerSpacer_"] .crtl-top .crtl-btn',b=>b.length);
   assert.equal(out.rebuilt,13);
-  // header gone (new Claude build): the top buttons land in the left column, never vanish
+  // header gone: the top buttons never fall to the vertical left column (Habib 26 Oct:
+  // «بله، درستش کند»), and never into the "Auto mode" banner; they wait for the header
   await p.setViewportSize({width:900,height:600});
   await open({spacer:false});
-  out.fallback=await p.$$eval('.crtl-bar[data-side="left"] [data-top]',b=>b.length);
-  assert.equal(out.fallback,14);
+  out.fallback=await p.$$eval('.crtl-bar[data-side="left"] [data-top]',b=>b.length)+await p.$$eval('.header_BrnsCQ .crtl-top',b=>b.length);
+  assert.equal(out.fallback,0);
   console.log(JSON.stringify(out));
  } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exit(1)});

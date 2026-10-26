@@ -612,16 +612,26 @@ async function khandan_khodkar_ferestade($) {
     let o = null
     try { o = JSON.parse(String(await $.fs.read(await masir_khodkar_ferestade($)))) } catch {}
     const list = (x) => (Array.isArray(x) ? x.filter((k) => typeof k === 'string') : [])
-    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde), rah: list(o?.rah) })
+    const tedad = o?.tedad && typeof o.tedad === 'object' ? Object.fromEntries(Object.entries(o.tedad).filter(([, n]) => Number.isInteger(n))) : {}
+    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde), rah: list(o?.rah), tedad })
   }
   return khodkar_ferestade_har_chat.get(id)
 }
 const kelid_rah = (x) => x.kar + ' ⇐ ' + x.abzar
 const dar_list = (list, kar) => list.some((k) => k === kar || hamun_matn(k, kar))
+// how many times one work went to the chat («خودکار» or «نکرده», any wording): the third time asks Habib, there is no
+// fourth (Habib, 26 Oct 07:50: «خودکاری که دوبار اومده و انجام نشده دفعه سوم هوک خودکار یه متنی اضافه کنه بهش که این مورد
+// رو اول به زبون ساده به حبیب توضیح بده و ازش بخواه کمکت کنه … و دفعه چهارم دیگه نفرستتش»)
+export const had_ferestadan_kar = 3
+export const matn_bar_sevom = ' (بارِ سوم است و هنوز انجام نشده: اول به زبانِ ساده به حبیب توضیح بده این کار چیست و کجا گیر کرده، و از او بخواه کمکت کند)'
+function tedad_kar(tedad, kar) {
+  const k = Object.keys(tedad).find((x) => x === kar || hamun_matn(x, kar))
+  return { kelid: k ?? kar, n: k ? tedad[k] : 0 }
+}
 export function matn_ferestadan_khodkar(kh, nk) {
   const parts = ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر راهی که آمده نشد، منتظر نمان: از کارها و تجربه‌های قبلی یا ایجنتِ دیگری که ابزارش را دارد راهِ تازه پیدا کن و انجامش بده؛ فقط اگر خلافِ دستورِ حبیب است انجام نده و بگو کدام دستور.']
-  if (kh.length) parts.push(kh.map((x, i) => adad_farsi(i + 1) + '. ' + x.kar + ' ⇐ با ' + x.abzar + (x.chek ? '؛ چک: ' + x.chek : '')).join('\n'))
-  if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => adad_farsi(i + 1) + '. ' + x.harf + (x.chera ? ' — ' + x.chera : '')).join('\n'))
+  if (kh.length) parts.push(kh.map((x, i) => adad_farsi(i + 1) + '. ' + x.kar + ' ⇐ با ' + x.abzar + (x.chek ? '؛ چک: ' + x.chek : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
+  if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => adad_farsi(i + 1) + '. ' + x.harf + (x.chera ? ' — ' + x.chera : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
   return parts.join('\n\n')
 }
 // at the answer's end, after everything else: one message with the new «خودکار» and the «نکرده» of sent ones
@@ -634,8 +644,13 @@ async function ferestadan_khodkar($) {
   // once per work AND way: the same work with a new way (an excuse answered) goes again; a work sent before the
   // ways were kept counts by its work alone
   const qadimi = f.khodkar.filter((k) => !f.rah.some((r) => r.startsWith(k + ' ⇐ ')))
-  const kh = b.khodkar.filter((x) => !dar_list(f.rah, kelid_rah(x)) && !dar_list(qadimi, x.kar))
-  const nk = b.nakarde.filter((x) => !dar_list(f.nakarde, x.harf))
+  const kh0 = b.khodkar.filter((x) => !dar_list(f.rah, kelid_rah(x)) && !dar_list(qadimi, x.kar))
+  const nk0 = b.nakarde.filter((x) => !dar_list(f.nakarde, x.harf))
+  // the count: a work sent had_ferestadan_kar times does not go again; the last time carries the ask for Habib's help
+  const shomar = (list, kar_az) => list.map((x) => ({ x, t: tedad_kar(f.tedad, kar_az(x)) })).filter(({ t }) => t.n < had_ferestadan_kar)
+    .map(({ x, t }) => { f.tedad[t.kelid] = t.n + 1; return t.n + 1 === had_ferestadan_kar ? { ...x, bar_sevom: true } : x })
+  const kh = shomar(kh0, (x) => x.kar)
+  const nk = shomar(nk0, (x) => x.harf)
   if (!kh.length && !nk.length) return
   f.khodkar.push(...kh.map((x) => x.kar)); f.rah.push(...kh.map(kelid_rah)); f.nakarde.push(...nk.map((x) => x.harf))
   try { await $.fs.write(await masir_khodkar_ferestade($), JSON.stringify(f) + '\n') } catch {}

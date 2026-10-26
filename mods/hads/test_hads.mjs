@@ -712,7 +712,7 @@ out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با 
   third: calls.submit.length, file: flags['/h/.claude/hads-log/X.khodkar_ferestade.json'],
   logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
 assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
-  nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"]}\n', logged: 2 })
+  nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"],"tedad":{"چکِ اپ":2,"سرچِ حرفِ حبیب":1}}\n', logged: 2 })
 // an excuse gets a new way, not a wait (Habib, 26 Oct 07:44): the fork is told what was sent and to answer excuses; the same
 // work with a NEW way goes again, the same way does not; an excuse does not take a «نکرده» out
 {
@@ -726,6 +726,13 @@ assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده
     newWay: sub4.length === 1 && /۱\. چکِ اپ ⇐ با SendMessage به ۲۰۳/.test(sub4[0]) && !/سرچِ حرفِ حبیب/.test(sub4[0]),
     header: /منتظر نمان/.test(sub4[0] || '') }
   assert.deepEqual(out.bahane, { told: true, nakardeRule: true, newWay: true, header: true })
+  // the same work a third time (here: «خودکار», «نکرده», then a new way) asks Habib's help; a fourth time it does not go
+  // (Habib, 26 Oct 07:50: «دفعه سوم … به زبون ساده به حبیب توضیح بده و ازش بخواه کمکت کنه … و دفعه چهارم دیگه نفرستتش»)
+  khX[0] = { kar: 'چکِ اپ', abzar: 'Chrome CDP روی 9229', chek: 'عکس' }
+  const s1 = calls.submit.length
+  await dowr([])
+  out.barSevom = { third: sub4[0].includes(mod.matn_bar_sevom), fourth: calls.submit.length - s1 }
+  assert.deepEqual(out.barSevom, { third: true, fourth: 0 })
 }
 
 // «هوک‌ها» in the box: no emoji, and a hook's message beside its injected text is left out (26 Oct 05:36)

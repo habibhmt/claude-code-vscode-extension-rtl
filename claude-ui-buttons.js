@@ -2242,7 +2242,7 @@
   var sotun_amar = [['do_jomle', 'دو جمله'], ['hads', 'حدس'], ['nakarde', 'نکرده'], ['khodkar', 'خودکار'], ['cron', 'کرون'],
     ['jambandi_nobat', 'جمع‌بندی'], ['porsesh', 'پرسش'], ['kol', 'کل']];
   var radif_amar = [['saat', '۱ ساعت'], ['ruz', '۲۴ ساعت'], ['hame', 'کل']];
-  var amar_matn_akhar = '', amar_bozorg = false;
+  var amar_matn_akhar = '', amar_bozorg = false, ja_kuchak_amar = null;
   function fa(n) { return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
   function dolar(n) { return '$' + (n >= 1 ? n.toFixed(2) : n.toFixed(3)); }
   // small: no row names, they take the most room (Habib, 26 Oct 23:12: «اون قسمت ستون اول رو حذف کن که جا بگیره
@@ -2270,6 +2270,18 @@
     });
     return h + '</table>';
   }
+  // big remembers where the small one sat; × or a click anywhere else puts it back there, small (Habib, 26 Oct
+  // 23:46: «دکمه ضربدر برش نمیگردونه سرجاش-- با کلیک جای دیگه تصویر باید مینیمایز بشه بره سر جای قبلیش»)
+  function amar_bozorgi(bale) {
+    var box = document.getElementById('crtl-amar');
+    if (!box || bale === amar_bozorg) return;
+    if (bale) ja_kuchak_amar = { left: box.style.left, top: box.style.top, bottom: box.style.bottom };
+    else if (ja_kuchak_amar) { box.style.left = ja_kuchak_amar.left; box.style.top = ja_kuchak_amar.top; box.style.bottom = ja_kuchak_amar.bottom; }
+    amar_bozorg = bale; amar_matn_akhar = ''; jadval_tamas();
+  }
+  document.addEventListener('pointerdown', function (e) {
+    if (amar_bozorg && !(e.target.closest && e.target.closest('#crtl-amar'))) amar_bozorgi(false);
+  }, true);
   function jadval_tamas() {
     var spans = document.querySelectorAll('[class*="abovePrompt_"] span'), dade = null;
     for (var i = 0; i < spans.length; i++) {
@@ -2300,7 +2312,7 @@
         function vel() {
           document.removeEventListener('pointermove', harekat); document.removeEventListener('pointerup', vel);
           if (raft) { try { localStorage.setItem(KELID_JA_AMAR, JSON.stringify({ x: parseInt(box.style.left, 10), y: parseInt(box.style.top, 10) })); } catch (e2) {} return; }
-          amar_bozorg = !amar_bozorg; amar_matn_akhar = ''; jadval_tamas();
+          amar_bozorgi(!amar_bozorg);
         }
         document.addEventListener('pointermove', harekat); document.addEventListener('pointerup', vel);
       });
@@ -2332,7 +2344,7 @@
       '#crtl-amar .crtl-amar-amudi{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;font-weight:400;opacity:.7;max-height:5em;padding:1px 0}',
       '#crtl-amar .crtl-amar-r{opacity:.7;text-align:right}',
       '#crtl-amar .crtl-amar-sefr{opacity:.35}',
-      '#crtl-amar.crtl-amar-bozorg{max-width:min(720px,92vw);max-height:65vh;overflow:auto;font-size:11px;padding:6px 8px;cursor:default;user-select:text;-webkit-user-select:text}',
+      '#crtl-amar.crtl-amar-bozorg{max-width:min(720px,92vw);max-height:65vh;overflow:auto;font-size:11px;padding:6px 8px;cursor:default;user-select:text;-webkit-user-select:text;background:var(--vscode-editorWidget-background,#2c2c2e)}',
       '#crtl-amar .crtl-amar-sar{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:grab}',
       '#crtl-amar .crtl-amar-bastan{background:none;border:none;color:inherit;font-size:14px;cursor:pointer}',
       '#crtl-amar .crtl-amar-dolar{margin:4px 0;opacity:.85}',

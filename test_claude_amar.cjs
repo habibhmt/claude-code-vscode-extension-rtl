@@ -38,8 +38,16 @@ const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><b
   await p.mouse.click(r0[0],r0[1]);await p.waitForTimeout(300);
   out.big=await p.evaluate(()=>{const b=document.getElementById('crtl-amar');return {cls:b.classList.contains('crtl-amar-bozorg'),calls:b.querySelectorAll('.crtl-amar-riz tr').length-1,usd:b.querySelector('.crtl-amar-dolar').textContent,first:b.querySelector('.crtl-amar-riz tr:nth-child(2)').textContent.includes('$0.026'),inside:b.getBoundingClientRect().bottom<=innerHeight}});
   assert.deepEqual(out.big,{cls:true,calls:60,usd:'۱ ساعت: $0.026 · ۲۴ ساعت: $0.029 · کل: $0.029',first:true,inside:true});
-  // × makes it small again; a drag moves it and the place is kept
+  // × makes it small again, back where it was (26 Oct 23:46)
   await p.click('.crtl-amar-bastan');await p.waitForTimeout(300);
+  out.back=await p.evaluate((y)=>{const b=document.getElementById('crtl-amar');return {small:!b.classList.contains('crtl-amar-bozorg'),top:Math.round(b.getBoundingClientRect().top)===Math.round(y)}},r0[1]-10);
+  assert.deepEqual(out.back,{small:true,top:true});
+  // a click anywhere else does the same
+  await p.mouse.click(r0[0],r0[1]);await p.waitForTimeout(300);
+  await p.mouse.click(700,100);await p.waitForTimeout(300);
+  out.outside=await p.evaluate((y)=>{const b=document.getElementById('crtl-amar');return {small:!b.classList.contains('crtl-amar-bozorg'),top:Math.round(b.getBoundingClientRect().top)===Math.round(y)}},r0[1]-10);
+  assert.deepEqual(out.outside,{small:true,top:true});
+  // a drag moves it and the place is kept
   const r1=await p.evaluate(()=>{const r=document.getElementById('crtl-amar').getBoundingClientRect();return [r.left+10,r.top+10]});
   await p.mouse.move(r1[0],r1[1]);await p.mouse.down();await p.mouse.move(r1[0]+200,r1[1]-150,{steps:5});await p.mouse.up();await p.waitForTimeout(200);
   out.drag=await p.evaluate(()=>{const b=document.getElementById('crtl-amar'),j=JSON.parse(localStorage.getItem('crtl-amar-ja'));return {small:!b.classList.contains('crtl-amar-bozorg'),moved:Math.round(b.getBoundingClientRect().left)>150,kept:!!j&&j.x>150}});

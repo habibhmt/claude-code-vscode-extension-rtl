@@ -152,7 +152,7 @@ const prompt_fork_hads = '"hads": [1 or 2 of {"label": "<= 3 words", "text": "<o
 // Sonnet audits of this chat (25 Oct 03:33): only Habib's own words; done means a tool proved it; his
 // later word replaces the earlier; a promise not kept counts; other items first than last time
 const prompt_fork_nakarde = () => '"nakarde": [all of them, 0 or more, each {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>", "sanad": <اختیاری: {"file": "<مسیرِ کاملِ فایلی که اگر انجام شده بود این متن در آن بود>", "matn": "<آن متن، کوتاه و عیناً>"} یا {"git": "<مسیرِ کاملِ پوشهٔ پروژه>", "matn": "<کلمه‌ای که در پیامِ commit ِ آن کار می‌آمد>"}>}]'
-const ghaede_nakarde = (anjam, commit_ha = '') => '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
+const ghaede_nakarde = (anjam, commit_ha = '', ferestade = []) => '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
   '۱) فقط حرفِ خودِ حبیب. پیامِ ایجنتِ دیگر، system-reminder، task-notification و «Continue from where you left off» حرفِ حبیب نیست؛ حرفی از حبیب که ایجنتی عینش را نقل کرده حساب است. ' +
   '۲) «انجام شد» یعنی خروجیِ یک ابزار در همین چت ثابتش کرد (آزمونِ سبز، commit، فایلِ نوشته‌شده). «انجام می‌دهم» یا «منتظرِ …» انجام نیست. ' +
   '۳) حرفِ تازه‌ترِ حبیب جای حرفِ قدیمی‌اش را می‌گیرد؛ چیزی که بعداً رد یا عوض کرد، نکرده نیست. ' +
@@ -163,6 +163,8 @@ const ghaede_nakarde = (anjam, commit_ha = '') => '\n\n«nakarde» (نکرده�
   // chat, by a file or a commit) must not stay: the fork gives a check, the mod reads the file or the log
   '۷) چیزی که بیرون از این چت انجام شده هم نکرده نیست: حالِ امروزِ پروژه را از commit‌های زیر بخوان، و برای هر نکرده‌ای که با یک فایل یا commit سنجیدنی است sanad بده؛ پیش از نمایش، فایل یا git log خوانده می‌شود و اگر آن متن آنجا بود، آن ردیف نمی‌آید. ' +
   (commit_ha ? '\ncommit‌های اخیرِ این پروژه (تازه به قدیم):\n' + commit_ha + '\n' : '') +
+  // Habib, 26 Oct 03:06: «اگه انجام نشدن به صورت نکرده بیان»: what the mod sent as «خودکار» is his ask too
+  (ferestade.length ? '۸) این «خودکار»ها را مودِ «حدس» به خواستِ حبیب به چت فرستاد و حکمِ خواستهٔ حبیب را دارند (استثنای قاعدهٔ ۱): هر کدام انجام نشده، در nakarde بیاور با harf = عینِ همین متن: ' + ferestade.map((x) => '«' + x + '»').join(' · ') + '. ' : '') +
   'نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
 // Habib, 25 Oct 18:08: «منظورم کل ابزارهایی هست که توی کلود کد برای ایجنت ها موجوده. و این ابزارها
 // باید سرچ به وب بکنی که لیست کاملش رو در بیاری و توی پرومپتت بیاری که ایجنت چک بکنه و بررسی بکنه و
@@ -214,7 +216,7 @@ const ghaede_khodkar = '\n\n«khodkar» (خودکار): این فهرستِ کا
 const prompt_fork_cron = '"cron": [all of them, 0 or more, each {"kar": "<کاری که حبیب در این چت مشخص کرد و به کرون‌جاب می‌خورد>", "zaman": "<کی اجرا شود، به فارسی و با عبارتِ cron، مثلاً هر روز ۰۸:۰۰ (0 8 * * *)>", "rah": "<با چه ساخته شود: launchd، crontab، یا CronCreate/schedule ِ Claude Code، و فرمانش>"}]'
 const ghaede_cron = '\n\n«cron» (کرون‌جاب): از میانِ کارهایی که حبیب در همین چت مشخص کرد، هر کدام که تکراری است یا باید سرِ وقت یا هر چند وقت خودش اجرا یا چک شود (چکِ نسخه، نگهبان، گزارشِ روزانه، پاک کردنِ دفتر، …)، بی‌سقف. کرون‌جابی که در همین چت ساخته شده و کار می‌کند نیاور. نامطمئن ⇒ نیاور. هیچ نبود ⇒ [].'
 const prompt_fork_bakhsh_ha = (p, anjam) => [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads, p.nakarde && prompt_fork_nakarde(), p.khodkar && prompt_fork_khodkar, p.cron && prompt_fork_cron].filter(Boolean)
-const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha) : '') + (p.khodkar ? ghaede_khodkar : '') + (p.cron ? ghaede_cron : '')
+const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || []) : '') + (p.khodkar ? ghaede_khodkar : '') + (p.cron ? ghaede_cron : '')
 const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   prompt_fork_bakhsh_ha(p, anjam).join(', ') + '}' + ghaede_bakhsh_ha(p, anjam)
 
@@ -223,7 +225,7 @@ const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس�
 export function khandan_nakarde(list) {
   return (Array.isArray(list) ? list : [])
     .filter((x) => x && typeof x.harf === 'string' && x.harf.trim() && typeof x.chera === 'string')
-    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}) }))
+    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(x.khodkar === true ? { khodkar: true } : {}), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}) }))
 }
 // a check the mod can run itself: an absolute file that would hold the text, or a project whose commit
 // messages would; anything else is no check
@@ -491,6 +493,7 @@ async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false)
     const pj = p.do_jomle ? await amade_jambandi($) : null
     const jambandi_shod = due ? await hads_ba_fork($, p, pj) : await jambandi($, pj)
     if (p.do_jomle && !jambandi_shod) await begu_do_jomle($, '', true)
+    await ferestadan_khodkar($)
   } finally {
     akhar_javab_dar_kar = false
   }
@@ -582,6 +585,54 @@ async function sabt_jambandi($, pj, raw) {
 }
 
 // returns whether the turn's summary (pj) was made in the same fork
+// «خودکار» goes to the chat by itself, the moment it comes (Habib, 26 Oct 03:06: «میخوام خودکار ها به صورت هوک
+// همون موقع که میان توی چت ایمپورت بشن و اگه انجام نشدن به صورت نکرده بیان -- و توی خودکار پنل هوک تیک فرستاده
+// شدن به چت بخورن»; 03:35: «هر خودکار یک بار و اگه انجام نشد یک بار هم نکرده مرتبط باهاش فرستاده بشه»): a turn of
+// its own ($.prompt.submit). Each one is sent once, and its «نکرده» once: that is what ends the chain. Per chat,
+// in ~/.claude/hads-log/<id>.khodkar_ferestade.json: {khodkar: [kar…], nakarde: [kar…]}
+const masir_khodkar_ferestade = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.khodkar_ferestade.json'
+const khodkar_ferestade_har_chat = new Map()
+const baraye_ferestadan_har_chat = new Map()
+async function khandan_khodkar_ferestade($) {
+  const id = await $.session.id()
+  if (!khodkar_ferestade_har_chat.has(id)) {
+    let o = null
+    try { o = JSON.parse(String(await $.fs.read(await masir_khodkar_ferestade($)))) } catch {}
+    const list = (x) => (Array.isArray(x) ? x.filter((k) => typeof k === 'string') : [])
+    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde) })
+  }
+  return khodkar_ferestade_har_chat.get(id)
+}
+const dar_list = (list, kar) => list.some((k) => k === kar || hamun_matn(k, kar))
+export function matn_ferestadan_khodkar(kh, nk) {
+  const parts = ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر یکی را نمی‌شود یا نباید انجام داد، بگو چرا.']
+  if (kh.length) parts.push(kh.map((x, i) => adad_farsi(i + 1) + '. ' + x.kar + ' ⇐ با ' + x.abzar + (x.chek ? '؛ چک: ' + x.chek : '')).join('\n'))
+  if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => adad_farsi(i + 1) + '. ' + x.harf + (x.chera ? ' — ' + x.chera : '')).join('\n'))
+  return parts.join('\n\n')
+}
+// at the answer's end, after everything else: one message with the new «خودکار» and the «نکرده» of sent ones
+async function ferestadan_khodkar($) {
+  const id = await $.session.id()
+  const b = baraye_ferestadan_har_chat.get(id)
+  baraye_ferestadan_har_chat.delete(id)
+  if (!b || (!b.khodkar.length && !b.nakarde.length)) return
+  const f = await khandan_khodkar_ferestade($)
+  const kh = b.khodkar.filter((x) => !dar_list(f.khodkar, x.kar))
+  const nk = b.nakarde.filter((x) => !dar_list(f.nakarde, x.harf))
+  if (!kh.length && !nk.length) return
+  f.khodkar.push(...kh.map((x) => x.kar)); f.nakarde.push(...nk.map((x) => x.harf))
+  try { await $.fs.write(await masir_khodkar_ferestade($), JSON.stringify(f) + '\n') } catch {}
+  await benevis_daftar($, 'khodkar_ferestade', { khodkar_ha: kh, nakarde_ha: nk.map((x) => x.harf) })
+  $.ui.invalidate('ui.render')
+  try { await $.prompt.submit({ text: matn_ferestadan_khodkar(kh, nk) }) } catch {}
+}
+
+function baraye_ferestadan($, k, list) {
+  return $.session.id().then((id) => {
+    const b = baraye_ferestadan_har_chat.get(id) || { khodkar: [], nakarde: [] }
+    b[k] = list; baraye_ferestadan_har_chat.set(id, b)
+  })
+}
 async function hads_ba_fork($, p = { hads: true }, pj = null) {
   let got = null
   let jambandi_shod = false
@@ -591,7 +642,8 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   // has it, so a big chat forks for them too
   if (tokens <= had_fork_context_token || p.nakarde || p.khodkar || p.cron || pj) {
     try {
-      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '' }
+      const ferestade = await khandan_khodkar_ferestade($)
+      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [] }
       const anjam = khaste.nakarde ? await khandan_nakarde_anjam($) : []
       const r = await $.model.fork({ prompt: pj ? prompt_jambandi_nobat(pj.lines, pj.tools, khaste, anjam) : prompt_fork(khaste, anjam) })
       got = r.isAnswered ? khandan_javab_fork(r.text) : null
@@ -606,7 +658,10 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
     for (const x of got.nakarde) if (await sanad_dare($, x.sanad)) ba_sanad.push(x)
     if (ba_sanad.length) await benevis_daftar($, 'nakarde_ba_sanad', { anjam_shode: ba_sanad.map((x) => ({ harf: x.harf, sanad: x.sanad })) })
     nakarde_ba_sanad_akhar = ba_sanad
-    nakarde_akhar = hanuz_nakarde(got.nakarde.filter((x) => !ba_sanad.includes(x)), await khandan_nakarde_anjam($)); hads_baraye_chat = await $.session.id()
+    const ferestade = (await khandan_khodkar_ferestade($)).khodkar
+    nakarde_akhar = hanuz_nakarde(got.nakarde.filter((x) => !ba_sanad.includes(x)), await khandan_nakarde_anjam($))
+      .map((x) => (dar_list(ferestade, x.harf) ? { ...x, khodkar: true } : x)); hads_baraye_chat = await $.session.id()
+    if (nakarde_akhar.some((x) => x.khodkar)) await baraye_ferestadan($, 'nakarde', nakarde_akhar.filter((x) => x.khodkar))
     await benevis_daftar($, 'nakarde', { rah: 'fork', nakarde_ha: nakarde_akhar })
     $.ui.invalidate('ui.render')
   }
@@ -617,6 +672,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   }
   if (p.khodkar && got) {
     khodkar_akhar = got.khodkar; hads_baraye_chat = await $.session.id()
+    if (khodkar_akhar.length) await baraye_ferestadan($, 'khodkar', khodkar_akhar)
     await benevis_daftar($, 'khodkar', { rah: 'fork', khodkar_ha: khodkar_akhar })
     $.ui.invalidate('ui.render')
   }
@@ -1068,6 +1124,7 @@ export function register(on) {
     ] })]
     // each part's rows, laid out below in Habib's order (the ticks' order): ▾ × stay on top, the ticks last
     const goruh = Object.fromEntries(bakhsh_ha.map(([k]) => [k, []]))
+    const ferestade = kh.length || nk.length ? await khandan_khodkar_ferestade($) : { khodkar: [], nakarde: [] }
     const tartib = await khandan_tartib_file($)
     // plain text, not buttons: Habib selects it with the mouse and copies it (Ctrl+C);
     // the panel's rows are user-select:text in VS Code
@@ -1094,7 +1151,7 @@ export function register(on) {
     // «نکرده‌ها»: Habib's words, when he said them, and why it is still not done; ⤵ asks for it again
     for (let i = 0; i < nk.length; i++) goruh.nakarde.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '        ' : 'نکرده:'] }),
-      Text({ key: 'hads-nk-' + i, children: ['«' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '') + ' — ' + nk[i].chera] }),
+      Text({ key: 'hads-nk-' + i, children: [(nk[i].khodkar ? 'خودکار: ' + nk[i].harf : '«' + nk[i].harf + '»') + (dar_list(ferestade.nakarde, nk[i].harf) ? ' ✓ فرستاده شد' : '') + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '') + ' — ' + nk[i].chera] }),
       Button({ key: 'hads-nk-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم و هنوز نکردی، انجامش بده: «' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '')) }),
       // Habib: «یه گزینه داشته باشه که من بزنم نه انجام شده و جزو نکرده ها نباشه دیگه»
       Button({ key: 'hads-nk-anjam-' + i, label: '✓ انجام شد', onPress: () => anjam_shod_zadan($, nk[i].harf) }),
@@ -1111,6 +1168,7 @@ export function register(on) {
     for (let i = 0; i < kh.length; i++) goruh.khodkar.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '         ' : 'خودکار:'] }),
       Text({ key: 'hads-kh-' + i, children: [kh[i].kar + ' ⇐ ' + kh[i].abzar + (kh[i].chek ? ' · چک: ' + kh[i].chek : '') + (kh[i].chera ? ' — ' + kh[i].chera : '')] }),
+      ...(dar_list(ferestade.khodkar, kh[i].kar) ? [Text({ key: 'hads-kh-ferestade-' + i, dimColor: true, children: ['✓ فرستاده شد'] })] : []),
       Button({ key: 'hads-kh-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را خودت انجام بده و از من نپرس: ' + kh[i].kar + ' ⇐ با ' + kh[i].abzar + (kh[i].chek ? '؛ نتیجه را خودت چک کن: ' + kh[i].chek : '') + '. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان.') }),
     ] }))
     // «کرون‌جاب»: work Habib named that fits a scheduled job; ⤵ asks the chat to make it

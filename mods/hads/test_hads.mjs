@@ -694,6 +694,25 @@ await find(await render(), 'hads-tick-khodkar').onPress(); await find(await rend
 const k1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
 out.khodkarOff = { asked: calls.fork.slice(k1).some((f) => /"khodkar"|"cron"/.test(f.prompt)), shown: !!find(await render(), 'hads-kh-0') || !!find(await render(), 'hads-cr-0'), file: flags['/h/.claude/hads-on/K'] }
 assert.deepEqual(out.khodkarOff, { asked: false, shown: false, file: 'on -khodkar -cron' })
+// «خودکار» goes to the chat by itself, a turn of its own; each once, and its «نکرده» once (Habib, 26 Oct 03:06 and 03:35)
+$.sid = 'X'; await H['command.run']($, { args: 'on' }); calls.submit.length = 0
+const khX = [{ kar: 'چکِ اپ', abzar: 'Bash: xcrun simctl', chek: 'عکس' }, { kar: 'سرچِ حرفِ حبیب', abzar: 'hafeze_search.py' }]
+const dowr = async (nakarde) => { $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ hads: [], nakarde, khodkar: khX, cron: [] }) }; $.t += 1; await H['command.run']($, { args: 'now' }); await flush(); await new Promise((r) => setTimeout(r, 5)) }
+const xf0 = calls.fork.length
+await dowr([])
+const sub1 = calls.submit.map((c) => c.text), rX = await render()
+await dowr([{ harf: 'چکِ اپ', zaman: '', chera: 'عکسی نیامد' }, { harf: 'حرفِ دیگرِ حبیب', zaman: '', chera: 'نه' }])
+const sub2 = calls.submit.slice(1).map((c) => c.text), rX2 = await render()
+await dowr([{ harf: 'چکِ اپ', zaman: '', chera: 'عکسی نیامد' }])
+out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با Bash: xcrun simctl؛ چک: عکس/.test(sub1[0]) && /۲\. سرچِ حرفِ حبیب/.test(sub1[0]) && !/نکرده/.test(sub1[0]),
+  tick: [0, 1].map((i) => find(rX, 'hads-kh-ferestade-' + i)?.children[0]),
+  second: sub2.length === 1 && /هنوز انجام نشده \(نکرده\):\n۱\. چکِ اپ — عکسی نیامد/.test(sub2[0]) && !/xcrun/.test(sub2[0]) && !/حرفِ دیگرِ حبیب/.test(sub2[0]),
+  rule: /۸\).*«چکِ اپ» · «سرچِ حرفِ حبیب»/.test(calls.fork[calls.fork.length - 1].prompt),
+  nkRow: [0, 1].map((i) => find(rX2, 'hads-nk-' + i)?.children[0].split(' (')[0].split(' — ')[0]),
+  third: calls.submit.length, file: flags['/h/.claude/hads-log/X.khodkar_ferestade.json'],
+  logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
+assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
+  nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"]}\n', logged: 2 })
 $.sid = 'A'
 // تعریفِ ۱۰ (اسمِ متغیر): every name the mod writes is a new one. The old names, written out here only
 // to look for them (Habib, 25 Oct 02:58: «دیگه اثری ازش نباشه»; the mod no longer reads them)

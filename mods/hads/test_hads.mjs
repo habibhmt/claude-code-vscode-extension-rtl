@@ -380,27 +380,21 @@ await find(rH, 'hads-hist').onPress({})
 $.sid = 'H2'; await F['command.run']($, { args: 'on' }); $.forkReply = { isAnswered: true, text: '{"do_jomle": "دیگری. بله."}', usage: {} }
 await F['turn.complete']($, {}, next); await flush()
 out.histOwn = String(flags['/h/.claude/hads-log/H2.do_jomle_ghablia.jsonl']).trim().split('\n').length; assert.equal(out.histOwn, 1); $.sid = 'H'
-// ▾ folds the whole band to one line; it stays folded after a reload; ▸ opens it; ticks are kept
+// two states (26 Oct 19:18): × leaves the one button, kept over a reload; the button opens the whole box; no ▾ line
 await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-tick-hads').onPress({})
-await find(await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'), 'hads-min').onPress({})
-out.foldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.foldFile, 'on -hads yek_khat')
+let rO = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.noMin = !find(rO, 'hads-min'); assert.equal(out.noMin, true)
+await find(rO, 'hads-x').onPress({}); out.dotFile = flags['/h/.claude/hads-on/H']; assert.equal(out.dotFile, 'on -hads tak_dokme')
 const again2 = await import((process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href) + '?again2')
 const G = {}; again2.register((ev, a, b) => { G[ev] = b || a; return { catch() {} } })
-const rF = await G['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-out.folded = { open: find(rF, 'hads-min')?.label, ask: !!find(rF, 'hads-ask'), ticks: !!find(rF, 'hads-tick-do_jomle') }
-assert.deepEqual(out.folded, { open: '▸ حدس', ask: false, ticks: false })
-// the one line's × also leaves the one button, never nothing (25 Oct 00:13)
-out.lineX = find(rF, 'hads-to-dot')?.label; assert.equal(out.lineX, '×')
-await find(rF, 'hads-min').onPress({}); out.unfoldFile = flags['/h/.claude/hads-on/H']; assert.equal(out.unfoldFile, 'on -hads')
-// the third state: just one small button; it opens the folded line, which opens the box (24 Oct 22:52)
-let rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
-await find(rD, 'hads-x').onPress({}); out.dotFile = flags['/h/.claude/hads-on/H']; assert.equal(out.dotFile, 'on -hads tak_dokme')
-rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+let rD = await G['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.dot = { button: find(rD, 'hads-dot')?.label, nothingElse: !find(rD, 'hads-min') && !find(rD, 'hads-ask') && !find(rD, 'hads-now') && !find(rD, 'hads-x') }
 assert.deepEqual(out.dot, { button: 'حدس ▸', nothingElse: true })
-await find(rD, 'hads-dot').onPress({}); out.dotToMin = flags['/h/.claude/hads-on/H']; assert.equal(out.dotToMin, 'on -hads yek_khat')
-rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine'); await find(rD, 'hads-min').onPress({})
-out.backOpen = flags['/h/.claude/hads-on/H']; assert.equal(out.backOpen, 'on -hads')
+await find(rD, 'hads-dot').onPress({}); out.dotToOpen = flags['/h/.claude/hads-on/H']; assert.equal(out.dotToOpen, 'on -hads')
+// an old file with yek_khat shows the button, which opens the box
+flags['/h/.claude/hads-on/H'] = 'on -hads yek_khat'; rD = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+out.oldLine = find(rD, 'hads-dot')?.label; assert.equal(out.oldLine, 'حدس ▸')
+await find(rD, 'hads-dot').onPress({}); out.backOpen = flags['/h/.claude/hads-on/H']; assert.equal(out.backOpen, 'on -hads')
 // a tick keeps the other words of the file
 flags['/h/.claude/hads-on/H'] = 'on +do_jomle_fork yek_khat'; await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 $.sid = 'H'; flags['/h/.claude/hads-on/H'] = 'on +do_jomle_fork'
@@ -447,8 +441,8 @@ rK = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
 out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.hookBigCut <= mod.had_hook_bozorg_harf + 60, 'big hook ' + out.hookBigCut)
 // the ticks stay last, next to the prompt, whatever is above them
 const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && /^hads-tick-/.test(String(x.key))); assert.equal(out.ticksLast, true)
-// ▾ and × on top, always in sight (24 Oct 22:41); only these two (25 Oct 00:13: «همین سه تا نباشه»)
-const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && topRow.children.map((x) => x.label).join(' ') === '▾ ×'; assert.equal(out.closeOnTop, true)
+// × on top, always in sight (24 Oct 22:41); only it since ▾ went (26 Oct 19:18)
+const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && topRow.children.map((x) => x.label).join(' ') === '×'; assert.equal(out.closeOnTop, true)
 $.tail = keepTail
 // ticked off: the transcript is not read at all
 await find(rK, 'hads-tick-hook').onPress({}); calls.run = 0

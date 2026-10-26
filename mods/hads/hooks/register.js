@@ -944,7 +944,7 @@ async function taghir_halat($, mode) {
   await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
   $.ui.invalidate('ui.render')
 }
-const jam_kardan = ($) => khandan_file_chat($).then((p) => p && taghir_halat($, p.yek_khat ? 'baz' : 'yek_khat'))
+const jam_kardan = ($) => khandan_file_chat($).then((p) => p && taghir_halat($, p.yek_khat || p.tak_dokme ? 'baz' : 'tak_dokme'))
 let ghablia_baz = false
 
 // «هوک‌ها»: the VS Code panel drops every hook_* message on purpose (extension.js filters
@@ -1166,17 +1166,12 @@ export function register(on) {
     const theirs = await next(e)
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line
-    if (p.tak_dokme) {
-      const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => taghir_halat($, 'yek_khat') })
+    // two states now: the folded line is gone, the button opens the whole box and × goes straight back to it
+    // (Habib, 26 Oct 19:18: «کلا این مرحله حذف بشه بعد از زدن اون دکمه کامل باز بشه» · «همدو باز کردن هم تو بستن»);
+    // a file still holding the old word `yek_khat` shows the button too
+    if (p.tak_dokme || p.yek_khat) {
+      const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => taghir_halat($, 'baz') })
       return Box({ flexDirection: 'column', children: theirs ? [theirs, one] : [one] })
-    }
-    if (p.yek_khat) {
-      const line = Box({ flexDirection: 'row', columnGap: 1, children: [
-        Button({ key: 'hads-min', label: '▸ حدس', onPress: () => taghir_halat($, 'baz') }),
-        ...(n ? [Text({ dimColor: true, children: [n.length > 40 ? n.slice(0, 40) + '…' : n] })] : []),
-        Button({ key: 'hads-to-dot', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
-      ] })
-      return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
     }
     const hist = n || ghablia_baz ? await khandan_ghablia($) : []
     const prompt_list = p.porsesh ? await khandan_prompt_ha($) : []
@@ -1186,7 +1181,6 @@ export function register(on) {
     // The box never closes all the way: × leaves the one button (25 Oct 00:13: «ضربدر … تک دکمه ای
     // شدن یعنی کلا هیچوقت بسته نشه … همین سه تا نباشه»)
     const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
-      Button({ key: 'hads-min', label: '▾', onPress: () => taghir_halat($, 'yek_khat') }),
       Button({ key: 'hads-x', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
     ] })]
     // each part's rows, laid out below in Habib's order (the ticks' order): ▾ × stay on top, the ticks last

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import motaghayer_ha as m
 import jadval_motaghayer as j
 
-VAHED = ('_ms', '_s', '_token', '_harf', '_radif', '_px', '_darsad', '_usd', '_byte', '_khat', '_tedad', '_javab', '_bar')
+VAHED = ('_ts', '_ms', '_s', '_token', '_harf', '_radif', '_px', '_darsad', '_usd', '_byte', '_khat', '_tedad', '_javab', '_bar')
 FA = str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')
 
 
@@ -32,10 +32,12 @@ def main():
             adad = str(eval(meghdar.replace('_', '')))
             if re.search(r'(?<![\d۰-۹])(' + re.escape(adad) + '|' + re.escape(adad.translate(FA)) + r')(?![\d۰-۹])', b.get('yani', '')):
                 bad.append(f'عدد در شناسنامه: {esm} = {adad} (به‌جایش ⟦{esm}⟧)')
-            # a time (zaman_…) is always milliseconds
-            vahed_dorost = esm.lower().endswith('_ms') if esm.startswith('zaman_') else esm.lower().endswith(VAHED)
+            # tarif 10 of 91: a moment is `ts` and the word `zaman` is not used; a count limit is `had_tedad_…`
+            vahed_dorost = esm.lower().endswith(VAHED) and 'zaman' not in esm
+            if esm.startswith('had_') and esm.endswith(('_tedad', '_bar')) and not esm.startswith('had_tedad_'):
+                vahed_dorost = False
             if not vahed_dorost and f'`{esm}`' not in pish:
-                bad.append(f'اسمِ عدد بی واحد: {esm} (درستش کن یا در esm_pishnahadi.md بیاور)')
+                bad.append(f'اسم بیرون از تعریفِ ۱۰ ِ ۹۱: {esm} (درستش کن یا در esm_pishnahadi.md بیاور)')
         if len({a['file'] for a in ja}) > 1 and f'`{esm}`' not in pish:
             bad.append(f'یک اسم در دو فایل: {esm} (قاعدهٔ ۷)')
     for esm in sh:

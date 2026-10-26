@@ -8,6 +8,8 @@ const script=fs.readFileSync(process.env.BUTTONS_JS||__dirname+'/claude-ui-butto
 const sefr={do_jomle:0,hads:0,nakarde:0,khodkar:0,cron:0,jambandi_nobat:0,porsesh:0,kol:0,usd:0};
 const dade={saat:{...sefr,hads:1,nakarde:1,khodkar:1,cron:1,kol:1,usd:0.026},ruz:{...sefr,hads:1,nakarde:1,khodkar:1,cron:1,do_jomle:1,kol:2,usd:0.029},hame:{...sefr,hads:2,nakarde:1,khodkar:1,cron:1,do_jomle:1,jambandi_nobat:1,kol:3,usd:0.029},
   riz:[{t:Date.now()-6e5,b:['hads','nakarde','khodkar','cron'],rah:'fork',in:1000,out:100,cw:0,cr:100000,usd:0.026},{t:Date.now()-18e6,b:['do_jomle'],rah:'sonnet',in:1000,out:100,cw:0,cr:0,usd:0.003}]};
+// many calls: big is tall and must stay inside the window
+for(let i=0;i<58;i++)dade.riz.push({t:Date.now()-36e6-i*6e4,b:['hads'],rah:'fork',in:10,out:10,cw:0,cr:1000,usd:0.0006});
 const line='⁣AMAR'+JSON.stringify(dade);
 const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><body style="margin:0;font:13px/18px sans-serif;width:900px;height:600px">
 <div class="abovePrompt_x"><div class="surface_x"><div data-engine-mark>From the hads plugin</div><div class="box_x"><span class="text_x" id="raw">${line.replace(/</g,'&lt;')}</span><button data-press-key="hads-dot">حدس ▸</button></div></div></div>
@@ -31,10 +33,11 @@ const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><b
     setTimeout(()=>res(getComputedStyle(n).display),120)}));
   assert.equal(out.fast,'none');
   // a click opens it big: every call, with its dollars
-  const r0=await p.evaluate(()=>{const r=document.getElementById('crtl-amar').getBoundingClientRect();return [r.left+10,r.top+10]});
+  // placed low by a drag (top set), as in VS Code on 26 Oct 23:40: big still opens inside the window
+  const r0=await p.evaluate(()=>{const b=document.getElementById('crtl-amar');b.style.top=(innerHeight-90)+'px';b.style.bottom='auto';const r=b.getBoundingClientRect();return [r.left+10,r.top+10]});
   await p.mouse.click(r0[0],r0[1]);await p.waitForTimeout(300);
-  out.big=await p.evaluate(()=>{const b=document.getElementById('crtl-amar');return {cls:b.classList.contains('crtl-amar-bozorg'),calls:b.querySelectorAll('.crtl-amar-riz tr').length-1,usd:b.querySelector('.crtl-amar-dolar').textContent,first:b.querySelector('.crtl-amar-riz tr:nth-child(2)').textContent.includes('$0.026')}});
-  assert.deepEqual(out.big,{cls:true,calls:2,usd:'۱ ساعت: $0.026 · ۲۴ ساعت: $0.029 · کل: $0.029',first:true});
+  out.big=await p.evaluate(()=>{const b=document.getElementById('crtl-amar');return {cls:b.classList.contains('crtl-amar-bozorg'),calls:b.querySelectorAll('.crtl-amar-riz tr').length-1,usd:b.querySelector('.crtl-amar-dolar').textContent,first:b.querySelector('.crtl-amar-riz tr:nth-child(2)').textContent.includes('$0.026'),inside:b.getBoundingClientRect().bottom<=innerHeight}});
+  assert.deepEqual(out.big,{cls:true,calls:60,usd:'۱ ساعت: $0.026 · ۲۴ ساعت: $0.029 · کل: $0.029',first:true,inside:true});
   // × makes it small again; a drag moves it and the place is kept
   await p.click('.crtl-amar-bastan');await p.waitForTimeout(300);
   const r1=await p.evaluate(()=>{const r=document.getElementById('crtl-amar').getBoundingClientRect();return [r.left+10,r.top+10]});

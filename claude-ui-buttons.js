@@ -2312,6 +2312,10 @@
     amar_matn_akhar = dade;
     var a; try { a = JSON.parse(dade.slice(NESHANE_AMAR.length)); } catch (e) { return; }
     box.innerHTML = amar_bozorg ? jadval_bozorg(a) : jadval_kuchak(a);
+    // opened big near the bottom it ran past the window (26 Oct 23:40, seen in a screenshot): kept inside it
+    var r = box.getBoundingClientRect();
+    if (r.bottom > window.innerHeight - 4) { box.style.top = Math.max(4, window.innerHeight - r.height - 4) + 'px'; box.style.bottom = 'auto'; }
+    if (r.right > window.innerWidth - 4) box.style.left = Math.max(4, window.innerWidth - r.width - 4) + 'px';
   }
   (function () {
     var st = document.createElement('style');

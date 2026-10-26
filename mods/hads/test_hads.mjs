@@ -433,7 +433,7 @@ const hookTexts = (t) => [0, 1, 2, 3, 4, 5].map((i) => find(t, 'hads-hook-' + i)
 out.hooksSmall = hookTexts(rK)
 assert.equal(out.hooksSmall.length, 4); assert.ok(out.hooksSmall.every((x) => x.length <= mod.had_hook_kuchak_harf))
 // each hook with its Shamsi date and Tehran time
-assert.equal(out.hooksSmall[1], '۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit ✓ [20:09 +0330 -- habib]'); assert.ok(/^PostToolUse:Bash ×۲ ＋ یادآوری/.test(out.hooksSmall[2]))
+assert.equal(out.hooksSmall[1], '۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib]'); assert.ok(/^PostToolUse:Bash ×۲ · یادآوری/.test(out.hooksSmall[2]))
 // only hook lines and typed prompts, the last TAIL of them: never the whole 16 MB transcript
 out.tailOnly = calls.argv?.[0] === 'sh' && calls.argv?.[4] === mod.hook_transcript_grep && calls.argv?.[6] === String(mod.had_hook_transcript_khat) && calls.argv?.[7] === String(mod.had_hook_transcript_byte) && /^tail -c .*\| grep -E .*\| tail -n/.test(calls.argv?.[2]); assert.equal(out.tailOnly, true)
 // big: the last HOOK_BIG_ROWS, each whole up to HOOK_BIG (selectable text, no کپی buttons)
@@ -713,6 +713,9 @@ out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با 
   logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
 assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
   nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"]}\n', logged: 2 })
+// «هوک‌ها» in the box: no emoji, and a hook's message beside its injected text is left out (26 Oct 05:36)
+out.hookBiEmoji = [mod.bi_emoji('📌 🧠 حافظه: 3 سابقه ✅'), mod.bi_payam_tekrari([{ kind: 'hook_system_message', name: 'U', t: 1000 }, { kind: 'hook_additional_context', name: 'U', t: 1500 }, { kind: 'hook_system_message', name: 'Stop', t: 1000 }]).map((h) => h.kind + ':' + h.name)]
+assert.deepEqual(out.hookBiEmoji, ['حافظه: 3 سابقه', ['hook_additional_context:U', 'hook_system_message:Stop']])
 // «پرسش» with saved prompts (Habib, 26 Oct 05:41 and 05:44): + adds, ✎ edits, × deletes, a press turns one on;
 // the warm-cache question goes with the one that is on
 {

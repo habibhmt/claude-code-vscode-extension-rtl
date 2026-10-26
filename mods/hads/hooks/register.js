@@ -993,7 +993,11 @@ async function khandan_hook_az_transcript($) {
     $.ui.invalidate('ui.render')
   } catch {}
 }
-const khat_hook = (h) => (h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + (h.kind === 'hook_additional_context' ? ' ＋ ' : h.kind === 'hook_system_message' ? ' 📌 ' : ' ✓ ') + h.text.replace(/\s+/g, ' ')
+// no emoji in «هوک‌ها» either, ours or the hook's own (Habib, 26 Oct 05:36: «این ایموجی های مزخرف رو کامل بردار - کامل بدون ایموجی»)
+export const bi_emoji = (t) => String(t).replace(/(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])[\uFE0F\u200D]*/gu, '').replace(/[ \t]{2,}/g, ' ').trim()
+const khat_hook = (h) => bi_emoji((h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + ' · ' + h.text.replace(/\s+/g, ' '))
+// a hook's message beside the text it injected: only the injected text («فقط اون دومی رو نشون بده … اولی نیاد»)
+export const bi_payam_tekrari = (list) => list.filter((h) => !(h.kind === 'hook_system_message' && list.some((x) => x.kind === 'hook_additional_context' && x.name === h.name && Math.abs((x.t || 0) - (h.t || 0)) <= 10000)))
 async function tik_zadan($, key) {
   const p = await khandan_file_chat($)
   if (!p) return
@@ -1220,7 +1224,7 @@ export function register(on) {
       Text({ key: 'hads-hist-' + i, dimColor: true, children: [zaman_miladi(x.t) + ' — ' + x.text] })) }))
     // «هوک‌ها»: small = one line each, had_hook_kuchak_harf long; big = the last had_hook_bozorg_radif, each at most
     // had_hook_bozorg_harf long (a SessionStart handoff is pages: whole, it filled the band)
-    const hkAll = p.hook && hook_ha.for === id ? hook_ha.list : []
+    const hkAll = p.hook && hook_ha.for === id ? bi_payam_tekrari(hook_ha.list) : []
     const hk = hkAll.slice(-(p.hook_bozorg ? had_hook_bozorg_radif : had_hook_kuchak_radif))
     if (hk.length) goruh.hook.push(Box({ flexDirection: 'column', children: [
       Box({ flexDirection: 'row', columnGap: 1, children: [
@@ -1231,7 +1235,7 @@ export function register(on) {
         } }),
       ] }),
       ...hk.map((h, i) => p.hook_bozorg
-        ? Text({ key: 'hads-hook-' + i, children: [(h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + ':\n' + (h.text.length > had_hook_bozorg_harf ? h.text.slice(0, had_hook_bozorg_harf - 1) + '…' : h.text)] })
+        ? Text({ key: 'hads-hook-' + i, children: [bi_emoji((h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.name + (h.n > 1 ? ' ×' + adad_farsi(h.n) : '') + ':\n' + (h.text.length > had_hook_bozorg_harf ? h.text.slice(0, had_hook_bozorg_harf - 1) + '…' : h.text))] })
         : Text({ key: 'hads-hook-' + i, dimColor: true, children: [(() => { const l = khat_hook(h); return l.length > had_hook_kuchak_harf ? l.slice(0, had_hook_kuchak_harf - 1) + '…' : l })()] })),
     ] }))
     if (a) goruh.porsesh.push(Box({

@@ -24,8 +24,12 @@ const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><b
   out.small=await p.evaluate(()=>{const b=document.getElementById('crtl-amar'),rows=[...b.querySelectorAll('tr')];
     return {hidden:getComputedStyle(document.getElementById('raw')).display,rows:rows.length,cols:rows[0].children.length,
       vertical:getComputedStyle(b.querySelector('.crtl-amar-amudi')).writingMode,heads:[...b.querySelectorAll('.crtl-amar-amudi')].map(x=>x.textContent).join(' '),
-      hour:[...rows[1].children].map(x=>x.textContent).join(' '),left:Math.round(b.getBoundingClientRect().left)<20,dollar:/\$/.test(b.textContent)}});
-  assert.deepEqual(out.small,{hidden:'none',rows:4,cols:9,vertical:'vertical-rl',heads:'دو جمله حدس نکرده خودکار کرون جمع‌بندی پرسش کل',hour:'۱ ساعت ۰ ۱ ۱ ۱ ۱ ۰ ۰ ۱',left:true,dollar:false});
+      hour:[...rows[1].children].map(x=>x.textContent).join(' '),left:Math.round(b.getBoundingClientRect().left)<20,dollar:/\$/.test(b.textContent),lines:getComputedStyle(b.querySelector('td')).borderTopStyle,narrow:Math.round(b.getBoundingClientRect().width)<=150}});
+  assert.deepEqual(out.small,{hidden:'none',rows:4,cols:8,vertical:'vertical-rl',heads:'دو جمله حدس نکرده خودکار کرون جمع‌بندی پرسش کل',hour:'۰ ۱ ۱ ۱ ۱ ۰ ۰ ۱',left:true,dollar:false,lines:'solid',narrow:true});
+  // a new copy of the line (the box drew again) is hidden at once, not up to a second later
+  out.fast=await p.evaluate(()=>new Promise(res=>{const o=document.getElementById('raw'),n=document.createElement('span');n.className='text_x';n.id='raw2';n.textContent=o.textContent;o.replaceWith(n);
+    setTimeout(()=>res(getComputedStyle(n).display),120)}));
+  assert.equal(out.fast,'none');
   // a click opens it big: every call, with its dollars
   const r0=await p.evaluate(()=>{const r=document.getElementById('crtl-amar').getBoundingClientRect();return [r.left+10,r.top+10]});
   await p.mouse.click(r0[0],r0[1]);await p.waitForTimeout(300);

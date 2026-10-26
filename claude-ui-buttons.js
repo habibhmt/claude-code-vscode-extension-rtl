@@ -2245,12 +2245,14 @@
   var amar_matn_akhar = '', amar_bozorg = false;
   function fa(n) { return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
   function dolar(n) { return '$' + (n >= 1 ? n.toFixed(2) : n.toFixed(3)); }
-  function jadval_kuchak(a) {
-    var h = '<table class="crtl-amar-t"><tr><th></th>';
+  // small: no row names, they take the most room (Habib, 26 Oct 23:12: «اون قسمت ستون اول رو حذف کن که جا بگیره
+  // خودم میفهمم»); the rows stay in the same order, 1 h · 24 h · all, and big shows the names
+  function jadval_kuchak(a, ba_esm) {
+    var h = '<table class="crtl-amar-t"><tr>' + (ba_esm ? '<th></th>' : '');
     sotun_amar.forEach(function (c) { h += '<th><span class="crtl-amar-amudi">' + c[1] + '</span></th>'; });
     h += '</tr>';
     radif_amar.forEach(function (r) {
-      h += '<tr><td class="crtl-amar-r">' + r[1] + '</td>';
+      h += '<tr>' + (ba_esm ? '<td class="crtl-amar-r">' + r[1] + '</td>' : '');
       sotun_amar.forEach(function (c) { var n = (a[r[0]] || {})[c[0]] || 0; h += '<td' + (n ? '' : ' class="crtl-amar-sefr"') + '>' + fa(n) + '</td>'; });
       h += '</tr>';
     });
@@ -2258,7 +2260,7 @@
   }
   function jadval_bozorg(a) {
     var esm = {}; sotun_amar.forEach(function (c) { esm[c[0]] = c[1]; });
-    var h = '<div class="crtl-amar-sar"><b>تماس‌های «حدس» در همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>' + jadval_kuchak(a);
+    var h = '<div class="crtl-amar-sar"><b>تماس‌های «حدس» در همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>' + jadval_kuchak(a, true);
     h += '<div class="crtl-amar-dolar">' + radif_amar.map(function (r) { return r[1] + ': <b>' + dolar((a[r[0]] || {}).usd || 0) + '</b>'; }).join(' · ') + '</div>';
     h += '<table class="crtl-amar-riz"><tr><th>ساعت</th><th>کارها</th><th>مدل</th><th>ورودی</th><th>خروجی</th><th>نوشتنِ کش</th><th>خواندنِ کش</th><th>دلار</th></tr>';
     (a.riz || []).forEach(function (x) {
@@ -2269,7 +2271,7 @@
     return h + '</table>';
   }
   function jadval_tamas() {
-    var spans = document.querySelectorAll('.crtl-hads span'), dade = null;
+    var spans = document.querySelectorAll('[class*="abovePrompt_"] span'), dade = null;
     for (var i = 0; i < spans.length; i++) {
       var tx = spans[i].textContent || '';
       if (tx.indexOf(NESHANE_AMAR) !== 0) continue;
@@ -2315,13 +2317,15 @@
     var st = document.createElement('style');
     st.id = 'crtl-amar-style';
     st.textContent = [
-      '.crtl-hads .crtl-amar-pinhan{display:none!important}',
-      '#crtl-amar{position:fixed;left:8px;bottom:8px;z-index:2147483001;direction:rtl;font:10px/1.3 -apple-system,BlinkMacSystemFont,Vazirmatn,sans-serif;color:var(--vscode-foreground);' +
-        'background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) 88%,transparent);border:.5px solid rgba(128,128,128,.32);border-radius:8px;padding:3px 4px;' +
+      '.crtl-amar-pinhan{display:none!important}',
+      '#crtl-amar{position:fixed;left:8px;bottom:8px;z-index:2147483001;direction:rtl;font:9px/1.25 -apple-system,BlinkMacSystemFont,Vazirmatn,sans-serif;color:var(--vscode-foreground);' +
+        'background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) 88%,transparent);border:.5px solid rgba(128,128,128,.32);border-radius:6px;padding:2px;' +
         'box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}',
       '#crtl-amar table{border-collapse:collapse}',
-      '#crtl-amar td,#crtl-amar th{padding:0 3px;text-align:center;white-space:nowrap}',
-      '#crtl-amar .crtl-amar-amudi{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;font-weight:400;opacity:.7;max-height:5.5em}',
+      // lines between the cells, and narrow, so it fits beside the prompt box (Habib, 26 Oct 23:14: «توی جدول خطهای افقی عمودی
+      // جدول باشه -- و اینکه باریکتر کن جا بگیره اون کنار»)
+      '#crtl-amar td,#crtl-amar th{padding:0 1px;min-width:13px;text-align:center;white-space:nowrap;border:.5px solid rgba(128,128,128,.4)}',
+      '#crtl-amar .crtl-amar-amudi{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;font-weight:400;opacity:.7;max-height:5em;padding:1px 0}',
       '#crtl-amar .crtl-amar-r{opacity:.7;text-align:right}',
       '#crtl-amar .crtl-amar-sefr{opacity:.35}',
       '#crtl-amar.crtl-amar-bozorg{max-width:min(720px,92vw);max-height:65vh;overflow:auto;font-size:11px;padding:6px 8px;cursor:default;user-select:text;-webkit-user-select:text}',
@@ -2334,6 +2338,16 @@
     (document.head || document.documentElement).appendChild(st);
   })();
   setInterval(jadval_tamas, 1000);
+  // the hidden line is hidden the moment the box draws it, not up to a second later: it showed in the folded
+  // box now and then (Habib, 26 Oct 23:12: «اون کلمات گاهی میاد تو کادر بسته حدس»)
+  var amar_dar_rah = false;
+  try {
+    new MutationObserver(function () {
+      if (amar_dar_rah) return;
+      amar_dar_rah = true;
+      requestAnimationFrame(function () { amar_dar_rah = false; jadval_tamas(); });
+    }).observe(document.body || document.documentElement, { childList: true, subtree: true, characterData: true });
+  } catch (e) {}
   window.__crtl_jadval_tamas = jadval_tamas;
 
   var tries = 0;

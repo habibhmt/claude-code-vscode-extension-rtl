@@ -6,7 +6,7 @@
 
 | قدم | کار |
 |---|---|
-| ۱ | اجازهٔ حبیب پیش از هر موس/کیبورد: `…/203th-day-imac-cpu-tracker/doc/abzar/ejaze_computer_use.sh "۱۳۶" "Reload Window" 1` ⇐ فقط با «alan» ادامه |
+| ۱ | اجازه **از راهِ ۲۰۳**: با SendMessage به «مجری-۲۰۳-ای مک» بگو چه کاری و چند دقیقه ⇐ ۲۰۳ پنجرهٔ اجازهٔ مک را برای حبیب می‌فرستد ⇐ وقتی ۲۰۳ گفت «اجازه آمد، بزن»، خودت بزن. `ejaze_computer_use.sh` را خودت نزن (حبیب ۲۳:۵۱: «وقتی روش کار با کامپیوتر یوز رو به ایجنتی یاد میدی باید بهش یاد بدی به تو بگه بعد تو با نوتیف از من اجازه بگیری بعدش کار رو بکنه») |
 | ۲ | پنجره جلو: `…/doc/abzar/tamiz.sh '/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code' <پوشه>` و چک که پنجرهٔ جلو همان است |
 | ۳ | **از منوی View** ⇐ «Command Palette…» (osascript) ⇐ «Developer: Reload Window» ⇐ `key code 36` |
 | ⚠️ | **Cmd+Shift+P نزن**: کادرِ Claude آن را می‌گیرد و متن به‌عنوانِ پیام در چت می‌رود (۲۶ اکت ۲۳:۲۳) |

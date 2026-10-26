@@ -403,6 +403,11 @@
       out.push('[class*="userMessage_"]:not(.crtl-expanded) [class*="truncationGradient"]{display:none!important}');
       out.push('[class*="userMessage_"]:not(.crtl-expanded).crtl-hovered [class*="content_"]' +
         '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
+      // a plugin's own prompt («Prompt from the hads plugin»: the «خودکار» the mod sends) is shown whole: its
+      // first line is only "The hads plugin sent a message:" (Habib, 26 Oct 05:07: «چرا پیامای خودکار توی صفحه
+      // دیده نمیشن متنشون»)
+      out.push('[class*="userMessageContainer_"]:has([class*="promptLabel_"]) [class*="content_"]' +
+        '{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}');
     } else {
       out.push('[class*="userMessage_"] [class*="content_"]{display:block!important;' +
         '-webkit-line-clamp:unset!important;max-height:none!important}');

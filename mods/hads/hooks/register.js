@@ -203,7 +203,7 @@ export const abzar_ha_ye_claude_code = [
   ['کرومِ CDP ِ خودِ ایجنت (اسکیلِ chrome-cdp)', 'سایت در تبِ پس‌زمینه، کلیک، خواندنِ متنِ صفحه، عکس با Page.captureScreenshot؛ پنجره هرگز جلو نیاید؛ کرومِ بی‌پنجره فقط برای آزمون'],
   ['Claude in Chrome (/chrome) و مرورگرِ داخلی', 'مرورگر با لاگینِ خودِ حبیب: فرم، کنسول، ضبطِ GIF'],
   ['hook و mod', 'کاری که خودکار پیش یا پس از هر ابزار یا پیام اجرا شود (settings.json)'],
-  ['سرچ در چت‌های قبلی', 'python3 ~/Downloads/205th-day-mother-of-all-agent/abzar/hafeze_search.py --hame "<سؤال>" 5 ⇒ حبیب در موردِ مشابه چه گفت'],
+  ['سرچ در چت‌های قبلی', 'python3 ~/1-MY-WORK/205th-day-mother-of-all-agent/abzar/hafeze_search.py --hame "<سؤال>" 5 ⇒ حبیب در موردِ مشابه چه گفت'],
 ]
 const prompt_fork_khodkar = '"khodkar": [all of them, 0 or more, each {"kar": "<کاری که الان در این چت جاری است و ایجنت آن را از حبیب می‌پرسد یا به او می‌سپارد، کوتاه>", "abzar": "<کدام ابزار از فهرست، دقیق: اسمِ ابزار و فرمان یا مسیر>", "chek": "<ایجنت نتیجه را خودش چطور می‌بیند و می‌سنجد>", "chera": "<یک جملهٔ کوتاه: چرا لازم نیست از حبیب بپرسد>"}]'
 const ghaede_khodkar = '\n\n«khodkar» (خودکار): این فهرستِ کاملِ ابزارهای ایجنت در Claude Code است (code.claude.com/docs/en/tools-reference، خوانده‌شده ۲۵ اکت ۲۰۲۶):\n' +
@@ -774,7 +774,7 @@ export const esm_bakhsh = Object.fromEntries(bakhsh_ha)
 // command writes and reads it, the label shows what its `get` says, a press moves only this chat one on
 export const dayere_ha = ['chat', 'poshe', 'hame']
 export const esm_dayere = { chat: 'همین چت', poshe: 'همین پروژه', hame: 'همهٔ پروژه‌ها' }
-const masir_hafeze_dayere = async ($) => (await $.env.get('HOME')) + '/Downloads/205th-day-mother-of-all-agent/abzar/hafeze_dayere.py'
+const masir_hafeze_dayere = async ($) => (await $.env.get('HOME')) + '/1-MY-WORK/205th-day-mother-of-all-agent/abzar/hafeze_dayere.py'
 // per chat id: what `get` last said (undefined: not asked yet; null: no answer)
 const dayere_har_chat = new Map()
 async function hafeze_dayere($, ...args) {

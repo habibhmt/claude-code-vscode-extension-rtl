@@ -430,12 +430,52 @@ async function vazhe_name($) {
 // Sonnet on the last three messages only: cheap enough to run every do_jomle_fasele_ms during work
 // every model call of this chat, one JSON line each (~/.claude/hads-log/<id>.usage.jsonl,
 // the last 500): the real cost per part, read by `hads-kharj`
+// «تماس‌ها»: how many times this chat's «حدس» called a model, per part, in the last hour, the last 24 h and in
+// all, for the small table left of the prompt box; opened big, every call with its tokens and dollars (Habib,
+// 26 Oct 21:54: «تعداد تماسهای این … پلاگین حدس رو به تفکیک کارها … یک ساعت اخیر 24 ساعت اخیر کل تماسها …
+// اگر بزرگش بکنم … کل ارتباطاتشو ریز بریز با مقدار مقادیر کامل»; «بله، فقط همین چت»; dollars only when big: «بله»).
+// Read from the chat's own usage.jsonl; handed to the page as one hidden line the page draws (claude-ui-buttons.js).
+// $ per million tokens: input, output, cache write, cache read (claude.com/pricing, as ۲۰۳'s ertebat_claude.py)
+export const gheymat_tamas_usd = { sonnet: [2, 10, 2.5, 0.1], fork: [4, 20, 5, 0.2] }
+export const had_tamas_riz = 300
+export const neshane_amar = '\u2063AMAR'
+const amar_cache = new Map()
+export function hesab_amar(lines, now) {
+  const bakhsh_ha_amar = ['do_jomle', 'hads', 'nakarde', 'khodkar', 'cron', 'jambandi_nobat', 'porsesh']
+  const sefr = () => Object.fromEntries([...bakhsh_ha_amar, 'kol', 'usd'].map((k) => [k, 0]))
+  const out = { saat: sefr(), ruz: sefr(), hame: sefr(), riz: [] }
+  for (const x of lines) {
+    const parts = String(x.bakhsh || 'hads').replace('jambandi_nobat', 'jambandi-nobat').split('_va_').map((k) => k.replace('jambandi-nobat', 'jambandi_nobat'))
+    const dar = [out.hame, ...(now - x.t <= 24 * 3600e3 ? [out.ruz] : []), ...(now - x.t <= 3600e3 ? [out.saat] : [])]
+    const u = x.usage || {}, g = gheymat_tamas_usd[x.rah] || gheymat_tamas_usd.fork
+    const v = [u.input_tokens || 0, u.output_tokens || 0, u.cache_creation_input_tokens || 0, u.cache_read_input_tokens || 0]
+    const usd = v.reduce((a, n, i) => a + n * g[i], 0) / 1e6
+    for (const d of dar) { d.kol++; d.usd = +(d.usd + usd).toFixed(4); for (const k of parts) if (k in d) d[k]++ }
+    out.riz.push({ t: x.t, b: parts, rah: x.rah, in: v[0], out: v[1], cw: v[2], cr: v[3], usd: +usd.toFixed(4) })
+  }
+  out.riz = out.riz.slice(-had_tamas_riz).reverse()
+  return out
+}
+async function matn_amar($) {
+  try {
+    const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.usage.jsonl'
+    const now = await $.clock.now(), c = amar_cache.get(f)
+    if (c && now - c.at < 15000) return c.matn
+    let lines = []
+    try { lines = String(await $.fs.read(f)).split('\n').filter(Boolean).map((l) => { try { return JSON.parse(l) } catch { return null } }).filter((x) => x && x.t) } catch {}
+    const matn = neshane_amar + JSON.stringify(hesab_amar(lines, now))
+    amar_cache.set(f, { at: now, matn })
+    return matn
+  } catch { return '' }
+}
+
 async function benevis_kharj($, bakhsh, rah, usage) {
   try {
     const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.usage.jsonl'
     // appended, never read and rewritten: two calls ending together would each drop the other's line
     const line = JSON.stringify({ t: await $.clock.now(), bakhsh, rah, usage }) + '\n'
     await $.process.run(['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat >> "$1"', 'sh', f], { stdin: line, timeoutMs: 5000 })
+    amar_cache.delete(f); $.ui.invalidate('ui.render')
   } catch {}
 }
 
@@ -1164,6 +1204,8 @@ export function register(on) {
     const a = p.porsesh && javab_porsesh && javab_porsesh.for === id ? javab_porsesh : null
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
+    const amar_matn = await matn_amar($)
+    const amar = amar_matn ? [Text({ key: 'hads-amar', dimColor: true, children: [amar_matn] })] : []
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line
     // two states now: the folded line is gone, the button opens the whole box and × goes straight back to it
@@ -1171,7 +1213,7 @@ export function register(on) {
     // a file still holding the old word `yek_khat` shows the button too
     if (p.tak_dokme || p.yek_khat) {
       const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => taghir_halat($, 'baz') })
-      return Box({ flexDirection: 'column', children: theirs ? [theirs, one] : [one] })
+      return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), ...amar, one] })
     }
     const hist = n || ghablia_baz ? await khandan_ghablia($) : []
     const prompt_list = p.porsesh ? await khandan_prompt_ha($) : []
@@ -1312,6 +1354,6 @@ export function register(on) {
           onInput: (v) => taghir_tartib($, v), onSubmit: (v) => taghir_tartib($, v) })] : []),
       ],
     }))
-    return Box({ flexDirection: 'column', children: theirs ? [theirs, ...rows] : rows })
+    return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), rows[0], ...amar, ...rows.slice(1)] })
   })
 }

@@ -773,6 +773,27 @@ out.esmRule = { upper: (src.match(/export const [A-Z][A-Z_0-9]*\b/g) || []), glu
   // an English word keeps its English spelling (91, بندِ ۲: کلمهٔ انگلیسی با اسپلِ درست): cache, context, copy — not kash, kontekst, kopi (Habib, 25 Oct 05:24: «اسم copy»)
   bad_spell: [...new Set(src.match(/\b[a-z_]*(kash|kontekst|kopi|profail|menyu|sesheen)[a-z_]*\b/g) || [])] }
 assert.deepEqual(out.esmRule, { upper: [], glued: [], bad_spell: [] })
+// «تماس‌ها» (26 Oct 21:54): per part, last hour / 24 h / all; one fork serving four parts counts in each; dollars per call
+{
+  const now = 1e13
+  const L = [
+    { t: now - 10 * 60e3, bakhsh: 'hads_va_nakarde_va_khodkar_va_cron', rah: 'fork', usage: { input_tokens: 1000, output_tokens: 100, cache_read_input_tokens: 100000, cache_creation_input_tokens: 0 } },
+    { t: now - 5 * 3600e3, bakhsh: 'do_jomle', rah: 'sonnet', usage: { input_tokens: 1000, output_tokens: 100 } },
+    { t: now - 3 * 86400e3, bakhsh: 'jambandi_nobat_va_hads', rah: 'fork', usage: {} },
+  ]
+  L.reverse() // the file is oldest first
+  const A = mod.hesab_amar(L, now)
+  out.amar = { saat: [A.saat.kol, A.saat.hads, A.saat.cron, A.saat.do_jomle], ruz: [A.ruz.kol, A.ruz.do_jomle], hame: [A.hame.kol, A.hame.hads, A.hame.jambandi_nobat], hameUsd: A.hame.usd, usd: A.riz[0].usd, newest: A.riz[0].b.join(' ') }
+  assert.deepEqual(out.amar, { saat: [1, 1, 1, 0], ruz: [2, 1], hame: [3, 2, 1], hameUsd: 0.029, usd: 0.026, newest: 'hads nakarde khodkar cron' })
+  // the box hands it to the page as one hidden line, in every state
+  const sid0 = $.sid; $.sid = 'AM'; flags['/h/.claude/hads-on/AM'] = 'on tak_dokme'
+  flags['/h/.claude/hads-log/AM.usage.jsonl'] = L.map((x) => JSON.stringify(x)).join('\n') + '\n'
+  const rA = await F['ui.render']($, { component: 'AbovePrompt' }, async () => 'engine')
+  const tA = find(rA, 'hads-amar'), body = tA && String(tA.children[0])
+  out.amarLine = !!body && body.startsWith(mod.neshane_amar) && JSON.parse(body.slice(mod.neshane_amar.length)).hame.kol === 3
+  assert.equal(out.amarLine, true)
+  $.sid = sid0
+}
 // 25 Oct 02:20 («اسمِ تابع‌های داخلِ کد … بزن»): the functions and the chat-wide variables have Habib's words too
 const codeOnly = src.replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
 out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa", "bepors"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))

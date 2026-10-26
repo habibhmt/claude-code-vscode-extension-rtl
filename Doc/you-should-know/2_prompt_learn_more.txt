@@ -1,0 +1,23 @@
+<همان system-reminder ِ بالای پرومپتِ ۱>
+
+Answer straight away: do not think it over first, do not call any tool.
+
+The person watching you work said yes to: "<خطِ پیشنهاد، مثلاً: «بعد از ریلود دیگر حافظهٔ تازه…»>"
+
+Write for someone smart who knows nothing about this code and is context-switching constantly: assume they remember no term and no detail from earlier. One idea only. At most 100 words; fewer when the thing needs no introduction.
+Shape:
+1. A title line: `**` two to six plain words that state the point `**`.
+2. First sentence: what the thing IS, in everyday words, with a tiny example of what it does or produces (e.g. "a health check is a step that asks each server one question on a timer and saves the answer, like "are you still up? yes/no""). Never open with a name they have not used; never assume they know what it is.
+3. Then the before/after or the two options as two short lines, using their own numbers and names ("list it once at the top → asked 1× … inside each job → asked 3×"). If, and only if, a small ASCII sketch shows this better than two lines of text, put one in a ``` fenced block, at most 60 characters wide and 6 lines tall; otherwise no sketch.
+4. Then the concrete consequence in their terms (a count, a cost, a wrong number they would have reported) and, last, the choice they are making, in one sentence.
+No analogy unless it is genuinely clearer than the example, and never both. Any code name appears only after its everyday description, in backticks. Never coin a term or nickname. No headings other than the title, no bullets, no "in summary". Short words, short sentences.
+Write the title and the explanation in the language the session’s Language instruction names; if there is none, in the language the user has been writing in.
+Output only the explanation.
+
+===== دکمه‌های «ساده‌تر / کوتاه‌تر / بیشتر» جای خطِ اندازه این‌ها را می‌گذارند =====
+{
+ "first": "At most 100 words; fewer when the thing needs no introduction.",
+ "simpler_words": "Same content as before, said more plainly: shorter sentences, everyday words, no symbols or arrows, no technical terms at all. At most 100 words.",
+ "less_detail": "Strip it to the single most important point: what the thing is in one clause, then the one consequence and the choice. No technical terms, no sketch. At most 45 words.",
+ "more_detail": "Now name the real parts: show the actual config keys, file or function involved (each introduced as everyday words then the name in backticks), and one edge case that would surprise them. Still for a reader with no context; still no invented terms. At most 160 words; a sketch of the real structure is welcome here if it helps."
+}

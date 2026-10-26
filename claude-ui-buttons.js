@@ -2233,6 +2233,109 @@
   setInterval(neshan_hook_va_hads, 700);
   window.__crtl_neshan_hook_va_hads = neshan_hook_va_hads;
 
+  /* ---------------- «تماس‌ها»: how often «حدس» called a model ---------------- */
+  // A small table left of the prompt box, movable: per part, the last hour, the last 24 h and all; a click opens
+  // it big, every call with its tokens and dollars (Habib, 26 Oct 21:54: «سمت چپ که خالیه یه جدول کوچیک بذار …
+  // قابل جابجایی … یک ساعت اخیر 24 ساعت اخیر کل … خودکار رو عمودی بنویس … اگر بزرگش بکنم … ریز بریز با مقدار
+  // مقادیر کامل»). The data is one hidden line the hads mod renders in its box (neshane_amar, register.js).
+  var NESHANE_AMAR = '⁣AMAR', KELID_JA_AMAR = 'crtl-amar-ja';
+  var sotun_amar = [['do_jomle', 'دو جمله'], ['hads', 'حدس'], ['nakarde', 'نکرده'], ['khodkar', 'خودکار'], ['cron', 'کرون'],
+    ['jambandi_nobat', 'جمع‌بندی'], ['porsesh', 'پرسش'], ['kol', 'کل']];
+  var radif_amar = [['saat', '۱ ساعت'], ['ruz', '۲۴ ساعت'], ['hame', 'کل']];
+  var amar_matn_akhar = '', amar_bozorg = false;
+  function fa(n) { return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
+  function dolar(n) { return '$' + (n >= 1 ? n.toFixed(2) : n.toFixed(3)); }
+  function jadval_kuchak(a) {
+    var h = '<table class="crtl-amar-t"><tr><th></th>';
+    sotun_amar.forEach(function (c) { h += '<th><span class="crtl-amar-amudi">' + c[1] + '</span></th>'; });
+    h += '</tr>';
+    radif_amar.forEach(function (r) {
+      h += '<tr><td class="crtl-amar-r">' + r[1] + '</td>';
+      sotun_amar.forEach(function (c) { var n = (a[r[0]] || {})[c[0]] || 0; h += '<td' + (n ? '' : ' class="crtl-amar-sefr"') + '>' + fa(n) + '</td>'; });
+      h += '</tr>';
+    });
+    return h + '</table>';
+  }
+  function jadval_bozorg(a) {
+    var esm = {}; sotun_amar.forEach(function (c) { esm[c[0]] = c[1]; });
+    var h = '<div class="crtl-amar-sar"><b>تماس‌های «حدس» در همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>' + jadval_kuchak(a);
+    h += '<div class="crtl-amar-dolar">' + radif_amar.map(function (r) { return r[1] + ': <b>' + dolar((a[r[0]] || {}).usd || 0) + '</b>'; }).join(' · ') + '</div>';
+    h += '<table class="crtl-amar-riz"><tr><th>ساعت</th><th>کارها</th><th>مدل</th><th>ورودی</th><th>خروجی</th><th>نوشتنِ کش</th><th>خواندنِ کش</th><th>دلار</th></tr>';
+    (a.riz || []).forEach(function (x) {
+      var d = new Date(x.t), t = d.toLocaleString('fa-IR', { timeZone: 'Asia/Tehran', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      h += '<tr><td>' + t + '</td><td>' + x.b.map(function (k) { return esm[k] || k; }).join('، ') + '</td><td>' + (x.rah === 'sonnet' ? 'Sonnet' : 'fork (Opus)') + '</td>' +
+        [x['in'], x.out, x.cw, x.cr].map(function (n) { return '<td>' + fa(n.toLocaleString('en-US')) + '</td>'; }).join('') + '<td>' + dolar(x.usd) + '</td></tr>';
+    });
+    return h + '</table>';
+  }
+  function jadval_tamas() {
+    var spans = document.querySelectorAll('.crtl-hads span'), dade = null;
+    for (var i = 0; i < spans.length; i++) {
+      var tx = spans[i].textContent || '';
+      if (tx.indexOf(NESHANE_AMAR) !== 0) continue;
+      spans[i].classList.add('crtl-amar-pinhan');
+      dade = tx;
+    }
+    var box = document.getElementById('crtl-amar');
+    if (!dade) { if (box) box.style.display = 'none'; return; }
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'crtl-amar';
+      try { var ja = JSON.parse(localStorage.getItem(KELID_JA_AMAR) || 'null'); if (ja) { box.style.left = ja.x + 'px'; box.style.top = ja.y + 'px'; box.style.bottom = 'auto'; } } catch (e) {}
+      // a press that does not move opens or closes it; one that moves drags it, and the place is kept
+      box.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+        // big: only its title row moves or closes it, so the rows can be read and selected
+        if (amar_bozorg && !(e.target.closest && e.target.closest('.crtl-amar-sar'))) return;
+        var r = box.getBoundingClientRect(), x0 = e.clientX, y0 = e.clientY, raft = false;
+        function harekat(m) {
+          if (!raft && Math.abs(m.clientX - x0) + Math.abs(m.clientY - y0) < 4) return;
+          raft = true;
+          box.style.left = Math.max(0, Math.min(window.innerWidth - 40, r.left + m.clientX - x0)) + 'px';
+          box.style.top = Math.max(0, Math.min(window.innerHeight - 20, r.top + m.clientY - y0)) + 'px';
+          box.style.bottom = 'auto';
+        }
+        function vel() {
+          document.removeEventListener('pointermove', harekat); document.removeEventListener('pointerup', vel);
+          if (raft) { try { localStorage.setItem(KELID_JA_AMAR, JSON.stringify({ x: parseInt(box.style.left, 10), y: parseInt(box.style.top, 10) })); } catch (e2) {} return; }
+          amar_bozorg = !amar_bozorg; amar_matn_akhar = ''; jadval_tamas();
+        }
+        document.addEventListener('pointermove', harekat); document.addEventListener('pointerup', vel);
+      });
+      document.body.appendChild(box);
+    }
+    box.style.display = '';
+    box.classList.toggle('crtl-amar-bozorg', amar_bozorg);
+    if (dade === amar_matn_akhar) return;
+    amar_matn_akhar = dade;
+    var a; try { a = JSON.parse(dade.slice(NESHANE_AMAR.length)); } catch (e) { return; }
+    box.innerHTML = amar_bozorg ? jadval_bozorg(a) : jadval_kuchak(a);
+  }
+  (function () {
+    var st = document.createElement('style');
+    st.id = 'crtl-amar-style';
+    st.textContent = [
+      '.crtl-hads .crtl-amar-pinhan{display:none!important}',
+      '#crtl-amar{position:fixed;left:8px;bottom:8px;z-index:2147483001;direction:rtl;font:10px/1.3 -apple-system,BlinkMacSystemFont,Vazirmatn,sans-serif;color:var(--vscode-foreground);' +
+        'background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) 88%,transparent);border:.5px solid rgba(128,128,128,.32);border-radius:8px;padding:3px 4px;' +
+        'box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}',
+      '#crtl-amar table{border-collapse:collapse}',
+      '#crtl-amar td,#crtl-amar th{padding:0 3px;text-align:center;white-space:nowrap}',
+      '#crtl-amar .crtl-amar-amudi{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;font-weight:400;opacity:.7;max-height:5.5em}',
+      '#crtl-amar .crtl-amar-r{opacity:.7;text-align:right}',
+      '#crtl-amar .crtl-amar-sefr{opacity:.35}',
+      '#crtl-amar.crtl-amar-bozorg{max-width:min(720px,92vw);max-height:65vh;overflow:auto;font-size:11px;padding:6px 8px;cursor:default;user-select:text;-webkit-user-select:text}',
+      '#crtl-amar .crtl-amar-sar{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:grab}',
+      '#crtl-amar .crtl-amar-bastan{background:none;border:none;color:inherit;font-size:14px;cursor:pointer}',
+      '#crtl-amar .crtl-amar-dolar{margin:4px 0;opacity:.85}',
+      '#crtl-amar .crtl-amar-riz th{position:sticky;top:-6px;background:var(--vscode-editorWidget-background,#2c2c2e);font-weight:600}',
+      '#crtl-amar .crtl-amar-riz td{border-top:.5px solid rgba(128,128,128,.2)}'
+    ].join('\n');
+    (document.head || document.documentElement).appendChild(st);
+  })();
+  setInterval(jadval_tamas, 1000);
+  window.__crtl_jadval_tamas = jadval_tamas;
+
   var tries = 0;
   var timer = setInterval(function () {
     sakht_hame();

@@ -290,6 +290,7 @@
     '.crtl-hads button.crtl-jaye-baad{box-shadow:inset 3px 0 0 #0a84ff!important}',
     '.crtl-hads form:has(input[data-press-key="hads-tartib"]){display:none!important}',
     /* like a message from another session (26 Oct 05:36: «اینم فرمتش مثل همون دو تا بشه»): grey, italic */
+    '[class*="metaMessage_"].crtl-hook-says{display:none!important}',
     '[class*="metaMessage_"].crtl-hook{font-style:italic;color:var(--app-secondary-foreground);cursor:pointer;opacity:.8;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
@@ -2179,6 +2180,9 @@
     }
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');
     for (var i = 0; i < ms.length; i++) {
+      // the panel's own «UserPromptSubmit says: …» (a hook's systemMessage): not on the screen, the hook line
+      // shows what the hook injected (Habib, 26 Oct 05:46: «این هم دیگه نیاد روی صفحه»)
+      if (/^\s*[A-Za-z]+(?::[A-Za-z]+)? says: /.test((ms[i].textContent || '').slice(0, 60))) { ms[i].classList.add('crtl-hook-says'); continue; }
       // the 🪝 may come after an icon the panel draws in front: look at the first few characters
       var head = (ms[i].textContent || '').slice(0, 12);
       if (head.indexOf('\u2063') < 0 && head.indexOf('🪝') < 0) continue;

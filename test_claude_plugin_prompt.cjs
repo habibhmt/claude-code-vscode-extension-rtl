@@ -9,7 +9,8 @@ const script=fs.readFileSync(process.env.BUTTONS_JS||__dirname+'/claude-ui-butto
 const msg=(label,first)=>`<div class="message_x userMessageContainer_x">${label?'<div class="promptLabel_mLbNFw">Prompt from the hads plugin</div>':''}
 <div class="userMessage_x" style="max-height:40px;overflow-y:auto;border:1px solid rgb(200, 0, 0);font-style:normal"><div class="expandableContainer_x"><div class="content_x">${first}<br>خودکار: یک<br>۱. دو<br>۲. سه</div></div></div></div>`;
 const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px sans-serif;width:600px">
-<div class="messagesContainer_x"><div id="p">${msg(true,'The hads plugin sent a message:')}</div><div id="s">${msg(false,'Another Claude session sent a message:')}</div><div id="u">${msg(false,'پیامِ خودِ حبیب')}</div></div>
+<div class="messagesContainer_x"><div id="p">${msg(true,'The hads plugin sent a message:')}</div><div id="s">${msg(false,'Another Claude session sent a message:')}</div><div id="u">${msg(false,'پیامِ خودِ حبیب')}</div>
+<div id="says" class="metaMessage_x">UserPromptSubmit says: حافظه: 3 سابقه</div><div id="hk" class="metaMessage_x">\u2063۴ آبان · UserPromptSubmit · متنِ تزریقی</div></div>
 <div aria-label="Message input" contenteditable="true"></div></body></html>`;
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -29,6 +30,9 @@ const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px 
   await p.hover('#p [class*="content_"]');await p.waitForTimeout(900);
   out.hovered=await bubble('p')>=4*18;
   assert.equal(out.hovered,true);
+  // the panel's own «UserPromptSubmit says: …» is not on the screen; the hook line is (26 Oct 05:46: «این هم دیگه نیاد روی صفحه»)
+  out.says=await p.evaluate(()=>[getComputedStyle(document.getElementById('says')).display,getComputedStyle(document.getElementById('hk')).display]);
+  assert.deepEqual(out.says,['none','block']);
  }finally{await browser.close()}
  console.log(JSON.stringify(out));
 })().catch(e=>{console.error(e);process.exit(1)});

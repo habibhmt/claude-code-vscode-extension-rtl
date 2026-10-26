@@ -713,6 +713,29 @@ out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با 
   logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
 assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
   nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"]}\n', logged: 2 })
+// «پرسش» with saved prompts (Habib, 26 Oct 05:41 and 05:44): + adds, ✎ edits, × deletes, a press turns one on;
+// the warm-cache question goes with the one that is on
+{
+  const keepR = $.ui.resolve; $.ui.resolve = () => withInput
+  $.sid = 'PR'; await H['command.run']($, { args: 'on' })
+  const r = () => H['ui.render']($, { component: 'AbovePrompt', surface: 'vscode' }, async () => null)
+  await find(await r(), 'hads-pr-add').onPress()
+  const fld = find(await r(), 'hads-pr-matn'); fld.onInput('جواب در جدول، با واژه‌های من'); await find(await r(), 'hads-pr-save').onPress()
+  await find(await r(), 'hads-pr-add').onPress(); await find(await r(), 'hads-pr-matn').onSubmit('کوتاه بگو')
+  await find(await r(), 'hads-pr-ed-1').onPress(); await find(await r(), 'hads-pr-matn').onSubmit('خیلی کوتاه بگو')
+  await find(await r(), 'hads-pr-0').onPress()
+  const t1 = await r()
+  const fk0 = calls.fork.length; $.forkReply = { isAnswered: true, text: 'جواب.', usage: {} }; $.t += 1
+  await H['command.run']($, { args: 'ask چی شد؟' }); await flush(); await new Promise((res) => setTimeout(res, 5))
+  const askP = calls.fork.slice(fk0).map((f) => f.prompt).find((x) => /چی شد؟/.test(x)) || ''
+  await find(await r(), 'hads-pr-x-0').onPress()
+  const t2 = await r()
+  out.promptHa = { labels: [0, 1].map((i) => find(t1, 'hads-pr-' + i)?.label), short: [...find(t1, 'hads-pr-0').label].length <= mod.had_harf_dokme_prompt + 2,
+    asked: askP === '' ? 'cold' : /جواب در جدول، با واژه‌های من[\s\S]*چی شد؟/.test(askP),
+    afterX: [0, 1].map((i) => find(t2, 'hads-pr-' + i)?.label || null), file: flags['/h/.claude/hads-prompt-ha.json'] }
+  assert.deepEqual(out.promptHa, { labels: ['✓ جواب در جدول، با …', 'خیلی کوتاه بگو'], short: true, asked: true, afterX: ['خیلی کوتاه بگو', null], file: '["خیلی کوتاه بگو"]\n' })
+  $.ui.resolve = keepR
+}
 $.sid = 'A'
 // تعریفِ ۱۰ (اسمِ متغیر): every name the mod writes is a new one. The old names, written out here only
 // to look for them (Habib, 25 Oct 02:58: «دیگه اثری ازش نباشه»; the mod no longer reads them)

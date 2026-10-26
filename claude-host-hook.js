@@ -219,12 +219,14 @@
         var h = o.hookSpecificOutput || {};
         var ctx = typeof h.additionalContext === 'string' ? h.additionalContext.trim() : '';
         var sys = typeof o.systemMessage === 'string' ? o.systemMessage.trim() : '';
-        if (ctx) return { head: sys ? 'متنِ تزریقی' : ctx.split('\n')[0], body: kutah_kardan_masir(ctx) };
+        if (ctx) return sys ? { head: 'متنِ تزریقی', body: kutah_kardan_masir(ctx) } : { head: kutah_kardan_masir(ctx.split('\n')[0]), body: kutah_kardan_masir(ctx.split('\n').slice(1).join('\n').trim()) };
         return null;
       }
     }
+    // the first line is the head; the body is only what follows, so an opened line does not say it twice
+    // (Habib, 26 Oct 05:47, a PostToolUse line shown twice: «این داستانش چیه از کجا اومده ؟»)
     var first = t.split('\n')[0];
-    return { head: kutah_kardan_masir(first), body: kutah_kardan_masir(t) };
+    return { head: kutah_kardan_masir(first), body: kutah_kardan_masir(t.split('\n').slice(1).join('\n').trim()) };
   }
   globalThis.__crtl_hook_khana = khana_baraye_habib;
   // no emoji in a hook line (Habib, 26 Oct 05:36: «این ایموجی های مزخرف رو کامل بردار - کامل بدون ایموجی»):
@@ -235,7 +237,7 @@
   // invisible mark (U+2063), not a 🪝, so the page script still finds it
   function sakht_khat_hook(name, r, t, uuid, sid) {
     return { type: 'system', subtype: 'informational', level: 'notice', session_id: sid, uuid: uuid,
-      content: '\u2063' + zaman_shamsi(t) + ' · ' + name + ' · ' + bi_emoji(r.head) + '\n' + bi_emoji(r.body) };
+      content: '\u2063' + zaman_shamsi(t) + ' · ' + name + ' · ' + bi_emoji(r.head) + (r.body ? '\n' + bi_emoji(r.body) : '') };
   }
   globalThis.__crtl_khat_hook = function (m, now) {
     try {

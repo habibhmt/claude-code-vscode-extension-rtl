@@ -67,6 +67,13 @@ let porsesh_montazer = null
 // «بپرس»: a side question like /btw, answered by $.model.fork; never reaches the chat
 let javab_porsesh = null
 let matn_porsesh = ''
+// «پرسش» with Habib's saved prompts (26 Oct 05:41: «اون بپرس یه قسمت پرومپت هم داشته باشه که توش بتونم متن بزارم
+// و بشه یک دکمه … دکمه ادیت و ذخیره هم داشته باشه … اون سوالی که از مدل با کش گرم میپرسیم با این پرومپت پرسیده بشه»;
+// 05:44: «چند دکمه باشه و روی دکمه علامت ضربدر و ادیت باشه که زیاد بزرگ نشه و کلا یه علامت + برای اضافه کردن پرومپت»).
+// The list is the same in every chat (~/.claude/hads-prompt-ha.json); which one is on, per chat
+let prompt_ha = null
+const prompt_entekhab_har_chat = new Map()
+let prompt_virayesh = null
 
 export function khandan_hads(raw) {
   try {
@@ -692,6 +699,34 @@ const matn_dalil_bi_javab = {
   'empty-reply': 'جوابی نیامد؛ دوباره بپرس.',
   aborted: 'نیمه‌کاره ماند؛ دوباره بپرس.',
 }
+const masir_prompt_ha = async ($) => (await $.env.get('HOME')) + '/.claude/hads-prompt-ha.json'
+async function khandan_prompt_ha($) {
+  if (prompt_ha) return prompt_ha
+  let o = null
+  try { o = JSON.parse(String(await $.fs.read(await masir_prompt_ha($)))) } catch {}
+  prompt_ha = Array.isArray(o) ? o.filter((x) => typeof x === 'string' && x.trim()) : []
+  return prompt_ha
+}
+async function zakhire_prompt_ha($) {
+  try { await $.fs.write(await masir_prompt_ha($), JSON.stringify(prompt_ha) + '\n') } catch {}
+  $.ui.invalidate('ui.render')
+}
+export const had_harf_dokme_prompt = 18
+async function zakhire_prompt_virayesh($) {
+  const v = prompt_virayesh
+  if (!v) return
+  const matn = String(v.matn || '').trim()
+  prompt_virayesh = null
+  await khandan_prompt_ha($)
+  if (!matn) return $.ui.invalidate('ui.render')
+  if (v.i >= 0 && v.i < prompt_ha.length) prompt_ha[v.i] = matn; else prompt_ha.push(matn)
+  return zakhire_prompt_ha($)
+}
+async function prompt_entekhab_shode($) {
+  const i = prompt_entekhab_har_chat.get(await $.session.id())
+  const list = await khandan_prompt_ha($)
+  return i != null && list[i] ? list[i] : ''
+}
 async function porsesh_kon($, q) {
   if (!String(q).trim()) return
   // off in this chat, or «پرسش» unticked: nothing would be drawn, so no fork is paid for
@@ -720,7 +755,8 @@ async function porsesh_kon($, q) {
   const cur = javab_porsesh = { q, text: '…', for: id }; matn_porsesh = ''; $.ui.invalidate('ui.render')
   try {
     // mid-work the fork sees a tool call in flight and may try to go on with it: say it may not
-    const r = await $.model.fork({ prompt: q + '\n\n(این پرسش از کادرِ حدس است، نه دستورِ کار: ابزاری صدا نزن و کاری را ادامه نده؛ فقط کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
+    const pr = await prompt_entekhab_shode($)
+    const r = await $.model.fork({ prompt: (pr ? 'پرومپتِ حبیب برای این پرسش (طبقِ همین جواب بده):\n' + pr + '\n\nپرسش:\n' : '') + q + '\n\n(این پرسش از کادرِ حدس است، نه دستورِ کار: ابزاری صدا نزن و کاری را ادامه نده؛ فقط کوتاه، به فارسیِ ساده و با واژه‌های حبیب جواب بده.)' })
     // nothing to read yet, though the chat has a story: wait for the next answer, then ask
     let has = false
     if (!r.isAnswered && r.reason === 'nothing-to-fork') {
@@ -1114,6 +1150,8 @@ export function register(on) {
       return Box({ flexDirection: 'column', children: theirs ? [theirs, line] : [line] })
     }
     const hist = n || ghablia_baz ? await khandan_ghablia($) : []
+    const prompt_list = p.porsesh ? await khandan_prompt_ha($) : []
+    const prompt_i = prompt_entekhab_har_chat.get(id) ?? null
     // ▾ (one line) and × (one button) on top, where they are always in sight however long the box
     // grows (Habib, 24 Oct 22:41: «اینها باید بالای صفحه باشند که همه جا قابلیت دیدن داشته باشند»).
     // The box never closes all the way: × leaves the one button (25 Oct 00:13: «ضربدر … تک دکمه ای
@@ -1223,7 +1261,24 @@ export function register(on) {
           onInput: (v) => { matn_porsesh = v }, onSubmit: (v) => porsesh_kon($, v),
         }),
         // Enter on the screen, for whoever does not want the key
-        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => porsesh_kon($, matn_porsesh) })] : []),
+        Button({ key: 'hads-ask-send', label: 'بفرست ⏎', onPress: () => porsesh_kon($, matn_porsesh) }),
+        // the saved prompts: a press turns one on for this chat's questions (✓), ✎ edits, × deletes, + adds
+        ...prompt_list.flatMap((m, i) => [
+          Button({ key: 'hads-pr-' + i, label: (prompt_i === i ? '✓ ' : '') + ([...m].length > had_harf_dokme_prompt ? [...m].slice(0, had_harf_dokme_prompt - 1).join('') + '…' : m),
+            onPress: () => { prompt_entekhab_har_chat.set(id, prompt_i === i ? null : i); $.ui.invalidate('ui.render') } }),
+          Button({ key: 'hads-pr-ed-' + i, label: '✎', onPress: () => { prompt_virayesh = { i, matn: m }; $.ui.invalidate('ui.render') } }),
+          Button({ key: 'hads-pr-x-' + i, label: '×', onPress: () => {
+            prompt_ha.splice(i, 1)
+            for (const [k, v] of prompt_entekhab_har_chat) if (v === i) prompt_entekhab_har_chat.set(k, null); else if (v > i) prompt_entekhab_har_chat.set(k, v - 1)
+            return zakhire_prompt_ha($)
+          } }),
+        ]),
+        Button({ key: 'hads-pr-add', label: '+', onPress: () => { prompt_virayesh = { i: -1, matn: '' }; $.ui.invalidate('ui.render') } }),
+        ...(prompt_virayesh ? [
+          Input({ key: 'hads-pr-matn', value: prompt_virayesh.matn, placeholder: 'متنِ پرومپت…', onInput: (v) => { prompt_virayesh.matn = v }, onSubmit: (v) => { prompt_virayesh.matn = v; return zakhire_prompt_virayesh($) } }),
+          Button({ key: 'hads-pr-save', label: 'ذخیره', onPress: () => zakhire_prompt_virayesh($) }),
+          Button({ key: 'hads-pr-laghv', label: 'لغو', onPress: () => { prompt_virayesh = null; $.ui.invalidate('ui.render') } }),
+        ] : [])] : []),
         // one tick per part, for this chat only, in Habib's order
         ...tartib.map((k) => Button({ key: 'hads-tick-' + k, label: (p[k] ? '✓ ' : '✗ ') + esm_bakhsh[k], onPress: () => tik_zadan($, k) })),
         // not a part: it stays after the ticks, outside their order

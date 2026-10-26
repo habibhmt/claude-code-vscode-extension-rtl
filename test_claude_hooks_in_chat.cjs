@@ -17,7 +17,8 @@ vm.runInNewContext(hookSrc, g)
 const T = Date.parse('2026-10-24T16:39:00Z')
 const line = g.__crtl_khat_hook({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: '[20:09 +0330 -- habib] ok\n', uuid: 'u1' }, T)
 out.hookLine = { type: line.type, subtype: line.subtype, level: line.level, content: line.content }
-assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '\u2063۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok\n[20:09 +0330 -- habib] ok' })
+assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '\u2063۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok' })
+// a one-line hook is not said twice when opened (26 Oct 05:47)
 // the page drops level "info" (SY1): the line must never be "info"
 assert.notEqual(line.level, 'info')
 const other = { type: 'assistant', message: {} }
@@ -157,4 +158,10 @@ fs.rmSync(tmp, { recursive: true, force: true })
 // a hook's own emoji goes too: 🧠 and the like, anywhere in the line
 out.biEmoji = g.__crtl_bi_emoji('🧠 حافظه: 3 سابقه ✅ تزریق شد 🇮🇷 · ۲۰۵')
 assert.equal(out.biEmoji, 'حافظه: 3 سابقه تزریق شد · ۲۰۵')
+// the panel's own «X says: …» line is hidden; a hook line is not
+{
+  const {JSDOM} = (() => { try { return require('jsdom') } catch (e) { return {} } })()
+  out.saysRule = /crtl-hook-says\{display:none!important\}/.test(btn) && /says: \//.test(btn)
+  assert.equal(out.saysRule, true)
+}
 console.log(JSON.stringify(out))

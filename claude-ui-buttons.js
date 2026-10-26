@@ -416,6 +416,8 @@
     // بود … برش گردون به همون حالت قبل و همین خودکار رو هم مثل فرمت همون بکنش»). Marked by neshan_hook_va_hads
     out.push('[class*="userMessage_"].crtl-payam-digar{border-color:transparent!important;background:transparent!important;' +
       'color:var(--app-secondary-foreground)!important;opacity:.8;font-style:italic!important;padding:8px!important}');
+    // the app's «Show less» button is not shown: the message opens under the mouse and closes when it leaves (26 Oct 18:30)
+    out.push('[class*="collapseButton_"]{display:none!important}');
     out.push('[class*="userMessage_"].crtl-payam-digar.crtl-hovered{opacity:1;max-height:none!important;overflow-y:visible!important}');
 
     // wide content scrolls inside its own box instead of stretching the page
@@ -2183,8 +2185,9 @@
     for (var u = 0; u < um.length; u++) {
       var ct = um[u].closest('[class*="userMessageContainer_"]');
       var digar = !!(ct && ct.querySelector('[class*="promptLabel_"]')) ||
+        // the answer to an AskUserQuestion window comes as «Answering your earlier questions:» (Habib, 26 Oct 18:30: «بله همه این کارا رو بکن»)
         // by its first words too: in VS Code the label was not found beside the pinned copy (26 Oct 05:56, screenshot)
-        /^\s*(?:Another Claude session sent a message|The [^\n]{1,60} plugin sent a message)/.test((um[u].textContent || '').slice(0, 120));
+        /^\s*(?:Another Claude session sent a message|The [^\n]{1,60} plugin sent a message|Answering your earlier question)/.test((um[u].textContent || '').slice(0, 120));
       if (digar !== um[u].classList.contains('crtl-payam-digar')) um[u].classList.toggle('crtl-payam-digar', digar);
     }
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');

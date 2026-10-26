@@ -2175,7 +2175,8 @@
     for (var u = 0; u < um.length; u++) {
       var ct = um[u].closest('[class*="userMessageContainer_"]');
       var digar = !!(ct && ct.querySelector('[class*="promptLabel_"]')) ||
-        /^\s*Another Claude session sent a message/.test((um[u].textContent || '').slice(0, 80));
+        // by its first words too: in VS Code the label was not found beside the pinned copy (26 Oct 05:56, screenshot)
+        /^\s*(?:Another Claude session sent a message|The [^\n]{1,60} plugin sent a message)/.test((um[u].textContent || '').slice(0, 120));
       if (digar !== um[u].classList.contains('crtl-payam-digar')) um[u].classList.toggle('crtl-payam-digar', digar);
     }
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');

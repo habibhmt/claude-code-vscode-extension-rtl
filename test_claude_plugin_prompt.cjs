@@ -9,7 +9,7 @@ const script=fs.readFileSync(process.env.BUTTONS_JS||__dirname+'/claude-ui-butto
 const msg=(label,first)=>`<div class="message_x userMessageContainer_x">${label?'<div class="promptLabel_mLbNFw">Prompt from the hads plugin</div>':''}
 <div class="userMessage_x" style="max-height:40px;overflow-y:auto;border:1px solid rgb(200, 0, 0);font-style:normal"><div class="expandableContainer_x"><div class="content_x">${first}<br>خودکار: یک<br>۱. دو<br>۲. سه</div></div></div></div>`;
 const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px sans-serif;width:600px">
-<div class="messagesContainer_x"><div id="p">${msg(true,'The hads plugin sent a message:')}</div><div id="s">${msg(false,'Another Claude session sent a message:')}</div><div id="u">${msg(false,'پیامِ خودِ حبیب')}</div>
+<div class="messagesContainer_x"><div id="p">${msg(true,'The hads plugin sent a message:')}</div><div id="s">${msg(false,'Another Claude session sent a message:')}</div><div id="pin" class="stickyHeader_x"><div class="userMessage_x" style="border:1px solid rgb(200, 0, 0);font-style:normal"><div class="content_x">The hads plugin sent a message:<br>خودکار</div></div></div><div id="u">${msg(false,'پیامِ خودِ حبیب')}</div>
 <div id="says" class="metaMessage_x">UserPromptSubmit says: حافظه: 3 سابقه</div><div id="hk" class="metaMessage_x">\u2063۴ آبان · UserPromptSubmit · متنِ تزریقی</div></div>
 <div aria-label="Message input" contenteditable="true"></div></body></html>`;
 (async()=>{
@@ -23,6 +23,7 @@ const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px 
   await p.waitForSelector('#crtl-panel',{state:'attached',timeout:5000});
   await p.waitForTimeout(900);
   const look=(id)=>p.evaluate((id)=>{const b=document.querySelector('#'+id+' [class*="userMessage_"]'),cs=getComputedStyle(b);return [cs.fontStyle,cs.borderTopColor==='rgba(0, 0, 0, 0)'?'bi-kadr':'kadr',document.querySelector('#'+id+' [class*="content_"]').getBoundingClientRect().height<30?'yek-khat':'bishtar']},id);
+  const pinned=(await look('pin')).slice(0,2);assert.deepEqual(pinned,['italic','bi-kadr']);
   out.plugin=await look('p'); out.session=await look('s'); out.own=await look('u');
   assert.deepEqual(out,{plugin:['italic','bi-kadr','yek-khat'],session:['italic','bi-kadr','yek-khat'],own:['normal','kadr','yek-khat']});
   // under the mouse, all of it: the app's own cap (40vh, here 40px) lets go

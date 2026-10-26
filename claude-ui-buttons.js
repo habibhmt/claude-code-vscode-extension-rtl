@@ -2224,10 +2224,9 @@
         bs[b].classList.toggle('crtl-tik-roshan', tx.charAt(0) === '✓');
         bs[b].classList.toggle('crtl-tik-khamush', tx.charAt(0) === '✗');
         bs[b].classList.toggle('crtl-gozashtan-dar-kadr', tx === '⤵');
-        // ▾ and ×: their row sticks to the top of the box, so they never scroll out of sight
-        // the top row is the one holding × (the folded line has ◂ too but no ×: it must stay in the flow)
-        // the top row is the one with ▾ (the one line has × too, but ▸ حدس, never ▾)
-        if (tx === '▾' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-radif-bala');
+        // ×: its row sticks to the top of the box, so it never scrolls out of sight. Found by its key, hads-x:
+        // since ▾ and the one-line state went (26 Oct 19:18) the open box's × is the only one
+        if (bs[b].getAttribute('data-press-key') === 'hads-x' && bs[b].parentElement && bs[b].parentElement.querySelectorAll('button').length <= 3) bs[b].parentElement.classList.add('crtl-hads-radif-bala');
       }
     }
   }

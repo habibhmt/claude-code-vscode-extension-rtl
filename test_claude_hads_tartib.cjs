@@ -22,7 +22,7 @@ function T(t){return e('span',{className:'text_HKVJBw'},t)}
 function Band(){var n=React.useState('یک. دو.'),x=React.useState(3),m=React.useState(false);window.__setNow=n[1];window.__setRows=x[1];window.__setSum=m[1];
  return e('div',{className:'card_x'},e('div',{'data-engine-mark':''},'From the hads plugin'),
  e('div',{className:'band_mLbNFw',style:{overflow:'auto',maxHeight:'220px',width:'420px',userSelect:'text'}},e('div',{className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},
-  e('div',{className:'box_HKVJBw',style:{display:'flex'}},e('button',{type:'button',className:'button_HKVJBw','data-press-key':'hads-min'},'▾'),e('button',{type:'button',className:'button_HKVJBw','data-press-key':'hads-x'},'×')),
+  e('div',{className:'box_HKVJBw',style:{display:'flex'}},e('button',{type:'button',className:'button_HKVJBw','data-press-key':'hads-x'},'×')),
   e('div',{key:'dj',className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},e('div',{className:'box_HKVJBw',style:{display:'flex',gap:'4px'}},T(m[0]?'جمع‌بندی:':'دو جمله:'),e('span',{id:'now',className:'text_HKVJBw'},n[0])),
    m[0]&&T('✓ کارِ یک · کارِ دو · کارِ سه · کارِ چهار · کارِ پنج · کارِ شش · کارِ هفت · کارِ هشت · کارِ نه · کارِ ده'),m[0]&&T('✗ کارِ یازده · کارِ دوازده · کارِ سیزده · کارِ چهارده · کارِ پانزده · کارِ شانزده')),
   e('div',{key:'hd',id:'hadsPart',className:'box_HKVJBw',style:{display:'flex',flexDirection:'column'}},Array.from({length:x[0]},function(_,i){return e('div',{key:i,className:'box_HKVJBw'},T(i?'      ':'حدس:'),T('حدسِ شمارهٔ '+i))})),

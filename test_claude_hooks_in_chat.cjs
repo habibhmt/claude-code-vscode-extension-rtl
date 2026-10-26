@@ -127,10 +127,10 @@ assert.equal(out.hadsGlass, true)
 // compact: ▾ ◂ × ride on the header line; the one-button state shrinks the card to that button
 out.hadsCompact = /\.crtl-hads \.crtl-hads-radif-bala\{position:sticky!important;top:0/.test(btn) && /crtl-hads-tak-dokme\{width:max-content/.test(btn) && /toggle\('crtl-hads-tak-dokme'/.test(btn)
 assert.equal(out.hadsCompact, true)
-// the top row is found by its ▾, never the folded line (which has × too since 25 Oct 00:13, but no ▾). The band keeps its
+// the top row is found by its × key, hads-x (▾ and the folded line went 26 Oct 19:18). The band keeps its
 // own scroll (overflow:auto, max 12 lines): «overflow:visible» let the box spill over the chat and the
 // chat stopped scrolling (25 Oct 00:04: «دیگه اسکرول نمیشه»); so the top row sticks to the band's top
-out.topRowSafe = /if \(tx === '▾' && bs\[b\]\.parentElement/.test(btn) && !/if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-radif-bala\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-radif-bala\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-radif-bala\) \[data-engine-mark\]\{position:absolute!important;top:7px;left:76px;right:auto/.test(btn)
+out.topRowSafe = /if \(bs\[b\]\.getAttribute\('data-press-key'\) === 'hads-x' && bs\[b\]\.parentElement/.test(btn) && !/if \(tx === '×' && bs\[b\]\.parentElement/.test(btn) && !/tx === '◂'\) && bs\[b\]\.parentElement/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*overflow:visible/.test(btn) && !/crtl-hads \[class\*="band_"\][^']*contain:none/.test(btn) && /\.crtl-hads-radif-bala\{position:sticky!important;top:0/.test(btn) && !/crtl-hads-radif-bala\{[^']*height:0/.test(btn) && /crtl-hads:has\(\.crtl-hads-radif-bala\) \[data-engine-mark\]\{position:absolute!important;top:7px;left:76px;right:auto/.test(btn)
 assert.equal(out.topRowSafe, true)
 out.pageFolds = /--crtl-hook-font-px/.test(btn) && /radif_andaze\('هوک‌ها', 'hook_font_px'/.test(btn) && /crtl-hook-baz/.test(btn) && /\[class\*="metaMessage_"\]\.crtl-hook:not\(\.crtl-hook-baz\)[^']*nowrap/.test(btn)
 assert.equal(out.pageFolds, true)

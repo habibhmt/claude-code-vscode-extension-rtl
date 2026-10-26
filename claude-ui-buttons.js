@@ -289,7 +289,8 @@
     '.crtl-hads button.crtl-jaye-ghabl{box-shadow:inset -3px 0 0 #0a84ff!important}',
     '.crtl-hads button.crtl-jaye-baad{box-shadow:inset 3px 0 0 #0a84ff!important}',
     '.crtl-hads form:has(input[data-press-key="hads-tartib"]){display:none!important}',
-    '[class*="metaMessage_"].crtl-hook{font-style:normal;cursor:pointer;opacity:.85;padding:3px 8px}',
+    /* like a message from another session (26 Oct 05:36: «اینم فرمتش مثل همون دو تا بشه»): grey, italic */
+    '[class*="metaMessage_"].crtl-hook{font-style:italic;color:var(--app-secondary-foreground);cursor:pointer;opacity:.8;padding:3px 8px}',
     /* the chat-size rules below set every p/[class*=markdown] in the chat with !important, so the
        hook size must reach the line and everything in it with !important too (Habib: «با عوض کردنش هیچ چیز عوض نمیشه») */
     '[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook,[class*="messagesContainer_"] [class*="metaMessage_"].crtl-hook *{font-size:var(--crtl-hook-font-px,13px)!important;line-height:1.45!important}',
@@ -2180,7 +2181,7 @@
     for (var i = 0; i < ms.length; i++) {
       // the 🪝 may come after an icon the panel draws in front: look at the first few characters
       var head = (ms[i].textContent || '').slice(0, 12);
-      if (head.indexOf('🪝') < 0) continue;
+      if (head.indexOf('\u2063') < 0 && head.indexOf('🪝') < 0) continue;
       ms[i].classList.add('crtl-hook');
       ms[i].addEventListener('click', function () {
         var sel = window.getSelection && window.getSelection();

@@ -227,10 +227,15 @@
     return { head: kutah_kardan_masir(first), body: kutah_kardan_masir(t) };
   }
   globalThis.__crtl_hook_khana = khana_baraye_habib;
-  // one hook line: the first line is what the folded view shows (mark, time, name, a short head)
+  // no emoji in a hook line (Habib, 26 Oct 05:36: «این ایموجی های مزخرف رو کامل بردار - کامل بدون ایموجی»):
+  // neither ours nor the hook's own (🧠 …)
+  function bi_emoji(t) { return String(t).replace(/(?:\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}])[\uFE0F\u200D]*/gu, '').replace(/[ \t]{2,}/g, ' ').replace(/^ +| +$/gm, ''); }
+  globalThis.__crtl_bi_emoji = bi_emoji;
+  // one hook line: the first line is what the folded view shows (time, name, a short head). It starts with an
+  // invisible mark (U+2063), not a 🪝, so the page script still finds it
   function sakht_khat_hook(name, r, t, uuid, sid) {
     return { type: 'system', subtype: 'informational', level: 'notice', session_id: sid, uuid: uuid,
-      content: '🪝 ' + zaman_shamsi(t) + ' · ' + name + ' · ' + r.head + '\n' + r.body };
+      content: '\u2063' + zaman_shamsi(t) + ' · ' + name + ' · ' + bi_emoji(r.head) + '\n' + bi_emoji(r.body) };
   }
   globalThis.__crtl_khat_hook = function (m, now) {
     try {
@@ -284,6 +289,16 @@
       if (!f) return messages;
       var first = Date.parse(messages[0].timestamp) || 0;
       var lines = [];
+      // the same hook's injected text, written within 10 s of its message
+      var matn_ha = [];
+      khat_ha_ye_hook_dar_file(f).forEach(function (l) {
+        var o; try { o = JSON.parse(l); } catch (e) { return; }
+        if (o.attachment && o.attachment.type === 'hook_additional_context') matn_ha.push({ t: Date.parse(o.timestamp) || 0, n: o.attachment.hookName || o.attachment.hookEvent });
+      });
+      function ham_ba_matn(o, a) {
+        var t = Date.parse(o.timestamp) || 0, n = a.hookName || a.hookEvent;
+        return matn_ha.some(function (x) { return x.n === n && Math.abs(x.t - t) <= 10000; });
+      }
       khat_ha_ye_hook_dar_file(f).forEach(function (l) {
         var o; try { o = JSON.parse(l); } catch (e) { return; }
         var a = o.attachment;
@@ -293,8 +308,9 @@
         var body = Array.isArray(a.content) ? a.content.join('\n') : String(a.content == null ? '' : a.content);
         var r = khana_baraye_habib(body);
         if (!r) return;
-        // a hook's message (systemMessage) is a line of its own: the live panel prints it apart too
-        if (a.type === 'hook_system_message') r = { head: r.head, body: r.body };
+        // a hook's message (systemMessage) next to the text it injected: only the injected text shows (Habib,
+        // 26 Oct 05:36: «فقط اون دومی رو نشون بده که متن کامل ایمپورت ها هست بیاد اولی نیاد»)
+        if (a.type === 'hook_system_message' && ham_ba_matn(o, a)) return;
         if (a.type === 'hook_additional_context') r = { head: 'متنِ تزریقی', body: r.body };
         lines.push({ t: t, m: sakht_khat_hook(a.hookName || a.hookEvent || 'hook', r, t, o.uuid || ('crtl-hook-' + t), String(sid)) });
       });

@@ -17,7 +17,7 @@ vm.runInNewContext(hookSrc, g)
 const T = Date.parse('2026-10-24T16:39:00Z')
 const line = g.__crtl_khat_hook({ type: 'system', subtype: 'hook_response', hook_name: 'UserPromptSubmit', output: '[20:09 +0330 -- habib] ok\n', uuid: 'u1' }, T)
 out.hookLine = { type: line.type, subtype: line.subtype, level: line.level, content: line.content }
-assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok\n[20:09 +0330 -- habib] ok' })
+assert.deepEqual(out.hookLine, { type: 'system', subtype: 'informational', level: 'notice', content: '\u2063۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok\n[20:09 +0330 -- habib] ok' })
 // the page drops level "info" (SY1): the line must never be "info"
 assert.notEqual(line.level, 'info')
 const other = { type: 'assistant', message: {} }
@@ -33,7 +33,7 @@ const mem = JSON.stringify({ systemMessage: '🧠 حافظه: 2 سابقه تز�
   additionalContext: '[حافظهٔ آزمایشیِ حبیب]\n1) حرفِ تو 10-22 16:37 — /Users/habib/Downloads/205th-day-mother-of-all-agent/doc/achar/11.md:40\n2) …' } })
 const mc = hk(mem).content
 out.memory = { lines: mc.split('\n').length, rawJson: /hookSpecificOutput|\\n|"systemMessage"/.test(mc), shortPath: /11\.md:40/.test(mc) && !/\/Users\/habib/.test(mc), head: mc.split('\n')[0], twice: mc.includes('🧠 حافظه: 2 سابقه') }
-assert.deepEqual(out.memory, { lines: 4, rawJson: false, shortPath: true, head: '🪝 ۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · متنِ تزریقی', twice: false })
+assert.deepEqual(out.memory, { lines: 4, rawJson: false, shortPath: true, head: '\u2063۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · متنِ تزریقی', twice: false })
 out.jalali = [g.__crtl_tarikh_shamsi(2026, 3, 21).join('/'), g.__crtl_tarikh_shamsi(2025, 3, 20).join('/')]
 // after a reload: the hook lines come back from the transcript, each after the message before it
 // (Habib, 25 Oct: «من چند بار چند بار ریلود میکنم چند چت رو بعد اینو بکشه»)
@@ -55,7 +55,8 @@ const prevConf = process.env.CLAUDE_CONFIG_DIR; process.env.CLAUDE_CONFIG_DIR = 
 const msgs = [{ type: 'user', uuid: 'p1', timestamp: '2026-10-24T05:38:00.000Z' }, { type: 'assistant', uuid: 'p2', timestamp: '2026-10-24T05:39:00.000Z' }]
 const back = g.__crtl_hook_tarikhche(msgs, SID)
 out.reloadHooks = JSON.parse(JSON.stringify(back.map((m) => m.type === 'system' ? m.content.split('\n')[0] : m.uuid)))
-assert.deepEqual(out.reloadHooks, ['p1', '🪝 ۲ آبان ۱۴۰۵ ۰۹:۰۸ · UserPromptSubmit · 🧠 حافظه: 3 سابقه تزریق شد', '🪝 ۲ آبان ۱۴۰۵ ۰۹:۰۸ · UserPromptSubmit · متنِ تزریقی', 'p2'])
+// only the injected text, not the hook's message beside it, and no emoji at all (26 Oct 05:36)
+assert.deepEqual(out.reloadHooks, ['p1', '\u2063۲ آبان ۱۴۰۵ ۰۹:۰۸ · UserPromptSubmit · متنِ تزریقی', 'p2'])
 out.reloadShape = back.filter((m) => m.type === 'system').every((m) => m.subtype === 'informational' && m.level === 'notice' && m.session_id === SID && m.uuid) && !/\/Users\/habib/.test(JSON.stringify(back))
 assert.equal(out.reloadShape, true)
 // a session id that is not a uuid, or no transcript: the chat stays as it was
@@ -65,7 +66,7 @@ assert.equal(out.reloadSafe, true)
 fs.writeFileSync(path.join(confDir, 'projects', '-Users-x', SID + '.jsonl'), 'x'.repeat(8 * 1024 * 1024 - 40) + '\n' +
   at('2026-10-24T05:38:02.000Z', { type: 'hook_system_message', hookName: 'Stop', content: 'سرِ مرز' }) + '\n')
 out.reloadEdge = JSON.parse(JSON.stringify(g.__crtl_hook_tarikhche(msgs, SID).filter((m) => m.type === 'system').map((m) => m.content.split('\n')[0])))
-assert.deepEqual(out.reloadEdge, ['🪝 ۲ آبان ۱۴۰۵ ۰۹:۰۸ · Stop · سرِ مرز'])
+assert.deepEqual(out.reloadEdge, ['\u2063۲ آبان ۱۴۰۵ ۰۹:۰۸ · Stop · سرِ مرز'])
 if (prevConf === undefined) delete process.env.CLAUDE_CONFIG_DIR; else process.env.CLAUDE_CONFIG_DIR = prevConf
 fs.rmSync(confDir, { recursive: true, force: true })
 assert.deepEqual(out.jalali, ['1405/1/1', '1403/12/30'])
@@ -153,4 +154,7 @@ assert.deepEqual(out.btnTabe, [])
 out.userMsgScrolls = /userMessage_"\]:not\(\.crtl-expanded\)\{overflow-x:hidden!important\}/.test(btn) && !/userMessage_"\]:not\(\.crtl-expanded\)\{overflow:hidden/.test(btn)
 assert.equal(out.userMsgScrolls, true)
 fs.rmSync(tmp, { recursive: true, force: true })
+// a hook's own emoji goes too: 🧠 and the like, anywhere in the line
+out.biEmoji = g.__crtl_bi_emoji('🧠 حافظه: 3 سابقه ✅ تزریق شد 🇮🇷 · ۲۰۵')
+assert.equal(out.biEmoji, 'حافظه: 3 سابقه تزریق شد · ۲۰۵')
 console.log(JSON.stringify(out))

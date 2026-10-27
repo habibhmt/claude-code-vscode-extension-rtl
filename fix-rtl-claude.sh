@@ -195,6 +195,7 @@ p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Co
 table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important}
 td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+pre *,code *{direction:ltr!important;text-align:left!important}
 [class*="messageInput_"],[class*="mentionMirror_"]{unicode-bidi:plaintext!important}
 [class*="messageInput_"],[class*="mentionMirror_"]{max-height:6em!important}
 '
@@ -207,6 +208,7 @@ p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Co
 table,thead,tbody,tr,td,th{direction:rtl!important;text-align:right!important;unicode-bidi:isolate!important}
 td *,th *{unicode-bidi:normal!important}
 pre,code,[class*="diff"],[class*="Diff"],[class*="code"],[class*="Code"],[class*="monaco"],[class*="editor"]{direction:ltr!important;text-align:left!important;unicode-bidi:isolate}
+pre *,code *{direction:ltr!important;text-align:left!important}
 [class*="messageInput_"],[class*="mentionMirror_"]{unicode-bidi:plaintext!important}
 [class*="messageInput_"],[class*="mentionMirror_"]{max-height:6em!important}
 '

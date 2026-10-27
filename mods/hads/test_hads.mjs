@@ -832,4 +832,8 @@ $.sid = 'A'
 // a «نکرده» read back from the chat's file keeps its number and «دستی» (28 Oct 02:52)
 out.nakardeAzFile = mod.khandan_nakarde(JSON.parse(JSON.stringify([{ harf: 'h', zaman: '', chera: 'c', sh: 6, dasti: true }])))
 assert.deepEqual(out.nakardeAzFile, [{ harf: 'h', zaman: '', chera: 'c', sh: 6, dasti: true }])
+// a Persian answer with a table of domains is not English (28 Oct 02:43, chat ed70a5a9)
+out.zabanJadval = [mod.englisi_ast('فایل را در پس‌زمینه باز کردم. در این فایل ۸۸ تسک هست و فقط ۴۰ تا فهرستِ دامنه دارند.\n\n| کد | دامنه‌ها |\n|---|---|\n' + '| VAR-01 | omni.variational.io · variational.io · www.variational.io · docs.variational.io |\n'.repeat(20) + 'ولتِ g#1 و canopynetwork.org و app.rally.fun و worker.io.net'), mod.englisi_ast('Checking .gitignore: some files in mojri/ were excluded from git (credentials, for example), and their new path might not be covered.')]
+out.zabanJadval.push(mod.englisi_ast('این جدولِ وضع است.\n| Variational Omni | running | Rally campaigns thirteen |\n'.repeat(10)), mod.englisi_ast('دامنه‌ها: ' + 'omni.variational.io app.rally.fun worker.io.net VAR-01 '.repeat(10)))
+assert.deepEqual(out.zabanJadval, [false, true, false, false])
 console.log(JSON.stringify(out))

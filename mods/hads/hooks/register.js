@@ -553,8 +553,12 @@ async function begu_do_jomle($, tool, force, viaFork = false) {
 // reminder is sent. Never twice in a row: an English answer to the reminder itself is let go.
 export const had_tedad_kamtarin_zaban_harf = 40
 export const matn_yadavari_zaban = 'زبان (از مودِ «حدس»، نه از حبیب): جوابِ قبلی‌ات انگلیسی بود. از این به بعد فارسی جواب بده (اصطلاح و کد می‌تواند انگلیسی بماند). اگر جوابِ قبلی چیزِ مهمی داشت، همان را کوتاه به فارسی بگو.'
+// only the prose is weighed: code, links, table rows and names like `variational.io` or `VAR-01`
+// are left out (28 Oct 02:43: a Persian answer with a table of 40 domains was taken for English)
 export function englisi_ast(text) {
   const t = String(text || '').replace(/```[\s\S]*?```|`[^`]*`|https?:\/\/\S+/g, '')
+    .split('\n').filter((l) => !l.trim().startsWith('|')).join('\n')
+    .split(/\s+/).filter((w) => !/[A-Za-z][._\/@\-:#]+[A-Za-z0-9]|[0-9]/.test(w)).join(' ')
   const fa = (t.match(/[\u0600-\u06FF]/g) || []).length, en = (t.match(/[A-Za-z]/g) || []).length
   return fa + en >= had_tedad_kamtarin_zaban_harf && en > fa
 }

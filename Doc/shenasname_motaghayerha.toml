@@ -334,181 +334,181 @@ jaye = ["mods/hads/hooks/register.js:467"]
 yani = "کجا: آخرِ جواب · چیه: با کمتر از این «دو جمله» در نوبت جمع‌بندی ساخته نمی‌شود · مثال: 1"
 meghdar = "1"
 khanandeha = ["akhar_javab", "amade_jambandi"]
-jaye = ["mods/hads/hooks/register.js:616"]
+jaye = ["mods/hads/hooks/register.js:620"]
 
 [abzar_ha_ye_nobat]
 yani = "ابزارهایی که در نوبتِ در جریان صدا زده شدند"
 meghdar = ""
 khanandeha = ["akhar_javab", "amade_jambandi", "register"]
-jaye = ["mods/hads/hooks/register.js:618"]
+jaye = ["mods/hads/hooks/register.js:622"]
 
 [khaste_habib_nobat]
 yani = "پیامِ خودِ حبیب که نوبت را شروع کرد"
 meghdar = ""
 khanandeha = ["akhar_javab", "amade_jambandi", "register"]
-jaye = ["mods/hads/hooks/register.js:620"]
+jaye = ["mods/hads/hooks/register.js:624"]
 
 [khodkar_ferestade_har_chat]
 yani = "«خودکار»ها و «نکرده»‌هایی که به چت فرستاده شدند، با شمارِ هر کار"
 meghdar = ""
 khanandeha = ["khandan_khodkar_ferestade", "masir_khodkar_ferestade"]
-jaye = ["mods/hads/hooks/register.js:697"]
+jaye = ["mods/hads/hooks/register.js:701"]
 
 [baraye_ferestadan_har_chat]
 yani = "«خودکار»هایی که در صفِ فرستادن به چت‌اند"
 meghdar = ""
 khanandeha = ["baraye_ferestadan", "ferestadan_khodkar", "masir_khodkar_ferestade"]
-jaye = ["mods/hads/hooks/register.js:698"]
+jaye = ["mods/hads/hooks/register.js:702"]
 
 [had_ferestadan_kar]
 yani = "کجا: «خودکار» · چیه: یک کار چند بار به چت برود؛ بارِ آخر با درخواستِ کمک از حبیب، بعدش دیگر نه · مثال: 3 بار"
 meghdar = "3"
 khanandeha = ["dar_list", "ferestadan_khodkar", "shomar"]
-jaye = ["mods/hads/hooks/register.js:715"]
+jaye = ["mods/hads/hooks/register.js:719"]
 
 [matn_bar_sevom]
 yani = "متنی که بارِ آخرِ فرستادنِ یک کار اضافه می‌شود: «اول به زبانِ ساده به حبیب توضیح بده و کمک بخواه»"
 meghdar = ""
 khanandeha = ["dar_list", "matn_ferestadan_khodkar"]
-jaye = ["mods/hads/hooks/register.js:716"]
+jaye = ["mods/hads/hooks/register.js:720"]
 
 [matn_porsesh_montazer]
 yani = "پیامِ کادر وقتی «پرسش» باید تا جوابِ بعدی صبر کند"
 meghdar = ""
 khanandeha = ["hads_ba_fork", "porsesh_kon"]
-jaye = ["mods/hads/hooks/register.js:811"]
+jaye = ["mods/hads/hooks/register.js:815"]
 
 [matn_dalil_bi_javab]
 yani = "دلیلِ ساده‌ای که کادر وقتی fork جواب نداد نشان می‌دهد"
 meghdar = ""
 khanandeha = ["hads_ba_fork", "porsesh_kon"]
-jaye = ["mods/hads/hooks/register.js:812"]
+jaye = ["mods/hads/hooks/register.js:816"]
 
 [had_harf_dokme_prompt]
 yani = "کجا: دکمه‌های پرومپتِ «پرسش» · چیه: بیشترین حرفِ روی دکمه · مثال: بلندتر از 18 حرف با …"
 meghdar = "18"
 khanandeha = ["register", "zakhire_prompt_ha"]
-jaye = ["mods/hads/hooks/register.js:830"]
+jaye = ["mods/hads/hooks/register.js:834"]
 
 [bakhsh_ha]
 yani = "بخش‌های کادرِ حدس و اسمِ فارسیِ هر کدام (تیک‌ها)"
 meghdar = ""
 khanandeha = ["bargardandan_akharin", "khandan_file_chat", "khandan_tartib", "masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:919"]
+jaye = ["mods/hads/hooks/register.js:923"]
 
 [esm_bakhsh]
 yani = "همان، به شکلِ جدولِ اسم ⇐ واژه"
 meghdar = ""
 khanandeha = ["masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:922"]
+jaye = ["mods/hads/hooks/register.js:926"]
 
 [dayere_ha]
 yani = "دایره‌های سرچِ حافظه: همین چت، همین پروژه، همهٔ پروژه‌ها"
 meghdar = ""
 khanandeha = ["hafeze_dayere", "masir_file_chat", "register", "taghir_dayere"]
-jaye = ["mods/hads/hooks/register.js:927"]
+jaye = ["mods/hads/hooks/register.js:931"]
 
 [esm_dayere]
 yani = "اسمِ فارسیِ هر دایره"
 meghdar = ""
 khanandeha = ["masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:928"]
+jaye = ["mods/hads/hooks/register.js:932"]
 
 [dayere_har_chat]
 yani = "دایرهٔ سرچِ حافظه برای هر چت"
 meghdar = ""
 khanandeha = ["khandan_dayere", "masir_hafeze_dayere", "register", "taghir_dayere"]
-jaye = ["mods/hads/hooks/register.js:931"]
+jaye = ["mods/hads/hooks/register.js:935"]
 
 [akharin_zakhire]
 yani = "آخرین وضعی که برای هر چت در فایل نوشته شد (حدس‌ها، نکرده‌ها …)، برای برگرداندن بعد از ریلود"
 meghdar = ""
 khanandeha = ["tasvir_akharin", "zakhire_akharin"]
-jaye = ["mods/hads/hooks/register.js:970"]
+jaye = ["mods/hads/hooks/register.js:974"]
 
 [akharin_bargashte]
 yani = "چت‌هایی که وضعشان بعد از ریلود یک بار برگردانده شد"
 meghdar = ""
 khanandeha = ["bargardandan_akharin", "zakhire_akharin"]
-jaye = ["mods/hads/hooks/register.js:977"]
+jaye = ["mods/hads/hooks/register.js:981"]
 
 [kalame_khamush]
 yani = "کلمهٔ هر بخشِ خاموش در فایلِ چت (مثلِ -hads)؛ کامل نوشته شده تا با grep پیدا شود"
 meghdar = ""
 khanandeha = ["kalame_ha_ye_file", "khandan_file_chat", "taghir_tartib"]
-jaye = ["mods/hads/hooks/register.js:1013"]
+jaye = ["mods/hads/hooks/register.js:1017"]
 
 [kalame_tanzim]
 yani = "کلمه‌های دیگرِ فایلِ چت: حالتِ کادر و تنظیم‌ها"
 meghdar = ""
 khanandeha = ["kalame_ha_ye_file", "khandan_file_chat", "taghir_tartib"]
-jaye = ["mods/hads/hooks/register.js:1014"]
+jaye = ["mods/hads/hooks/register.js:1018"]
 
 [ghablia_baz]
 yani = "«قبلی‌ها» باز است"
 meghdar = ""
 khanandeha = ["jam_kardan", "register"]
-jaye = ["mods/hads/hooks/register.js:1039"]
+jaye = ["mods/hads/hooks/register.js:1043"]
 
 [had_hook_transcript_khat]
 yani = "کجا: «هوک‌ها» · چیه: چند خطِ آخرِ فایلِ چت برای پیدا کردنِ هوک‌ها خوانده شود · مثال: 400 خط"
 meghdar = "400"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1047"]
+jaye = ["mods/hads/hooks/register.js:1051"]
 
 [had_hook_transcript_byte]
 yani = "همان، به بایت: بیش از این از تهِ فایل خوانده نمی‌شود"
 meghdar = "4000000"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1048"]
+jaye = ["mods/hads/hooks/register.js:1052"]
 
 [hook_transcript_grep]
 yani = "الگوی خط‌های هوک در فایلِ چت"
 meghdar = ""
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1049"]
+jaye = ["mods/hads/hooks/register.js:1053"]
 
 [had_hook_kuchak_harf]
 yani = "کجا: «هوک‌ها» · چیه: بیشترین حرفِ هر خطِ کوچک · مثال: 100 حرف"
 meghdar = "100"
 khanandeha = ["jam_kardan", "register"]
-jaye = ["mods/hads/hooks/register.js:1051"]
+jaye = ["mods/hads/hooks/register.js:1055"]
 
 [masir_transcript]
 yani = "مسیرِ فایلِ چتِ همین چت"
 meghdar = ""
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1052"]
+jaye = ["mods/hads/hooks/register.js:1056"]
 
 [hook_ha]
 yani = "هوک‌هایی که برای کادر خوانده شد، و چتش"
 meghdar = ""
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1053"]
+jaye = ["mods/hads/hooks/register.js:1057"]
 
 [zaman_khandan_hook]
 yani = "ساعتِ آخرین خواندنِ هوک‌ها"
 meghdar = "0"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1054"]
+jaye = ["mods/hads/hooks/register.js:1058"]
 
 [had_hook_kuchak_radif]
 yani = "کجا: «هوک‌ها» · چیه: چند هوکِ آخر در حالتِ کوچک · مثال: 6 ردیف"
 meghdar = "6"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1091"]
+jaye = ["mods/hads/hooks/register.js:1095"]
 
 [had_hook_bozorg_radif]
 yani = "همان در حالتِ بزرگ"
 meghdar = "3"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1092"]
+jaye = ["mods/hads/hooks/register.js:1096"]
 
 [had_hook_bozorg_harf]
 yani = "بیشترین حرفِ هر هوک در حالتِ بزرگ"
 meghdar = "600"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1093"]
+jaye = ["mods/hads/hooks/register.js:1097"]
 
 [ERRORS]
 yani = "خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل"
@@ -712,4 +712,4 @@ jaye = ["mods/hads/hooks/register.js:555"]
 yani = "برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود)"
 meghdar = ""
 khanandeha = ["chek_zaban", "englisi_ast"]
-jaye = ["mods/hads/hooks/register.js:561"]
+jaye = ["mods/hads/hooks/register.js:565"]

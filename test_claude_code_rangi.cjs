@@ -1,6 +1,6 @@
 // Browser test: 2.1.311 colours code blocks in replies (monaco tokens, `<span class="mtkN">` inside <pre><code>).
 // Under the RTL patch a coloured block must stay left-to-right, tokens in source order, and keep its
-// token colours (the font is the patch's one font everywhere, Vazirmatn first, as before 2.1.311) (Habib's window 27 Oct 14:23: «بله، بسنج»). Uses the patched index.css of the newest VS Code build.
+// token colours (code in the monospace «Vazir Code Hack», the rest in Vazirmatn) (Habib's window 27 Oct 14:23: «بله، بسنج»). Uses the patched index.css of the newest VS Code build.
 const {chromium}=require('playwright');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -24,13 +24,15 @@ const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"><style>${
   const o=await p.evaluate(()=>{const g=id=>getComputedStyle(document.getElementById(id));
    const c=document.getElementById('c').getBoundingClientRect(),k=document.getElementById('k').getBoundingClientRect();
    return {dir:g('c').direction,align:g('c').textAlign,codeFont:g('k').fontFamily,faFont:g('fa').fontFamily,
-    kColor:g('k').color,sColor:g('s').color,mColor:g('m').color,keywordAtLeft:k.left-c.left<20};});
+    kColor:g('k').color,widths:['iiiiiiiiii','mmmmmmmmmm','سسسسسسسسسس'].map(x=>{const s=document.createElement('span');s.textContent=x;document.getElementById('c').appendChild(s);const w=Math.round(s.getBoundingClientRect().width);s.remove();return w}),sColor:g('s').color,mColor:g('m').color,keywordAtLeft:k.left-c.left<20};});
   console.log(JSON.stringify(o));
   assert.equal(o.dir,'ltr');
   assert.equal(o.align,'left');
   assert.ok(o.keywordAtLeft,'«const» must start at the left edge of the block');
+  assert.ok(/^"?Vazir Code Hack/i.test(o.codeFont),'code uses the monospace Vazir Code Hack (Habib 27 Oct 15:39 «همینو انجام بده»): '+o.codeFont);
+  assert.ok(o.widths[0]===o.widths[1]&&Math.abs(o.widths[2]-o.widths[0])<=2,'the code font is really monospace (installed, not a fallback): '+o.widths);
   assert.ok(/Vazirmatn/i.test(o.faFont),'the Persian paragraph keeps Vazirmatn (else the test page lost the patch): '+o.faFont);
   assert.deepEqual([o.kColor,o.sColor,o.mColor],['rgb(86, 156, 214)','rgb(206, 145, 120)','rgb(106, 153, 85)']);
-  console.log('ok: کدِ رنگی چپ‌به‌راست و با رنگ‌هایش');
+  console.log('ok: کدِ رنگی چپ‌به‌راست، با Vazir Code Hack و رنگ‌هایش');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e.message);process.exit(1);});

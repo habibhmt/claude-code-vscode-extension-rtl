@@ -202,6 +202,7 @@ pre *,code *{direction:ltr!important;text-align:left!important}
 
 # RTL CSS with Vazirmatn font
 RTL_CSS_WITH_FONT='*{font-family:"Vazirmatn","SF Mono",Monaco,"Courier New",monospace!important}
+pre,pre *,code,code *{font-family:"Vazir Code Hack","SF Mono",Monaco,"Courier New",monospace!important}
 [class*="messageInputContainer_"],[class*="messageInputContainer_"] *{font-family:var(--vscode-chat-font-family)!important}
 html,body{direction:rtl;text-align:right}
 p:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]),span:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="messageInputContainer_"] *),div:not([class*="diff"]):not([class*="Diff"]):not([class*="code"]):not([class*="Code"]):not([class*="monaco"]):not([class*="messageInputContainer_"]):not([class*="messageInputContainer_"] *),li,ul,ol,input,textarea{direction:rtl;text-align:right;unicode-bidi:isolate}

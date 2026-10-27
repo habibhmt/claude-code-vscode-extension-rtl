@@ -93,8 +93,9 @@ $tekke
     echo "$taze" > "$DONE_FILE"
     say "✅ گزارش: $gozaresh"
     notif "کلود کد $taze آمد" "گزارشِ تغییرات و آنچه به کارِ تو می‌خورد: Doc/khabar_noskhe/$taze.md"
-    if [ -z "$KHABAR_KHOSHK" ] && [ -x "$ABZAR_203/payam_be_203.sh" ]; then
-        PAYAM_BE="مجری--۱۳۶" "$ABZAR_203/payam_be_203.sh" "خبرِ نسخهٔ تازهٔ کلود کد: $ghadim ⇐ $taze. گزارش (فقط پیشنهاد، چیزی عوض نشده): $gozaresh — آن را بخوان، ردیف‌های «به کارِ حبیب می‌خورد» را به زبانِ ساده به حبیب بگو و برای هر کدام «بله» بگیر." >> "$LOG_FILE" 2>&1 || true
+    if [ -z "$KHABAR_KHOSHK" ] && [ -x "$ABZAR_203/alarm_be_saheb.sh" ]; then
+        # report to this chat; if it is closed, 203 asks Habib before opening it (203 tarif 25)
+        "$ABZAR_203/alarm_be_saheb.sh" "مجری--۱۳۶" "خبرِ نسخهٔ تازهٔ کلود کد: $ghadim ⇐ $taze. گزارش (فقط پیشنهاد، چیزی عوض نشده): $gozaresh — آن را بخوان، ردیف‌های «به کارِ حبیب می‌خورد» را به زبانِ ساده به حبیب بگو و برای هر کدام «بله» بگیر." >> "$LOG_FILE" 2>&1 || true
     fi
 }
 

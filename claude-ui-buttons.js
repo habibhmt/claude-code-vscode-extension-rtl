@@ -368,7 +368,7 @@
       accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
       // the conversation ink follows the theme unless a colour is picked; code
       // keeps its own highlighting, so it is left out on purpose
-      ink ? msg + ',' + msg + ' p,' + msg + ' li,' + msg + ' span,' + msg + ' strong,' + msg + ' b,' +
+      ink ? msg + ',' + msg + ' p,' + msg + ' li,' + msg + ' span:not(pre span),' + msg + ' strong,' + msg + ' b,' +
             msg + ' h1,' + msg + ' h2,' + msg + ' h3,' + msg + ' h4,' + msg + ' td,' + msg + ' th' +
             '{color:' + ink + '!important}' : '',
       msg + '{font-size:' + s.chat + 'px!important;line-height:' + lh + '!important}',

@@ -419,6 +419,9 @@
     // the app's «Show less» button is not shown: the message opens under the mouse and closes when it leaves (26 Oct 18:30)
     out.push('[class*="collapseButton_"]{display:none!important}');
     out.push('[class*="userMessage_"].crtl-payam-digar.crtl-hovered{opacity:1;max-height:none!important;overflow-y:visible!important}');
+    // Habib's own too: the message pinned on top keeps the app's 40vh cap, which cut it under the mouse (27 Oct 16:03:
+    // «وقتی به پیام خودم هستم چند ثانیه نگه میدارم، باید پیامش کامل باز بشه مثل قبل»)
+    out.push('[class*="userMessage_"].crtl-hovered{max-height:none!important;overflow-y:visible!important}');
 
     // wide content scrolls inside its own box instead of stretching the page
     if (s.tableScroll) {

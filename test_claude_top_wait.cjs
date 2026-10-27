@@ -37,6 +37,10 @@ async function panel(head){
   p=await panel('');
   out.noHeader=p.leftTop();
   assert.equal(out.noHeader,0);
+  // …but the row is not lost: it has its own strip at the top (Habib 27 Oct 22:46 «باید روی همه اینها کار بکنه»)
+  const strip=()=>p.d.querySelectorAll('#crtl-top-jaygozin .crtl-top .crtl-btn').length;
+  out.strip=strip()>0;
+  assert.equal(out.strip,true);
   // and it waits quietly: the panel is not torn down and rebuilt every tick meanwhile
   const first=p.d.getElementById('crtl-panel');
   await sleep(1800);
@@ -44,8 +48,8 @@ async function panel(head){
   assert.equal(out.quietWait,true);
   p.d.getElementById('h').innerHTML=HEAD_NAMED;
   await sleep(1800);
-  out.later={left:p.leftTop(),header:p.inHeader()>0}; p.w.close();
-  assert.deepEqual(out.later,{left:0,header:true});
+  out.later={left:p.leftTop(),header:p.inHeader()>0,strip:!!p.d.getElementById('crtl-top-jaygozin')}; p.w.close();
+  assert.deepEqual(out.later,{left:0,header:true,strip:false});
   console.log(JSON.stringify(out));
   process.exit(0);
 })().catch((e)=>{console.error(e);process.exit(1)});

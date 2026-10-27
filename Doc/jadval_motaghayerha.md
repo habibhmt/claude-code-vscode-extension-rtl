@@ -98,25 +98,25 @@
 | 92 | `PRESETS` | sabet | حالت‌های آمادهٔ اندازه‌ها | claude-ui-buttons.js:150 | negahban_khata, sakht_panel_aa | 04 | `DEF` | ✓ |
 | 93 | `esm_ghadim_tanzim` | sabet | اسمِ قدیمِ دو تنظیم ⇐ اسمِ تازه؛ مقدارِ ذخیره‌شده با اسمِ قدیم خوانده می‌شود | claude-ui-buttons.js:172 | khandan_tanzim, tanzim_pishfarz | 10 | `DEF` | ✓ |
 | 94 | `CSS` | sabet | همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند | claude-ui-buttons.js:231 | dokme_ha, sakht_hame, vazhe_name_ru_kalame | 04 | — | ✓ |
-| 95 | `HOVER_DELAY` | sabet | کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: ⟦HOVER_DELAY⟧ | claude-ui-buttons.js:607 | baz_shodan_ba_hover, radif_andaze | 04 | — | ✓ |
-| 96 | `GLOSS_DELAY` | sabet | کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: ⟦GLOSS_DELAY⟧ | claude-ui-buttons.js:751 | bastan_panel, vazhe_name_ru_kalame | 06 | — | ✓ |
-| 97 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1107 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
-| 98 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1107 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 99 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1107 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 100 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1294 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
-| 101 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1385 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
-| 102 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1455 | payesh_navar_bala, sakht_navar_bala | 02 | — | ✓ |
-| 103 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1507 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
-| 104 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1508 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
-| 105 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:2244 | jadval_tamas, neshan_hook_va_hads | 19 | `neshane_amar` | ؟ |
-| 106 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:2244 | jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
-| 107 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:2245 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `radif_amar` | ؟ |
-| 108 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:2247 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `sotun_amar` | ؟ |
-| 109 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:2248 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | — | ؟ |
-| 110 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:2248 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
-| 111 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:2248 | amar_bozorgi, neshan_hook_va_hads | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
-| 112 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:2362 | jadval_tamas | 19 | — | ؟ |
-| 113 | `tries` | sabet | چند بار صفحه برای سوار شدنِ پنل گشته شد | claude-ui-buttons.js:2372 | jadval_tamas | 04 | `timer` | ✓ |
-| 114 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:2373 | baz_shodan_ba_hover, jadval_tamas, menu_naghl, vazhe_name_ru_kalame | 04 | `tries` | ✓ |
+| 95 | `HOVER_DELAY` | sabet | کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: ⟦HOVER_DELAY⟧ | claude-ui-buttons.js:608 | baz_shodan_ba_hover, radif_andaze | 04 | — | ✓ |
+| 96 | `GLOSS_DELAY` | sabet | کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: ⟦GLOSS_DELAY⟧ | claude-ui-buttons.js:752 | bastan_panel, vazhe_name_ru_kalame | 06 | — | ✓ |
+| 97 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1108 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
+| 98 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1108 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 99 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1108 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 100 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1295 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
+| 101 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1386 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
+| 102 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1473 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
+| 103 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1526 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
+| 104 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1527 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
+| 105 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:2263 | jadval_tamas, neshan_hook_va_hads | 19 | `neshane_amar` | ؟ |
+| 106 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:2263 | jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
+| 107 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:2264 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `radif_amar` | ؟ |
+| 108 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:2266 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `sotun_amar` | ؟ |
+| 109 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:2267 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | — | ؟ |
+| 110 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:2267 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
+| 111 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:2267 | amar_bozorgi, neshan_hook_va_hads | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
+| 112 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:2381 | jadval_tamas | 19 | — | ؟ |
+| 113 | `tries` | sabet | چند بار صفحه برای سوار شدنِ پنل گشته شد | claude-ui-buttons.js:2391 | jadval_tamas | 04 | `timer` | ✓ |
+| 114 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:2392 | baz_shodan_ba_hover, jadval_tamas, menu_naghl, vazhe_name_ru_kalame | 04 | `tries` | ✓ |
 | 115 | `gorooh_hook` | sabet | نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند | claude-host-hook.js:254 | khat_ha_ye_hook_dar_file, sakht_khat_hook | 11 | `neshane_hook` | ✓ |
 | 116 | `neshane_hook` | sabet | بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا | claude-host-hook.js:267 | khat_ha_ye_hook_dar_file, masir_transcript | 11 | `gorooh_hook` | ✓ |

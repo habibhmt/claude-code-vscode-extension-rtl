@@ -306,6 +306,7 @@
     '.crtl-bar.crtl-top{position:static;flex-direction:row;align-items:center;max-height:none;min-width:0;flex:1;',
     'overflow-x:auto;overflow-y:hidden;direction:rtl;margin:0 4px}',
     '.crtl-top .crtl-btn{direction:rtl;flex-shrink:0}',
+    '#crtl-top-jaygozin{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;padding:4px 8px;background:var(--vscode-editor-background)}',
     '.crtl-top .crtl-btn.crtl-dragging{opacity:1;outline:1px dashed currentColor}',
     '.crtl-grip:active{cursor:grabbing}',
     /* the settings panel keeps its own lane, offset from the button columns */
@@ -1427,7 +1428,7 @@
       old[i].remove();
     }
     var all = dokme_ha(s);
-    var host = ja_navar_bala();
+    var host = ja_navar_bala() || jaygozin_navar_bala();
     if (!host || !all.some(function (c) { return samt_dokme(c, s) === 'top'; })) return !!host;
     var bar = document.createElement('div');
     bar.className = 'crtl-bar crtl-top';
@@ -1451,6 +1452,23 @@
     return true;
   }
 
+  // A chat with no header row (a fresh one from the Session Manager's «New session», Habib 27 Oct
+  // 22:46: «تو یه اکستنشن داری باید روی همه اینها کار بکنه»): the row gets its own strip at the top
+  // of the panel, and moves into the header once one shows
+  function jaygozin_navar_bala() {
+    var j = document.getElementById('crtl-top-jaygozin');
+    if (!j) {
+      j = document.createElement('div');
+      j.id = 'crtl-top-jaygozin';
+      document.body.appendChild(j);
+    }
+    return j;
+  }
+  function bardashtan_jaygozin() {
+    var j = document.getElementById('crtl-top-jaygozin');
+    if (j) j.remove();
+  }
+
   // React rebuilds the header on a session switch, taking the row with it.
   var topWatch = null;
   function payesh_navar_bala() {
@@ -1461,9 +1479,10 @@
       var bar = document.querySelector('.crtl-top');
       var host = ja_navar_bala();
       if (bar && host && host.contains(bar)) return;
-      // no header yet (a chat still loading): wait for it, never draw the row elsewhere
-      if (!host) return;
-      if (host && !document.querySelector('[data-top]')) { sakht_navar_bala(s); return; }
+      // no header: the row stays in its own strip (never the vertical columns)
+      if (!host) { if (!bar) sakht_navar_bala(s); return; }
+      if (bar && bar.closest('#crtl-top-jaygozin')) { bardashtan_jaygozin(); sakht_navar_bala(s); return; }
+      if (!document.querySelector('[data-top]')) { bardashtan_jaygozin(); sakht_navar_bala(s); return; }
       sakht_dobare();
     }, 1500);
   }

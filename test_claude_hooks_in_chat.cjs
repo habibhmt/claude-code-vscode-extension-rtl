@@ -99,7 +99,11 @@ out.patch = {
 }
 assert.deepEqual(out.patch, { flagAlwaysOn: true, forwardWrapped: true, parses: true, reloadWrapped: true })
 // a bundle that names the args and the message with $ (esbuild does): still matched
-const pyDollar = py.replace("src = open(path + '.backup', encoding='utf-8').read()", "src = open(path + '.backup', encoding='utf-8').read().replace('if(this.options.includeHookEvents)a.push(', 'if(this.options.includeHookEvents)$a.push(').replace(',message:K1,done:!1,hostForwardedAt', ',message:K$,done:!1,hostForwardedAt')")
+// rename the bundle's own minified names (they change every build: a/K1 in 2.1.310, i/z1 in 2.1.311) to $-names
+const src0 = fs.readFileSync(extJs + '.backup', 'utf8')
+const argsName = src0.match(/if\(this\.options\.includeHookEvents\)([\w$]+)\.push\(/)[1]
+const msgName = src0.match(/,message:([\w$]+),done:!1,hostForwardedAt/)[1]
+const pyDollar = py.replace("src = open(path + '.backup', encoding='utf-8').read()", `src = open(path + '.backup', encoding='utf-8').read().replace('if(this.options.includeHookEvents)${argsName}.push(', 'if(this.options.includeHookEvents)$a.push(').replace(',message:${msgName},done:!1,hostForwardedAt', ',message:K$,done:!1,hostForwardedAt')`)
 fs.writeFileSync(path.join(tmp, 'p2.py'), pyDollar)
 execFileSync('python3', [path.join(tmp, 'p2.py')], { env: { ...process.env, CRTL_CSS_FILE: path.join(tmp, 'x.css'), CRTL_EXT_JS: extJs,
   CRTL_BUTTONS_JS: path.join(dir, 'claude-ui-buttons.js'), CRTL_HOST_HOOK_JS: process.env.HOST_HOOK_JS || path.join(dir, 'claude-host-hook.js') } })

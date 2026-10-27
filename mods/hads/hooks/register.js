@@ -158,8 +158,8 @@ const prompt_fork_hads = '"hads": [1 or 2 of {"label": "<= 3 words", "text": "<o
 // «نکرده‌ها»: the fork has read the whole chat, every tool's output included. Its rules come from two
 // Sonnet audits of this chat (25 Oct 03:33): only Habib's own words; done means a tool proved it; his
 // later word replaces the earlier; a promise not kept counts; other items first than last time
-const prompt_fork_nakarde = () => '"nakarde": [all of them, 0 or more, each {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>", "sanad": <اختیاری: {"file": "<مسیرِ کاملِ فایلی که اگر انجام شده بود این متن در آن بود>", "matn": "<آن متن، کوتاه و عیناً>"} یا {"git": "<مسیرِ کاملِ پوشهٔ پروژه>", "matn": "<کلمه‌ای که در پیامِ commit ِ آن کار می‌آمد>"}>}]'
-const ghaede_nakarde = (anjam, commit_ha = '', ferestade = []) => '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
+const prompt_fork_nakarde = () => '"nakarde": [all of them, 0 or more, each {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>", "shomare": <شمارهٔ همین کار از «دفترِ کارها» اگر همان کار است، حتی با کلمه‌های دیگر؛ کارِ تازه ⇒ نگذار>, "sanad": <همیشه بده اگر سنجیدنی است: {"file": "<مسیرِ کاملِ فایلی که اگر انجام شده بود این متن در آن بود>", "matn": "<آن متن، کوتاه و عیناً>"} یا {"git": "<مسیرِ کاملِ پوشهٔ پروژه>", "matn": "<کلمه‌ای که در پیامِ commit ِ آن کار می‌آمد>"} یا {"hast": "<مسیرِ کاملِ فایلی که فقط وقتی کار انجام شده وجود دارد، مثلاً عکس>"}؛ سنجیدنی نیست ⇒ {"dasti": true}>}]'
+const ghaede_nakarde = (anjam, commit_ha = '', ferestade = [], daftar_kar = []) => (daftar_kar.length ? '\n\n«دفترِ کارها» (شماره ⇐ کار؛ کارِ همان را با همان شماره بیاور): ' + daftar_kar.map((k) => 'ک-' + k.sh + ': «' + k.harf + '»').join(' · ') : '') + '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
   '۱) فقط حرفِ خودِ حبیب. پیامِ ایجنتِ دیگر، system-reminder، task-notification و «Continue from where you left off» حرفِ حبیب نیست؛ حرفی از حبیب که ایجنتی عینش را نقل کرده حساب است. ' +
   '۲) «انجام شد» یعنی خروجیِ یک ابزار در همین چت ثابتش کرد (آزمونِ سبز، commit، فایلِ نوشته‌شده). «انجام می‌دهم» یا «منتظرِ …» انجام نیست. ' +
   '۳) حرفِ تازه‌ترِ حبیب جای حرفِ قدیمی‌اش را می‌گیرد؛ چیزی که بعداً رد یا عوض کرد، نکرده نیست. ' +
@@ -229,7 +229,7 @@ const ghaede_khodkar = (ferestade = []) => '\n\n«khodkar» (خودکار): ای
 const prompt_fork_cron = '"cron": [all of them, 0 or more, each {"kar": "<کاری که حبیب در این چت مشخص کرد و به کرون‌جاب می‌خورد>", "zaman": "<کی اجرا شود، به فارسی و با عبارتِ cron، مثلاً هر روز ۰۸:۰۰ (0 8 * * *)>", "rah": "<با چه ساخته شود: launchd، crontab، یا CronCreate/schedule ِ Claude Code، و فرمانش>"}]'
 const ghaede_cron = '\n\n«cron» (کرون‌جاب): از میانِ کارهایی که حبیب در همین چت مشخص کرد، هر کدام که تکراری است یا باید سرِ وقت یا هر چند وقت خودش اجرا یا چک شود (چکِ نسخه، نگهبان، گزارشِ روزانه، پاک کردنِ دفتر، …)، بی‌سقف. کرون‌جابی که در همین چت ساخته شده و کار می‌کند نیاور. نامطمئن ⇒ نیاور. هیچ نبود ⇒ [].'
 const prompt_fork_bakhsh_ha = (p, anjam) => [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads, p.nakarde && prompt_fork_nakarde(), p.khodkar && prompt_fork_khodkar, p.cron && prompt_fork_cron].filter(Boolean)
-const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || []) : '') + (p.khodkar ? ghaede_khodkar(p.khodkar_rah || []) : '') + (p.cron ? ghaede_cron : '')
+const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || [], p.daftar_kar || []) : '') + (p.khodkar ? ghaede_khodkar(p.khodkar_rah || []) : '') + (p.cron ? ghaede_cron : '')
 const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   prompt_fork_bakhsh_ha(p, anjam).join(', ') + '}' + ghaede_bakhsh_ha(p, anjam)
 
@@ -238,12 +238,13 @@ const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس�
 export function khandan_nakarde(list) {
   return (Array.isArray(list) ? list : [])
     .filter((x) => x && typeof x.harf === 'string' && x.harf.trim() && typeof x.chera === 'string')
-    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(x.khodkar === true ? { khodkar: true } : {}), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}) }))
+    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(x.khodkar === true ? { khodkar: true } : {}), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}), ...(Number.isInteger(x.shomare) && x.shomare > 0 ? { sh: x.shomare } : {}), ...(x.sanad?.dasti === true ? { dasti: true } : {}) }))
 }
 // a check the mod can run itself: an absolute file that would hold the text, or a project whose commit
 // messages would; anything else is no check
 export const had_kamtarin_harf_sanad = 8
 export function khandan_sanad(x) {
+  if (x && typeof x.hast === 'string' && x.hast.startsWith('/')) return { hast: x.hast }
   if (!x || typeof x !== 'object' || typeof x.matn !== 'string' || !x.matn.trim()) return null
   const matn = x.matn.trim().slice(0, 200)
   // a word that short is in too many files to prove anything ("dayere", "on")
@@ -255,6 +256,7 @@ export function khandan_sanad(x) {
 async function sanad_dare($, sanad) {
   if (!sanad) return false
   try {
+    if (sanad.hast) return (await $.process.run(['test', '-e', sanad.hast], { timeoutMs: 5000 })).exitCode === 0
     if (sanad.file) return (await $.process.run(['grep', '-F', '-q', '--', sanad.matn, sanad.file], { timeoutMs: 5000 })).exitCode === 0
     const r = await $.process.run(['git', '-C', sanad.git, 'log', '-200', '--format=%s%n%b'], { timeoutMs: 5000 })
     return r.exitCode === 0 && String(r.stdout || '').includes(sanad.matn)
@@ -282,6 +284,26 @@ export function khandan_cron(list) {
     .filter((x) => x && typeof x.kar === 'string' && x.kar.trim() && typeof x.zaman === 'string' && x.zaman.trim())
     .map((x) => ({ kar: x.kar.trim(), zaman: x.zaman.trim(), rah: typeof x.rah === 'string' ? x.rah.trim() : '' }))
 }
+// «دفترِ کارها» (Habib 27 Oct 18:30: «یه کد عددی تعریف کنی … یه تغییر کوچیک کلمه باعث نشه که اون از انجام شدش
+// تیک نخوره»; window «بله، بنویس», 18:51 «بزن همه رو»): every «نکرده» keeps one number for good, in
+// ~/.claude/hads-log/<id>.kar_daftar.json; the number, not the words, carries its check and Habib's «انجام شد»
+export function shomare_dadan(list, daftar) {
+  const d = { akhar: daftar?.akhar || 0, kar: Array.isArray(daftar?.kar) ? daftar.kar.map((k) => ({ ...k })) : [] }
+  const out = list.map((x) => {
+    let k = (x.sh && d.kar.find((y) => y.sh === x.sh)) || d.kar.find((y) => y.harf === x.harf || hamun_matn(y.harf, x.harf))
+    if (!k) { k = { sh: ++d.akhar, harf: x.harf }; d.kar.push(k) }
+    if (x.sanad) k.sanad = x.sanad
+    return { ...x, sh: k.sh, ...(!x.sanad && k.sanad ? { sanad: k.sanad } : {}) }
+  })
+  return { list: out, daftar: d }
+}
+const masir_kar_daftar = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.kar_daftar.json'
+async function khandan_kar_daftar($) {
+  try { return JSON.parse(String(await $.fs.read(await masir_kar_daftar($)))) } catch { return { akhar: 0, kar: [] } }
+}
+async function neveshtan_kar_daftar($, d) {
+  try { await $.fs.write(await masir_kar_daftar($), JSON.stringify(d) + '\n') } catch {}
+}
 // what Habib pressed «انجام شد» on, per chat (~/.claude/hads-log/<id>.nakarde_anjam_shod.jsonl): never
 // shown again — the fork is told, and anything that says the same is dropped here too
 const masir_nakarde_anjam = async ($) => (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.nakarde_anjam_shod.jsonl'
@@ -295,14 +317,15 @@ async function khandan_nakarde_anjam($) {
   }
   return nakarde_anjam_har_chat.get(id)
 }
-export const hanuz_nakarde = (list, anjam) => list.filter((x) => !anjam.some((a) => a === x.harf || hamun_matn(a, x.harf)))
-async function anjam_shod_zadan($, harf) {
+export const hanuz_nakarde = (list, anjam) => list.filter((x) => !anjam.some((a) => (x.sh && a === 'ک-' + x.sh) || a === x.harf || hamun_matn(a, x.harf)))
+async function anjam_shod_zadan($, harf, sh) {
   const anjam = await khandan_nakarde_anjam($)
   if (!anjam.includes(harf)) anjam.push(harf)
+  if (sh && !anjam.includes('ک-' + sh)) anjam.push('ک-' + sh)
   nakarde_akhar = hanuz_nakarde(nakarde_akhar, anjam)
   $.ui.invalidate('ui.render')
   try {
-    const line = JSON.stringify({ t: await $.clock.now(), harf }) + '\n'
+    const line = JSON.stringify({ t: await $.clock.now(), harf }) + '\n' + (sh ? JSON.stringify({ t: await $.clock.now(), harf: 'ک-' + sh }) + '\n' : '')
     await $.process.run(['sh', '-c', 'mkdir -p "$(dirname "$1")" && cat >> "$1"', 'sh', await masir_nakarde_anjam($)], { stdin: line, timeoutMs: 5000 })
   } catch {}
   await benevis_daftar($, 'nakarde_anjam_shod', { harf })
@@ -715,7 +738,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   if (tokens <= had_fork_context_token || p.nakarde || p.khodkar || p.cron || pj) {
     try {
       const ferestade = await khandan_khodkar_ferestade($)
-      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [], khodkar_rah: p.khodkar ? ferestade.rah.slice(-20) : [] }
+      const khaste = { hads: !!p.hads, nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [], khodkar_rah: p.khodkar ? ferestade.rah.slice(-20) : [], daftar_kar: p.nakarde ? (await khandan_kar_daftar($)).kar.slice(-60) : [] }
       const anjam = khaste.nakarde ? await khandan_nakarde_anjam($) : []
       const r = await $.model.fork({ prompt: pj ? prompt_jambandi_nobat(pj.lines, pj.tools, khaste, anjam) : prompt_fork(khaste, anjam) })
       got = r.isAnswered ? khandan_javab_fork(r.text) : null
@@ -725,6 +748,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
     } catch {}
   } else if (pj) jambandi_shod = await jambandi($, pj)
   if (p.nakarde && got) {
+    const sh = shomare_dadan(got.nakarde, await khandan_kar_daftar($)); got.nakarde = sh.list; await neveshtan_kar_daftar($, sh.daftar)
     // a «نکرده» its own check finds done (the file has it, a commit says it) is not shown, and is logged
     const ba_sanad = []
     for (const x of got.nakarde) if (await sanad_dare($, x.sanad)) ba_sanad.push(x)
@@ -1254,17 +1278,17 @@ export function register(on) {
     // «نکرده‌ها»: Habib's words, when he said them, and why it is still not done; ⤵ asks for it again
     for (let i = 0; i < nk.length; i++) goruh.nakarde.push(Box({ flexDirection: 'row', columnGap: 1, children: [
       Text({ dimColor: true, children: [i ? '        ' : 'نکرده:'] }),
-      Text({ key: 'hads-nk-' + i, children: [(nk[i].khodkar ? 'خودکار: ' + nk[i].harf : '«' + nk[i].harf + '»') + (dar_list(ferestade.nakarde, nk[i].harf) ? ' ✓ فرستاده شد' : '') + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '') + ' — ' + nk[i].chera] }),
+      Text({ key: 'hads-nk-' + i, children: [(nk[i].sh ? 'ک-' + adad_farsi(nk[i].sh) + ' ' : '') + (nk[i].khodkar ? 'خودکار: ' + nk[i].harf : '«' + nk[i].harf + '»') + (nk[i].dasti ? ' (دستی)' : '') + (dar_list(ferestade.nakarde, nk[i].harf) ? ' ✓ فرستاده شد' : '') + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '') + ' — ' + nk[i].chera] }),
       Button({ key: 'hads-nk-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم و هنوز نکردی، انجامش بده: «' + nk[i].harf + '»' + (nk[i].zaman ? ' (' + nk[i].zaman + ')' : '')) }),
       // Habib: «یه گزینه داشته باشه که من بزنم نه انجام شده و جزو نکرده ها نباشه دیگه»
-      Button({ key: 'hads-nk-anjam-' + i, label: '✓ انجام شد', onPress: () => anjam_shod_zadan($, nk[i].harf) }),
+      Button({ key: 'hads-nk-anjam-' + i, label: '✓ انجام شد', onPress: () => anjam_shod_zadan($, nk[i].harf, nk[i].sh) }),
     ] }))
     // the ones a check put aside: one line with their count; opened, each with what was found where
     if (nks.length) goruh.nakarde.push(Box({ flexDirection: 'column', children: [
       Button({ key: 'hads-nks', dimColor: true, label: (nakarde_ba_sanad_baz ? '▴ ' : '▸ ') + adad_farsi(nks.length) + ' نکرده با سند کنار رفت', onPress: () => { nakarde_ba_sanad_baz = !nakarde_ba_sanad_baz; $.ui.invalidate('ui.render') } }),
       ...(nakarde_ba_sanad_baz ? nks.map((x, i) => Box({ flexDirection: 'row', columnGap: 1, children: [
-        Text({ key: 'hads-nks-' + i, dimColor: true, children: ['«' + x.harf + '» — هست: «' + x.sanad.matn + '» در ' + (x.sanad.file || 'commit‌های ' + x.sanad.git)] }),
-        Button({ key: 'hads-nks-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم؛ «نکرده‌ها» با سند کنارش گذاشت («' + x.sanad.matn + '» در ' + (x.sanad.file || x.sanad.git) + '). خودت بسنج واقعاً انجام شده یا نه: «' + x.harf + '»') }),
+        Text({ key: 'hads-nks-' + i, dimColor: true, children: [(x.sh ? 'ک-' + adad_farsi(x.sh) + ' ' : '') + '«' + x.harf + '» — ' + (x.sanad.hast ? 'فایل هست: ' + x.sanad.hast : 'هست: «' + x.sanad.matn + '» در ' + (x.sanad.file || 'commit‌های ' + x.sanad.git))] }),
+        Button({ key: 'hads-nks-dokme-' + i, label: '⤵', onPress: () => gozashtan_dar_kadr($, 'این را گفته بودم؛ «نکرده‌ها» با سند کنارش گذاشت («' + (x.sanad.hast || x.sanad.matn) + '» در ' + (x.sanad.file || x.sanad.git) + '). خودت بسنج واقعاً انجام شده یا نه: «' + x.harf + '»') }),
       ] })) : []),
     ] }))
     // «خودکار»: what the model can do by itself, and with what; ⤵ tells the chat to do it, not ask

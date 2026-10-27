@@ -205,7 +205,7 @@ out.nakarde = { fork: calls.fork.length - nk0, rules: /فقط حرفِ خودِ 
   shown: [0, 1, 2].map((i) => find(rN, 'hads-nk-' + i)?.children[0]).filter(Boolean),
   logged: events.slice(ev0).filter((e) => e.kind === 'nakarde').map((e) => e.nakarde_ha.length) }
 // no cap on how many (Habib, 25 Oct 04:53: «محدودیت نداشته باشن تعدادشون»)
-assert.deepEqual(out.nakarde, { fork: 1, rules: true, shown: ['«اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸) — ۲۰۵ هنوز ریلود نشده', '«عکس بگیر» (۲۵ اکت ۰۲:۲۸) — گفتی منتظرِ حبیب', '«سومی» — نباید بیاید'], logged: [3] })
+assert.deepEqual(out.nakarde, { fork: 1, rules: true, shown: ['ک-۱ «اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸) — ۲۰۵ هنوز ریلود نشده', 'ک-۲ «عکس بگیر» (۲۵ اکت ۰۲:۲۸) — گفتی منتظرِ حبیب', 'ک-۳ «سومی» — نباید بیاید'], logged: [3] })
 // ⤵ puts it in the prompt box (never sends); the next time the prompt names last time's items so others come first
 calls.fill.length = 0; await find(rN, 'hads-nk-dokme-0').onPress({}); out.nakardeFill = calls.fill.map((f) => f.text)
 assert.deepEqual(out.nakardeFill, ['این را گفته بودم و هنوز نکردی، انجامش بده: «اسمای قدیم رو جدید کن» (۲۵ اکت ۰۲:۵۸)'])
@@ -219,7 +219,9 @@ const rFork = await render(); const afterFork = [0, 1, 2].map((i) => find(rFork,
 out.nakardeAnjam = { now: afterDone.length, file: String(flags['/h/.claude/hads-on/F'.replace('hads-on', 'hads-log') + '.nakarde_anjam_shod.jsonl'] || '').includes('اسمای قدیم رو جدید کن'),
   told: /حبیب این‌ها را خودش «انجام شد» زد.*«اسمای قدیم رو جدید کن»/.test(nkPrompt1), back: afterFork.some((x) => x.includes('اسمای قدیم رو جدید کن')),
   logged: events.some((e) => e.kind === 'nakarde_anjam_shod' && e.harf === 'اسمای قدیم رو جدید کن') }
-assert.deepEqual(out.nakardeAnjam, { now: 2, file: true, told: true, back: false, logged: true })
+// the number is kept too, so the same work in other words stays done (Habib 27 Oct 18:30)
+out.nakardeAnjam.shomare = /"harf":"ک-[0-9]+"/.test(String(flags['/h/.claude/hads-log/F.nakarde_anjam_shod.jsonl'] || ''))
+assert.deepEqual(out.nakardeAnjam, { now: 2, file: true, told: true, back: false, logged: true, shomare: true })
 // ticked off: not asked for, not shown
 $.ctx = 1000; await find(await render(), 'hads-tick-nakarde').onPress({}); const nk2 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
 out.nakardeOff = { forked: calls.fork.length > nk2, asked: calls.fork.slice(nk2).some((f) => /nakarde/.test(f.prompt)), shown: !!find(await render(), 'hads-nk-0') }
@@ -238,7 +240,7 @@ await find(await render(), 'hads-tick-nakarde').onPress({}); $.ctx = 1000
     { harf: 'بد', zaman: '', chera: 'سند بی‌مسیر', sanad: { file: 'nisbi.txt', matn: 'x' } }] }) }
   await H['command.run']($, { args: 'now' }); await flush()
   const pr = calls.fork.slice(sf0).map((f) => f.prompt).join('\n'), rS = await render()
-  out.nakardeSanad = { shown: [0, 1, 2, 3].map((i) => find(rS, 'hads-nk-' + i)?.children[0]).filter(Boolean).map((x) => x.split('»')[0].slice(1)),
+  out.nakardeSanad = { shown: [0, 1, 2, 3].map((i) => find(rS, 'hads-nk-' + i)?.children[0]).filter(Boolean).map((x) => x.replace(/^ک-[۰-۹]+ /, '').split('»')[0].slice(1)),
     prompt: /3a6013f 10-25 19:04 fix: حافظه/.test(pr) && /۷\) چیزی که بیرون از این چت انجام شده/.test(pr) && /"sanad"/.test(pr),
     logged: events.slice(sv0).filter((e) => e.kind === 'nakarde_ba_sanad').map((e) => e.anjam_shode.map((x) => x.harf)),
     root: calls.git.some((a) => a[2] === '/proj' && a.includes('-20')), onlyWhole: (calls.sanad || []).every((a) => a[5].startsWith('/')) }
@@ -247,7 +249,7 @@ await find(await render(), 'hads-tick-nakarde').onPress({}); $.ctx = 1000
   const lineNks = find(rS, 'hads-nks')?.label; await find(rS, 'hads-nks').onPress(); const rO = await render()
   calls.fill.length = 0; await find(rO, 'hads-nks-dokme-0').onPress()
   out.nakardeKenar = { line: lineNks, open: [0, 1].map((i) => find(rO, 'hads-nks-' + i)?.children[0]), fill: /خودت بسنج واقعاً انجام شده یا نه: «ollama رو اضافه کن»/.test(calls.fill[0]?.text || '') }
-  assert.deepEqual(out.nakardeKenar, { line: '▸ ۲ نکرده با سند کنار رفت', open: ['«ollama رو اضافه کن» — هست: «ollama_ha» در /x/tanzim.json', '«دکمه رو بساز» — هست: «دکمهٔ حافظه» در commit‌های /proj'], fill: true })
+  assert.deepEqual(out.nakardeKenar, { line: '▸ ۲ نکرده با سند کنار رفت', open: ['ک-۴ «ollama رو اضافه کن» — هست: «ollama_ha» در /x/tanzim.json', 'ک-۵ «دکمه رو بساز» — هست: «دکمهٔ حافظه» در commit‌های /proj'], fill: true })
   await find(rO, 'hads-nks').onPress()
   // after a reload the line is there again
   await new Promise((r) => setTimeout(r, 5))
@@ -258,7 +260,7 @@ await find(await render(), 'hads-tick-nakarde').onPress({}); $.ctx = 1000
   // a word too short to prove anything is no check: «dayere» is in the file, yet the row stays
   $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ hads: [], nakarde: [{ harf: 'دایره رو بساز', zaman: '', chera: 'نیست', sanad: { file: '/x/tanzim.json', matn: 'ollama' } }] }) }
   await H['command.run']($, { args: 'now' }); await flush()
-  out.sanadKutah = find(await render(), 'hads-nk-0')?.children[0]?.startsWith('«دایره رو بساز»'); assert.equal(out.sanadKutah, true)
+  out.sanadKutah = find(await render(), 'hads-nk-0')?.children[0]?.replace(/^ک-[۰-۹]+ /, '').startsWith('«دایره رو بساز»'); assert.equal(out.sanadKutah, true)
   $.forkReply = keepReply
 }
 $.sid = 'A'
@@ -706,7 +708,7 @@ out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با 
   third: calls.submit.length, file: flags['/h/.claude/hads-log/X.khodkar_ferestade.json'],
   logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
 assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
-  nkRow: ['خودکار: چکِ اپ ✓ فرستاده شد', '«حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"],"tedad":{"چکِ اپ":2,"سرچِ حرفِ حبیب":1}}\n', logged: 2 })
+  nkRow: ['ک-۱ خودکار: چکِ اپ ✓ فرستاده شد', 'ک-۲ «حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"],"tedad":{"چکِ اپ":2,"سرچِ حرفِ حبیب":1}}\n', logged: 2 })
 // an excuse gets a new way, not a wait (Habib, 26 Oct 07:44): the fork is told what was sent and to answer excuses; the same
 // work with a NEW way goes again, the same way does not; an excuse does not take a «نکرده» out
 {
@@ -793,6 +795,19 @@ assert.deepEqual(out.esmRule, { upper: [], glued: [], bad_spell: [] })
   out.amarLine = !!body && body.startsWith(mod.neshane_amar) && JSON.parse(body.slice(mod.neshane_amar.length)).hame.kol === 3
   assert.equal(out.amarLine, true)
   $.sid = sid0
+}
+// «دفترِ کارها» (Habib 27 Oct 18:30 «یه کد عددی … یه تغییر کوچیک کلمه باعث نشه که … تیک نخوره»): one number per work for good
+{
+  const a = mod.shomare_dadan([{ harf: 'ریلود کن و با عکس ببین کدِ رنگی درست اومده', chera: 'x', sanad: { hast: '/tmp/a.png' } }], { akhar: 0, kar: [] })
+  // the same work, other words, no check this time: same number, the old check comes back
+  const b = mod.shomare_dadan([{ harf: 'عکسِ کدِ رنگی بعد از ریلود', chera: 'y', sh: 1 }, { harf: 'کارِ دیگر', chera: 'z' }], a.daftar)
+  // the fork forgot the number: the words still find it when close enough
+  const c = mod.shomare_dadan([{ harf: 'ریلود کن و با عکس ببین کدِ رنگی درست اومده', chera: 'x' }], b.daftar)
+  out.shomare = { a: a.list[0].sh, b: b.list.map((x) => x.sh), bSanad: b.list[0].sanad?.hast, c: c.list[0].sh, akhar: c.daftar.akhar,
+    anjam: mod.hanuz_nakarde(b.list, ['ک-1']).map((x) => x.sh), hast: mod.khandan_sanad({ hast: '/x/y.png' }), hastNesbi: mod.khandan_sanad({ hast: 'y.png' }),
+    dasti: mod.khandan_nakarde([{ harf: 'h', chera: 'c', sanad: { dasti: true }, shomare: 4 }])[0] }
+  assert.deepEqual(out.shomare, { a: 1, b: [1, 2], bSanad: '/tmp/a.png', c: 1, akhar: 2, anjam: [2], hast: { hast: '/x/y.png' }, hastNesbi: null,
+    dasti: { harf: 'h', zaman: '', chera: 'c', sh: 4, dasti: true } })
 }
 // 25 Oct 02:20 («اسمِ تابع‌های داخلِ کد … بزن»): the functions and the chat-wide variables have Habib's words too
 const codeOnly = src.replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")

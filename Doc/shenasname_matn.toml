@@ -1045,3 +1045,30 @@ noe = "sabet"
 ba_motaghayerha = ["gorooh_hook"]
 tarif = "11"
 tayid = "حبیب ۲۵ اکت (تعریفِ ۱۰، اسم‌ها) «بله» · ثابت‌های صفحه: «اکی»، ۲۵ اکت ۰۶:۰۷ «بمونن»"
+
+[had_tedad_kamtarin_zaban_harf]
+yani = "کجا: آخرِ جواب، بخشِ «زبان» · چیه: جوابِ کوتاه‌تر از این تعداد حرف (فارسی + لاتین، بی کد و لینک) سنجیده نمی‌شود · مثال: ⟦had_tedad_kamtarin_zaban_harf⟧"
+chera = "حبیب ۲۸ اکت ۰۲:۲۰ «اگه مدل انگلیسی جواب داد تو جواب قبلیش بهش یاداوری کنه که فاوسی حرف بزنه»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["matn_yadavari_zaban"]
+tarif = "01"
+tayid = "حدس — حبیب بخش را خواست، عدد را نگفت"
+
+[matn_yadavari_zaban]
+yani = "متنی که «زبان» بعد از جوابِ انگلیسی به چت می‌فرستد تا مدل فارسی حرف بزند"
+chera = "حبیب ۲۸ اکت ۰۲:۲۰ «تو جواب قبلیش بهش یاداوری کنه که فاوسی حرف بزنه»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["had_tedad_kamtarin_zaban_harf", "zaban_yadavari_shod"]
+tarif = "01"
+tayid = "حدس — متن را حبیب ندیده"
+
+[zaban_yadavari_shod]
+yani = "برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود)"
+chera = "حبیب ۲۸ اکت ۰۲:۲۰ «زبان»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["matn_yadavari_zaban"]
+tarif = "01"
+tayid = "حدس"

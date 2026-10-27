@@ -648,16 +648,16 @@ flags['/h/.claude/hads-tartib'] = 'cron do_jomle hads\n'
 const rT = await render(), kT = tartib_kelid(rT)
 out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.slice(10)),
   rows: ['hads-cr-0', 'hads-now', 'hads-g-0', 'hads-kh-0'].map((k) => kT.indexOf(k)).every((x, i, a) => x > 0 && (!i || x > a[i - 1])),
-  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-hook hads-hafeze', field: !!find(rT, 'hads-tartib'),
+  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-zaban hads-hafeze', field: !!find(rT, 'hads-tartib'),
   // one box per part that has rows, in the same order (the page script keeps each from shrinking)
   bakhsh: kT.filter((k) => k.startsWith('hads-bakhsh-')).map((k) => k.slice(12)) }
-assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
+assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
 // VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
 const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
 const rV = await render({ surface: 'vscode' }); const fld = find(rV, 'hads-tartib')
 await fld.onInput('khodkar hads hads chizi')
 out.tartibField = { value: fld.value, file: flags['/h/.claude/hads-tartib'], notMobile: !find(await render({ surface: 'mobile' }), 'hads-tartib') }
-assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads nakarde khodkar porsesh hook', file: 'khodkar hads nakarde cron do_jomle porsesh hook\n', notMobile: true })
+assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads nakarde khodkar porsesh hook zaban', file: 'khodkar hads nakarde cron do_jomle porsesh hook zaban\n', notMobile: true })
 $.ui.resolve = keepResolve; delete flags['/h/.claude/hads-tartib']
 // «🔎 حافظه» (Habib to ۲۰۵, 25 Oct 18:30: «بله، بسازید»): the label is what ۲۰۵'s `get` says; a press moves
 // this chat one on (همین چت ⇐ همین پروژه ⇐ همهٔ پروژه‌ها ⇐ همین چت) and no other chat; /hads hafeze works with the box off
@@ -813,4 +813,20 @@ assert.deepEqual(out.esmRule, { upper: [], glued: [], bad_spell: [] })
 const codeOnly = src.replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
 out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa", "bepors"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))
 assert.deepEqual(out.esmTabe, [])
+// «زبان» (28 Oct 02:20): an English answer gets one reminder to speak Persian; never twice in a row
+out.zabanTashkhis = [mod.englisi_ast('Text is right in the box (in a fresh test chat). Sending with Enter now.'), mod.englisi_ast('همه سبز است و `npm test` و https://example.com/some/long/english/path هم.'), mod.englisi_ast('ok')]
+assert.deepEqual(out.zabanTashkhis, [true, false, false])
+$.sid = 'Z'; flags['/h/.claude/hads-on/Z'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook'
+$.msgs = [{ role: 'user', text: 'چی شد' }, { role: 'assistant', text: 'The tests for the native app are still running in the simulator, I will report back.' }]
+let n0 = calls.submit.length; await H['turn.complete']($, {}, next); await flush()
+const zs = calls.submit.slice(n0).map((x) => x.text)
+await H['turn.complete']($, {}, next); await flush()
+const zs2 = calls.submit.length - n0
+$.msgs = [{ role: 'assistant', text: 'همه سبز شد و کامیت هم زدم، چیزِ دیگری نمانده است.' }]; await H['turn.complete']($, {}, next); await flush()
+$.msgs = [{ role: 'assistant', text: 'The tests for the native app are still running in the simulator, I will report back.' }]; await H['turn.complete']($, {}, next); await flush()
+const zs3 = calls.submit.length - n0
+flags['/h/.claude/hads-on/Z'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; await H['turn.complete']($, {}, next); await flush()
+out.zaban = { yek: zs.length === 1 && zs[0] === mod.matn_yadavari_zaban, dobare: zs2, bad_az_farsi: zs3, khamush: calls.submit.length - n0 }
+assert.deepEqual(out.zaban, { yek: true, dobare: 1, bad_az_farsi: 2, khamush: 2 })
+$.sid = 'A'
 console.log(JSON.stringify(out))

@@ -546,6 +546,31 @@ async function begu_do_jomle($, tool, force, viaFork = false) {
   if (do_jomle_dobare) { do_jomle_dobare = false; await begu_do_jomle($, '', true) }
 }
 
+// «زبان» (Habib, 28 Oct 02:20: «اگه مدل انگلیسی جواب داد تو جواب قبلیش بهش یاداوری کنه که فارسی
+// حرف بزنه»): the last answer, without code and links, has more Latin letters than Persian ⇒ one
+// reminder is sent. Never twice in a row: an English answer to the reminder itself is let go.
+export const had_tedad_kamtarin_zaban_harf = 40
+export const matn_yadavari_zaban = 'زبان (از مودِ «حدس»، نه از حبیب): جوابِ قبلی‌ات انگلیسی بود. از این به بعد فارسی جواب بده (اصطلاح و کد می‌تواند انگلیسی بماند). اگر جوابِ قبلی چیزِ مهمی داشت، همان را کوتاه به فارسی بگو.'
+export function englisi_ast(text) {
+  const t = String(text || '').replace(/```[\s\S]*?```|`[^`]*`|https?:\/\/\S+/g, '')
+  const fa = (t.match(/[\u0600-\u06FF]/g) || []).length, en = (t.match(/[A-Za-z]/g) || []).length
+  return fa + en >= had_tedad_kamtarin_zaban_harf && en > fa
+}
+const zaban_yadavari_shod = new Map()
+async function chek_zaban($) {
+  try {
+    const id = await $.session.id()
+    const msgs = await $.session.messages()
+    const akhar = [...msgs].reverse().find((m) => m.role === 'assistant' && m.text)
+    const ghabli = zaban_yadavari_shod.get(id)
+    zaban_yadavari_shod.set(id, false)
+    if (!akhar || !englisi_ast(akhar.text) || ghabli) return
+    zaban_yadavari_shod.set(id, true)
+    await benevis_daftar($, 'zaban', { matn: String(akhar.text).slice(0, 200) })
+    await $.prompt.submit({ text: matn_yadavari_zaban })
+  } catch {}
+}
+
 async function chat_kuchak($) {
   try { return ((await $.session.usage()).context.tokens || 0) <= had_fork_context_token } catch { return false }
 }
@@ -889,7 +914,7 @@ async function gozashtan_dar_kadr($, text) {
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
 const masir_file_chat = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 // The file holds `on`, then the parts ticked off: `on -hads -porsesh`. h-on turns all of them on.
-export const bakhsh_ha = [['hads', 'حدس'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها']]
+export const bakhsh_ha = [['hads', 'حدس'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها'], ['zaban', 'زبان']]
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
 // name glued from pieces): a part ticked off, and the other settings
 export const esm_bakhsh = Object.fromEntries(bakhsh_ha)
@@ -983,7 +1008,7 @@ async function taghir_tartib($, v) {
   try { await $.fs.write(await masir_tartib($), tazeh.join(' ') + '\n') } catch {}
   $.ui.invalidate('ui.render')
 }
-export const kalame_khamush = { hads: '-hads', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook' }
+export const kalame_khamush = { hads: '-hads', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook', zaban: '-zaban' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg' }
 async function khandan_file_chat($) {
   try {
@@ -1186,6 +1211,7 @@ export function register(on) {
     if (p?.hook) $.clock.after(500, () => { zaman_khandan_hook = 0; return khandan_hook_az_transcript($) })
     // not awaited: the turn must not wait for the model
     if (p) $.clock.after(0, () => akhar_javab($, p))
+    if (p?.zaban) $.clock.after(0, () => chek_zaban($))
     return next(e)
   })
 

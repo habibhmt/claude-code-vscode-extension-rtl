@@ -235,10 +235,12 @@ const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس�
 
 // «نکرده‌ها» from the fork's reply: all of them (Habib, 25 Oct 04:53: «محدودیت نداشته باشن تعدادشون»),
 // each with Habib's words, when, and why
+// the fork says `shomare`; what this mod saved to the chat's file says `sh` (28 Oct 02:52: after a reload
+// the numbers were gone, «چرا توی ورژن جدیدت نکرده ها بدون شماره شدن ؟»)
 export function khandan_nakarde(list) {
   return (Array.isArray(list) ? list : [])
     .filter((x) => x && typeof x.harf === 'string' && x.harf.trim() && typeof x.chera === 'string')
-    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(x.khodkar === true ? { khodkar: true } : {}), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}), ...(Number.isInteger(x.shomare) && x.shomare > 0 ? { sh: x.shomare } : {}), ...(x.sanad?.dasti === true ? { dasti: true } : {}) }))
+    .map((x) => ({ harf: x.harf.trim(), zaman: typeof x.zaman === 'string' ? x.zaman.trim() : '', chera: x.chera.trim(), ...(x.khodkar === true ? { khodkar: true } : {}), ...(khandan_sanad(x.sanad) ? { sanad: khandan_sanad(x.sanad) } : {}), ...(Number.isInteger(x.shomare ?? x.sh) && (x.shomare ?? x.sh) > 0 ? { sh: x.shomare ?? x.sh } : {}), ...(x.sanad?.dasti === true || x.dasti === true ? { dasti: true } : {}) }))
 }
 // a check the mod can run itself: an absolute file that would hold the text, or a project whose commit
 // messages would; anything else is no check

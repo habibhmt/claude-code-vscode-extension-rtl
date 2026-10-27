@@ -829,4 +829,7 @@ flags['/h/.claude/hads-on/Z'] = 'on -hads -nakarde -khodkar -cron -do_jomle -por
 out.zaban = { yek: zs.length === 1 && zs[0] === mod.matn_yadavari_zaban, dobare: zs2, bad_az_farsi: zs3, khamush: calls.submit.length - n0 }
 assert.deepEqual(out.zaban, { yek: true, dobare: 1, bad_az_farsi: 2, khamush: 2 })
 $.sid = 'A'
+// a «نکرده» read back from the chat's file keeps its number and «دستی» (28 Oct 02:52)
+out.nakardeAzFile = mod.khandan_nakarde(JSON.parse(JSON.stringify([{ harf: 'h', zaman: '', chera: 'c', sh: 6, dasti: true }])))
+assert.deepEqual(out.nakardeAzFile, [{ harf: 'h', zaman: '', chera: 'c', sh: 6, dasti: true }])
 console.log(JSON.stringify(out))

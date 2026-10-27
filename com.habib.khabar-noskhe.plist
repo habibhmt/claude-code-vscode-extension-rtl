@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.habib.khabar-noskhe</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/khabar_noskhe.sh</string>
+        <string>bidar</string>
+    </array>
+    <key>WatchPaths</key>
+    <array><string>/Users/habib/.vscode/extensions</string></array>
+    <key>RunAtLoad</key><true/>
+    <key>ThrottleInterval</key><integer>60</integer>
+    <key>LowPriorityIO</key><true/>
+    <key>ProcessType</key><string>Background</string>
+    <key>StandardOutPath</key><string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/khabar_noskhe.log</string>
+    <key>StandardErrorPath</key><string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/khabar_noskhe.log</string>
+</dict>
+</plist>

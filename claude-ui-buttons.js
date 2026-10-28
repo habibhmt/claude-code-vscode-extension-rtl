@@ -423,6 +423,17 @@
     // Habib's own too: the message pinned on top keeps the app's 40vh cap, which cut it under the mouse (27 Oct 16:03:
     // «وقتی به پیام خودم هستم چند ثانیه نگه میدارم، باید پیامش کامل باز بشه مثل قبل»)
     out.push('[class*="userMessage_"].crtl-hovered{max-height:none!important;overflow-y:visible!important}');
+    // the hads mod's message, closed: one line, the paragraphs run on, ▸ in front; open (a click): all of it, ▾
+    var hb = '[class*="userMessage_"].crtl-payam-hads:not(.crtl-hads-baz)';
+    out.push(hb + '{max-height:2.2em!important;overflow:hidden!important;cursor:pointer}');
+    out.push(hb + ' [class*="content_"]{display:block!important;-webkit-line-clamp:unset!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-height:1.6em!important}');
+    out.push(hb + ' [class*="content_"] *{display:inline!important;white-space:nowrap!important}');
+    out.push(hb + ' [class*="content_"] br{display:none!important}');
+    out.push(hb + ' [class*="content_"] p::after,' + hb + ' [class*="content_"] li::after{content:" "}');
+    out.push('[class*="userMessage_"].crtl-payam-hads [class*="content_"]::before{content:"▸ ";opacity:.6}');
+    out.push('[class*="userMessage_"].crtl-payam-hads.crtl-hads-baz{max-height:none!important;overflow-y:visible!important;cursor:pointer}');
+    out.push('[class*="userMessage_"].crtl-payam-hads.crtl-hads-baz [class*="content_"]{display:block!important;-webkit-line-clamp:unset!important;max-height:none!important}');
+    out.push('[class*="userMessage_"].crtl-payam-hads.crtl-hads-baz [class*="content_"]::before{content:"▾ "}');
 
     // wide content scrolls inside its own box instead of stretching the page
     if (s.tableScroll) {
@@ -644,6 +655,8 @@
       while (node && node !== document.body) {
         if (node.className && typeof node.className === 'string' &&
             node.className.indexOf('userMessage_') !== -1) {
+          // the hads mod's message has its own click (▸ / ▾, neshan_hook_va_hads)
+          if (node.classList.contains('crtl-payam-hads')) return;
           if (!node.classList.contains('crtl-expanded')) {
             // first click only opens the message; the app's own click handler
             // still works on the second click
@@ -2211,6 +2224,17 @@
         // by its first words too: in VS Code the label was not found beside the pinned copy (26 Oct 05:56, screenshot)
         /^\s*(?:Another Claude session sent a message|The [^\n]{1,60} plugin sent a message|Answering your earlier question)/.test((um[u].textContent || '').slice(0, 120));
       if (digar !== um[u].classList.contains('crtl-payam-digar')) um[u].classList.toggle('crtl-payam-digar', digar);
+      // the hads mod's own message: one whole line with ▸, a click opens it and closes it, like a hook line
+      // (Habib, 28 Oct 18:31: «لاگ حدس نمایشش توی صفحه مثل هندآف و اینها بشه یعنی روش باید کلیک بکنیم تا باز
+      // بشه یه خط کامل ازش بیاد»)
+      if (!um[u].classList.contains('crtl-payam-hads') && /^\s*The hads plugin sent a message/.test((um[u].textContent || '').slice(0, 80))) {
+        um[u].classList.add('crtl-payam-hads');
+        um[u].addEventListener('click', function () {
+          var sel = window.getSelection && window.getSelection();
+          if (sel && String(sel).length) return;
+          this.classList.toggle('crtl-hads-baz');
+        });
+      }
     }
     var ms = document.querySelectorAll('[class*="metaMessage_"]:not(.crtl-hook)');
     for (var i = 0; i < ms.length; i++) {

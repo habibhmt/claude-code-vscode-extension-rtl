@@ -28,9 +28,19 @@ const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px 
   assert.deepEqual(out,{plugin:['italic','bi-kadr','yek-khat'],session:['italic','bi-kadr','yek-khat'],own:['normal','kadr','yek-khat'],answer:['italic','bi-kadr','yek-khat']});
   // under the mouse, all of it: the app's own cap (40vh, here 40px) lets go
   const bubble=(id)=>p.evaluate((id)=>Math.round(document.querySelector('#'+id+' [class*="userMessage_"]').getBoundingClientRect().height),id);
-  await p.hover('#p [class*="content_"]');await p.waitForTimeout(900);
-  out.hovered=await bubble('p')>=4*18;
+  await p.hover('#s [class*="content_"]');await p.waitForTimeout(900);
+  out.hovered=await bubble('s')>=4*18;
   assert.equal(out.hovered,true);
+  // the hads mod's own message (28 Oct 18:31): one whole line with ▸ that the mouse does not open; a click opens it, another closes it
+  const hads=()=>p.evaluate(()=>{const c=document.querySelector('#p [class*="content_"]');return {h:Math.round(c.getBoundingClientRect().height),before:getComputedStyle(c,'::before').content,yekKhat:c.scrollWidth>c.clientWidth||c.getBoundingClientRect().height<30}});
+  await p.hover('#p [class*="content_"]');await p.waitForTimeout(900);
+  const h0=await hads();
+  await p.click('#p [class*="content_"]');await p.waitForTimeout(100);
+  const h1=await hads();
+  await p.click('#p [class*="content_"]');await p.waitForTimeout(100);
+  const h2=await hads();
+  out.hads={bastePasAzMoos:h0.h<30,neshan:[h0.before,h1.before,h2.before],baz:h1.h>=4*18,dobareBaste:h2.h<30};
+  assert.deepEqual(out.hads,{bastePasAzMoos:true,neshan:['"▸ "','"▾ "','"▸ "'],baz:true,dobareBaste:true});
   // the panel's own «UserPromptSubmit says: …» is not on the screen; the hook line is (26 Oct 05:46: «این هم دیگه نیاد روی صفحه»)
   out.says=await p.evaluate(()=>[getComputedStyle(document.getElementById('says')).display,getComputedStyle(document.getElementById('hk')).display]);
   assert.deepEqual(out.says,['none','block']);

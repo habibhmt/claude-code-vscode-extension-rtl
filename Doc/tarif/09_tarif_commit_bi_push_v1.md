@@ -3,14 +3,14 @@
 | | |
 |---|---|
 | **آدرسِ چت** | `~/.claude/projects/-Users-habib-1-MY-WORK-136th-day-fix-rtl-claude/6d39ff34-b0b1-48ae-a27b-6dc2870b9578.jsonl` — **قبلی، جایگزین‌شده** (۱۹ اکت، خط ۱۸۷۶): «کامیتو پوشش بکن» · **تازه‌تر، بالادست** (۲۲ اکت ۰۲:۵۷، حرفِ ناظرِ منشی به نقلِ قاعدهٔ امشبِ حبیب، نه جملهٔ خودِ حبیب): «تغییر و commit ِ محلی بله. push و تگ فعلاً نه» · ۰۳:۲۰ منشی: حبیب تصمیم را به سرپرست‌ها داد |
-| **منبعِ مرتب** | `~/1-MY-WORK/0th-day-secreter-director-from-all-sources/soal-javab/136-mojri.md` ردیف‌های ۳۵، ۸۳ · `Doc/moallagh.md` ردیفِ push |
+| **منبعِ مرتب** | `~/1-MY-WORK/0th-day-secreter-director-from-all-sources/soal-javab/136-mojri.md` ردیف‌های ۳۵، ۸۳ · `moalagh.md` ردیفِ push |
 | **وضعیتِ git** | `git log origin/main..main --oneline` |
 
-1. **چیست:** کارِ تمام‌شده و آزموده commit ِ محلی می‌شود؛ push و تگ تا اجازهٔ منشی/سرپرست نه. هر push ِ مانده در `moallagh.md` ثبت است.
+1. **چیست:** کارِ تمام‌شده و آزموده commit ِ محلی می‌شود؛ push و تگ تا اجازهٔ منشی/سرپرست نه. هر push ِ مانده در `moalagh.md` ثبت است.
 2. **کی/کجا:** از ۲۲ اکت، تا خبرِ تازه از منشی.
 3. **عمداً نیست:** نگه‌داشتنِ کار بی‌commit · push ِ "فقط یک بار".
 4. **باطل می‌شود اگر:** commit ای بی‌اجازه به GitHub برود · منشی یا حبیب بگوید "حالا push کن" (آن‌وقت این تعریف کنار می‌رود و commit ها push می‌شوند).
-5. **چک:** `git log origin/main..main --oneline | wc -l` ⇒ بزرگ‌تر از ۰ تا وقتی قاعده برقرار است؛ و `grep -c push Doc/moallagh.md` ⇒ ≥ ۱.
+5. **چک:** `git log origin/main..main --oneline | wc -l` ⇒ بزرگ‌تر از ۰ تا وقتی قاعده برقرار است؛ و `grep -c push moalagh.md` ⇒ ≥ ۱.
 
 **۲۵ اکت ۰۰:۵۸ — شرطِ باطل رخ داد:** حبیب در پنجرهٔ سؤال: «بله، push و تگ بزن» ⇒ ۳۶ commit ِ مانده با تگِ v2.11.0 push شد. قاعده برای کارهای بعدی همان است: commit ِ محلی بله، push و تگ فقط با حرفِ تازهٔ حبیب.
 

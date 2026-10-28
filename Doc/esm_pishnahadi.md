@@ -35,5 +35,5 @@
 | # | امروز | پیشنهاد | چرا | خطر |
 |---|---|---|---|---|
 | ۱۶ | `Doc/` | `doc/` | استانداردِ ۹۱ `doc/tarif/` است | مسیرِ `Doc/` در `chek.sh`، اسکریپت‌های `Doc/abzar/`، تعریف‌ها و هوکِ remember آمده ⇐ همه‌جا با هم |
-| ۱۷ | `Doc/moallagh.md` | `doc/moalagh.md` | CLAUDE.md ِ حبیب `moalagh.md` می‌گوید | همان |
+| ۱۷ | `moalagh.md` | `doc/moalagh.md` | CLAUDE.md ِ حبیب `moalagh.md` می‌گوید | همان |
 | ۱۸ | فایل‌های انگلیسیِ ریشه (`fix-rtl-claude.sh`، `claude-ui-buttons.js`، …) | **بماند** (پیشنهادِ من) | اسمشان کارشان را می‌گوید و انگلیسی با اسپلِ درست است؛ `com.habib.fix-rtl-claude.plist`، نصب‌کننده‌ها و README به آن‌ها اشاره می‌کنند | عوض کردن ⇐ LaunchAgent باید دوباره نصب شود |

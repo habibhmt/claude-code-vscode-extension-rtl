@@ -702,7 +702,7 @@ const sub2 = calls.submit.slice(1).map((c) => c.text), rX2 = await render()
 await dowr([{ harf: 'چکِ اپ', zaman: '', chera: 'عکسی نیامد' }])
 out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با Bash: xcrun simctl؛ چک: عکس/.test(sub1[0]) && /۲\. سرچِ حرفِ حبیب/.test(sub1[0]) && !/نکرده/.test(sub1[0]),
   tick: [0, 1].map((i) => find(rX, 'hads-kh-ferestade-' + i)?.children[0]),
-  second: sub2.length === 1 && /هنوز انجام نشده \(نکرده\):\n۱\. چکِ اپ — عکسی نیامد/.test(sub2[0]) && !/xcrun/.test(sub2[0]) && !/حرفِ دیگرِ حبیب/.test(sub2[0]),
+  second: sub2.length === 1 && /هنوز انجام نشده \(نکرده\):\nک-[۰-۹]+ چکِ اپ — عکسی نیامد/.test(sub2[0]) && !/xcrun/.test(sub2[0]) && !/حرفِ دیگرِ حبیب/.test(sub2[0]),
   rule: /۸\).*«چکِ اپ» · «سرچِ حرفِ حبیب»/.test(calls.fork[calls.fork.length - 1].prompt),
   nkRow: [0, 1].map((i) => find(rX2, 'hads-nk-' + i)?.children[0].split(' (')[0].split(' — ')[0]),
   third: calls.submit.length, file: flags['/h/.claude/hads-log/X.khodkar_ferestade.json'],
@@ -836,4 +836,7 @@ assert.deepEqual(out.nakardeAzFile, [{ harf: 'h', zaman: '', chera: 'c', sh: 6, 
 out.zabanJadval = [mod.englisi_ast('فایل را در پس‌زمینه باز کردم. در این فایل ۸۸ تسک هست و فقط ۴۰ تا فهرستِ دامنه دارند.\n\n| کد | دامنه‌ها |\n|---|---|\n' + '| VAR-01 | omni.variational.io · variational.io · www.variational.io · docs.variational.io |\n'.repeat(20) + 'ولتِ g#1 و canopynetwork.org و app.rally.fun و worker.io.net'), mod.englisi_ast('Checking .gitignore: some files in mojri/ were excluded from git (credentials, for example), and their new path might not be covered.')]
 out.zabanJadval.push(mod.englisi_ast('این جدولِ وضع است.\n| Variational Omni | running | Rally campaigns thirteen |\n'.repeat(10)), mod.englisi_ast('دامنه‌ها: ' + 'omni.variational.io app.rally.fun worker.io.net VAR-01 '.repeat(10)))
 assert.deepEqual(out.zabanJadval, [false, true, false, false])
+// the message to the model carries the «نکرده»'s number too (28 Oct 17:32)
+out.payamShomare = mod.matn_ferestadan_khodkar([], [{ harf: 'الف', chera: 'ب', sh: 6 }, { harf: 'ج', chera: 'د' }]).split('\n').slice(-2)
+assert.deepEqual(out.payamShomare, ['ک-۶ الف — ب', '۲. ج — د'])
 console.log(JSON.stringify(out))

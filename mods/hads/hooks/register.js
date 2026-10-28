@@ -722,10 +722,12 @@ function tedad_kar(tedad, kar) {
   const k = Object.keys(tedad).find((x) => x === kar || hamun_matn(x, kar))
   return { kelid: k ?? kar, n: k ? tedad[k] : 0 }
 }
+// a «نکرده» goes with its own number, as the box shows it (28 Oct 17:32: «اون چیزی که نمایش برای
+// خود منه ولی توی پیامی که میره … بر مدل میره دیدنمیشه»)
 export function matn_ferestadan_khodkar(kh, nk) {
   const parts = ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر راهی که آمده نشد، منتظر نمان: از کارها و تجربه‌های قبلی یا ایجنتِ دیگری که ابزارش را دارد راهِ تازه پیدا کن و انجامش بده؛ فقط اگر خلافِ دستورِ حبیب است انجام نده و بگو کدام دستور.']
   if (kh.length) parts.push(kh.map((x, i) => adad_farsi(i + 1) + '. ' + x.kar + ' ⇐ با ' + x.abzar + (x.chek ? '؛ چک: ' + x.chek : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
-  if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => adad_farsi(i + 1) + '. ' + x.harf + (x.chera ? ' — ' + x.chera : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
+  if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => (x.sh ? 'ک-' + adad_farsi(x.sh) : adad_farsi(i + 1) + '.') + ' ' + x.harf + (x.chera ? ' — ' + x.chera : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
   return parts.join('\n\n')
 }
 // at the answer's end, after everything else: one message with the new «خودکار» and the «نکرده» of sent ones

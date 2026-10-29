@@ -315,7 +315,7 @@ else
 fi
 
 stamp="$(printf '%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
-    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)" \
+    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)" \
     "$(cat "$GLOSSARY_FILE" 2>/dev/null)" | hash_stdin)"
 
 # The buttons live inline in extension.js; older runs also appended them to

@@ -839,4 +839,13 @@ assert.deepEqual(out.zabanJadval, [false, true, false, false])
 // the message to the model carries the «نکرده»'s number too (28 Oct 17:32)
 out.payamShomare = mod.matn_ferestadan_khodkar([], [{ harf: 'الف', chera: 'ب', sh: 6 }, { harf: 'ج', chera: 'د' }]).split('\n').slice(-2)
 assert.deepEqual(out.payamShomare, ['ک-۶ الف — ب', '۲. ج — د'])
+// «منتظرِ شما» / «خودت وارد شو» is sorted into three before it is Habib's (29 Oct 20:34): the fork is told so
+const sd = mod.matn_se_daste
+out.seDaste = ['منتظرِ شما', 'خودت وارد شو', 'کد را بفرست', '(الف)', '(ب)', '(ج)', 'SendMessage به ۲۰۳', 'امضای ملت'].filter((w) => !sd.includes(w))
+assert.deepEqual(out.seDaste, [])
+$.sid = 'SD'; flags['/h/.claude/hads-on/SD'] = 'on'; calls.fork.length = 0; $.ctx = 1000
+await H['command.run']($, { args: 'now' }); await flush()
+out.seDasteDarFork = calls.fork.some((f) => JSON.stringify(f).includes('(ج) واقعاً کارِ حبیب است'))
+assert.equal(out.seDasteDarFork, true)
+$.sid = 'A'
 console.log(JSON.stringify(out))

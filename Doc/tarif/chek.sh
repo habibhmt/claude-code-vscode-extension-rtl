@@ -11,7 +11,7 @@ bad=0
 skip() { echo "⏭  $1 — رد شد: شبیه‌سازیِ افزونه در کروم زده نشد (NO_CHROME)"; }
 ok()  { echo "✅ $1"; }
 no()  { echo "❌ $1 — $2"; bad=$((bad+1)); }
-tail -n +3 Doc/ghanoon_az_91/10_tarif_esm_motaghayer_v1.md | cmp -s - "$HOME/1-MY-WORK/91th-minimal-2/doc/tarif/10_tarif_esm_motaghayer_v1.md" && ok "۱۰ج کپیِ قانونِ ۹۱ تازه است" || no "۱۰ج کپیِ قانونِ ۹۱ تازه است" "اصل در ۹۱ عوض شده؛ دوباره کپی کن"
+if [ ! -d "$HOME/1-MY-WORK/91th-minimal-2" ]; then echo "⏭  ۱۰ج کپیِ قانونِ ۹۱ — اینجا چک‌شدنی نیست (پوشهٔ ۹۱ نیست)"; else tail -n +3 Doc/ghanoon_az_91/10_tarif_esm_motaghayer_v1.md | cmp -s - "$HOME/1-MY-WORK/91th-minimal-2/doc/tarif/10_tarif_esm_motaghayer_v1.md" && ok "۱۰ج کپیِ قانونِ ۹۱ تازه است" || no "۱۰ج کپیِ قانونِ ۹۱ تازه است" "اصل در ۹۱ عوض شده؛ دوباره کپی کن"; fi
 o=$(node mods/hads/test_hads.mjs 2>/dev/null)
 [[ $o == *'"nakarde":{"fork":1,"rules":true'* && $o == *'"nakardeAnjam":{"now":2,"file":true,"told":true,"back":false,"logged":true,"shomare":true}'* && $o == *'"nakardeOff":{"forked":true,"asked":false,"shown":false}'* && $o == *'"nakardeSanad":{"shown":["لاگ رو عوض کن","عکس بگیر","بد"],"prompt":true'* && $o == *'"onlyWhole":true}'* && $o == *'"nakardeKenar":{"line":"▸ ۲ نکرده با سند کنار رفت"'* && $o == *'"nakardeKenarReload":"▸ ۲ نکرده با سند کنار رفت","sanadKutah":true'* ]] && ok "۱۴ نکرده‌ها" || no "۱۴ نکرده‌ها" "آزمون جوابِ درست نداد"
 [[ $o == *'"yekFork":{"forks":1,"all":true,"tools":[],"rules":true,"sonnet":0'* && $o == *'"khodkarOff":{"asked":false,"shown":false,"file":"on -khodkar -cron"}'* && $o == *'"khodkarFerestade":{"first":true,"tick":["✓ فرستاده شد","✓ فرستاده شد"],"second":true,"rule":true'* && $o == *'"third":2'* && $o == *'"bahane":{"told":true,"nakardeRule":true,"newWay":true,"header":true}'* && $o == *'"barSevom":{"third":true,"fourth":0}'* ]] && ok "۱۵ خودکار، کرون‌جاب، یک fork" || no "۱۵ خودکار، کرون‌جاب، یک fork" "آزمون جوابِ درست نداد"
@@ -37,7 +37,7 @@ fi
 z=0; for f in ~/.*/extensions/anthropic.claude-code-*; do [ "$(grep -c crtl-panel "$f/extension.js" 2>/dev/null)" -gt 0 ] || z=$((z+1)); done
 l=$(launchctl list | grep -c com.habib.fix-rtl-claude)
 [[ $z -eq 0 && $l -ge 1 ]] && ok "۰۴ پچِ RTL" || no "۰۴ پچِ RTL" "بی‌پچ: $z · launchd: $l"
-python3 Doc/tarif/naghl_chek.py >/dev/null && ok "همهٔ Doc/tarif: نقل‌های حبیب عین منبع" || no "نقل‌ها" "python3 Doc/tarif/naghl_chek.py را ببین"
+if [ ! -f "$HOME/.claude/projects/-Users-habib-1-MY-WORK-136th-day-fix-rtl-claude/6d39ff34-b0b1-48ae-a27b-6dc2870b9578.jsonl" ]; then echo "⏭  نقل‌ها — اینجا چک‌شدنی نیست (فایلِ چتِ ناظر نیست)"; else python3 Doc/tarif/naghl_chek.py >/dev/null && ok "همهٔ Doc/tarif: نقل‌های حبیب عین منبع" || no "نقل‌ها" "python3 Doc/tarif/naghl_chek.py را ببین"; fi
 a=$(git log origin/main..main --oneline 2>/dev/null | wc -l | tr -d ' '); p=$(grep -c push moalagh.md)
 [[ $a -eq 0 || $p -ge 1 ]] && ok "۰۹ commit بی‌push (مانده: $a)" || no "۰۹ commit بی‌push" "commit ِ مانده بی‌ثبت در moalagh"
 echo "دستی، هر گزارش: ۰۵ کار به دوشِ حبیب · ۰۶ واژه‌ها · ۰۷ سؤال با منشی · ۰۸ سرچِ عمیق"

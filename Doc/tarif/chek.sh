@@ -27,7 +27,7 @@ t16=$(node test_claude_hads_tartib.cjs 2>&1); [[ $t16 == *'"pressPrevented":true
 [[ $o == *'"noOldNames":{"kinds":0,"fields":0,"usage":0,"words":[],"ghablia":0}'* && $o == *'"esmRule":{"upper":[],"glued":[],"bad_spell":[]}'* ]] && ok "۱۰ اسمِ متغیر" || no "۱۰ اسمِ متغیر" "اسمِ قدیمی، اسمِ بزرگ‌حرف یا اسمِ چسبانده در کد"
 if [[ -n $NO_CHROME ]]; then skip "۰۲ نوارِ بالا"; else
 o=$(node test_claude_top_buttons.cjs 2>/dev/null)
-[[ $o == *'"topCount":14'* && $o == *'"hadsText":["/hads on","/hads off"]'* && $o == *'"dragTyped":""'* && $o == *'"submitted":0'* && $o == *'"notInBanner":true'* ]] && ok "۰۲ نوارِ بالا (شبیه‌سازیِ افزونه در کروم)" || no "۰۲ نوارِ بالا" "آزمون جوابِ درست نداد"
+[[ $o == *'"topCount":14'* && $o == *'"hadsText":["/hads on","/hads off"]'* && $o == *'"dragTyped":""'* && $o == *'"submitted":2'* && $o == *'"notInBanner":true'* ]] && ok "۰۲ نوارِ بالا (شبیه‌سازیِ افزونه در کروم)" || no "۰۲ نوارِ بالا" "آزمون جوابِ درست نداد"
 fi
 if [[ -n $NO_CHROME ]]; then skip "۰۳ ساعتِ پیام"; else
 o=$(node test_claude_stamp.cjs 2>/dev/null)

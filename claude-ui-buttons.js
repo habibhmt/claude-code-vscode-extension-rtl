@@ -217,13 +217,13 @@
       seeded.push(c.label);
     });
     s.seeded = seeded;
-    // h-on/h-off were seeded with send:false; Habib (30 Oct) wants them to send.
-    // Done once, so a later send:false the user sets by hand stays.
-    if (!s.hads_send && Array.isArray(s.commands)) {
-      s.commands.forEach(function (x) {
-        if (x && (x.text === '/hads on' || x.text === '/hads off')) x.send = true;
-      });
-      s.hads_send = true;
+    // The list in dokme_ha.json (from the iMac) replaces the saved one when
+    // its `nosakhe` is new, so every machine shows the same buttons after a patch.
+    var dk = window.__CRTL_DOKME;
+    if (dk && Array.isArray(dk.commands) && s.dokme_nosakhe !== dk.nosakhe) {
+      s.commands = JSON.parse(JSON.stringify(dk.commands));
+      s.seeded = seeded.concat(dk.commands.map(function (c) { return c.label; }));
+      s.dokme_nosakhe = dk.nosakhe;
     }
   }
   function esm_profile_moshtarak() {
@@ -524,12 +524,19 @@
     el.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
-  function ferestadan_payam(el) {
+  function zadan_kelid(el, key, code) {
     ['keydown', 'keypress', 'keyup'].forEach(function (t) {
       el.dispatchEvent(new KeyboardEvent(t, {
-        key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true
+        key: key, code: key, keyCode: code, which: code, bubbles: true, cancelable: true
       }));
     });
+  }
+  // A slash command first takes Tab, so the command menu puts the word in
+  // (Habib 30 Oct: «قبل از اینتر یه دکمه تب هم بزنی که کلمه بشینه»), then Enter.
+  function ferestadan_payam(el, slash) {
+    if (!slash) { zadan_kelid(el, 'Enter', 13); return; }
+    zadan_kelid(el, 'Tab', 9);
+    setTimeout(function () { zadan_kelid(el, 'Enter', 13); }, 80);
   }
 
   function jaygozini_matn_kadr(el, v) {
@@ -1398,8 +1405,10 @@
     if (c.menu) { click_menu(c.menu); return; }
     var el = kadr_tayp();
     if (!el) return;
+    // a draft already in the box is never sent along with the button's text
+    var khali = !(el.isContentEditable ? el.textContent : el.value || '').trim();
     if (line) gozashtan_khat_dar_kadr(el, c.text || ''); else neveshtan_dar_kadr(el, c.text);
-    if (c.send) setTimeout(function () { ferestadan_payam(el); }, 60);
+    if (c.send && khali) setTimeout(function () { ferestadan_payam(el, /^\//.test(c.text || '')); }, 60);
   }
 
   // Drag a top button onto another to move it there. Under 5px of travel

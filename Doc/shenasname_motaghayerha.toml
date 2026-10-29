@@ -562,127 +562,127 @@ jaye = ["claude-ui-buttons.js:172"]
 yani = "همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند"
 meghdar = ""
 khanandeha = ["dokme_ha", "sakht_hame", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:231"]
+jaye = ["claude-ui-buttons.js:239"]
 
 [HOVER_DELAY]
 yani = "کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: 700"
 meghdar = "700"
 khanandeha = ["baz_shodan_ba_hover", "radif_andaze"]
-jaye = ["claude-ui-buttons.js:619"]
+jaye = ["claude-ui-buttons.js:634"]
 
 [GLOSS_DELAY]
 yani = "کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: 600"
 meghdar = "600"
 khanandeha = ["bastan_panel", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:765"]
+jaye = ["claude-ui-buttons.js:780"]
 
 [counterTimer]
 yani = "زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است"
 meghdar = ""
 khanandeha = ["menu_naghl", "shomarande_nevise"]
-jaye = ["claude-ui-buttons.js:1121"]
+jaye = ["claude-ui-buttons.js:1136"]
 
 [usageCache]
 yani = "آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید"
 meghdar = ""
 khanandeha = ["menu_naghl", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1121"]
+jaye = ["claude-ui-buttons.js:1136"]
 
 [usageTick]
 yani = "شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار)"
 meghdar = ""
 khanandeha = ["menu_naghl", "shomarande_nevise", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1121"]
+jaye = ["claude-ui-buttons.js:1136"]
 
 [FILE_NAME]
 yani = "اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند"
 meghdar = "claude-rtl-settings.json"
 khanandeha = ["emal_tanzim_vared_shode", "neveshtan_yaddasht_panel"]
-jaye = ["claude-ui-buttons.js:1308"]
+jaye = ["claude-ui-buttons.js:1323"]
 
 [DRAG_PX]
 yani = "کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل"
 meghdar = "5"
 khanandeha = ["ejraye_dokme", "keshidan_navar_bala", "keshidan_tik_hads", "sakht_hame"]
-jaye = ["claude-ui-buttons.js:1399"]
+jaye = ["claude-ui-buttons.js:1416"]
 
 [topWatch]
 yani = "نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش"
 meghdar = ""
 khanandeha = ["bardashtan_jaygozin", "payesh_navar_bala"]
-jaye = ["claude-ui-buttons.js:1486"]
+jaye = ["claude-ui-buttons.js:1503"]
 
 [draftCommands]
 yani = "متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها"
 meghdar = ""
 khanandeha = ["emal_tanzim_vared_shode", "keshidan_navar_bala", "sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1539"]
+jaye = ["claude-ui-buttons.js:1556"]
 
 [draftProfileName]
 yani = "اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده"
 meghdar = ""
 khanandeha = ["sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1540"]
+jaye = ["claude-ui-buttons.js:1557"]
 
 [NESHANE_AMAR]
 yani = "همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2287"]
+jaye = ["claude-ui-buttons.js:2304"]
 
 [KELID_JA_AMAR]
 yani = "کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2287"]
+jaye = ["claude-ui-buttons.js:2304"]
 
 [sotun_amar]
 yani = "ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام"
 meghdar = ""
 khanandeha = ["jadval_bozorg", "jadval_kuchak", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2288"]
+jaye = ["claude-ui-buttons.js:2305"]
 
 [radif_amar]
 yani = "ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل"
 meghdar = ""
 khanandeha = ["jadval_bozorg", "jadval_kuchak", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2290"]
+jaye = ["claude-ui-buttons.js:2307"]
 
 [amar_matn_akhar]
 yani = "آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود"
 meghdar = ""
 khanandeha = ["amar_bozorgi", "jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2291"]
+jaye = ["claude-ui-buttons.js:2308"]
 
 [amar_bozorg]
 yani = "جدولِ «تماس‌ها» در حالتِ بزرگ است"
 meghdar = ""
 khanandeha = ["amar_bozorgi", "jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2291"]
+jaye = ["claude-ui-buttons.js:2308"]
 
 [ja_kuchak_amar]
 yani = "جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند"
 meghdar = ""
 khanandeha = ["amar_bozorgi", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2291"]
+jaye = ["claude-ui-buttons.js:2308"]
 
 [amar_dar_rah]
 yani = "یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه)"
 meghdar = ""
 khanandeha = ["jadval_tamas"]
-jaye = ["claude-ui-buttons.js:2405"]
+jaye = ["claude-ui-buttons.js:2422"]
 
 [tries]
 yani = "چند بار صفحه برای سوار شدنِ پنل گشته شد"
 meghdar = "0"
 khanandeha = ["jadval_tamas"]
-jaye = ["claude-ui-buttons.js:2415"]
+jaye = ["claude-ui-buttons.js:2432"]
 
 [timer]
 yani = "زمان‌سنجِ همان گشتن"
 meghdar = ""
 khanandeha = ["baz_shodan_ba_hover", "jadval_tamas", "menu_naghl", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:2416"]
+jaye = ["claude-ui-buttons.js:2433"]
 
 [gorooh_hook]
 yani = "نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند"

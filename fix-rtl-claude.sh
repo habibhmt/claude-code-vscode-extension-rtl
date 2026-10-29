@@ -18,6 +18,8 @@ fi
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
+# the top-row buttons, taken from the iMac (Habib 30 Oct: «رفرنس ایمک باشه چون به روزه»)
+DOKME_FILE="$REPO_DIR/dokme_ha.json"
 HOST_HOOK_JS="$REPO_DIR/claude-host-hook.js"
 
 # Scratch space for the CSS handed to python. A private directory keeps the
@@ -363,7 +365,7 @@ patch_ide() {
                 # `|| py_ok=false` keeps `set -e` from killing the run mid-patch:
                 # a python failure must fall through to the rollback below.
                 py_ok=true
-                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_GLOSSARY_FILE="$GLOSSARY_FILE" python3 - <<'PYEOF' || py_ok=false
+                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_DOKME_FILE="$DOKME_FILE" CRTL_GLOSSARY_FILE="$GLOSSARY_FILE" python3 - <<'PYEOF' || py_ok=false
 import os, re
 css = open(os.environ['CRTL_CSS_FILE'], encoding='utf-8').read()
 path = os.environ['CRTL_EXT_JS']
@@ -393,6 +395,13 @@ if m:
             seed = 'window.__CRTL_DEFAULTS=' + json.dumps(json.load(open(sizes_file, encoding='utf-8'))) + ';'
         except Exception:
             seed = ''
+    dokme_file = os.environ.get('CRTL_DOKME_FILE', '')
+    if dokme_file and os.path.exists(dokme_file):
+        try:
+            import json
+            seed += 'window.__CRTL_DOKME=' + json.dumps(json.load(open(dokme_file, encoding='utf-8'))) + ';'
+        except Exception:
+            pass
     # the IDE's own URL scheme (windsurf://, cursor://…): the glossary card opens
     # a definition rendered through md-rtl-ext's handler at <scheme>://habib.markdown-rtl
     import glob, json as _j

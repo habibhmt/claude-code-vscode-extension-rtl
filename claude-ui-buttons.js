@@ -217,6 +217,14 @@
       seeded.push(c.label);
     });
     s.seeded = seeded;
+    // h-on/h-off were seeded with send:false; Habib (30 Oct) wants them to send.
+    // Done once, so a later send:false the user sets by hand stays.
+    if (!s.hads_send && Array.isArray(s.commands)) {
+      s.commands.forEach(function (x) {
+        if (x && (x.text === '/hads on' || x.text === '/hads off')) x.send = true;
+      });
+      s.hads_send = true;
+    }
   }
   function esm_profile_moshtarak() {
     return (DEF.profiles && typeof DEF.profiles === 'object') ? Object.keys(DEF.profiles) : [];

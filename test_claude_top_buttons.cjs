@@ -126,6 +126,11 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await open({spacer:false});
   out.fallback=await p.$$eval('.crtl-bar[data-side="left"] [data-top]',b=>b.length)+await p.$$eval('.header_BrnsCQ .crtl-top',b=>b.length);
   assert.equal(out.fallback,0);
+  // a list saved with h-on send:false (before 30 Oct) is switched to send:true once
+  await open({saved:JSON.stringify({commands:OLD.concat([{label:'h-on',text:'/hads on',side:'top',send:false}]),seeded:['h-on']})});
+  await p.evaluate(()=>{window.__enters=0;document.querySelector('[aria-label="Message input"]').addEventListener('keydown',e=>{if(e.key==='Enter')window.__enters++})});
+  await clickTop('h-on'); await p.waitForTimeout(500);
+  out.oldHadsSends=await p.evaluate(()=>window.__enters); assert.equal(out.oldHadsSends,1);
   console.log(JSON.stringify(out));
  } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exit(1)});

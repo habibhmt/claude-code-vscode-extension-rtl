@@ -841,7 +841,7 @@ out.payamShomare = mod.matn_ferestadan_khodkar([], [{ harf: 'الف', chera: 'ب
 assert.deepEqual(out.payamShomare, ['ک-۶ الف — ب', '۲. ج — د'])
 // «منتظرِ شما» / «خودت وارد شو» is sorted into three before it is Habib's (29 Oct 20:34): the fork is told so
 const sd = mod.matn_se_daste
-out.seDaste = ['منتظرِ شما', 'خودت وارد شو', 'کد را بفرست', '(الف)', '(ب)', '(ج)', 'SendMessage به ۲۰۳', 'امضای ملت'].filter((w) => !sd.includes(w))
+out.seDaste = ['منتظرِ شما', 'خودت وارد شو', 'کد را بفرست', '(الف)', '(ب)', '(ج)', 'SendMessage به ۲۰۳', 'امضای ملت', 'منتظرِ تو', 'خودت بزن', 'خودت باز کن', 'تو باید', 'Brave', 'BlueStacks', '۱۲۱', 'بی‌دلیل', 'همه سختگیری ها پاک بشه'].filter((w) => !sd.includes(w))
 assert.deepEqual(out.seDaste, [])
 $.sid = 'SD'; flags['/h/.claude/hads-on/SD'] = 'on'; calls.fork.length = 0; $.ctx = 1000
 await H['command.run']($, { args: 'now' }); await flush()

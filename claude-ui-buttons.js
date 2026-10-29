@@ -115,8 +115,8 @@
     { label: "جدول",   text: "توی جدول با مثال عددی ساده توضیح بده همه چی رو \nاصطلاحات تخصصی توضیح به زبان ساده داخل پرانتز\nدرصدهای قیمتی عدد $ هم نوشته شود", side: "top", send: false },
     { label: "حدس",    text: "مثل اون قابلیتی هست که llm ها دارن حدس میزنه با توجه به درخواست های تا الانم چیا ممکنه بخوام اونارو لیست کن", side: "top", send: false },
     // turn the «حدس» mod on and off (mods/hads)
-    { label: "h-on",   text: "/hads on",  side: "top", send: false },
-    { label: "h-off",  text: "/hads off", side: "top", send: false }
+    { label: "h-on",   text: "/hads on",  side: "top", send: true },
+    { label: "h-off",  text: "/hads off", side: "top", send: true }
   ];
 
   /* ---------------- settings ---------------- */

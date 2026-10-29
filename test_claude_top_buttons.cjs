@@ -47,11 +47,11 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   assert.equal(out.inHeader,true); assert.equal(out.topCount,14); assert.deepEqual(out.hads,['h-on','h-off']);
   await clear(); await clickTop('h-on'); await clear(); await clickTop('h-off');
   out.hadsText=await composer(); await clear(); await clickTop('h-on'); out.hadsText=[await composer(),out.hadsText];
-  assert.deepEqual(out.hadsText,['/hads on','/hads off']); await clear();
-  // no top button ever sends: count Enter presses on the composer while clicking every one
+  assert.deepEqual(out.hadsText,['/hads on','/hads off']); await p.waitForTimeout(500); await clear();
+  // only h-on and h-off send (Habib 30 Oct «بله، خودشان بفرستند»): count Enter presses while clicking every one
   await p.evaluate(()=>{window.__enters=0;document.querySelector('[aria-label="Message input"]').addEventListener('keydown',e=>{if(e.key==='Enter')window.__enters++})});
   for(const l of await topLabels()){await clickTop(l)} await p.waitForTimeout(200);
-  out.submitted=await p.evaluate(()=>window.__enters); assert.equal(out.submitted,0); await clear();
+  out.submitted=await p.evaluate(()=>window.__enters); assert.equal(out.submitted,2); await clear();
   // (الف) two clicks → two lines
   await clickTop('ناظر'); await clickTop('اسک');
   out.twoLines=await composer(); assert.equal(out.twoLines,T1+'\n'+T2);

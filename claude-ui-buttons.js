@@ -1910,7 +1910,7 @@
     // so an unsaved edit is parked in draftCommands and put back on the way in.
     // One row per button: word · text (or, for a menu button, the menu's
     // name — it keeps opening that menu) · where it sits · delete.
-    note.textContent = 'دکمه‌ها (کلمه · متن · جا):';
+    note.textContent = 'دکمه‌ها (کلمه · متن · جا · ⏎ خودش بفرستد):';
     panel.appendChild(note);
     if (draftCommands === null) draftCommands = JSON.parse(JSON.stringify(dokme_ha(s)));
     var list = document.createElement('div');
@@ -1946,6 +1946,17 @@
       where.value = c.side === 'top' || c.side === 'left' ? c.side : 'right';
       where.addEventListener('change', function () { c.side = where.value; });
       r.appendChild(word); r.appendChild(body); r.appendChild(where);
+      // ticked: the button sends by itself; unticked: it only puts its text in the box (Habib 30 Oct)
+      if (c.menu === undefined) {
+        var ferest = document.createElement('label');
+        ferest.title = 'تیک: خودش می‌فرستد · بی تیک: فقط متن را در کادر می‌گذارد';
+        ferest.style.cssText = 'display:flex;align-items:center;gap:1px;flex-shrink:0;font-size:10px';
+        var tik = document.createElement('input');
+        tik.type = 'checkbox'; tik.className = 'crtl-cmd-send'; tik.checked = !!c.send;
+        tik.addEventListener('change', function () { c.send = tik.checked; });
+        ferest.appendChild(tik); ferest.appendChild(document.createTextNode('⏎'));
+        r.appendChild(ferest);
+      }
       r.appendChild(sakht_dokme('×', 'حذفِ این دکمه', function () {
         draftCommands.splice(i, 1); sakht_panel_aa(khandan_tanzim());
       }));

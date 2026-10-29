@@ -139,6 +139,14 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await clear(); await clickTop('btw'); await p.waitForTimeout(400);
   await clear(); await clickTop('ادامه'); await p.waitForTimeout(400);
   out.keys=await p.evaluate(()=>window.__keys); assert.deepEqual(out.keys,['Tab','Enter']);
+  // the ⏎ tick in the panel: ticking «ادامه» makes it send, unticking «comp» makes it only type
+  await p.evaluate(()=>{const rows=[...document.querySelectorAll('.crtl-cmd-row')];const t=l=>rows.find(x=>x.querySelector('.crtl-cmd-label').value===l).querySelector('.crtl-cmd-send');
+   t('ادامه').click(); t('comp').click();
+   [...document.querySelectorAll('#crtl-panel .crtl-btn')].find(b=>b.textContent==='ذخیرهٔ دکمه‌ها').click()});
+  await p.evaluate(()=>{window.__keys=[]});
+  await clear(); await clickTop('ادامه'); await p.waitForTimeout(400);
+  await clear(); await clickTop('comp'); await p.waitForTimeout(400);
+  out.tik=await p.evaluate(()=>window.__keys); assert.deepEqual(out.tik,['Enter']);
   console.log(JSON.stringify(out));
  } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exit(1)});

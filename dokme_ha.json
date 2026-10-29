@@ -1,5 +1,5 @@
 {
- "nosakhe": 1,
+ "nosakhe": 2,
  "commands": [
   {
    "label": "reme",
@@ -125,6 +125,12 @@
    "text": "ادامه بده",
    "side": "top",
    "send": false
+  },
+  {
+   "label": "بزن",
+   "text": "بزن",
+   "side": "top",
+   "send": true
   },
   {
    "label": "h-on",

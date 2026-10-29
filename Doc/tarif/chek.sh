@@ -2,6 +2,8 @@
 # Runs the "چک" line of every definition; prints which one is broken (باطل).
 cd "$(dirname "$0")/../.." || exit 2
 export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
+# python 3.11+ for tomllib; the iMac's /usr/bin/python3 is 3.9
+[ -x /opt/homebrew/bin/python3 ] && export PATH="/opt/homebrew/bin:$PATH"
 bad=0
 # tests 02 and 03 are «شبیه‌سازیِ افزونه در کروم» (Habib's word, 25 Oct 04:59): a Google Chrome with no window
 # and a throwaway profile builds the panel page and checks it; NO_CHROME=1 skips them.

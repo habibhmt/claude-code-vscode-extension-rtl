@@ -178,7 +178,9 @@ done <<< "$IDES"
 update_cli() {
     local bin dir now
     bin="$(ls -1 "$HOME"/.nvm/versions/node/*/bin/claude 2>/dev/null | sort -V | tail -1)"
-    if [ -z "$bin" ]; then say "CLI: not found under ~/.nvm — skipped"; return 0; fi
+    # the MacBook has no nvm: claude and npm come from Homebrew's node there
+    [ -z "$bin" ] && [ -x "${CLAUDE_HOMEBREW_BIN:-/opt/homebrew/bin}/claude" ] && bin="${CLAUDE_HOMEBREW_BIN:-/opt/homebrew/bin}/claude"
+    if [ -z "$bin" ]; then say "CLI: FAILED, claude not found (~/.nvm or /opt/homebrew/bin)"; return 0; fi
     dir="$(dirname "$bin")"
     now="$(PATH="$dir:$PATH" "$bin" --version 2>/dev/null | awk '{print $1}')"
     if ! newer_than "$LATEST" "$now"; then say "CLI: already on ${now:-?}"; return 0; fi

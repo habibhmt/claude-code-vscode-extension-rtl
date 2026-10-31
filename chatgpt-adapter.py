@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 
 
+CODEX_SLASH_OK = {'/compact'}
+
+
 def build_ui(repo, defaults):
     s = (repo / 'claude-ui-buttons.js').read_text()
     # No Claude host protocol, VS Code API interception or session assumptions.
@@ -58,5 +61,11 @@ def build_ui(repo, defaults):
     tabs = (repo / 'chatgpt-tabs.js').read_text()
     # Same top-row buttons as Claude (Habib's iMac list, synced through git).
     dokme = json.loads((repo / 'dokme_ha.json').read_text())
+    # Codex has its own slash list: Tab takes whatever is first in the popup, so a command Codex
+    # lacks (/usage, 31 Oct) ran an unrelated skill. Only commands seen working in Codex send.
+    for c in dokme['commands']:
+        if (c.get('text') or '').startswith('/') and c['text'].split()[0] not in CODEX_SLASH_OK:
+            c['send'] = False
+    dokme['nosakhe'] = 'codex-%s-1' % dokme['nosakhe']  # bump only the Codex copy so the change lands
     seed = 'window.__CRTL_DOKME=' + json.dumps(dokme, ensure_ascii=False) + ';\n'
     return 'window.__CRTL_DEFAULTS=' + json.dumps(defaults, ensure_ascii=False) + ';\n' + seed + s + '\n' + tabs

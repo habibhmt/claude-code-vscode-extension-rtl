@@ -187,3 +187,22 @@ html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-tabl
 #crtl-sar {position:fixed;top:2px;left:40px;z-index:2147483000;display:flex;gap:2px;align-items:center;height:22px}
 #crtl-sar button {display:flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--vscode-foreground,inherit);opacity:.75;cursor:pointer}
 #crtl-sar button:hover {opacity:1;background:var(--vscode-toolbar-hoverBackground,rgba(127,127,127,.2))}
+/* ===== Claude look (Habib, 1 Nov, two screenshots side by side: «هر چهار») ===== */
+/* ① one head row: ⊕ 🕘, buttons, chat name on the right; the second tab row and the native header icons go */
+html.crtl-has-tabs #crtl-tabs {display:none!important}
+html.crtl-has-tabs .draggable [style*="header-title"] + div {display:none!important}
+html.crtl-has-tabs body {padding-top:34px!important}
+html.crtl-has-tabs #root {height:calc(100dvh - 34px)!important}
+#crtl-top-jaygozin {height:34px!important;align-items:center!important;padding-left:84px!important;padding-right:0!important;border-bottom:1px solid rgba(127,127,127,.18)}
+#crtl-sar {left:8px!important;top:6px!important}
+#crtl-sar button {width:26px!important;height:26px!important}
+#crtl-sar svg {width:18px;height:18px}
+#crtl-onvan {flex:none;order:99;margin-left:auto;padding:0 12px 0 8px;font:600 13px/34px system-ui,-apple-system,sans-serif;color:var(--vscode-foreground);max-width:30vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:auto}
+/* ④ bigger buttons, as in Claude */
+.crtl-top .crtl-btn {font-size:13px!important;padding:2px 7px!important;line-height:20px!important;border-radius:5px!important}
+/* ② narrow, centred composer with Claude's red border */
+[data-composer-surface-variant] {max-width:min(940px,calc(100vw - 110px))!important;margin-inline:auto!important;box-shadow:0 0 0 1px rgba(127,127,127,.35)!important;border-radius:8px!important}
+/* red only while typing, as in Claude */
+[data-composer-surface-variant]:focus-within {box-shadow:0 0 0 1.5px #c9504a!important}
+/* ③ aA at the bottom right, beside the composer */
+.crtl-bar.crtl-gear,.crtl-gear {top:auto!important;bottom:10px!important;right:10px!important;left:auto!important}

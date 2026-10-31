@@ -222,6 +222,16 @@
     });
     saat.dataset.crtlSarHistory = '';
     sar.append(nowe, saat); document.body.appendChild(sar);
+    // the chat's name at the right end of the head row, like Claude
+    setInterval(function () {
+      var row = document.getElementById('crtl-top-jaygozin'); if (!row) return;
+      var t = document.getElementById('crtl-onvan');
+      if (!t || t.parentNode !== row) { t = document.createElement('span'); t.id = 'crtl-onvan'; row.appendChild(t); }
+      var tab = tabs.find(function (x) { return x.path === active; });
+      var name = (tab && tab.label) || 'Untitled';
+      if (/^گفتگو \d+$/.test(name) || /^(ChatGPT|Codex)$/i.test(name)) name = 'Untitled';
+      if (t.textContent !== name) t.textContent = name;
+    }, 700);
     document.documentElement.classList.add('crtl-has-tabs');
     say('در انتظار آماده‌شدن گفتگو…'); render();
     var titleObserver = new MutationObserver(updateTitle);

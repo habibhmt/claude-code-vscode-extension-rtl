@@ -76,6 +76,31 @@ def patch(ext, ui, css, revert=False):
     print(f'[PATCHED] {ext}')
 
 
+def patch_manifest(ext, revert=False):
+    """The editor-title icon opens Codex as its own editor tab (like Claude), not the sidebar.
+    Habib, 31 Oct: he opens a file, clicks the icon in its top corner, and wants the chat there."""
+    pkg = ext / 'package.json'
+    backup = ext / 'package.json.chatgpt-rtl-backup'
+    if revert:
+        if backup.exists():
+            atomic_write(pkg, backup.read_bytes()); backup.unlink()
+        return
+    if not backup.exists():
+        atomic_write(backup, pkg.read_bytes())
+    data = json.loads(backup.read_text())
+    c = data.get('contributes', {})
+    cmds = {x['command']: x for x in c.get('commands', [])}
+    if 'chatgpt.newCodexPanel' not in cmds or 'chatgpt.openSidebar' not in cmds:
+        print(f'[SKIP manifest] {ext}: commands changed'); return
+    cmds['chatgpt.newCodexPanel']['icon'] = cmds['chatgpt.openSidebar'].get('icon')
+    for item in c.get('menus', {}).get('editor/title', []):
+        if item.get('command') == 'chatgpt.openSidebar':
+            item['command'] = 'chatgpt.newCodexPanel'
+    out = (json.dumps(data, ensure_ascii=False, indent=2) + '\n').encode()
+    if pkg.read_bytes() != out:
+        atomic_write(pkg, out); print(f'[MANIFEST] {ext}')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--extension-dir', type=Path, action='append', help='Explicit extension root (repeatable)')
@@ -97,6 +122,7 @@ def main():
         fcntl.flock(handle, fcntl.LOCK_EX)
         for ext in dirs:
             patch(ext.resolve(), ui, css, args.revert)
+            patch_manifest(ext.resolve(), args.revert)
 
 
 if __name__ == '__main__':

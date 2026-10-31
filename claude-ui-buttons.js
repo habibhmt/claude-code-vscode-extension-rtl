@@ -2440,10 +2440,11 @@
   } catch (e) {}
   window.__crtl_jadval_tamas = jadval_tamas;
 
-  var tries = 0;
+  // no give-up: a sign-in or onboarding screen can keep the composer away for minutes (Codex,
+  // 31 Oct: the row never came after a login that took longer than the old 30 s limit)
   var timer = setInterval(function () {
     sakht_hame();
-    if (document.getElementById('crtl-panel') || ++tries > 60) clearInterval(timer);
+    if (document.getElementById('crtl-panel')) clearInterval(timer);
   }, 500);
   document.addEventListener('DOMContentLoaded', sakht_hame);
 })();

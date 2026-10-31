@@ -56,4 +56,7 @@ def build_ui(repo, defaults):
     s = s.replace("return document.querySelector('[aria-label=\"Message input\"]')\n        || document.querySelector('textarea')\n        || document.querySelector('[contenteditable=\"true\"]');", "return document.querySelector('[data-composer-surface-variant] [contenteditable=\"true\"]') || document.querySelector('[contenteditable=\"true\"]') || document.querySelector('textarea:not(#crtl-panel textarea)');")
     # Settings supplied by the dedicated seed; Claude command lists aren't imported.
     tabs = (repo / 'chatgpt-tabs.js').read_text()
-    return 'window.__CRTL_DEFAULTS=' + json.dumps(defaults, ensure_ascii=False) + ';\n' + s + '\n' + tabs
+    # Same top-row buttons as Claude (Habib's iMac list, synced through git).
+    dokme = json.loads((repo / 'dokme_ha.json').read_text())
+    seed = 'window.__CRTL_DOKME=' + json.dumps(dokme, ensure_ascii=False) + ';\n'
+    return 'window.__CRTL_DEFAULTS=' + json.dumps(defaults, ensure_ascii=False) + ';\n' + seed + s + '\n' + tabs

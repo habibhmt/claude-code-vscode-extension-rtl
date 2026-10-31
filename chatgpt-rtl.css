@@ -181,3 +181,5 @@ html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-tabl
 html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] [class*="_TableScroller_"] {direction:rtl!important;display:block!important;max-width:100%!important;overflow-x:auto!important;mask:none!important}
 html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] [class*="_TableWrapper_"] {width:max-content!important;min-width:100%!important}
 html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] table {display:table!important;max-width:none!important;overflow:visible!important;width:100%!important}
+/* Top button row leaves room for the aA gear at its left edge. */
+#crtl-top-jaygozin {padding-left:44px!important}

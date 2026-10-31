@@ -182,4 +182,8 @@ html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-tabl
 html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] [class*="_TableWrapper_"] {width:max-content!important;min-width:100%!important}
 html[data-crtl-table-mode="scroll"] .thread-scroll-container [data-markdown-table] table {display:table!important;max-width:none!important;overflow:visible!important;width:100%!important}
 /* Top button row leaves room for the aA gear at its left edge. */
-#crtl-top-jaygozin {padding-left:44px!important}
+#crtl-top-jaygozin {padding-left:92px!important}
+/* ⊕ and 🕘 sit after aA, like Claude's header icons. */
+#crtl-sar {position:fixed;top:2px;left:40px;z-index:2147483000;display:flex;gap:2px;align-items:center;height:22px}
+#crtl-sar button {display:flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;border:0;border-radius:5px;background:transparent;color:var(--vscode-foreground,inherit);opacity:.75;cursor:pointer}
+#crtl-sar button:hover {opacity:1;background:var(--vscode-toolbar-hoverBackground,rgba(127,127,127,.2))}

@@ -199,6 +199,29 @@
     history.dataset.crtlHistory = '';
     document.addEventListener('click', historySelection, true);
     bar.append(list, add, history, notice); document.body.appendChild(bar);
+    // Claude-style head icons beside aA (Habib, 31 Oct: «مثل همون کلود کد باشه»): ⊕ new chat, 🕘 earlier chats.
+    var sar = document.createElement('div'); sar.id = 'crtl-sar';
+    function icon(svg, label, action) {
+      var b = document.createElement('button'); b.type = 'button'; b.title = label; b.setAttribute('aria-label', label);
+      b.innerHTML = svg; b.addEventListener('click', action); return b;
+    }
+    var SVG = 'width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"';
+    var nowe = icon('<svg ' + SVG + '><circle cx="8" cy="8" r="6.3"/><path d="M8 5v6M5 8h6"/></svg>', 'گفتگوی تازه', function () { add.click(); });
+    nowe.dataset.crtlSarNew = '';
+    var saat = icon('<svg ' + SVG + '><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6V8l2.3 1.5"/></svg>', 'گفتگوهای قبلی', function () {
+      // Codex's own history menu lives in a thread's header; on a fresh chat there is none,
+      // so fall back to Codex's home page, which lists the earlier chats.
+      function menuBaz() { return !!document.querySelector('input[placeholder*="recent" i]'); }
+      window.dispatchEvent(new CustomEvent('open-recent-tasks-menu'));
+      setTimeout(function () {
+        if (menuBaz()) return;
+        navigate('/').then(function () {
+          setTimeout(function () { window.dispatchEvent(new CustomEvent('open-recent-tasks-menu')); }, 400);
+        });
+      }, 300);
+    });
+    saat.dataset.crtlSarHistory = '';
+    sar.append(nowe, saat); document.body.appendChild(sar);
     document.documentElement.classList.add('crtl-has-tabs');
     say('در انتظار آماده‌شدن گفتگو…'); render();
     var titleObserver = new MutationObserver(updateTitle);

@@ -231,6 +231,21 @@
       var name = (tab && tab.label) || 'Untitled';
       if (/^گفتگو \d+$/.test(name) || /^(ChatGPT|Codex)$/i.test(name)) name = 'Untitled';
       if (t.textContent !== name) t.textContent = name;
+      // the grey strip peeking above the composer (Habib, 1 Nov screenshot): any painted box that starts
+      // just above the visible composer and is wider than it gets a see-through background, inline
+      // (Codex's layered !important beats a stylesheet); sizes are never touched
+      var best = null, area = 0;
+      document.querySelectorAll('[data-composer-surface-variant]').forEach(function (el) {
+        var b = el.getBoundingClientRect(); if (b.width * b.height > area) { area = b.width * b.height; best = b; }
+      });
+      if (best && best.height > 30) {
+        var x = best.left - 8, y = best.top - 6;
+        for (var el = document.elementFromPoint(Math.max(1, x), Math.max(1, y)); el && el !== document.body; el = el.parentElement) {
+          var b = el.getBoundingClientRect(), bg = getComputedStyle(el).backgroundColor;
+          if (b.width > best.width + 10 && b.top >= best.top - 40 && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent')
+            el.style.setProperty('background-color', 'transparent', 'important');
+        }
+      }
     }, 700);
     document.documentElement.classList.add('crtl-has-tabs');
     say('در انتظار آماده‌شدن گفتگو…'); render();

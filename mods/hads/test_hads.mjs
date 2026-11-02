@@ -5,10 +5,10 @@ const H = {}, calls = { complete: [], now: [], fork: [], fill: [], submit: [] }
 mod.register((ev, a, b) => { H[ev] = b || a; return { catch() {} } })
 const store = {}
 const $ = {
-  // «دو جمله» calls go to calls.now (maxTokens 200), guesses to calls.complete
+  // «دو جمله» calls go to calls.now (maxTokens 200), guesses by the chat's fork to calls.complete
   model: {
     complete: async (o) => o.maxTokens === 200 ? $.nowModel(o) : $.guessModel(o),
-    fork: async (o) => { calls.fork.push(o); return $.forkReply },
+    fork: async (o) => { calls.fork.push(o); if ($.forkReply !== 'az_reply') return $.forkReply; calls.complete.push({ prompt: o.prompt, model: 'fork' }); return { isAnswered: true, usage: {}, text: /^\s*\[/.test($.reply) ? '{"hads": ' + $.reply + '}' : $.reply } },
   },
   session: { messages: async () => $.msgs, surfaces: async () => $.surf, id: async () => $.sid, root: async () => '/proj', cwd: async () => '/proj',
     usage: async () => ({ context: { tokens: $.ctx, window: 1e6 } }), model: async () => 'claude-opus-5-5' },
@@ -29,7 +29,7 @@ const usages = []
 $.t = 0
 $.ctx = 1000
 // no fork reply at first: the end of an answer falls back to the two Sonnet calls
-$.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }
+$.forkReply = 'az_reply'
 $.guessModel = async (o) => { calls.complete.push(o); return { isAnswered: true, text: $.reply } }
 $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
 $.nowReply = 'یک. دو.'
@@ -44,7 +44,7 @@ const row = (t) => t.children.find((c) => c.t === 'Box' && (c.children || []).so
 // guess buttons drawn (× left out); 'engine' alone means the mod drew nothing
 const isGuess = (c) => c.t === 'Button' && /^hads-\d+$/.test(String(c.key))
 // the guesses: whole sentences (Text hads-g-i), each with a ⤵ button (hads-i)
-const guessLabels = (t) => t === 'engine' ? [] : [0, 1, 2, 3, 4].map((i) => find(t, 'hads-g-' + i)?.children?.[0]).filter(Boolean)
+const guessLabels = (t) => t === 'engine' ? [] : Array.from({ length: 20 }, (_, i) => i).map((i) => find(t, 'hads-g-' + i)?.children?.[0]).filter(Boolean)
 // any element by key, however deep
 const find = (t, key) => { if (!t || typeof t !== 'object') return null; if (t.key === key) return t; for (const c of t.children || []) { const f = find(c, key); if (f) return f } return null }
 $.msgs = [{ role: 'user', text: 'دکمه بساز' }, { role: 'assistant', text: 'ساختم' }]; $.surf = ['vscode']; $.typed = ''; $.files = {}
@@ -71,7 +71,7 @@ const again = {}; mod.register((ev, a, b) => { again[ev] = b || a; return { catc
 $.sid = 'A'; out.answer = (await again['command.run']($, { args: 'on' })).text; assert.equal(out.answer, 'حدس برای همین چت روشن شد')
 // a normal turn: Sonnet 5.5 by full name, then buttons
 await H['turn.complete']($, {}, next); await flush()
-out.model = calls.complete[0].model; assert.equal(out.model, 'claude-sonnet-5-5')
+out.model = calls.complete[0].model; assert.equal(out.model, 'fork')
 const tree = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
 const btns = [0, 1].map((i) => find(tree, 'hads-' + i))
 out.buttons = [...guessLabels(tree), ...btns.map((b) => b.label)]; assert.deepEqual(out.buttons, ['آزمون‌ها رو اجرا کن', 'کامیت و پوش کن', '⤵', '⤵'])
@@ -84,9 +84,9 @@ assert.deepEqual(out.fill, ['کامیت و پوش کن']); assert.equal(out.subm
 await H['command.run']($, { args: 'off' }); await H['turn.complete']($, {}, next); await flush()
 out.afterOff = calls.complete.length; assert.equal(out.afterOff, 1)
 await H['command.run']($, { args: 'on' })
-// broken JSON: no crash, nothing shown
-$.reply = 'not json {'; await H['turn.complete']($, {}, next); await flush()
-out.broken = guessLabels(await render()); assert.deepEqual(out.broken, [])
+// broken JSON: no crash, the last list stays (no other model is asked)
+const ghabl_broken = guessLabels(await render()); $.reply = 'not json {'; await H['command.run']($, { args: 'now' }); await flush()
+out.broken = guessLabels(await render()); assert.deepEqual(out.broken, ghabl_broken)
 
 // busy guard: answers ending while «دو جمله» is told wait for it; then one more call tells the last, never dropped
 calls.now.length = 0; $.reply = '[{"label":"a","text":"b"}]'
@@ -101,21 +101,15 @@ $.reply = JSON.stringify(Array.from({ length: 15 }, (_, i) => ({ label: 'g' + i,
 const guessNow = async () => { await H['command.run']($, { args: 'now' }); await flush() }
 await guessNow()
 const t2 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
-// at most 2 (Habib, 24 Oct: «یکی دو تا بیشتر حدس نشه … جمله کاملش بیاد»)
-out.max = guessLabels(t2).length; assert.equal(out.max, 2)
+// as many as the fork gives (Habib, 2 Nov: «تو هر تعدادی که فکر میکنه بیاره»; قبلی، جایگزین‌شده: «یکی دو تا»، ۲۴ اکت)
+out.max = guessLabels(t2).length; assert.equal(out.max, 15)
 // other agents' messages are labelled, not taken as the user's; reminders are cut out
-calls.complete.length = 0
-$.msgs = [{ role: 'user', text: '<system-reminder>یادآوری</system-reminder>\nپیامِ حبیب' },
+const pm = mod.sakht_prompt([{ role: 'user', text: '<system-reminder>یادآوری</system-reminder>\nپیامِ حبیب' },
   { role: 'user', text: 'Another Claude session sent a message:\n<cross-session-message from="x">جدولِ ناظر</cross-session-message>' },
-  { role: 'assistant', text: 'جوابِ کلود' }]
-$.files = { '.remember/now.md': 'هندآفِ الان', '.remember/today-2026-10-21.md': 'هندآفِ امروز', '.remember/today-2026-10-22.done.md': 'کهنه', '.remember/recent.md': 'هفته' }
-await guessNow()
-const [hp, mp] = calls.complete[0].prompt.map((b) => b.text)
-const sec = (h) => mp.split('## ').find((x) => x.startsWith(h)) || ''
+  { role: 'assistant', text: 'جوابِ کلود' }])
+const sec = (h) => pm.split('## ').find((x) => x.startsWith(h)) || ''
 out.peerFiltered = /پیامِ حبیب/.test(sec('درخواست')) && !/جدولِ ناظر|یادآوری/.test(sec('درخواست')) && /جدولِ ناظر/.test(sec('پیامِ ایجنت')) && /جوابِ کلود/.test(sec('جواب'))
 assert.equal(out.peerFiltered, true)
-out.handoff = /هندآفِ الان/.test(hp) && /هندآفِ امروز/.test(hp) && /هفته/.test(hp) && !/کهنه/.test(hp) && calls.complete[0].prompt[0].cache === true
-assert.equal(out.handoff, true)
 // a click keeps what is already typed
 calls.fill.length = 0; $.typed = 'نیمه‌نوشته'
 const t3 = await H['ui.render']($, { component: 'AbovePrompt' }, async () => null)
@@ -125,10 +119,10 @@ out.append = calls.fill[0].text; assert.equal(out.append, 'نیمه‌نوشته
 calls.complete.length = 0; $.surf = []
 await H['turn.complete']($, {}, next); await flush()
 out.headless = calls.complete.length; assert.equal(out.headless, 0); $.surf = ['vscode']
-// a model error does not crash and shows nothing
+// a model error does not crash; the last guesses stay
 $.guessModel = $.nowModel = async () => { throw new Error('timeout') }
 await H['turn.complete']($, {}, next); await flush()
-out.error = guessLabels(await render()); assert.deepEqual(out.error, [])
+out.error = guessLabels(await render()).length; assert.equal(out.error, 15)
 // «دو جمله» after tools: at most one call per GAP, and only when this chat is on
 $.guessModel = slow; $.nowModel = async (o) => { calls.now.push(o); return { isAnswered: true, text: $.nowReply } }
 $.msgs = [{ role: 'user', text: 'دکمه بساز' }]; $.sid = 'A'; calls.now.length = 0; $.t = 1e9
@@ -185,15 +179,15 @@ const between = []
 for (let i = 1; i < mod.hads_har_chand_javab; i++) { c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt(); between.push([c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]) }
 out.between = between; assert.deepEqual(out.between, Array(mod.hads_har_chand_javab - 1).fill([0, 1, 0]))
 out.guessesKept = guessLabels(await render()); assert.deepEqual(out.guessesKept, ['کارِ یک', 'کارِ دو'])
-// a broken fork reply falls back to Sonnet for the guesses, never an empty row
+// a broken fork reply: no other model is asked, the last guesses stay
 $.forkReply = { isAnswered: true, text: 'not json', usage: {} }
 c0 = cnt(); await H['turn.complete']($, {}, next); await flush(); c1 = cnt()
-out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 1])
-// a chat over MAX_FORK tokens never forks for the guesses alone («نکرده‌ها» ticked off)
+out.forkBroken = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.forkBroken, [1, 1, 0])
+// a chat over MAX_FORK tokens forks for the guesses alone too (2 Nov: «باید مدلی باشه که همون فورک باشه»)
 const fileF = flags['/h/.claude/hads-on/F']; flags['/h/.claude/hads-on/F'] = 'on -nakarde -khodkar -cron'
 $.forkReply = { isAnswered: true, text: '{"hads": []}', usage: {} }; $.ctx = mod.had_fork_context_token + 1
 c0 = cnt(); await H['command.run']($, { args: 'now' }); await flush(); c1 = cnt()
-out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [0, 1, 1])
+out.bigChat = [c1[0] - c0[0], c1[1] - c0[1], c1[2] - c0[2]]; assert.deepEqual(out.bigChat, [1, 1, 0])
 // «نکرده‌ها» (Habib, 25 Oct 04:22): two each time, with the guesses; they need the whole chat, so even a
 // big chat forks for them; Habib's words, when, why; the prompt carries the audit's rules and last time's items
 flags['/h/.claude/hads-on/F'] = fileF
@@ -651,13 +645,13 @@ out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.
   top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-zaban hads-hafeze', field: !!find(rT, 'hads-tartib'),
   // one box per part that has rows, in the same order (the page script keeps each from shrinking)
   bakhsh: kT.filter((k) => k.startsWith('hads-bakhsh-')).map((k) => k.slice(12)) }
-assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
+assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'ravand', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
 // VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
 const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
 const rV = await render({ surface: 'vscode' }); const fld = find(rV, 'hads-tartib')
 await fld.onInput('khodkar hads hads chizi')
 out.tartibField = { value: fld.value, file: flags['/h/.claude/hads-tartib'], notMobile: !find(await render({ surface: 'mobile' }), 'hads-tartib') }
-assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads nakarde khodkar porsesh hook zaban', file: 'khodkar hads nakarde cron do_jomle porsesh hook zaban\n', notMobile: true })
+assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads ravand nakarde khodkar porsesh hook zaban', file: 'khodkar hads ravand nakarde cron do_jomle porsesh hook zaban\n', notMobile: true })
 $.ui.resolve = keepResolve; delete flags['/h/.claude/hads-tartib']
 // «🔎 حافظه» (Habib to ۲۰۵, 25 Oct 18:30: «بله، بسازید»): the label is what ۲۰۵'s `get` says; a press moves
 // this chat one on (همین چت ⇐ همین پروژه ⇐ همهٔ پروژه‌ها ⇐ همین چت) and no other chat; /hads hafeze works with the box off
@@ -814,8 +808,8 @@ const codeOnly = src.replace(/\/\/.*$/gm, '').replace(/'(?:[^'\\\n]|\\.)*'/g, "'
 out.esmTabe = ["answer", "askText", "buildPrompt", "busy", "cacheExpired", "clicked", "coldAfter", "coldCost", "endAgain", "endAt", "endBusy", "fillAppend", "flagPath", "flagWords", "fold", "forkPrompt", "guess", "guessFork", "guesses", "handoffs", "harfeHabib", "histOpen", "histPath", "hookLine", "hooks", "hooksAt", "interactive", "isAgent", "isOn", "jalali", "lastActivity", "lastLogged", "lastNow", "logEvent", "logUsage", "madeFor", "nowAgain", "nowBusy", "parseBoth", "parseGuesses", "parseHooks", "parseSummary", "pendingAsk", "readFlag", "readHist", "readHooks", "recent", "sameText", "setMode", "setNow", "small", "summarize", "tPath", "tellNow", "tick", "turnAsked", "turnEnd", "turnNows", "turnTools", "turnsOf", "twoSentences", "vazhe", "when", "whenFa", "bepors"].filter((x) => new RegExp('(?<![\\w$.])' + x + '(?![\\w$])').test(codeOnly))
 assert.deepEqual(out.esmTabe, [])
 // «زبان» (28 Oct 02:20): an English answer gets one reminder to speak Persian; never twice in a row
-out.zabanTashkhis = [mod.englisi_ast('Text is right in the box (in a fresh test chat). Sending with Enter now.'), mod.englisi_ast('همه سبز است و `npm test` و https://example.com/some/long/english/path هم.'), mod.englisi_ast('ok')]
-assert.deepEqual(out.zabanTashkhis, [true, false, false])
+out.zabanTashkhis = [mod.englisi_ast('Text is right in the box (in a fresh test chat). Sending with Enter now.'), mod.englisi_ast('همه سبز است و `npm test` و https://example.com/some/long/english/path هم.'), mod.englisi_ast('ok'), mod.englisi_ast('API Error: Connection dropped (ECONNRESET). A VPN, firewall, or security software may be blocking the connection.')]
+assert.deepEqual(out.zabanTashkhis, [true, false, false, false])
 $.sid = 'Z'; flags['/h/.claude/hads-on/Z'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook'
 $.msgs = [{ role: 'user', text: 'چی شد' }, { role: 'assistant', text: 'The tests for the native app are still running in the simulator, I will report back.' }]
 let n0 = calls.submit.length; await H['turn.complete']($, {}, next); await flush()
@@ -848,6 +842,111 @@ await H['command.run']($, { args: 'now' }); await flush()
 out.seDasteDarFork = calls.fork.some((f) => JSON.stringify(f).includes('(ج) واقعاً کارِ حبیب است'))
 assert.equal(out.seDasteDarFork, true)
 $.sid = 'A'
+// «روند» (2 Nov): one fork with the guesses; a witness must be found by the code in two different messages Habib typed himself
+const M1 = 'کمتر از من بپرس لطفا'; const M2 = 'دفعه دوم هی اوکی نگیر'
+const rvMsgs = [{ role: 'user', text: M1 }, { role: 'assistant', text: 'باشه' }, { role: 'user', text: M2 }, { role: 'user', text: 'The hads plugin sent a message:\nخودکار: کارِ پلاگین' }, { role: 'user', text: 'Another Claude session sent a message: <cross-session-message>حرفِ ایجنت</cross-session-message>' }]
+const rvRow = (h1, h2) => ({ label: 'ل', ravand: 'کمتر بپرس', shahed: [{ harf: h1 }, { harf: h2 }], khaste: 'خودش انجام بدهد', text: 'بی‌پرسش تمام کن' })
+out.ravandShahed = {
+  dorost: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(M1, M2)]), rvMsgs).length,
+  sakhtegi: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(M1, 'حرفی که نگفت')]), rvMsgs).length,
+  yekPayam: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow('کمتر از من', 'بپرس لطفا')]), rvMsgs).length,
+  plugin: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(M1, 'کارِ پلاگین')]), rvMsgs).length,
+  agent: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(M1, 'حرفِ ایجنت')]), rvMsgs).length,
+  zade: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(M1, M2)]), rvMsgs, ['دفعه دوم هی اوکی نگیر و بعدش']).length,
+  nimfasele: mod.ravand_ba_shahed(mod.khandan_ravand([rvRow('پیام‌ها را بخوان', M2)]), [{ role: 'user', text: 'پيام ها را بخوان' }, { role: 'user', text: M2 }]).length,
+  tanhaKhali: Array.isArray(mod.khandan_javab_fork('{"ravand": []}')?.ravand),
+}
+assert.deepEqual(out.ravandShahed, { dorost: 1, sakhtegi: 0, yekPayam: 0, plugin: 0, agent: 0, zade: 0, nimfasele: 1, tanhaKhali: true })
+$.sid = 'RV'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RV'] = 'on -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+$.msgs = rvMsgs; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ hads: [{ label: 'ی', text: 'حدسِ یک' }], ravand: [rvRow(M1, M2), rvRow(M1, 'حرفی که نگفت')] }) }
+const rvF0 = calls.fork.length, c0rv = calls.complete.length; await H['command.run']($, { args: 'now' }); await flush()
+const tRv = await render(), pRv = calls.fork.at(-1).prompt
+out.ravandYekFork = { fork: calls.fork.length - rvF0, sonnet: calls.complete.length - c0rv, hads: guessLabels(tRv), radif: !!find(tRv, 'hads-rv-0'), radifDovom: !!find(tRv, 'hads-rv-1'), tik: !!find(tRv, 'hads-tick-ravand'), prompt: /"hads"/.test(pRv) && /"ravand"/.test(pRv) }
+assert.deepEqual(out.ravandYekFork, { fork: 1, sonnet: 0, hads: ['حدسِ یک'], radif: true, radifDovom: false, tik: true, prompt: true })
+await find(tRv, 'hads-rv-dokme-0').onPress({})
+$.forkReply = { isAnswered: true, usage: {}, text: '{"hads": [{"label": "ی", "text": "حدسِ یک"}]}' }; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandDokmeDarPrompt = /دکمه بوده‌اند[^]*بی‌پرسش تمام کن/.test(calls.fork.at(-1).prompt); assert.equal(out.ravandDokmeDarPrompt, true)
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, 'بی‌پرسش تمام')] }) }; $.msgs = [...rvMsgs, { role: 'user', text: 'بی‌پرسش تمام کن' }]; await H['command.run']($, { args: 'now' }); await flush(); out.ravandDokmeRad = !!find(await render(), 'hads-rv-0'); assert.equal(out.ravandDokmeRad, false); $.msgs = rvMsgs; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }
+out.ravandZade = mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(M1, 'بی‌پرسش تمام کن')]), [...rvMsgs, { role: 'user', text: 'بی‌پرسش تمام کن' }], ['بی‌پرسش تمام کن']).length; assert.equal(out.ravandZade, 0)
+// the review's cases (2 Nov 23:50): messages that are not his, the question of a window, order, short and repeated quotes
+const rvN = (a, b, m, z) => mod.ravand_ba_shahed(mod.khandan_ravand([rvRow(a, b)]), m, z).length
+const U = (t) => ({ role: 'user', text: t })
+out.ravandBazbini = {
+  skill: rvN(M1, 'حتما بخوان این را', [U(M1), U('Base directory for this skill: /x\nحتما بخوان این را')]),
+  local: rvN(M1, 'خروجیِ فرمان محلی', [U(M1), U('<local-command-stdout>خروجیِ فرمان محلی</local-command-stdout>')]),
+  khodkar: rvN(M1, 'این‌ها را خودت انجام بده', [U(M1), U('خودکار (از مودِ «حدس»): این‌ها را خودت انجام بده')]),
+  soalPanjere: rvN(M1, 'آیا بزنم همه را', [U(M1), U('Answering your earlier question "آیا بزنم همه را": بله بزن')]),
+  javabPanjere: rvN(M1, 'بله بزن همه را', [U(M1), U('Answering your earlier question "آیا؟": بله بزن همه را')]),
+  browser: rvN(M1, 'کدکس به کجا رسید', [U(M1), U('<browser_instruction>راهنمای مرورگر اینجا</browser_instruction>کدکس به کجا رسید')]),
+  browserMatn: rvN(M1, 'راهنمای مرورگر اینجا', [U(M1), U('<browser_instruction>راهنمای مرورگر اینجا</browser_instruction>کدکس به کجا رسید')]),
+  aks: rvN(M1, 'عکسی از صفحه گرفتم', [U(M1), U('[Image: عکسی از صفحه گرفتم] ببین')]),
+  tartib1: rvN('تست کن حتما', 'کار بی عیب بده', [U('تست کن حتما و کار بی عیب بده'), U('تست کن حتما')]),
+  tartib2: rvN('تست کن حتما', 'کار بی عیب بده', [U('تست کن حتما'), U('تست کن حتما و کار بی عیب بده')]),
+  kutah: rvN('سلام', 'بابا', [U('سلام دوست'), U('بابا جان')]),
+  tekrari: rvN(M1, M1, [U(M1), U(M1)]),
+  seNoghte: rvN('کمتر از من …', 'دفعه دوم هی...', [U(M1), U(M2)]),
+}
+assert.deepEqual(out.ravandBazbini, { skill: 0, local: 0, khodkar: 0, soalPanjere: 0, javabPanjere: 1, browser: 1, browserMatn: 0, aks: 0, tartib1: 1, tartib2: 1, kutah: 0, tekrari: 0, seNoghte: 1 })
+// the fork left «ravand» out: the last list stays
+out.ravandNabud = mod.khandan_javab_fork('{"hads": [{"label": "a", "text": "b"}]}')?.ravand; assert.equal(out.ravandNabud, undefined)
+$.forkReply = { isAnswered: true, usage: {}, text: '{"hads": [{"label": "ی", "text": "حدسِ یک"}]}' }; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }; await H['command.run']($, { args: 'now' }); await flush()
+$.forkReply = { isAnswered: true, usage: {}, text: '{"hads": [{"label": "ی", "text": "حدسِ یک"}]}' }; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandMand = !!find(await render(), 'hads-rv-0'); assert.equal(out.ravandMand, true)
+// the buttons pressed are in this chat's file
+out.ravandFile = /بی‌پرسش تمام کن/.test(flags['/h/.claude/hads-log/RV.ravand_zade.json'] || ''); assert.equal(out.ravandFile, true)
+// a part ticked off while the fork ran: what it gave is dropped; messages() failing: the rest of the reply is kept
+const rvFork = $.model.fork; let rvRel; $.model.fork = (o) => { calls.fork.push(o); return new Promise((r) => { rvRel = r }) }
+$.sid = 'RV2'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RV2'] = 'on -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+await H['command.run']($, { args: 'now' }); await new Promise((r) => setTimeout(r, 5))
+flags['/h/.claude/hads-on/RV2'] = 'on -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+rvRel({ isAnswered: true, usage: {}, text: JSON.stringify({ hads: [{ label: 'د', text: 'حدسِ دیر' }], ravand: [rvRow(M1, M2)] }) }); await flush(); await new Promise((r) => setTimeout(r, 5))
+flags['/h/.claude/hads-on/RV2'] = 'on -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+const tDir = await render(); out.ravandDir = { rv: !!find(tDir, 'hads-rv-0'), hads: guessLabels(tDir) }; assert.deepEqual(out.ravandDir, { rv: false, hads: ['حدسِ دیر'] })
+$.model.fork = rvFork; const realMsgs = $.session.messages; $.session.messages = async () => { throw new Error('no') }
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ hads: [{ label: 'ت', text: 'حدسِ تازه' }], ravand: [rvRow(M1, M2)] }) }; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandMsgKhata = guessLabels(await render()); assert.deepEqual(out.ravandMsgKhata, ['حدسِ تازه']); $.session.messages = realMsgs
+// a fork that gives nothing: two tries, then it waits for its turn
+$.sid = 'BR'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/BR'] = 'on -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; $.forkReply = { isAnswered: false, reason: 'api-error' }
+const tormoz = []; for (let i = 0; i < 7; i++) { const n = calls.fork.length; $.t += 1; await H['turn.complete']($, {}, next); await flush(); tormoz.push(calls.fork.length - n) }
+out.forkTormoz = tormoz; assert.deepEqual(out.forkTormoz, [1, 1, 0, 1, 0, 0, 1])
+// «خودکار» ticked off during the answer's end does not go
+$.sid = 'KT'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/KT'] = 'on -hads -ravand -nakarde -cron -do_jomle -porsesh -hook -zaban'
+$.forkReply = { isAnswered: true, usage: {}, text: '{"khodkar": [{"kar": "کارِ تیک", "abzar": "Bash: ls", "chek": "c", "chera": "d"}]}' }
+const rvRun = $.process.run; $.process.run = async (argv, init) => { if (/"kind":"khodkar"/.test(init?.stdin || '')) flags['/h/.claude/hads-on/KT'] = 'on -hads -ravand -khodkar -nakarde -cron -do_jomle -porsesh -hook -zaban'; return rvRun(argv, init) }
+const rvS2 = calls.submit.length; await H['command.run']($, { args: 'now' }); await flush(); $.process.run = rvRun
+out.khodkarTik = calls.submit.length - rvS2; assert.equal(out.khodkarTik, 0)
+$.sid = 'RV'; $.msgs = rvMsgs; flags['/h/.claude/hads-on/RV'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }
+// only «روند» ticked on: the fork runs and the row shows; ticked off: not asked for
+flags['/h/.claude/hads-on/RV'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; const rvF1 = calls.fork.length; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandTanha = { fork: calls.fork.length - rvF1, radif: !!find(await render(), 'hads-rv-0'), hadsDarPrompt: /"hads"/.test(calls.fork.at(-1).prompt) }
+assert.deepEqual(out.ravandTanha, { fork: 1, radif: true, hadsDarPrompt: false })
+flags['/h/.claude/hads-on/RV'] = 'on -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandKhamush = /"ravand"/.test(calls.fork.at(-1).prompt); assert.equal(out.ravandKhamush, false)
+// a reply with no answer is counted too (it may have cost money); only «nothing to fork» made no call
+flags['/h/.claude/hads-on/RV'] = 'on'; const rvU0 = usages.length; $.forkReply = { isAnswered: false, reason: 'api-error' }; await H['command.run']($, { args: 'now' }); await flush()
+out.biJavabShomorde = usages.slice(rvU0).filter((u) => u.rah === 'fork').length; assert.equal(out.biJavabShomorde, 1)
+const rvU1 = usages.length; $.forkReply = { isAnswered: false, reason: 'nothing-to-fork' }; await H['command.run']($, { args: 'now' }); await flush()
+out.chizBaraye = usages.slice(rvU1).filter((u) => u.rah === 'fork').length; assert.equal(out.chizBaraye, 0)
+// «خودکار»: a failed send is not written as sent; /hads off stops it; /clear during the fork leaves the new chat clean
+const khReply = { isAnswered: true, usage: {}, text: '{"khodkar": [{"kar": "کارِ تازه", "abzar": "Bash: ls", "chek": "c", "chera": "d"}]}' }
+$.sid = 'KH'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/KH'] = 'on -hads -ravand -nakarde -cron -do_jomle -porsesh -hook -zaban'
+$.forkReply = khReply; const realSubmit = $.prompt.submit; let rvBar = 0; $.prompt.submit = async (o) => { rvBar++; if (rvBar === 1) throw new Error('nashod'); calls.submit.push(o) }
+await H['command.run']($, { args: 'now' }); await flush()
+const fileKh = '/h/.claude/hads-log/KH.khodkar_ferestade.json'
+out.khodkarNashod = { sabt: flags[fileKh] === undefined || !flags[fileKh].includes('کارِ تازه'), rooydad: events.some((e) => e.kind === 'khodkar_nafereste') }
+assert.deepEqual(out.khodkarNashod, { sabt: true, rooydad: true })
+await H['command.run']($, { args: 'now' }); await flush()
+out.khodkarDobare = { rvBar, sabt: flags[fileKh].includes('کارِ تازه') }; assert.deepEqual(out.khodkarDobare, { rvBar: 2, sabt: true }); $.prompt.submit = realSubmit
+$.sid = 'KH2'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/KH2'] = 'on -hads -ravand -nakarde -cron -do_jomle -porsesh -hook -zaban'; const realFork = $.model.fork
+let aza; $.model.fork = (o) => { calls.fork.push(o); return new Promise((r) => { aza = r }) }
+const rvS0 = calls.submit.length; await H['command.run']($, { args: 'now' }); await new Promise((r) => setTimeout(r, 5))
+await H['command.run']($, { args: 'off' }); aza(khReply); await flush(); await new Promise((r) => setTimeout(r, 5))
+out.khodkarBadAzOff = calls.submit.length - rvS0; assert.equal(out.khodkarBadAzOff, 0)
+$.sid = 'KH3'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/KH3'] = 'on -hads -ravand -nakarde -cron -do_jomle -porsesh -hook -zaban'
+const rvS1 = calls.submit.length; await H['command.run']($, { args: 'now' }); await new Promise((r) => setTimeout(r, 5))
+$.sid = 'NEW'; aza(khReply); await flush(); await new Promise((r) => setTimeout(r, 5))
+flags['/h/.claude/hads-on/NEW'] = 'on'; out.khodkarBadAzClear = { submit: calls.submit.length - rvS1, dar_kadr: !!find(await render(), 'hads-kh-0') }; assert.deepEqual(out.khodkarBadAzClear, { submit: 0, dar_kadr: false })
+$.model.fork = realFork; $.sid = 'A'
 console.log(JSON.stringify(out))
 
 // «ترجمه»: off by default; the shared fork carries it, else one fork of its own; a press only fills the box
@@ -856,7 +955,7 @@ console.log(JSON.stringify(out))
   const f = '/h/.claude/hads-log/TJ.tarjome.jsonl', on = '/h/.claude/hads-on/TJ'
   $.sid = 'TJ'; $.msgs = [{ role: 'user', text: 'x' }, { role: 'assistant', text: en }]; $.ctx = 1000
   const end = async () => { await H['turn.complete']($, {}, next); await flush() }
-  flags[on] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+  flags[on] = 'on -hads -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
   let n = calls.fork.length; await end()
   const offForks = calls.fork.length - n, offFile = f in flags
   // tick on, nothing else due: its own fork, in the chat's own fork call

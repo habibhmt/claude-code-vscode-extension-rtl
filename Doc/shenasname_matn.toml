@@ -12,7 +12,7 @@ tarif = "12"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 
 [hads_har_chand_javab]
-yani = "کجا: آخرِ هر جواب · چیه: حدس و نکرده و خودکار و کرون هر چند جواب یک بار ساخته شوند · مثال: هر ⟦hads_har_chand_javab⟧ جواب یک fork"
+yani = "کجا: آخرِ هر جواب · چیه: حدس و روند و نکرده و خودکار و کرون هر چند جواب یک بار ساخته شوند · مثال: هر ⟦hads_har_chand_javab⟧ جواب یک fork"
 chera = "حبیب «حدسو بذار مدل اصلی بکنه … منتها مثلاً چند تا پیام به چند تا پیام»"
 ozv = "hads"
 noe = "sabet"
@@ -26,15 +26,6 @@ chera = ""
 ozv = "hads"
 noe = "vaziat"
 ba_motaghayerha = ["hads_har_chand_javab"]
-tarif = "01"
-tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
-
-[prompt_system_hads]
-yani = "دستورِ Sonnet برای حدس وقتی fork نمی‌شود: ۱ یا ۲ پیامِ بعدیِ حبیب، با لحنِ خودش"
-chera = ""
-ozv = "hads"
-noe = "sabet"
-ba_motaghayerha = ["model_do_jomle_va_hads"]
 tarif = "01"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 
@@ -91,15 +82,6 @@ noe = "vaziat"
 ba_motaghayerha = []
 tarif = "15"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
-
-[hads_dar_kar]
-yani = "یک ساختِ حدس در راه است؛ دومی هم‌زمان شروع نمی‌شود"
-chera = ""
-ozv = "hads"
-noe = "vaziat"
-ba_motaghayerha = []
-tarif = "01"
-tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 
 [hads_baraye_chat]
 yani = "حدس‌ها مالِ کدام چت‌اند؛ بعد از /clear (چتِ تازه) نشان داده نمی‌شوند"
@@ -1010,21 +992,12 @@ ba_motaghayerha = []
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:18)"
 
-[tries]
-yani = "چند بار صفحه برای سوار شدنِ پنل گشته شد"
-chera = ""
-ozv = "safhe"
-noe = "sabet"
-ba_motaghayerha = ["timer"]
-tarif = "04"
-tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
-
 [timer]
 yani = "زمان‌سنجِ همان گشتن"
 chera = ""
 ozv = "safhe"
 noe = "vaziat"
-ba_motaghayerha = ["tries"]
+ba_motaghayerha = []
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 
@@ -1162,3 +1135,66 @@ noe = "motaghayer"
 ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
+
+[ravand_akhar]
+yani = "روندهایی که الان در کادر نشان داده می‌شوند؛ هر کدام با حرف‌های عینیِ حبیب"
+chera = "حبیب ۲ نوا «این روند باشه … حبیب میخواد سیستم کلاً چطوری باشه»"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["ravand_zade_shode"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[ravand_zade_shode]
+yani = "متنِ روندهایی که دکمهٔ ⤵ آن‌ها زده شد؛ این متن‌ها حرفِ حبیب حساب نمی‌شوند تا روند خودش را تقویت نکند"
+chera = "نقدِ ساب‌ایجنت ۲ نوا: دکمه را می‌زند و متنش شاهدِ بعدی می‌شود"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["ravand_akhar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[prompt_fork_ravand]
+yani = "قالبی که فورک برای کلیدِ ravand باید برگرداند"
+chera = "حبیب ۲ نوا «کلاً یک تماس یا یک کش گرم»"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["ravand_akhar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[payam_dastgah]
+yani = "پیام‌هایی که از طرفِ کاربر می‌آیند ولی حرفِ حبیب نیستند (پلاگین، task-notification، ادامهٔ خودکار)؛ شاهدِ روند نمی‌شوند"
+chera = "نقدِ ساب‌ایجنت ۲ نوا: در یک چت ۵۳ از ۸۱ پیام از ایجنتِ دیگر بود"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["ravand_akhar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[had_tedad_ravand_zade_radif]
+yani = "کجا: «روند» · چیه: چند متنِ دکمهٔ زده‌شده برای هر چت نگه داشته شود تا شاهد نشود · مثال: ⟦had_tedad_ravand_zade_radif⟧"
+chera = "بازبینیِ ساب‌ایجنت ۲ نوا: بعد از ریلود متنِ دکمه دوباره شاهد می‌شد"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["ravand_zade_shode"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[shekast_fork_har_chat]
+yani = "برای هر چت: چند فورکِ پشتِ هم چیزِ به‌دردبخوری نداد"
+chera = "بازبینیِ ساب‌ایجنت ۲ نوا: فورکِ خراب بی‌ترمز روی هر جواب دوباره می‌خورد"
+ozv = "hads"
+noe = "vaziat"
+ba_motaghayerha = ["had_tedad_shekast_fork_bar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[had_tedad_shekast_fork_bar]
+yani = "کجا: آخرِ جواب · چیه: بعد از این تعداد فورکِ بی‌نتیجهٔ پشتِ هم، فورکِ بعدی تا نوبتِ عادی‌اش صبر می‌کند · مثال: ⟦had_tedad_shekast_fork_bar⟧"
+chera = "بازبینیِ ساب‌ایجنت ۲ نوا"
+ozv = "hads"
+noe = "sabet"
+ba_motaghayerha = ["shekast_fork_har_chat", "hads_har_chand_javab"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"

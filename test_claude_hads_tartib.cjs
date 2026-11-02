@@ -10,8 +10,8 @@ const assert=require('node:assert/strict');
 const SRC=process.env.BUTTONS_JS||__dirname+'/claude-ui-buttons.js';
 const script=fs.readFileSync(SRC,'utf8');
 const nm=__dirname+'/node_modules/';
-const KEYS=['hads','nakarde','khodkar','cron','do_jomle','porsesh','hook'];
-const NAMES={hads:'حدس',nakarde:'نکرده‌ها',khodkar:'خودکار',cron:'کرون‌جاب',do_jomle:'دو جمله',porsesh:'پرسش',hook:'هوک‌ها'};
+const KEYS=['hads','ravand','nakarde','khodkar','cron','do_jomle','porsesh','hook'];
+const NAMES={hads:'حدس',ravand:'روند',nakarde:'نکرده‌ها',khodkar:'خودکار',cron:'کرون‌جاب',do_jomle:'دو جمله',porsesh:'پرسش',hook:'هوک‌ها'};
 const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px sans-serif"><div style="height:200px"></div>
 <div class="abovePrompt_x"><div id="root"></div></div>
 <div aria-label="Message input" contenteditable="true" style="min-height:40px;border:1px solid #888"></div></body></html>`;
@@ -65,13 +65,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(e(Band));})()`;
    await p.waitForTimeout(50)};
   await drag('do_jomle','hads','right');
   out.dragFirst=await p.evaluate(()=>({sent:window.__inputs[window.__inputs.length-1],presses:window.__presses.length}));
-  assert.deepEqual(out.dragFirst,{sent:'do_jomle hads nakarde khodkar cron porsesh hook',presses:1});
+  assert.deepEqual(out.dragFirst,{sent:'do_jomle hads ravand nakarde khodkar cron porsesh hook',presses:1});
   // even with the band's text selected, as after copying a line, a drag still moves the tick
   await p.evaluate(()=>window.getSelection().selectAllChildren(document.querySelector('[class*="band_"]')));
   // the left half of a tick is after it
   await drag('hads','cron','left');
   out.dragAfter=await p.evaluate(()=>window.__inputs[window.__inputs.length-1]);
-  assert.equal(out.dragAfter,'nakarde khodkar cron hads do_jomle porsesh hook');
+  assert.equal(out.dragAfter,'ravand nakarde khodkar cron hads do_jomle porsesh hook');
   // a drag that ends on the tick it started from moves nothing and does not toggle it
   const w=await box('khodkar'); const n0=await p.evaluate(()=>[window.__presses.length,window.__inputs.length]);
   await p.mouse.move(w.x+w.width*0.3,w.y+w.height/2);await p.mouse.down();await p.mouse.move(w.x+w.width*0.7,w.y+w.height/2,{steps:4});await p.mouse.up();await p.waitForTimeout(50);

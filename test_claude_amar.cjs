@@ -5,7 +5,7 @@ const {chromium}=require('playwright');
 const fs=require('node:fs');
 const assert=require('node:assert/strict');
 const script=fs.readFileSync(process.env.BUTTONS_JS||__dirname+'/claude-ui-buttons.js','utf8');
-const sefr={do_jomle:0,hads:0,nakarde:0,khodkar:0,cron:0,jambandi_nobat:0,porsesh:0,kol:0,usd:0};
+const sefr={do_jomle:0,hads:0,ravand:0,nakarde:0,khodkar:0,cron:0,jambandi_nobat:0,porsesh:0,kol:0,usd:0};
 const dade={saat:{...sefr,hads:1,nakarde:1,khodkar:1,cron:1,kol:1,usd:0.026},ruz:{...sefr,hads:1,nakarde:1,khodkar:1,cron:1,do_jomle:1,kol:2,usd:0.029},hame:{...sefr,hads:2,nakarde:1,khodkar:1,cron:1,do_jomle:1,jambandi_nobat:1,kol:3,usd:0.029},
   riz:[{t:Date.now()-6e5,b:['hads','nakarde','khodkar','cron'],rah:'fork',in:1000,out:100,cw:0,cr:100000,usd:0.026},{t:Date.now()-18e6,b:['do_jomle'],rah:'sonnet',in:1000,out:100,cw:0,cr:0,usd:0.003}]};
 // many calls: big is tall and must stay inside the window
@@ -26,8 +26,8 @@ const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><b
   out.small=await p.evaluate(()=>{const b=document.getElementById('crtl-amar'),rows=[...b.querySelectorAll('tr')];
     return {hidden:getComputedStyle(document.getElementById('raw')).display,rows:rows.length,cols:rows[0].children.length,
       vertical:getComputedStyle(b.querySelector('.crtl-amar-amudi')).writingMode,heads:[...b.querySelectorAll('.crtl-amar-amudi')].map(x=>x.textContent).join(' '),
-      hour:[...rows[1].children].map(x=>x.textContent).join(' '),left:Math.round(b.getBoundingClientRect().left)<20,dollar:/\$/.test(b.textContent),lines:getComputedStyle(b.querySelector('td')).borderTopStyle,narrow:Math.round(b.getBoundingClientRect().width)<=150}});
-  assert.deepEqual(out.small,{hidden:'none',rows:4,cols:8,vertical:'vertical-rl',heads:'دو جمله حدس نکرده خودکار کرون جمع‌بندی پرسش کل',hour:'۰ ۱ ۱ ۱ ۱ ۰ ۰ ۱',left:true,dollar:false,lines:'solid',narrow:true});
+      hour:[...rows[1].children].map(x=>x.textContent).join(' '),left:Math.round(b.getBoundingClientRect().left)<20,dollar:/\$/.test(b.textContent),lines:getComputedStyle(b.querySelector('td')).borderTopStyle,narrow:Math.round(b.getBoundingClientRect().width)<=170}});
+  assert.deepEqual(out.small,{hidden:'none',rows:4,cols:9,vertical:'vertical-rl',heads:'دو جمله حدس روند نکرده خودکار کرون جمع‌بندی پرسش کل',hour:'۰ ۱ ۰ ۱ ۱ ۱ ۰ ۰ ۱',left:true,dollar:false,lines:'solid',narrow:true});
   // a new copy of the line (the box drew again) is hidden at once, not up to a second later
   out.fast=await p.evaluate(()=>new Promise(res=>{const o=document.getElementById('raw'),n=document.createElement('span');n.className='text_x';n.id='raw2';n.textContent=o.textContent;o.replaceWith(n);
     setTimeout(()=>res(getComputedStyle(n).display),120)}));

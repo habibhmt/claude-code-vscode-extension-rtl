@@ -2317,7 +2317,7 @@
   // قابل جابجایی … یک ساعت اخیر 24 ساعت اخیر کل … خودکار رو عمودی بنویس … اگر بزرگش بکنم … ریز بریز با مقدار
   // مقادیر کامل»). The data is one hidden line the hads mod renders in its box (neshane_amar, register.js).
   var NESHANE_AMAR = '⁣AMAR', KELID_JA_AMAR = 'crtl-amar-ja';
-  var sotun_amar = [['do_jomle', 'دو جمله'], ['hads', 'حدس'], ['nakarde', 'نکرده'], ['khodkar', 'خودکار'], ['cron', 'کرون'],
+  var sotun_amar = [['do_jomle', 'دو جمله'], ['hads', 'حدس'], ['ravand', 'روند'], ['nakarde', 'نکرده'], ['khodkar', 'خودکار'], ['cron', 'کرون'],
     ['jambandi_nobat', 'جمع‌بندی'], ['porsesh', 'پرسش'], ['kol', 'کل']];
   var radif_amar = [['saat', '۱ ساعت'], ['ruz', '۲۴ ساعت'], ['hame', 'کل']];
   var amar_matn_akhar = '', amar_bozorg = false, ja_kuchak_amar = null;

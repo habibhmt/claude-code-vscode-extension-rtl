@@ -38,6 +38,10 @@
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (!d) return;
+    if (d.type === 'crtl-tarjome') {
+      if (d.sid === SESSION.sid && window.__crtl_tarjome_resid) window.__crtl_tarjome_resid(d);
+      return;
+    }
     if (d.type === 'crtl-session-info') {
       if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; neshan_shenase_chat(); }
       return;
@@ -2291,7 +2295,7 @@
       var bs = card.querySelectorAll('button');
       sabet_hads(card);
       // only the «حدس ▸» button left: the card shrinks to it
-      card.classList.toggle('crtl-hads-tak-dokme', bs.length === 1 && /^حدس/.test((bs[0].textContent || '').trim()));
+      card.classList.toggle('crtl-hads-tak-dokme', bs.length <= 2 && !!card.querySelector('button[data-press-key="hads-dot"]'));
       for (var b = 0; b < bs.length; b++) {
         var tx = (bs[b].textContent || '').trim();
         if (/^hads-tick-/.test(bs[b].getAttribute('data-press-key') || '') && !bs[b].dataset.crtlKesh) keshidan_tik_hads(bs[b], card);
@@ -2439,6 +2443,99 @@
     }).observe(document.body || document.documentElement, { childList: true, subtree: true, characterData: true });
   } catch (e) {}
   window.__crtl_jadval_tamas = jadval_tamas;
+
+  /* ---------------- «ترجمه»: the hads mod's Persian in place of an English answer ---------------- */
+  // Only the view changes; the chat's file never does. The original stays one press away.
+  var tarjome_ha = {}, tarjome_mt = 0, tarjome_sid = '';
+  function kelid_tarjome(text) {
+    return (String(text || '').match(/[A-Za-zء-يپچژکگی]/g) || []).slice(0, 60).join('');
+  }
+  function khat_matn_tarjome(parent, text) {
+    String(text).split(/(`[^`]+`|\*\*[^*]+\*\*)/).forEach(function (run) {
+      if (!run) return;
+      var code = /^`[^`]+`$/.test(run), bold = /^\*\*[^*]+\*\*$/.test(run);
+      if (!code && !bold) return parent.appendChild(document.createTextNode(run));
+      var el = document.createElement(code ? 'code' : 'strong');
+      el.textContent = code ? run.slice(1, -1) : run.slice(2, -2);
+      parent.appendChild(el);
+    });
+  }
+  // a small markdown drawing, by DOM nodes only: the text never becomes HTML
+  function sakht_tarjome(text, out) {
+    var lines = String(text).split('\n'), i = 0;
+    function add(tag, t) { var el = document.createElement(tag); if (t !== undefined) khat_matn_tarjome(el, t); out.appendChild(el); return el; }
+    while (i < lines.length) {
+      var l = lines[i], m;
+      if (/^```/.test(l)) {
+        var code = []; i++;
+        while (i < lines.length && !/^```/.test(lines[i])) code.push(lines[i++]);
+        i++;
+        var pre = add('pre'); pre.dir = 'ltr'; pre.textContent = code.join('\n');
+      } else if (/^\s*\|.*\|\s*$/.test(l)) {
+        var table = add('table');
+        for (; i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]); i++) {
+          if (/^\s*\|[\s:|-]+\|\s*$/.test(lines[i])) continue;
+          var tr = table.insertRow();
+          lines[i].trim().slice(1, -1).split('|').forEach(function (c) { khat_matn_tarjome(tr.insertCell(), c.trim()); });
+        }
+      } else if ((m = l.match(/^(#{1,6})\s+(.*)/))) { add('h' + Math.min(m[1].length + 2, 6), m[2]); i++; }
+      else if (/^\s*([-*]|\d+\.)\s+/.test(l)) {
+        var ol = /^\s*\d/.test(l), list = add(ol ? 'ol' : 'ul');
+        for (; i < lines.length && /^\s*([-*]|\d+\.)\s+/.test(lines[i]); i++) {
+          var li = document.createElement('li'); khat_matn_tarjome(li, lines[i].replace(/^\s*([-*]|\d+\.)\s+/, '')); list.appendChild(li);
+        }
+      } else { if (l.trim()) add('p', l); i++; }
+    }
+  }
+  function neshan_tarjome() {
+    var root = document.querySelector('[class*="messagesContainer_"]');
+    if (!root) return;
+    root.querySelectorAll('[class*="message_"]').forEach(function (n) {
+      if (n.querySelector('[class*="message_"]') || n.closest('[class*="userMessage_"]') || n.querySelector(':scope > .crtl-tarjome-jabe')) return;
+      var stamp = n.querySelector('[data-message-stamp]');
+      var matn = n.textContent || '';
+      if (stamp) matn = matn.replace(stamp.textContent || '', '');
+      var t = tarjome_ha[kelid_tarjome(matn)];
+      if (!t) return;
+      var jabe = document.createElement('div'); jabe.className = 'crtl-tarjome-jabe'; jabe.dir = 'rtl';
+      var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'crtl-tarjome-dokme'; btn.textContent = 'اصلِ انگلیسی';
+      btn.addEventListener('click', function () {
+        var asl = n.classList.toggle('crtl-tarjome-asl');
+        btn.textContent = asl ? 'ترجمهٔ فارسی' : 'اصلِ انگلیسی';
+      });
+      var matn_el = document.createElement('div'); matn_el.className = 'crtl-tarjome-matn';
+      sakht_tarjome(t, matn_el);
+      jabe.appendChild(btn); jabe.appendChild(matn_el); n.appendChild(jabe);
+      n.classList.add('crtl-tarjome-shod');
+    });
+  }
+  window.__crtl_tarjome_resid = function (d) {
+    tarjome_mt = d.mt;
+    String(d.text || '').split('\n').forEach(function (l) {
+      try { var o = JSON.parse(l); if (o.kelid && o.text) tarjome_ha[o.kelid] = o.text; } catch (e) {}
+    });
+    neshan_tarjome();
+  };
+  (function () {
+    var st = document.createElement('style');
+    st.textContent = [
+      '.crtl-tarjome-shod:not(.crtl-tarjome-asl)>*:not(.crtl-tarjome-jabe):not([data-message-stamp]){display:none!important}',
+      '.crtl-tarjome-asl .crtl-tarjome-matn{display:none}',
+      '.crtl-tarjome-dokme{font-size:10px;opacity:.6;background:none;border:.5px solid rgba(128,128,128,.4);border-radius:5px;color:inherit;cursor:pointer;padding:0 5px;margin-bottom:3px}',
+      '.crtl-tarjome-matn table{border-collapse:collapse;margin:4px 0}',
+      '.crtl-tarjome-matn td{border:.5px solid rgba(128,128,128,.4);padding:2px 6px}',
+      '.crtl-tarjome-matn pre{overflow:auto;padding:6px;background:rgba(128,128,128,.12);border-radius:5px}'
+    ].join('\n');
+    (document.head || document.documentElement).appendChild(st);
+  })();
+  setInterval(function () {
+    var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+    if (!api || !SESSION.sid) return;
+    if (SESSION.sid !== tarjome_sid) { tarjome_sid = SESSION.sid; tarjome_ha = {}; tarjome_mt = 0; }
+    api.postMessage({ type: 'crtl-tarjome', sid: SESSION.sid, mt: tarjome_mt });
+    neshan_tarjome();
+  }, 3000);
+  window.__crtl_kelid_tarjome = kelid_tarjome;
 
   // no give-up: a sign-in or onboarding screen can keep the composer away for minutes (Codex,
   // 31 Oct: the row never came after a login that took longer than the old 30 s limit)

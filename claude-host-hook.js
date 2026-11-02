@@ -128,6 +128,15 @@
       if (!webview || webview.__crtlHost) return;
       webview.__crtlHost = true;
       webview.onDidReceiveMessage(function (m) {
+        if (m && m.type === 'crtl-tarjome') {
+          // the «ترجمه» of the hads mod: the page can't read ~/.claude. Sent only when the file changed.
+          if (!/^[0-9a-f-]{36}$/.test(String(m.sid || ''))) return;
+          try {
+            var ft = path.join(HOME, 'hads-log', m.sid + '.tarjome.jsonl'), mt = fs.statSync(ft).mtimeMs;
+            if (mt !== m.mt) webview.postMessage({ type: 'crtl-tarjome', sid: m.sid, mt: mt, text: fs.readFileSync(ft, 'utf8') });
+          } catch (e) {}
+          return;
+        }
         if (!m || m.type !== 'crtl-session-info') return;
         var sid = String(m.sid || '');
         var ok = /^[0-9a-f-]{36}$/.test(sid);

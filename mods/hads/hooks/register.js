@@ -633,18 +633,28 @@ async function tarjome_ba_fork_khodash($, tj) {
 }
 let tarjome_kadr_dar_kar = false
 async function tarjome_kadr($) {
-  if (tarjome_kadr_dar_kar) return
+  // every press leaves a line and says what became of it: a press that changes nothing must not be silent (Habib, 2 Nov 05:51: «چرا کلیک نمیشه»)
+  const begu = async (natije, matn) => {
+    await benevis_daftar($, 'tarjome_kadr', { natije })
+    if (matn) try { await $.ui.toast(matn) } catch {}
+  }
+  if (tarjome_kadr_dar_kar) return begu('dar_kar', 'ترجمه هنوز در راه است')
   const khandan = async () => { const v = await $.prompt.read(); return typeof v === 'string' ? v : String(v?.text ?? '') }
   tarjome_kadr_dar_kar = true; $.ui.invalidate('ui.render')
   try {
     const matn = await khandan()
-    if (!matn.trim()) return
+    if (!matn.trim()) return await begu('kadr_khali', 'کادر خالی است؛ اول متن را بنویس')
     const r = await $.model.fork({ prompt: prompt_tarjome_kadr(matn) })
     if (r.isAnswered) await benevis_kharj($, 'tarjome_kadr', 'fork', r.usage)
     const t = r.isAnswered ? String(r.text || '').trim() : ''
+    if (!t) return await begu('bi_javab:' + (r.reason || ''), 'ترجمه نیامد: ' + (r.reason || 'جواب خالی'))
     // typed on meanwhile: his newer text is never overwritten
-    if (t && (await khandan()) === matn) await $.prompt.fill({ text: t })
-  } catch {} finally {
+    if ((await khandan()) !== matn) return await begu('matn_avaz_shod', 'وسطِ ترجمه تایپ کردی؛ ترجمه گذاشته نشد')
+    await $.prompt.fill({ text: t })
+    await begu('shod')
+  } catch (err) {
+    await begu('khata:' + String(err?.message || err).slice(0, 200), 'خطای ترجمه')
+  } finally {
     tarjome_kadr_dar_kar = false; $.ui.invalidate('ui.render')
   }
 }

@@ -111,6 +111,41 @@ class FolderPatchTests(unittest.TestCase):
             f.patch_folder_filter(ext, PAYLOAD, m.atomic_write, revert=True)
             self.assertEqual(sources, {name: (root / name).read_text() for name in sources})
 
+    def test_repatch_removes_own_helper_and_revert_is_identical(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ext = Path(tmp)
+            root = ext / 'webview/assets'
+            fixture(root)
+            stranger = root / 'chatgpt-folder-filter-notrecorded.js'
+            stranger.write_text('no manifest names this file')
+            tree = lambda: {str(p.relative_to(ext)): p.read_bytes() for p in ext.rglob('*') if p.is_file()}
+            before = tree()
+            helper = lambda: json.loads((ext / 'webview/.chatgpt-folder-filter.json').read_text())['helper']
+            f.patch_folder_filter(ext, PAYLOAD, m.atomic_write)
+            first = helper()
+            f.patch_folder_filter(ext, PAYLOAD + '\n// next version', m.atomic_write)
+            second = helper()
+            self.assertNotEqual(first, second)
+            self.assertFalse((root / first).exists(), 'Previous helper must go')
+            self.assertTrue((root / second).exists())
+            self.assertTrue(stranger.exists(), 'A file the manifest does not name stays')
+            f.patch_folder_filter(ext, PAYLOAD, m.atomic_write, revert=True)
+            self.assertEqual(tree(), before)
+
+    def test_changed_helper_is_kept(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ext = Path(tmp)
+            root = ext / 'webview/assets'
+            fixture(root)
+            f.patch_folder_filter(ext, PAYLOAD, m.atomic_write)
+            name = json.loads((ext / 'webview/.chatgpt-folder-filter.json').read_text())['helper']
+            (root / name).write_text('edited by someone else')
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                f.patch_folder_filter(ext, PAYLOAD, m.atomic_write, revert=True)
+            self.assertEqual((root / name).read_text(), 'edited by someone else')
+            self.assertIn('[KEPT folder helper]', err.getvalue())
+
     def test_contract_change_does_not_partially_install(self):
         with tempfile.TemporaryDirectory() as tmp:
             ext = Path(tmp)
@@ -199,6 +234,7 @@ class FolderPatchTests(unittest.TestCase):
             with self.assertRaises(KeyboardInterrupt):
                 f.patch_folder_filter(ext, PAYLOAD, stopping_write)
             self.assertEqual(before, {n: (root / n).read_bytes() for n in before})
+            self.assertEqual(set(before), {p.name for p in root.iterdir() if p.is_file()}, 'Rollback leaves no new file')
 
     def test_broken_filter_file_keeps_rtl(self):
         with tempfile.TemporaryDirectory() as tmp:

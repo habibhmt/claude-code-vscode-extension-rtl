@@ -36,6 +36,13 @@ def atomic_write(path, data):
             os.unlink(name)
 
 
+def remove_recorded_assets(root, names, keep=()):
+    """Delete only files our manifest names, and only with our own name shape."""
+    for name in names:
+        if name not in keep and Path(name).name == name and name.startswith('chatgpt-rtl-'):
+            (root / name).unlink(missing_ok=True)
+
+
 def patch(ext, ui, css, revert=False):
     root = ext / 'webview'
     html = root / 'index.html'
@@ -51,6 +58,7 @@ def patch(ext, ui, css, revert=False):
             atomic_write(html, backup.read_bytes())
             manifest.unlink()
             backup.unlink()
+            remove_recorded_assets(root, previous.get('assets', []))
             print(f'[RESTORED] {ext}')
         return
     original = backup.read_bytes() if previous else current
@@ -69,18 +77,24 @@ def patch(ext, ui, css, revert=False):
         candidate = Path(temp) / 'ui.js'
         candidate.write_text(ui)
         subprocess.run(['node', '--check', str(candidate)], check=True, capture_output=True)
-    if not previous:
-        if backup.exists() and backup.read_bytes() != original:
-            raise RuntimeError('Untracked backup differs from current HTML')
-        atomic_write(backup, original)
-    atomic_write(root / js_name, ui.encode())
-    atomic_write(root / css_name, css.encode())
+    if not previous and backup.exists() and backup.read_bytes() != original:
+        raise RuntimeError('Untracked backup differs from current HTML')
+    # A half install leaves nothing new: no later run could name these files, as no manifest records them.
+    created = [p for p in (backup, root / js_name, root / css_name) if not p.exists()]
     try:
+        if not previous:
+            atomic_write(backup, original)
+        atomic_write(root / js_name, ui.encode())
+        atomic_write(root / css_name, css.encode())
         atomic_write(html, output)
         atomic_write(manifest, json.dumps({'html_sha256': digest(output), 'assets': [js_name, css_name]}).encode())
     except Exception:
         atomic_write(html, current)
+        for path in created:
+            path.unlink(missing_ok=True)
         raise
+    if previous:
+        remove_recorded_assets(root, previous.get('assets', []), keep=(js_name, css_name))
     print(f'[PATCHED] {ext}')
 
 
@@ -113,14 +127,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--extension-dir', type=Path, action='append', help='Explicit extension root (repeatable)')
     parser.add_argument('--revert', action='store_true')
-    parser.add_argument('--with-font', action='store_true', help='Prefer locally installed Vazirmatn for conversation text')
+    parser.add_argument('--with-font', action='store_true', help='No effect: chatgpt-rtl.css always sets Vazirmatn. Still accepted because installed launch agents pass it')
     args = parser.parse_args()
     defaults_path = Path.home() / '.chatgpt-rtl-sizes.json'
     defaults = json.loads(defaults_path.read_text()) if defaults_path.exists() else {}
     ui = adapter.build_ui(REPO, defaults)
     css = (REPO / 'chatgpt-rtl.css').read_text()
-    if args.with_font:
-        css += '\n.thread-scroll-container :is([class*="MarkdownContent"],.rich-text-user-turn){font-family:Vazirmatn,Tahoma,sans-serif}\n'
     dirs = args.extension_dir or [p for ide in ['.vscode','.vscode-insiders','.cursor','.windsurf','.windsurf-next','.devin'] for p in (Path.home() / ide / 'extensions').glob('openai.chatgpt-*')]
     if not dirs:
         parser.exit(1, 'No installed openai.chatgpt extension found.\n')

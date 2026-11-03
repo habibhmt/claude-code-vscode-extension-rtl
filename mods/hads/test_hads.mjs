@@ -952,6 +952,92 @@ out.ravandDarChat = { yek: rvCt.length, bala: rvCt[0]?.indexOf('روند (از �
 $.sid = 'RV'
 assert.deepEqual(out.ravandDarChat, { yek: 1, bala: true, khodkarZir: true, shahed: true, dobare: 0, khamush: 0 })
 assert.equal(mod.matn_ferestadan_khodkar([], [], [rvDar('تنها')]).includes('این‌ها را خودت'), false)
+// new words AND a new pair sharing one quote: still the same trend
+$.sid = 'RVC'; flags['/h/.claude/hads-on/RVC'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; $.msgs = [...rvMsgs, U('سومین حرفِ تکراری من')]; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, 'سومین حرفِ تکراری من')] }) }
+const rvC5 = calls.submit.length; await H['command.run']($, { args: 'now' }); await flush(); out.ravandNaghlMoshtarak = calls.submit.length - rvC5; assert.equal(out.ravandNaghlMoshtarak, 0); $.msgs = rvMsgs
+// --- 3 Nov, «بزن همه رو»
+const tanha = 'on -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+const roshan = async (sid, kalame) => { $.sid = sid; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/' + sid] = kalame }
+const hads_javab = (l) => ({ isAnswered: true, usage: {}, text: JSON.stringify({ hads: l.map((t) => ({ label: 'ل', text: t })) }) })
+// 1) the fork is told the guesses already offered, still at least one, and within bounds
+await roshan('HG', tanha + ' -ravand'); $.forkReply = hads_javab(['حدسِ قدیمی']); await H['command.run']($, { args: 'now' }); await flush()
+$.forkReply = hads_javab(['حدسِ نو']); await H['command.run']($, { args: 'now' }); await flush()
+const pHg = calls.fork.at(-1).prompt
+$.forkReply = hads_javab(Array.from({ length: 30 }, (_, i) => 'گ' + i + 'ط'.repeat(500))); await H['command.run']($, { args: 'now' }); await flush(); await H['command.run']($, { args: 'now' }); await flush()
+const pHg2 = calls.fork.at(-1).prompt
+out.hadsGhabli = { ghadimi: pHg.includes('«حدسِ قدیمی»'), ta1: /at least 1/.test(pHg) && pHg.includes('دست‌کم یک حدسِ تازه'), hichNagu: /"hads": \[\]|0 or more, each \{"label"/.test(pHg), had: (pHg2.match(/«گ\d+ط+»/g) || []).length, bozorg: (pHg2.match(/ط+/g) || []).some((x) => x.length > mod.had_hads_ghabli_harf) }
+assert.deepEqual(out.hadsGhabli, { ghadimi: true, ta1: true, hichNagu: false, had: mod.had_tedad_hads_ghabli_khat, bozorg: false })
+// a guess offered again while the list is full counts as new: it must outlive older ones even after the next round
+await roshan('HGT', tanha + ' -ravand'); $.forkReply = hads_javab(['تکراری', ...Array.from({ length: mod.had_tedad_hads_ghabli_khat - 1 }, (_, i) => 'میانی' + i)]); await H['command.run']($, { args: 'now' }); await flush()
+$.forkReply = hads_javab(['تازه', 'تکراری']); await H['command.run']($, { args: 'now' }); await flush()
+$.forkReply = hads_javab(['سوم']); await H['command.run']($, { args: 'now' }); await flush(); await H['command.run']($, { args: 'now' }); await flush()
+const pHgT = calls.fork.at(-1).prompt
+out.hadsTekrari = { tekrari: (pHgT.match(/«تکراری»/g) || []).length, had: (pHgT.match(/«(تکراری|تازه|سوم|میانی\d+)»/g) || []).length, ghadimi: pHgT.includes('«میانی0»') }
+assert.deepEqual(out.hadsTekrari, { tekrari: 1, had: mod.had_tedad_hads_ghabli_khat, ghadimi: false })
+// 2) who sent it: the engine's stamp first, the text only when there is none
+out.azHabib = [['composer', '<task-notification'], ['bridge', 'از گوشی'], ['task-notification', 'سلام'], ['plugin', 'سلام'], ['peer', 'سلام'], ['unclassified', 'سلام'], ['unclassified', '<task-notification>'], [null, 'سلام'], [null, 'Continue from where you left off.']].map(([k, text]) => mod.az_habib_ast({ text, ...(k ? { origin: { kind: k } } : {}) }))
+assert.deepEqual(out.azHabib, [true, true, false, false, false, true, false, true, false])
+// a notification delivered into the running turn does not wipe the turn: found red before the fix (its tools were gone from the summary)
+await roshan('OR', 'on -ravand -nakarde -khodkar -cron -porsesh -hook -zaban'); $.msgs = [U('کار کن')]; $.forkReply = { isAnswered: true, usage: {}, text: '{"text":"خلاصه.","hads":[{"label":"ل","text":"حدسِ زدنی"}]}' }
+const evOr = events.length
+const taNobat = async () => { await H['turn.complete']($, {}, next); await flush() }
+await H['prompt.submit']($, { text: 'خواستهٔ من', origin: { kind: 'composer' } }, next)
+await H['tool.call']($, { tool: 'Bash', command: 'ابزارِ-اول' }, next); await flush()
+await H['prompt.submit']($, { text: '<task-notification>تمام</task-notification>', origin: { kind: 'task-notification' }, turnId: 't1' }, next)
+await taNobat()
+const jOr = events.slice(evOr).filter((x) => x.kind === 'jambandi_nobat').at(-1)
+out.nobatMiManad = { abzar: calls.fork.at(-1).prompt.includes('ابزارِ-اول'), khaste: jOr?.khaste_habib }
+assert.deepEqual(out.nobatMiManad, { abzar: true, khaste: 'خواستهٔ من' })
+// at idle a notification is a turn of its own, with no word of his
+await H['prompt.submit']($, { text: 'سلام', origin: { kind: 'task-notification' } }, next); await H['tool.call']($, { tool: 'Bash', command: 'ابزارِ-دوم' }, next); await flush(); const evOr2 = events.length; await taNobat()
+out.nobatTaze = events.slice(evOr2).filter((x) => x.kind === 'jambandi_nobat').at(-1)?.khaste_habib; assert.equal(out.nobatTaze, mod.matn_bi_harfe_habib)
+// a notification does not forget the guess he pressed
+await find(await render(), 'hads-0').onPress(); await H['prompt.submit']($, { text: 'سلام', origin: { kind: 'task-notification' }, turnId: 't2' }, next); const evOr3 = events.length
+await H['prompt.submit']($, { text: 'حدسِ زدنی', origin: { kind: 'composer' } }, next)
+out.hadsZadeMand = events.slice(evOr3).some((x) => x.kind === 'hads_ferestade'); assert.equal(out.hadsZadeMand, true)
+// 3) his messages kept at a compact and at a stamped prompt: the witnesses need no grep; a fail changes nothing
+const fZ = (sid) => '/h/.claude/hads-log/' + sid + '.payam_habib.json'
+await roshan('PZ', tanha + ' -hads'); $.msgs = []
+const pzE = { trigger: 'auto', messages: [U(M1), { role: 'assistant', text: 'حرفِ مدل' }, U('The hads plugin sent a message:\nحرفِ پلاگین'), U('Another Claude session sent a message: <cross-session-message>حرفِ ایجنت</cross-session-message>')] }
+out.fshordeHamanE = await H['session.compact']($, pzE, next) === pzE; await flush()
+await H['prompt.submit']($, { text: M2, origin: { kind: 'composer' } }, next); await H['prompt.submit']($, { text: 'حرفِ کارِ پس‌زمینه', origin: { kind: 'task-notification' } }, next); await H['prompt.submit']($, { text: 'بی‌مهر', origin: { kind: 'unclassified' } }, next); await flush()
+out.payamZakhire = JSON.parse(flags[fZ('PZ')]); assert.deepEqual(out.payamZakhire, [M1, M2].map((x) => x)); assert.equal(out.fshordeHamanE, true)
+const pzRun = $.process.run; let pzGrep = 0; $.process.run = async (argv, init) => { if (argv[4] === mod.payam_transcript_grep) pzGrep++; return pzRun(argv, init) }
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }; await H['command.run']($, { args: 'now' }); await flush(); out.bedunGrep = { grep: pzGrep, rv: !!find(await render(), 'hads-rv-0') }; assert.deepEqual(out.bedunGrep, { grep: 0, rv: true })
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, 'حرفی که اصلا نگفت')] }) }; await H['command.run']($, { args: 'now' }); await flush(); out.grepFallback = pzGrep; assert.equal(out.grepFallback, 1); $.process.run = pzRun
+// a subagent's compact, a chat that is off, a write that fails: nothing written, the compact passes
+const pzW = $.fs.write; const fZn = Object.keys(flags).length
+await H['session.compact']($, { trigger: 'auto', agentId: 'a', messages: [U('حرفِ کارگر')] }, next); await flush(); assert.equal(flags[fZ('PZ')].includes('حرفِ کارگر'), false)
+$.fs.write = async () => { throw new Error('nashod') }; const pzE2 = { trigger: 'manual', messages: [U('پیامِ تازه‌ای برای نوشتن')] }; out.fshordeBaKhata = await H['session.compact']($, pzE2, next) === pzE2; await flush(); $.fs.write = pzW; assert.equal(out.fshordeBaKhata, true)
+$.sid = 'PZOFF'; await H['session.compact']($, pzE, next); await flush(); assert.equal(fZ('PZOFF') in flags, false); assert.ok(Object.keys(flags).length >= fZn)
+// the kept list stays under $.fs's limit, newest kept
+out.payamHad = mod.afzudan_payam(['الف'.repeat(mod.had_payam_zakhire_harf)], ['تازه']); assert.deepEqual(out.payamHad, ['تازه'])
+// the same message from the file and the kept list is one message: two quotes in it are not two witnesses
+out.yekPayamDoManba = rvN('کمتر از من', 'بپرس لطفا', [U(M1), U(M1)]); assert.equal(out.yekPayamDoManba, 0)
+// 4) a short or common quote does not block a new trend; one long shared quote does; old "a | b" keys are known
+const kt = 'بزن همه رو', B2 = 'این یکی حرفِ کاملاً تازهٔ من است', Rv = (...h) => ({ shahed: h.map((harf) => ({ harf })) })
+out.ravandKelid = { kutah: mod.ravand_ferestade_bud(Rv(kt, B2), [kt, 'کلید کل ' + kt]), boland: mod.ravand_ferestade_bud(Rv(M1, B2), [M1]), hamanJoft: mod.ravand_ferestade_bud(Rv(kt, 'دو کلمه'), [[kt, 'دو کلمه'].sort().join(' | ')]), ghadimiBoland: mod.ravand_ferestade_bud(Rv(M1, B2), [[M1, M2].sort().join(' | ')]), ghadimiKutah: mod.ravand_ferestade_bud(Rv(kt, B2), [[kt, M2].sort().join(' | ')]), seNoghte: mod.ravand_ferestade_bud(Rv(M1 + ' …', B2), [M1]) }
+assert.deepEqual(out.ravandKelid, { kutah: false, boland: true, hamanJoft: true, ghadimiBoland: true, ghadimiKutah: false, seNoghte: true })
+const rsM = [U(kt + ' و تمام'), U(M1), U(B2)]
+await roshan('RS', tanha + ' -hads'); $.msgs = rsM; const rsRun = $.process.run; $.process.run = async (argv, init) => (argv[4] === mod.payam_transcript_grep ? { exitCode: 0, stdout: [kt + ' و تمام', M1, B2].map((x) => khatFile(x)).join('\n') } : rsRun(argv, init))
+const rsC = calls.submit.length
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(kt, M1)] }) }; await H['command.run']($, { args: 'now' }); await flush()
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(kt, B2)] }) }; await H['command.run']($, { args: 'now' }); await flush()
+const rsTaze = calls.submit.length - rsC
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, B2)] }) }; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandKutah = { taze: rsTaze, tekrar: calls.submit.length - rsC - rsTaze }; assert.deepEqual(out.ravandKutah, { taze: 2, tekrar: 0 })
+// /clear during the read of the kept list: nothing of it lands in the new chat
+await roshan('CLR', tanha + ' -hads'); $.msgs = rsM; flags['/h/.claude/hads-on/CLR2'] = tanha + ' -hads'
+flags[fZ('CLR')] = JSON.stringify([M1, B2])
+const clrRead = $.fs.read; $.fs.read = async (f) => { if (f === fZ('CLR')) $.sid = 'CLR2'; return clrRead(f) }
+const evClr = events.length; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, B2)] }) }; await H['command.run']($, { args: 'now' }); await flush(); $.fs.read = clrRead
+out.ravandClear = { daftar: events.slice(evClr).filter((x) => x.kind === 'ravand').length, naghsh: !!find(await render(), 'hads-rv-0') }; assert.deepEqual(out.ravandClear, { daftar: 0, naghsh: false })
+// /clear during the read of the chat file
+await roshan('CLF', tanha + ' -hads'); flags['/h/.claude/hads-on/CLF2'] = tanha + ' -hads'
+const clfRun = $.process.run; $.process.run = async (argv, init) => { if (argv[4] === mod.payam_transcript_grep) $.sid = 'CLF2'; return clfRun(argv, init) }
+const evClf = events.length; await H['command.run']($, { args: 'now' }); await flush(); $.process.run = clfRun
+out.ravandClearFile = events.slice(evClf).filter((x) => x.kind === 'ravand').length; assert.equal(out.ravandClearFile, 0)
+$.process.run = rsRun; $.msgs = rvMsgs; $.sid = 'RV'
 // ticked off during the answer's end: it does not go
 $.sid = 'RVE'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVE'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvDar('جهتِ سه')] }) }
 const rvRun4 = $.process.run; $.process.run = async (argv, init) => { if (/"kind":"ravand"/.test(init?.stdin || '')) flags['/h/.claude/hads-on/RVE'] = 'on -ravand -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; return rvRun4(argv, init) }

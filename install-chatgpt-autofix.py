@@ -20,7 +20,7 @@ if a.remove:
 else:
     target.parent.mkdir(parents=True, exist_ok=True)
     env = {'PATH': os.environ['PATH']}
-    data = {'Label': label, 'ProgramArguments': [sys.executable, str(Path(__file__).resolve().with_name('fix-rtl-chatgpt.py')), '--with-font'], 'RunAtLoad': True, 'StartInterval': 300, 'EnvironmentVariables': env, 'StandardErrorPath': str(Path.home() / 'Library/Logs/chatgpt-rtl-error.log')}
+    data = {'Label': label, 'ProgramArguments': [sys.executable, str(Path(__file__).resolve().with_name('fix-rtl-chatgpt.py'))], 'RunAtLoad': True, 'StartInterval': 300, 'EnvironmentVariables': env, 'StandardErrorPath': str(Path.home() / 'Library/Logs/chatgpt-rtl-error.log')}
     target.write_bytes(plistlib.dumps(data))
     subprocess.run(['launchctl', 'bootstrap', domain, str(target)], check=True)
     print(f'Installed {target}')

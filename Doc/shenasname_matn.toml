@@ -1216,3 +1216,43 @@ noe = "sabet"
 ba_motaghayerha = ["payam_transcript_grep"]
 tarif = "23"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-11-03 04:40)"
+
+[had_tedad_hads_ghabli_khat]
+yani = "چند حدسِ آخر به کپیِ چت داده می‌شود تا تکرارشان نکند: ⟦had_tedad_hads_ghabli_khat⟧"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[had_hads_ghabli_harf]
+yani = "سقفِ حرفِ هر حدسِ قبلی که به کپیِ چت داده می‌شود: ⟦had_hads_ghabli_harf⟧"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[hads_ghabli_har_chat]
+yani = "حدس‌های قبلیِ هر چت در حافظهٔ برنامه؛ با ریلود خالی می‌شود"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[had_tedad_payam_zakhire_khat]
+yani = "سقفِ تعدادِ حرف‌های حبیب که برای هر چت نگه داشته می‌شود: ⟦had_tedad_payam_zakhire_khat⟧"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[had_payam_zakhire_harf]
+yani = "سقفِ جمعِ حرفِ پیام‌های نگه‌داشته‌شده، زیرِ محدودیتِ فایل: ⟦had_payam_zakhire_harf⟧"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[payam_zakhire_har_chat]
+yani = "حرف‌های نگه‌داشته‌شدهٔ حبیب برای هر چت، در حافظهٔ برنامه"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[saf_payam_har_chat]
+yani = "نوشتن‌های پشتِ سرِ همِ فایلِ حرف‌های حبیب برای هر چت، تا روی هم نیفتند"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
+
+[had_kelid_ravand_kamtarin_harf]
+yani = "نقلِ کوتاه‌تر از ⟦had_kelid_ravand_kamtarin_harf⟧ حرف به‌تنهایی روندِ تازه را نمی‌بندد؛ این مرز را ایجنت انتخاب کرده و از داده نیامده"
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"

@@ -29,14 +29,23 @@ export function crtlFilterFolderRows(rows, roots, merged = false) {
   });
 }
 
+// Tells chatgpt-tabs.js (#crtl-payam). A plain event, no extra React hook, and it only writes outside
+// React's tree, so a difference in the native React cannot turn this into a blank page.
+function crtlFolderNotice(unread) {
+  if (typeof window === 'undefined' || window.__crtlFolderUnread === unread) return;
+  window.__crtlFolderUnread = unread;
+  try { window.dispatchEvent(new CustomEvent('crtl-folder-read')); } catch (_) {}
+}
+
 export function crtlUseFolderRows(rows, merged = false) {
   crtlInitInputs();
   const query = crtlUseQuery(crtlWorkspaceRoots, {hostId: 'local'});
   const roots = query.data?.roots;
   const React = crtlReact();
-  // The folders could not be read: an empty list reads as «no chats», so the native list stays.
-  const failed = query.isError === true;
-  return React.useMemo(() => failed ? rows : crtlFilterFolderRows(rows, roots, merged), [rows, roots, merged, failed]);
+  // Folders never read: the list is empty (like loading) and the message says why. Nothing is deleted;
+  // the list returns when a read succeeds. Known folders always filter.
+  crtlFolderNotice(query.isError === true && !Array.isArray(roots));
+  return React.useMemo(() => crtlFilterFolderRows(rows, roots, merged), [rows, roots, merged]);
 }
 
 export function crtlUseFolderResult(result) {

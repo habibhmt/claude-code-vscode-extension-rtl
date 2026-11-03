@@ -105,7 +105,22 @@ const css=fs.readFileSync(__dirname+'/chatgpt-rtl.css','utf8');
    await page.locator('[data-crtl-history]').click();await page.waitForTimeout(8500);
    assert.match(await page.locator('#crtl-payam').innerText(),/اتصال تب‌ها برقرار نشد/);
    assert.equal(await tabs.count(),0);assert.equal(await add.isDisabled(),true);
+   // A folder message and its clearing must not lose the lasting tabs breakage.
+   const folderEvent=unread=>page.evaluate(u=>{window.__crtlFolderUnread=u;window.dispatchEvent(new CustomEvent('crtl-folder-read'))},unread);
+   await folderEvent(true);
+   const both=await page.locator('#crtl-payam').innerText();
+   assert.match(both,/پوشه خوانده نشد/);assert.match(both,/اتصال تب‌ها برقرار نشد/);
+   await folderEvent(false);
+   const left=await page.locator('#crtl-payam').innerText();
+   assert.match(left,/اتصال تب‌ها برقرار نشد/);assert.doesNotMatch(left,/پوشه خوانده نشد/);
   }
+  // The head-row timer stops with the page: it fills the title before pagehide and never after.
+  await start(source);
+  await page.evaluate(()=>{const r=document.createElement('div');r.id='crtl-top-jaygozin';document.body.append(r);});
+  await page.waitForSelector('#crtl-onvan',{state:'attached'});
+  await page.evaluate(()=>{window.dispatchEvent(new Event('pagehide'));document.getElementById('crtl-onvan').remove();});
+  await page.waitForTimeout(900);
+  assert.equal(await page.locator('#crtl-onvan').count(),0,'Head-row timer must stop on pagehide');
   const noHistory=source.replace("document.addEventListener('click', historySelection, true);", '// disabled history connection');
   assert.notEqual(noHistory,source);await start(noHistory);await page.locator('[data-crtl-history]').click();
   await page.getByRole('button',{name:'گفتگوی قدیمی آزمایشی',exact:true}).click();

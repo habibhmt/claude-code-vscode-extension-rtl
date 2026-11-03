@@ -98,6 +98,17 @@ export const az_agent_digar = (t) => /<cross-session-message|^\s*Another Claude 
 export const matn_bi_harfe_habib = 'حرفِ تازه‌ای از حبیب نبود؛ ادامهٔ کارِ قبلی'
 export const harf_habib = (t) => !t || az_agent_digar(t) || /^\s*(<task-notification|Continue from where you left off|This session is being continued)/.test(t) ? matn_bi_harfe_habib : t
 
+// who sent a prompt, as the engine says it in prompt.submit (never a text prefix): composer = his Enter, bridge = his phone.
+// Measured in 2.1.317: the chat file's "human" reaches a hook as one of these two, and a typed prompt the engine has no stamp
+// for comes as `unclassified`, so that and an absent origin fall back to the text
+export const az_habib_ast = (e) => {
+  const k = e?.origin?.kind
+  if (k === 'composer' || k === 'bridge') return true
+  if (k && k !== 'unclassified') return false
+  const t = String(e?.text || '').trim()
+  return !!t && harf_habib(t) === t
+}
+
 // Labelled context: Habib's own words, Claude's answers, and other agents'
 // messages kept apart, so guesses follow Habib and still know the story.
 export function sakht_prompt(messages) {
@@ -124,6 +135,13 @@ const prompt_fork_hads = '"hads": [as many as you really think, at least 1, each
 // «نکرده‌ها»: the fork has read the whole chat, every tool's output included. Its rules come from two
 // Sonnet audits of this chat (25 Oct 03:33): only Habib's own words; done means a tool proved it; his
 // later word replaces the earlier; a promise not kept counts; other items first than last time
+// the guesses already offered, so the next ones are new (Habib wants a guess every time: at least 1 stays). Bounded
+export const had_tedad_hads_ghabli_khat = 12
+export const had_hads_ghabli_harf = 200
+const hads_ghabli_har_chat = new Map()
+const ghaede_hads = (ghabli = []) => ghabli.length ? '\n\n«hads»: این حدس‌ها را قبلاً به حبیب داده‌ای؛ همان‌ها را تکرار نکن، حتی با کلمه‌های دیگر؛ باز هم دست‌کم یک حدسِ تازه بده: ' + ghabli.map((x) => '«' + x + '»').join(' · ') : ''
+// a guess offered again counts by its newest place, so the one on screen is never the one dropped
+const baraye_hads_ghabli = (list) => [...new Set(list.map((x) => String(x).slice(0, had_hads_ghabli_harf)).reverse())].slice(0, had_tedad_hads_ghabli_khat).reverse()
 const prompt_fork_nakarde = () => '"nakarde": [all of them, 0 or more, each {"harf": "<حرفِ عینِ حبیب، حداکثر ۲۵ کلمه، بلندتر با … کوتاه>", "zaman": "<کی گفت، به وقتِ تهران: از مُهرِ ساعتِ پیامش مثلِ [01:03 +0330 -- habib] ⇒ ۲۵ اکت ۰۱:۰۳>", "chera": "<یک جملهٔ کوتاه: چرا هنوز انجام نشده، با مدرک از همین چت>", "shomare": <شمارهٔ همین کار از «دفترِ کارها» اگر همان کار است، حتی با کلمه‌های دیگر؛ کارِ تازه ⇒ نگذار>, "sanad": <همیشه بده اگر سنجیدنی است: {"file": "<مسیرِ کاملِ فایلی که اگر انجام شده بود این متن در آن بود>", "matn": "<آن متن، کوتاه و عیناً>"} یا {"git": "<مسیرِ کاملِ پوشهٔ پروژه>", "matn": "<کلمه‌ای که در پیامِ commit ِ آن کار می‌آمد>"} یا {"hast": "<مسیرِ کاملِ فایلی که فقط وقتی کار انجام شده وجود دارد، مثلاً عکس>"}؛ سنجیدنی نیست ⇒ {"dasti": true}>}]'
 const ghaede_nakarde = (anjam, commit_ha = '', ferestade = [], daftar_kar = []) => (daftar_kar.length ? '\n\n«دفترِ کارها» (شماره ⇐ کار؛ کارِ همان را با همان شماره بیاور): ' + daftar_kar.map((k) => 'ک-' + k.sh + ': «' + k.harf + '»').join(' · ') : '') + '\n\n«nakarde» (نکرده‌ها): کلِ همین چت را از اول در حافظهٔ خودت مرور کن و همهٔ کارهایی را بیاور که حبیب خواست و هنوز انجام نشده، بی‌سقف. ' +
   '۱) فقط حرفِ خودِ حبیب. پیامِ ایجنتِ دیگر، system-reminder، task-notification و «Continue from where you left off» حرفِ حبیب نیست؛ حرفی از حبیب که ایجنتی عینش را نقل کرده حساب است. ' +
@@ -222,7 +240,7 @@ const ghaede_ravand = (zade = []) => '\n\n«ravand» (روند): کلِ همین
   '۵) این متن‌ها دکمه بوده‌اند، نه حرفِ حبیب، و شاهد نیستند: ' + (zade.length ? zade.map((x) => '«' + x + '»').join(' · ') : '(هیچ)') + '. ' +
   '۶) بی‌شاهد نیاید. نقلِ ساختگی یا چسبانده از دو پیام نیاید؛ پیش از نمایش، هر نقل در پیام‌های حبیب گشته می‌شود. نامطمئن ⇒ نیاور. هیچ نبود ⇒ []. فارسیِ ساده، با واژه‌های حبیب.'
 const prompt_fork_bakhsh_ha = (p, anjam) => [p.do_jomle && prompt_fork_do_jomle, p.hads && prompt_fork_hads, p.ravand && prompt_fork_ravand, p.nakarde && prompt_fork_nakarde(), p.khodkar && prompt_fork_khodkar, p.cron && prompt_fork_cron].filter(Boolean)
-const ghaede_bakhsh_ha = (p, anjam) => (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || [], p.daftar_kar || []) : '') + (p.khodkar ? ghaede_khodkar(p.khodkar_rah || []) : '') + (p.cron ? ghaede_cron : '') + (p.ravand ? ghaede_ravand(p.ravand_zade || []) : '')
+const ghaede_bakhsh_ha = (p, anjam) => (p.hads ? ghaede_hads(p.hads_ghabli || []) : '') + (p.nakarde ? ghaede_nakarde(anjam, p.commit_ha, p.khodkar_ferestade || [], p.daftar_kar || []) : '') + (p.khodkar ? ghaede_khodkar(p.khodkar_rah || []) : '') + (p.cron ? ghaede_cron : '') + (p.ravand ? ghaede_ravand(p.ravand_zade || []) : '')
 const prompt_fork = (p, anjam = []) => '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) Reply ONLY with JSON: {' +
   prompt_fork_bakhsh_ha(p, anjam).join(', ') + '}' + ghaede_bakhsh_ha(p, anjam)
 
@@ -277,6 +295,7 @@ export function khandan_ravand(list) {
 }
 // a witness counts only if the code finds it in a message Habib typed himself, in two different messages at least: a model can make up a quote
 const yeksan_harf = (t) => String(t || '').normalize('NFC').replace(/‌/g, ' ').replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/\s+/g, ' ').trim()
+const tamiz_naghl = (t) => yeksan_harf(t).replace(/\s*(…|\.\.\.)\s*$/, '').replace(/^\s*(…|\.\.\.)\s*/, '')
 const payam_dastgah = /^\s*(The [^\n]{1,60} plugin sent a message|<task-notification|<command-|<local-command-|\[Request interrupted|\[Cross-session|Continue from where you left off|This session is being continued|Base directory for this skill|روند \(از مودِ|خودکار \(از مودِ|زبان \(از مودِ|این را خودت انجام بده و از من نپرس|\(این پیام از مودِ)/
 // of «Answering your earlier question "Q": A» only A is his; Q is the agent's
 const javab_panjere = (t) => t.split('\n').map((l) => { const i = l.lastIndexOf('":'); return i < 0 ? '' : l.slice(i + 2) }).join('\n')
@@ -284,7 +303,47 @@ export function payam_ha_ye_habib(msgs) {
   return msgs.filter((m) => m.role === 'user' && m.text && !az_agent_digar(m.text))
     .map((m) => m.text.replace(system_reminder_regex, '').replace(/<browser_instruction>[\s\S]*?<\/browser_instruction>/g, '').replace(/\[Image:[^\]]*\]/g, ''))
     .filter((t) => !payam_dastgah.test(t))
-    .map((t) => yeksan_harf(/^\s*Answering your earlier question/.test(t) ? javab_panjere(t) : t)).filter(Boolean)
+    .map((t) => yeksan_harf(/^\s*Answering your earlier question/.test(t) ? javab_panjere(t) : t)).filter((t, i, all) => t && all.indexOf(t) === i)
+}
+// His messages kept by the mod (ک-۳۴), per chat in ~/.claude/hads-log/<id>.payam_habib.json: before each compact and at each
+// stamped prompt, so the witnesses need not grep a chat file of hundreds of MB. The newest stay, under $.fs's 4 MiB limit.
+// A chat older than this has gaps, so a witness not found here still goes to the file. Any failure changes nothing.
+export const had_tedad_payam_zakhire_khat = 3000
+export const had_payam_zakhire_harf = 1500000
+export function afzudan_payam(list, taze) {
+  const out = [...new Set([...list, ...taze])].slice(-had_tedad_payam_zakhire_khat)
+  let jam = out.reduce((a, t) => a + t.length, 0)
+  while (out.length && jam > had_payam_zakhire_harf) jam -= out.shift().length
+  return out
+}
+const payam_zakhire_har_chat = new Map()
+const saf_payam_har_chat = new Map()
+const masir_payam_zakhire = async ($, id) => (await $.env.get('HOME')) + '/.claude/hads-log/' + id + '.payam_habib.json'
+async function khandan_payam_zakhire($, id) {
+  if (!payam_zakhire_har_chat.has(id)) {
+    let l = []
+    try { const o = JSON.parse(String(await $.fs.read(await masir_payam_zakhire($, id)))); if (Array.isArray(o)) l = o.filter((x) => typeof x === 'string') } catch {}
+    payam_zakhire_har_chat.set(id, l)
+  }
+  return payam_zakhire_har_chat.get(id)
+}
+async function zakhire_payam($, msgs) {
+  try {
+    const id = await $.session.id()
+    if (!(await khandan_file_chat($))?.ravand) return
+    const taze = payam_ha_ye_habib(msgs)
+    if (!taze.length) return
+    // one at a time: a compact and a prompt together must not drop each other's lines
+    const kar = async () => {
+      const list = await khandan_payam_zakhire($, id), out = afzudan_payam(list, taze)
+      if (out.length === list.length && out.every((t, i) => t === list[i])) return
+      payam_zakhire_har_chat.set(id, out)
+      await $.fs.write(await masir_payam_zakhire($, id), JSON.stringify(out) + '\n')
+    }
+    const saf = (saf_payam_har_chat.get(id) || Promise.resolve()).then(kar, kar)
+    saf_payam_har_chat.set(id, saf)
+    await saf
+  } catch {}
 }
 // The session's list loses everything before a compact and every message sent while the agent worked, so 41 of 52 trends
 // were thrown away as made up (3 Nov, real log: 7 of his messages seen in a chat of hundreds). The chat file keeps them all;
@@ -317,7 +376,7 @@ export function ravand_ba_shahed(list, msgs, zade = []) {
   const ha = payam_ha_ye_habib(msgs), z = zade.map(yeksan_harf)
   return list.filter((x) => {
     // the quotes that count, each once, with the messages each is found in
-    const shahed = [...new Set(x.shahed.map((y) => yeksan_harf(y.harf).replace(/\s*(…|\.\.\.)\s*$/, '').replace(/^\s*(…|\.\.\.)\s*/, '')))]
+    const shahed = [...new Set(x.shahed.map((y) => tamiz_naghl(y.harf)))]
       .filter((h) => [...h].length >= had_kamtarin_harf_sanad && !z.some((t) => t.includes(h)))
       .map((h) => ha.flatMap((m, n) => (m.includes(h) ? [n] : []))).filter((j) => j.length)
     // two different quotes in two different messages
@@ -858,8 +917,18 @@ function tedad_kar(tedad, kar) {
 // «روند» on top of all (Habib, 3 Nov 05:18: «چرا روند مثل نکرده و خودکار داخل چت ایمپورت نمیشه ؟ بالای همه باید بیاد روند»)
 const matn_ravand_dar_chat = (rv) => 'روند (از مودِ «حدس»): جهتی که حبیب در حرف‌هایش تکرار کرده؛ کارِ تازه نیست، در کارهایت رعایت کن:\n' +
   rv.map((x, i) => adad_farsi(i + 1) + '. ' + x.ravand + (x.khaste ? ' ⇐ ' + x.khaste : '') + ' — ' + x.shahed.map((y) => '«' + y.harf + '»').join(' · ')).join('\n')
-// the same trend comes back in new words, so it is known by his quotes, not by the model's sentence
-const kelid_ravand = (x) => x.shahed.map((y) => yeksan_harf(y.harf)).sort().join(' | ')
+// the same trend comes back in new words and new pairs of quotes, so one long quote already sent is enough to know it. A short
+// one («بزن همه رو») is in too many trends to know any: it blocks only with the whole same set of quotes
+export const had_kelid_ravand_kamtarin_harf = 20
+const naghl_ha_ye_ravand = (x) => x.shahed.map((y) => tamiz_naghl(y.harf))
+const boland_ast_naghl = (h) => [...h].length >= had_kelid_ravand_kamtarin_harf
+const kelid_kol_ravand = (x) => [...new Set(naghl_ha_ye_ravand(x))].sort().join(' | ')
+const kelid_ravand = (x) => [...naghl_ha_ye_ravand(x).filter(boland_ast_naghl), kelid_kol_ravand(x)]
+// `sent` also holds the old keys, written as "a | b" before 3 Nov
+export function ravand_ferestade_bud(x, sent) {
+  const tak = new Set(sent.flatMap((k) => k.split(' | ')))
+  return sent.includes(kelid_kol_ravand(x)) || naghl_ha_ye_ravand(x).some((h) => boland_ast_naghl(h) && tak.has(h))
+}
 export function matn_ferestadan_khodkar(kh, nk, rv = []) {
   const parts = kh.length || nk.length ? ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر راهی که آمده نشد، منتظر نمان: از کارها و تجربه‌های قبلی یا ایجنتِ دیگری که ابزارش را دارد راهِ تازه پیدا کن و انجامش بده؛ فقط اگر خلافِ دستورِ حبیب است انجام نده و بگو کدام دستور.'] : []
   if (rv.length) parts.unshift(matn_ravand_dar_chat(rv))
@@ -879,7 +948,7 @@ async function ferestadan_khodkar($) {
   if (!q.khodkar) b.khodkar = []
   if (!q.nakarde) b.nakarde = []
   const f = await khandan_khodkar_ferestade($)
-  const rv = q.ravand ? (b.ravand || []).filter((x) => !f.ravand.includes(kelid_ravand(x))) : []
+  const rv = q.ravand ? (b.ravand || []).filter((x) => !ravand_ferestade_bud(x, f.ravand)) : []
   // once per work AND way: the same work with a new way (an excuse answered) goes again; a work sent before the
   // ways were kept counts by its work alone
   const qadimi = f.khodkar.filter((k) => !f.rah.some((r) => r.startsWith(k + ' ⇐ ')))
@@ -898,14 +967,14 @@ async function ferestadan_khodkar($) {
     await benevis_daftar($, 'khodkar_nafereste', { dalil: String(e?.message || e).slice(0, 200) })
     return
   }
-  f.khodkar.push(...kh.map((x) => x.kar)); f.rah.push(...kh.map(kelid_rah)); f.nakarde.push(...nk.map((x) => x.harf)); f.ravand.push(...rv.map(kelid_ravand))
+  f.khodkar.push(...kh.map((x) => x.kar)); f.rah.push(...kh.map(kelid_rah)); f.nakarde.push(...nk.map((x) => x.harf)); f.ravand.push(...rv.flatMap(kelid_ravand))
   try { await $.fs.write(await masir_khodkar_ferestade($), JSON.stringify(f) + '\n') } catch {}
   await benevis_daftar($, 'khodkar_ferestade', { khodkar_ha: kh, nakarde_ha: nk.map((x) => x.harf), ravand_ha: rv })
   $.ui.invalidate('ui.render')
 }
 
-function baraye_ferestadan($, k, list) {
-  return $.session.id().then((id) => {
+function baraye_ferestadan($, k, list, baraye_id) {
+  return (baraye_id ? Promise.resolve(baraye_id) : $.session.id()).then((id) => {
     const b = baraye_ferestadan_har_chat.get(id) || { khodkar: [], nakarde: [] }
     b[k] = list; baraye_ferestadan_har_chat.set(id, b)
   })
@@ -937,7 +1006,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   const id = await $.session.id()
   try {
     const ferestade = await khandan_khodkar_ferestade($)
-    const khaste = { hads: !!p.hads, ravand: !!p.ravand, ravand_zade: p.ravand ? (await khandan_ravand_zade($)).slice(-10) : [], nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [], khodkar_rah: p.khodkar ? ferestade.rah.slice(-20) : [], daftar_kar: p.nakarde ? (await khandan_kar_daftar($)).kar.slice(-60) : [] }
+    const khaste = { hads: !!p.hads, hads_ghabli: p.hads ? baraye_hads_ghabli([...(hads_ghabli_har_chat.get(id) || []), ...(hads_baraye_chat === id ? hads_akhar.map((g) => g.text) : [])]) : [], ravand: !!p.ravand, ravand_zade: p.ravand ? (await khandan_ravand_zade($)).slice(-10) : [], nakarde: !!p.nakarde, khodkar: !!p.khodkar, cron: !!p.cron, commit_ha: p.nakarde ? await commit_ha_ye_akhir($) : '', khodkar_ferestade: p.nakarde ? ferestade.khodkar.slice(-20) : [], khodkar_rah: p.khodkar ? ferestade.rah.slice(-20) : [], daftar_kar: p.nakarde ? (await khandan_kar_daftar($)).kar.slice(-60) : [] }
     const anjam = khaste.nakarde ? await khandan_nakarde_anjam($) : []
     const r = await $.model.fork({ prompt: (pj ? prompt_jambandi_nobat(pj.lines, pj.tools, khaste, anjam) : prompt_fork(khaste, anjam)) + (p.tj ? prompt_tarjome_ezafe + '\n\n' + (await vazhe_name($)) : '') })
     if (r.isAnswered) await sabt_tarjome($, p.tj, khandan_tarjome_az_json(r.text), 'fork_moshtarak')
@@ -957,12 +1026,20 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   if (!p.ravand) ravand_akhar = []
   if (p.ravand && got?.ravand) {
     try {
-      const msgs = await payam_ha_az_file($, await $.session.messages())
+      // what the mod kept is read first; only a witness not found there goes to the chat file (an old chat, a made-up quote)
+      const zakhire = (await khandan_payam_zakhire($, id)).map((text) => ({ role: 'user', text }))
       const zade = await khandan_ravand_zade($)
-      const taze = ravand_ba_shahed(got.ravand, msgs, zade)
+      if ((await $.session.id()) !== id) return jambandi_shod
+      let msgs = zakhire
+      let taze = ravand_ba_shahed(got.ravand, msgs, zade)
+      if (taze.length < got.ravand.length) {
+        msgs = [...(await payam_ha_az_file($, await $.session.messages())), ...zakhire]
+        if ((await $.session.id()) !== id) return jambandi_shod  // /clear during the read, which can take a minute
+        taze = ravand_ba_shahed(got.ravand, msgs, zade)
+      }
       // a trend does not end because this answer found none: it stays until pressed or replaced (Habib, 3 Nov: «اصلا ندیدم روندی پیشنهاد بده»)
       ravand_akhar = taze.length ? taze : ravand_akhar.filter((x) => !zade.map(yeksan_harf).includes(yeksan_harf(x.text))); hads_baraye_chat = id
-      await baraye_ferestadan($, 'ravand', taze)
+      await baraye_ferestadan($, 'ravand', taze, id)
       const ha = payam_ha_ye_habib(msgs)
       // what the code threw away and why: without it «روند» going empty cannot be told from the model finding nothing
       await benevis_daftar($, 'ravand', { rah: 'fork', ravand_ha: taze, hazf_shode: got.ravand.length - taze.length, tedad_payam_habib: ha.length, tedad_payam_kol: msgs.length,
@@ -998,6 +1075,7 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   if (!p.hads) return jambandi_shod
   if (got?.hads.length) {
     hads_akhar = got.hads; hads_baraye_chat = id
+    hads_ghabli_har_chat.set(id, baraye_hads_ghabli([...(hads_ghabli_har_chat.get(id) || []), ...got.hads.map((g) => g.text)]))
     await benevis_daftar($, 'hads', { rah: 'fork', hads_ha: hads_akhar.map((g) => g.text) })
     $.ui.invalidate('ui.render')
   }
@@ -1353,6 +1431,12 @@ export function register(on) {
     return next(e)
   })
 
+  // ک-۳۴: not awaited and the event untouched, so a compact is the same with this hook as without it
+  on('session.compact', async ($, e, next) => {
+    try { if (!e.agentId) { const msgs = e.messages; $.clock.after(0, () => zakhire_payam($, msgs)) } } catch {}
+    return next(e)
+  })
+
   on('command.run', { command: 'hads' }, async ($, e) => {
     const arg = (e.args || '').trim()
     if (arg === 'off' || arg === 'on') {
@@ -1382,10 +1466,20 @@ export function register(on) {
   // the prompt's own hooks are written right after it: read them a moment later
   // a guess Habib pressed into the box and then sent (as is, or edited): his own message now
   on('prompt.submit', async ($, e, next) => {
-    try { const sid = await $.session.id(); do_jomle_ha_ye_nobat.set(sid, []); abzar_ha_ye_nobat.set(sid, []); khaste_habib_nobat.set(sid, harf_habib(String(e?.text || '').trim())) } catch {}
+    const az_habib = az_habib_ast(e)
+    try {
+      const sid = await $.session.id(), matn = String(e?.text || '').trim()
+      // e.turnId: delivered into a running turn (a task's notification, a queued word). The turn goes on, so what it did so far
+      // stays for its summary, and its request is not replaced by a message that is not his
+      if (!e?.turnId) { do_jomle_ha_ye_nobat.set(sid, []); abzar_ha_ye_nobat.set(sid, []) }
+      if (az_habib) khaste_habib_nobat.set(sid, matn)
+      else if (!e?.turnId) khaste_habib_nobat.set(sid, matn_bi_harfe_habib)
+    } catch {}
+    // only with the engine's own stamp: an unstamped text is no proof that he typed it
+    if (['composer', 'bridge'].includes(e?.origin?.kind)) { const matn = String(e?.text || ''); $.clock.after(0, () => zakhire_payam($, [{ role: 'user', text: matn }])) }
     try {
       const sent = String(e?.text || '').trim()
-      if (sent && hads_zade_shode.length) {
+      if (az_habib && sent && hads_zade_shode.length) {
         const hit = hads_zade_shode.find((g) => sent.includes(g)) || hads_zade_shode.find((g) => hamun_matn(g, sent))
         if (hit) await benevis_daftar($, 'hads_ferestade', { hads_matn: hit, matn_ferestade: sent, virayesh_shod: !sent.includes(hit) })
         hads_zade_shode = []

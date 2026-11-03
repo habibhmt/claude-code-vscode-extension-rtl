@@ -121,6 +121,19 @@ def prepare(root, originals, payload):
             host_name: host_source.encode()}, helper_name, helper
 
 
+def remove_recorded_helper(root, name, recorded_sha):
+    """Delete a helper only if the manifest names it and its bytes are still what we wrote."""
+    if not name or Path(name).name != name or not name.startswith('chatgpt-folder-filter-') or not name.endswith('.js'):
+        return
+    path = root / name
+    if not path.exists():
+        return
+    if sha(path.read_bytes()) != recorded_sha:
+        print(f'[KEPT folder helper] {path}: changed since we wrote it', file=sys.stderr)
+        return
+    path.unlink()
+
+
 def patch_folder_filter(ext, payload, atomic_write, revert=False):
     root = ext / 'webview/assets'
     manifest = ext / 'webview/.chatgpt-folder-filter.json'
@@ -141,6 +154,7 @@ def patch_folder_filter(ext, payload, atomic_write, revert=False):
             for record in previous['files'].values():
                 (root / record['backup']).unlink()
             manifest.unlink()
+            remove_recorded_helper(root, previous.get('helper'), previous.get('helper_sha256'))
             print(f'[FOLDER RESTORED] {ext}')
         return
     try:
@@ -169,17 +183,24 @@ def patch_folder_filter(ext, payload, atomic_write, revert=False):
     if previous == meta and (root / helper_name).exists() and (root / helper_name).read_bytes() == helper:
         return
     before = {name: (root / name).read_bytes() for name in outputs}
+    helper_is_new = not (root / helper_name).exists()
+    new_backups = []
     try:
         atomic_write(root / helper_name, helper)
         for name, data in outputs.items():
             # An upgrade can start patching an additional native file. It needs
             # its own original even when the other files were backed up before.
             if not previous or name not in previous['files']:
-                atomic_write(root / records[name]['backup'], before[name])
+                new_backups.append(root / records[name]['backup'])
+                atomic_write(new_backups[-1], before[name])
             atomic_write(root / name, data)
         atomic_write(manifest, (json.dumps(meta, indent=2) + '\n').encode())
     except BaseException:  # Ctrl-C too: a half patch without manifest fails every later run
         for name, data in before.items():
             atomic_write(root / name, data)
+        for path in new_backups + ([root / helper_name] if helper_is_new else []):
+            path.unlink(missing_ok=True)
         raise
+    if previous and previous.get('helper') != helper_name:
+        remove_recorded_helper(root, previous.get('helper'), previous.get('helper_sha256'))
     print(f'[FOLDER FILTER] {ext}')

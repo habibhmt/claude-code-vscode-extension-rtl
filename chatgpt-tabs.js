@@ -28,13 +28,25 @@
     try { sessionStorage.setItem(storageKey, JSON.stringify(tabs)); } catch (_) {}
   }
   // Outside the tab row, which the one-row look hides (Habib, 1 Nov); an error nobody sees is a silent break.
-  var sayTimer = 0, sayStays = false;
+  // Lasting messages sit side by side, so clearing one never loses another (a tabs breakage has no second report).
+  var sayTimer = 0, lasting = [];
   function say(text, stay) {
-    if (sayStays && !stay) return;  // nothing brings the tabs back, so the breakage keeps its message
-    sayStays = !!stay;
-    notice.textContent = text;
     clearTimeout(sayTimer);
-    if (text && !stay) sayTimer = setTimeout(function () { notice.textContent = ''; }, 8000);
+    if (stay && lasting.indexOf(text) < 0) lasting.push(text);
+    if (lasting.length) text = lasting.join(' · ');
+    else if (text) sayTimer = setTimeout(function () { notice.textContent = ''; }, 8000);
+    notice.textContent = text;
+  }
+  function unsay(text) {
+    var at = lasting.indexOf(text);
+    if (at < 0) return;
+    lasting.splice(at, 1);
+    notice.textContent = lasting.join(' · ');
+  }
+  var FOLDER_MSG = 'پوشه خوانده نشد';
+  function folderNotice() {
+    if (window.__crtlFolderUnread === true) say(FOLDER_MSG, true);
+    else unsay(FOLDER_MSG);
   }
   function updateTitle() {
     var title = document.title.trim();
@@ -210,6 +222,8 @@
     });
     history.dataset.crtlHistory = '';
     document.addEventListener('click', historySelection, true);
+    window.addEventListener('crtl-folder-read', folderNotice);
+    folderNotice();  // the filter may have reported before this script ran
     bar.append(list, add, history); document.body.append(bar, notice);
     // Claude-style head icons beside aA (Habib, 31 Oct: «مثل همون کلود کد باشه»): ⊕ new chat, 🕘 earlier chats.
     var sar = document.createElement('div'); sar.id = 'crtl-sar';
@@ -246,7 +260,7 @@
     saat.dataset.crtlSarHistory = '';
     sar.append(nowe, saat); document.body.appendChild(sar);
     // the chat's name at the right end of the head row, like Claude
-    setInterval(function () {
+    var headTimer = setInterval(function () {
       var row = document.getElementById('crtl-top-jaygozin'); if (!row) return;
       var t = document.getElementById('crtl-onvan');
       if (!t || t.parentNode !== row) { t = document.createElement('span'); t.id = 'crtl-onvan'; row.appendChild(t); }
@@ -300,7 +314,7 @@
         clearInterval(timer); say('اتصال تب‌ها برقرار نشد؛ این نسخه نیاز به بررسی دارد.', true);
       }
     }, 500);
-    window.addEventListener('pagehide', function () { clearInterval(timer); document.removeEventListener('click', historySelection, true); titleObserver.disconnect(); if (unsubscribe) unsubscribe(); }, {once: true});
+    window.addEventListener('pagehide', function () { clearInterval(timer); clearInterval(headTimer); window.removeEventListener('crtl-folder-read', folderNotice); document.removeEventListener('click', historySelection, true); titleObserver.disconnect(); if (unsubscribe) unsubscribe(); }, {once: true});
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, {once: true});
   else mount();

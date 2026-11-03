@@ -4,6 +4,8 @@ const {build}=require('esbuild');
 const fs=require('node:fs');
 const assert=require('node:assert/strict');
 const source=fs.readFileSync(__dirname+'/chatgpt-folder-filter.js','utf8');
+const tabsSource=fs.readFileSync(__dirname+'/chatgpt-tabs.js','utf8');
+const css=fs.readFileSync(__dirname+'/chatgpt-rtl.css','utf8');
 
 async function bundle(payload) {
  const result=await build({stdin:{contents:`
@@ -67,9 +69,23 @@ async function bundle(payload) {
   // The same folder spelled differently stays; a sibling does not.
   const spell=await page.evaluate(()=>window.filter([{hostId:'local',cwd:'/private/tmp/x'},{hostId:'local',cwd:'/Work/\u0622ب'},{hostId:'local',cwd:'/tmp/x2'}].map((r,i)=>({...r,i})),['/tmp/x','/work/\u0627\u0653ب']).map(r=>r.i));
   assert.deepEqual(spell,[0,1]);
-  // A failed folder read keeps the native list instead of an empty one.
-  await page.evaluate(()=>{window.__err=true});await roots(['/work/empty']);assert.equal((await ids()).length,7);
+  // Known folders always filter, even with a failed refresh, and that is not a «never read».
+  const payam=page.locator('#crtl-payam');
+  await page.evaluate(()=>{window.__err=true});await roots(['/work/project']);assert.deepEqual(await ids(),['same','same-slash']);
+  assert.equal(await page.evaluate(()=>window.__crtlFolderUnread),false);
+  // Never read: empty list, visible message, page alive. Reported before the tabs script runs (flag path).
+  await roots(undefined);assert.deepEqual(await ids(),[]);assert.deepEqual(await ids('#merged'),[]);
+  await page.addStyleTag({content:css});await page.addScriptTag({content:tabsSource});
+  assert.equal(await payam.isVisible(),true);assert.equal(await payam.innerText(),'پوشه خوانده نشد');
+  assert.equal(await page.locator('main').count(),1,'The page must not go blank');
+  assert.equal(await page.evaluate(()=>window.nativeRows.length),7,'Chats are not deleted');
+  // A read succeeds: list and no message (event path). Fails again: message returns without a reload.
   await page.evaluate(()=>{window.__err=false});await roots(['/work/project']);assert.deepEqual(await ids(),['same','same-slash']);
+  assert.equal(await payam.isVisible(),false);
+  await page.evaluate(()=>{window.__err=true});await roots(undefined);assert.deepEqual(await ids(),[]);
+  assert.equal(await payam.innerText(),'پوشه خوانده نشد');
+  await page.evaluate(()=>{window.__err=false});await roots(['/work/project']);assert.deepEqual(await ids(),['same','same-slash']);
+  assert.equal(await payam.isVisible(),false);
   // Empty windows keep native history, and every source record remains intact.
   await roots([]);assert.equal((await ids()).length,7);
   assert.equal(await page.evaluate(()=>window.nativeRows.length),7);

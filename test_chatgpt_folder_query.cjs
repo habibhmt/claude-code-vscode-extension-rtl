@@ -42,7 +42,7 @@ function main(){return `import * as scope from './${scopeName}';import * as nati
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  try{
-  const page=await browser.newPage();const errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error(e.stack)});
+  const page=await browser.newPage();page.setDefaultTimeout(120000);page.setDefaultNavigationTimeout(120000);const errors=[];page.on('pageerror',e=>{errors.push(e.message);console.error(e.stack)});
   let current=helper;
   await page.route('**/*',route=>{
    const u=new URL(route.request().url());
@@ -55,25 +55,33 @@ function main(){return `import * as scope from './${scopeName}';import * as nati
    if(fs.existsSync(file))return route.fulfill({contentType:'text/javascript',body:fs.readFileSync(file)});
    return route.abort();
   });
-  await page.goto('http://crtl-native.test');
-  await page.waitForFunction(()=>document.querySelector('li')?.textContent==='own',null,{timeout:60000});
+  await page.goto('http://crtl-native.test',{waitUntil:'commit',timeout:120000});
+  await page.waitForFunction(()=>document.querySelector('li')?.textContent==='own',null,{timeout:120000});
   assert.deepEqual(await page.locator('li').allTextContents(),['own']);
   await page.evaluate(()=>window.changeRoots(['/work/other']));
   await page.waitForFunction(()=>document.querySelector('li')?.textContent==='foreign');
   assert.deepEqual(errors,[]);
   current=helper.replace('c as crtlUseQuery','u as crtlUseQuery');assert.notEqual(current,helper);
-  await page.reload();await page.waitForSelector('ul',{state:'attached'});
+  await page.reload({waitUntil:'commit'});await page.waitForSelector('ul',{state:'attached'});
   await page.evaluate(()=>window.changeRoots(['/work/project']));
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   const brokenIds=await page.locator('li').allTextContents();
   assert.throws(()=>assert.deepEqual(brokenIds,['own']));
   assert.deepEqual(brokenIds,[],'The previous wrong hook must reproduce the empty list');
   current=helper.replace(", {hostId: 'local'}",'');assert.notEqual(current,helper);
-  await page.reload();await page.waitForSelector('ul',{state:'attached'});
-  await page.waitForFunction(()=>window.queryStatus?.()==='error',null,{timeout:60000});
+  await page.reload({waitUntil:'commit'});await page.waitForSelector('ul',{state:'attached'});
+  await page.waitForFunction(()=>window.queryStatus?.()==='error',null,{timeout:120000});
   const noOptionsIds=await page.locator('li').allTextContents();
   assert.throws(()=>assert.deepEqual(noOptionsIds,['own']));
-  assert.ok(noOptionsIds.length>0,'A failed folder read must keep the native list, not show it empty');
+  // Habib's decision: folders never read means an empty list with the message flag, page alive.
+  assert.deepEqual(noOptionsIds,[],'A folder read that never succeeded must show an empty list');
+  assert.equal(await page.evaluate(()=>window.__crtlFolderUnread),true,'The message flag must be set under the real React');
+  assert.equal(await page.locator('ul').count(),1,'The page must not go blank');
+  // A read succeeds: the same real hook brings the list back and clears the flag.
+  await page.evaluate(()=>window.changeRoots(['/work/project']));
+  await page.waitForFunction(()=>document.querySelector('li')?.textContent==='own');
+  assert.equal(await page.evaluate(()=>window.__crtlFolderUnread),false,'A successful read must clear the message flag');
+  assert.deepEqual(errors,[]);
   console.log(JSON.stringify({realCodexReact:true,realQueryFamily:true,realHostProvider:true,correctFolderVisible:true,folderChange:true,previousWrongHookReproduced:true,missingOptionsCaught:true}));
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -55,16 +55,27 @@ const css=fs.readFileSync(__dirname+'/chatgpt-rtl.css','utf8');
    assert.equal(await page.locator('#native-history').count(),0,'History must not reopen over the chosen chat');
   }
   const stateSource=fs.readFileSync(__dirname+'/chatgpt-panel-state.js','utf8');
-  const bridge=`var crtlFolderPath=p=>p.replace(/\\/+$/,'');
+  // Real path normalizer from the helper this file is appended to. The state lives only in this Node
+  // process, like VS Code's per-webview state: undefined at first, a copy per read, and it survives only
+  // if setState really received it. The page's own storage is wiped on every boot and cannot help.
+  const filterSource=fs.readFileSync(__dirname+'/chatgpt-folder-filter.js','utf8');
+  const realPath=filterSource.slice(filterSource.indexOf('function crtlFolderPath'),filterSource.indexOf('export function crtlFilterFolderRows'));
+  assert.ok(realPath.includes('normalize'),'Helper path function moved');
+  let hostState;
+  await page.exposeFunction('__hostSave',json=>{hostState=json;});
+  const bridge=realPath+`
     var crtlInitPanelApi=()=>{},crtlInitPanelRoots=()=>{};
     var crtlReadPanelRoots=async()=>({roots:window.roots});
-    var crtlPanelApi={getState:()=>JSON.parse(localStorage.getItem('native-state')||'{}'),setState:s=>localStorage.setItem('native-state',JSON.stringify(s))};`+stateSource;
+    var __state=window.__hostInitial===undefined?undefined:JSON.parse(window.__hostInitial);
+    var crtlPanelApi={getState:()=>__state===undefined?undefined:structuredClone(__state),setState:s=>{__state=structuredClone(s);window.__hostSave(JSON.stringify(s));return s;}};`+stateSource;
   async function boot(payload=source,roots=['/project136'],explicit=null){
+   await page.waitForTimeout(150);  // let the last setState reach the host
    await page.goto('https://history.test/');
-   await page.evaluate(({roots,explicit})=>{
+   await page.evaluate(({roots,explicit,saved})=>{
+    localStorage.clear();sessionStorage.clear();window.__hostInitial=saved;
     window.startPath=explicit||'/';window.roots=roots;
     if(explicit){const m=document.createElement('meta');m.name='initial-route';m.content=explicit;document.head.append(m);}
-   },{roots,explicit});
+   },{roots,explicit,saved:hostState});
    await page.addScriptTag({content:bridge});
    await page.addScriptTag({content:bundle.outputFiles[0].text});
    await page.addScriptTag({content:payload});

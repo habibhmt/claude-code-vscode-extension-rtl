@@ -939,6 +939,8 @@ $.sid = 'RVG'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads
 await H['command.run']($, { args: 'now' }); await flush(); out.ravandFileNabud = !!find(await render(), 'hads-rv-0')
 $.process.run = rvRun3; $.sid = 'RV'; $.msgs = rvMsgs
 assert.deepEqual([out.ravandAzFile, out.ravandMiManad, out.ravandFileNabud], [true, true, true])
+// Habib, 3 Nov 2026: the agent's own «نسنجیدم» words sharpen «خودکار», judged by meaning
+for (const v of ['نسنجیدم', 'حدسم', 'نمی‌دانم', 'ثابت نشده', 'اندازه نگرفتم', 'به معنی نگاه کن']) assert.ok(mod.matn_vazhe_nasanjide.includes(v), v)
 // «روند» goes into the chat like «خودکار», on top, once per trend even in new words
 const rvDar = (r, h) => ({ ...rvRow(M1, M2), ravand: r, ...h })
 $.sid = 'RVC'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVC'] = 'on -hads -nakarde -cron -do_jomle -porsesh -hook -zaban'; $.msgs = rvMsgs

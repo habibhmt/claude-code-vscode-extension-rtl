@@ -788,6 +788,14 @@ assert.deepEqual(out.esmRule, { upper: [], glued: [], bad_spell: [] })
   const tA = find(rA, 'hads-amar'), body = tA && String(tA.children[0])
   out.amarLine = !!body && body.startsWith(mod.neshane_amar) && JSON.parse(body.slice(mod.neshane_amar.length)).hame.kol === 3
   assert.equal(out.amarLine, true)
+  // a terminal: nothing while the box is closed, one short line only when it is open
+  const rTb = await F['ui.render']($, { component: 'AbovePrompt', surface: 'terminal' }, async () => 'engine')
+  assert.equal(!!find(rTb, 'hads-dot') && !find(rTb, 'hads-amar'), true)
+  flags['/h/.claude/hads-on/AM'] = 'on'
+  const rT = await F['ui.render']($, { component: 'AbovePrompt', surface: 'terminal' }, async () => 'engine')
+  const bT = String(find(rT, 'hads-amar').children[0])
+  assert.equal(bT.includes(mod.neshane_amar) || bT.includes('{'), false)
+  assert.equal(bT.includes('کل') && bT.length < 80, true)
   $.sid = sid0
 }
 // «دفترِ کارها» (Habib 27 Oct 18:30 «یه کد عددی … یه تغییر کوچیک کلمه باعث نشه که … تیک نخوره»): one number per work for good

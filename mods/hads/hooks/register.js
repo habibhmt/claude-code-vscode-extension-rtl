@@ -606,6 +606,13 @@ async function matn_amar($) {
   } catch { return '' }
 }
 
+export function khat_amar_terminal(matn) {
+  try {
+    const a = JSON.parse(matn.slice(neshane_amar.length))
+    return 'تماس‌های حدس: ' + adad_farsi(a.saat.kol) + ' در ساعت · ' + adad_farsi(a.ruz.kol) + ' در ۲۴ ساعت · ' + adad_farsi(a.hame.kol) + ' کل'
+  } catch { return '' }
+}
+
 async function benevis_kharj($, bakhsh, rah, usage = {}) {
   try {
     const f = (await $.env.get('HOME')) + '/.claude/hads-log/' + (await $.session.id()) + '.usage.jsonl'
@@ -1556,7 +1563,9 @@ export function register(on) {
     const { Box, Text, Button, Input } = $.ui.resolve(e)
     const theirs = await next(e)
     const amar_matn = await matn_amar($)
-    const amar = amar_matn ? [Text({ key: 'hads-amar', dimColor: true, children: [amar_matn] })] : []
+    // the hidden line is drawn only by the page; a terminal printed it raw over half the screen (Habib, 4 Nov 01:45)
+    const amar_khat = e.surface === 'terminal' ? khat_amar_terminal(amar_matn) : amar_matn
+    const amar = amar_khat ? [Text({ key: 'hads-amar', dimColor: true, children: [amar_khat] })] : []
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line
     // two states now: the folded line is gone, the button opens the whole box and × goes straight back to it
@@ -1566,7 +1575,9 @@ export function register(on) {
       const one = Button({ key: 'hads-dot', label: 'حدس ▸', onPress: () => taghir_halat($, 'baz') })
       // «ترجمه به انگلیسی» stays in sight with the box closed (Habib, 2 Nov 05:25: «نیست که»)
       const tarjome = Button({ key: 'hads-tarjome-kadr', label: tarjome_kadr_dar_kar ? 'در حالِ ترجمه…' : 'ترجمه به انگلیسی', onPress: () => tarjome_kadr($) })
-      return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), ...amar, Box({ flexDirection: 'row', columnGap: 1, children: [one, tarjome] })] })
+      // a terminal shows the count only while the box is open (Habib, 4 Nov 01:50: «دیفالت دیده نشه فقط وقتی بازه دیده بشه»); the page still needs its hidden line
+      const amar_baste = e.surface === 'terminal' ? [] : amar
+      return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), ...amar_baste, Box({ flexDirection: 'row', columnGap: 1, children: [one, tarjome] })] })
     }
     const hist = n || ghablia_baz ? await khandan_ghablia($) : []
     const prompt_list = p.porsesh ? await khandan_prompt_ha($) : []

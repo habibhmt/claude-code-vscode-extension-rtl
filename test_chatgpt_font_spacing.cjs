@@ -1,0 +1,19 @@
+const {chromium}=require('playwright'),fs=require('node:fs'),assert=require('node:assert/strict');
+const css=fs.readFileSync(__dirname+'/chatgpt-rtl.css','utf8');
+const fixture=`<style>
+body{margin:0;font:15px/24px sans-serif}.flex{display:flex}.flex-col{flex-direction:column}.flex-row-reverse{flex-direction:row-reverse}.items-center{align-items:center}.items-end{align-items:flex-end}.gap-1{gap:4px}.gap-2{gap:8px}.w-full{width:100%}.isolate{isolation:isolate}button{width:24px;height:24px}#bubble{padding:8px;max-width:77%;background:#222;color:white}.rich-text-user-turn{font:inherit}#answer{margin:6px 0}pre{font-family:monospace}
+</style><div class="thread-scroll-container"><div class="group/user-message flex w-full flex-col gap-1 items-end">
+<div id="bubble" data-user-message-bubble><div class="rich-text-user-turn">پیام فارسی من برای بررسی فاصله و وزیرمتن</div></div>
+<div id="meta" class="flex flex-row-reverse items-center gap-1"><div class="isolate flex items-center gap-2"><span>4:16 PM</span><div class="turn-action-controls"><button onclick="window.copyClicked=true" aria-label="Copy message">C</button></div></div></div>
+</div><div id="answer" class="_MarkdownContent_fixture"><p id="persian">این پاسخ فارسی با وزیرمتن است</p><pre id="code">const x = 1;</pre></div></div>`;
+(async()=>{const browser=await chromium.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+try{const page=await browser.newPage();const cdp=await page.context().newCDPSession(page);await cdp.send('DOM.enable');await cdp.send('CSS.enable');
+async function measure(payload,width){await page.setViewportSize({width,height:600});await page.setContent(fixture);if(payload)await page.addStyleTag({content:payload});await page.evaluate(()=>document.fonts.ready);
+const boxes=await page.evaluate(()=>{const rect=id=>{let r=document.getElementById(id).getBoundingClientRect();return{x:r.x,y:r.y,right:r.right,bottom:r.bottom,height:r.height}};return{bubble:rect('bubble'),meta:rect('meta'),answer:rect('answer'),codeFont:getComputedStyle(document.querySelector('#code')).fontFamily}});
+const {root}=await cdp.send('DOM.getDocument');const {nodeId}=await cdp.send('DOM.querySelector',{nodeId:root.nodeId,selector:'#persian'});boxes.fonts=(await cdp.send('CSS.getPlatformFontsForNode',{nodeId})).fonts;return boxes;}
+function verify(x,before){assert.ok(x.fonts.some(f=>/Vazirmatn/i.test(f.familyName)&&f.glyphCount>0),'Persian glyphs must actually use Vazirmatn');assert.ok(x.meta.right<=x.bubble.x,'Time must be left of the message');assert.ok(x.meta.y<x.bubble.bottom&&x.meta.bottom>x.bubble.y,'Time must align with the message');assert.ok(x.answer.y-x.bubble.bottom<before.answer.y-before.bubble.bottom,'Gap to reply must shrink');assert.match(x.codeFont,/monospace/);}
+const results=[];for(const width of [1000,360,260]){const before=await measure('',width),after=await measure(css,width);verify(after,before);await page.getByRole('button',{name:'Copy message'}).click();assert.equal(await page.evaluate(()=>window.copyClicked),true);results.push({width,font:after.fonts.map(f=>f.familyName),gapBefore:before.answer.y-before.bubble.bottom,gapAfter:after.answer.y-after.bubble.bottom});}
+const noFont=css.replaceAll('font-family:Vazirmatn,Tahoma,sans-serif!important','font-family:Arial,sans-serif!important');const before=await measure('',1000);const badFont=await measure(noFont,1000);assert.throws(()=>verify(badFont,before),/Vazirmatn/);
+const noGrid=css.replace('display:grid!important;grid-template-columns:auto minmax(0,1fr)!important','display:flex!important;grid-template-columns:auto minmax(0,1fr)!important');const badGrid=await measure(noGrid,1000);assert.throws(()=>verify(badGrid,before),/Time must/);
+console.log(JSON.stringify(results));
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

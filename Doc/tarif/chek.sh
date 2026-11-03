@@ -36,6 +36,14 @@ o=$(node test_claude_stamp.cjs 2>/dev/null)
 n=$(cat ~/.vscode/extensions/anthropic.claude-code-*/webview/index.js 2>/dev/null | grep -c "data-message-stamp")
 [[ $o == *'"answerClearsDot":true'* && $o == *'"promptInBubble":true'* && $n -gt 0 ]] && ok "۰۳ ساعتِ پیام (شبیه‌سازیِ افزونه در کروم)" || no "۰۳ ساعتِ پیام" "آزمون یا اسمِ data-message-stamp"
 fi
+python3 test_chatgpt_folder_patch.py >/dev/null 2>&1 && ok "۲۱ Codex: وصله" || no "۲۱ Codex: وصله" "python3 test_chatgpt_folder_patch.py را ببین"
+if [[ -n $NO_CHROME ]]; then skip "۲۱ Codex: فیلتر، تب‌ها و پیامِ خطا"; else
+node test_chatgpt_folder_filter.cjs >/dev/null 2>&1 && ok "۲۱ Codex: فیلتر (شبیه‌سازیِ افزونه در کروم)" || no "۲۱ Codex: فیلتر" "node test_chatgpt_folder_filter.cjs را ببین"
+NODE_PATH=node_modules node test_chatgpt_tabs.cjs >/dev/null 2>&1 && TABS_ROUTER=memory NODE_PATH=node_modules node test_chatgpt_tabs.cjs >/dev/null 2>&1 && ok "۲۱ Codex: تب‌ها و پیامِ خطا (شبیه‌سازیِ افزونه در کروم)" || no "۲۱ Codex: تب‌ها و پیامِ خطا" "NODE_PATH=node_modules node test_chatgpt_tabs.cjs را ببین"
+fi
+# the newest Codex of each editor only; older folders stay on disk unused
+bf=""; for i in ~/.vscode ~/.windsurf ~/.cursor ~/.devin; do e=$(ls -d "$i"/extensions/openai.chatgpt-* 2>/dev/null | sort -V | tail -1); [[ -n $e && ! -f $e/webview/.chatgpt-folder-filter.json ]] && bf="$bf ${e##*/}"; done
+[[ -z $bf ]] && ok "۲۱ Codex: فیلتر روی هر برنامه نصب است" || no "۲۱ Codex: فیلترِ همین پوشه نصب نیست" "$bf"
 z=0; for f in ~/.*/extensions/anthropic.claude-code-*; do [ "$(grep -c crtl-panel "$f/extension.js" 2>/dev/null)" -gt 0 ] || z=$((z+1)); done
 l=$(launchctl list | grep -c com.habib.fix-rtl-claude)
 [[ $z -eq 0 && $l -ge 1 ]] && ok "۰۴ پچِ RTL" || no "۰۴ پچِ RTL" "بی‌پچ: $z · launchd: $l"

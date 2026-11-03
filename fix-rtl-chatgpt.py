@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reversible ChatGPT VS Code webview patch. No changes to host executable code."""
+"""Reversible Codex RTL UI and current-folder chat-list patch."""
 import argparse
 import hashlib
 import fcntl
@@ -8,12 +8,20 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 
 REPO = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('adapter', REPO / 'chatgpt-adapter.py')
 adapter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
+folder_patch, folder_load_error = None, None
+try:
+    folder_spec = importlib.util.spec_from_file_location('folder_patch', REPO / 'chatgpt-folder-patch.py')
+    folder_patch = importlib.util.module_from_spec(folder_spec)
+    folder_spec.loader.exec_module(folder_patch)
+except Exception as error:  # a broken filter must not cost the RTL patch
+    folder_load_error = error
 
 
 def atomic_write(path, data):
@@ -91,7 +99,7 @@ def patch_manifest(ext, revert=False):
     c = data.get('contributes', {})
     cmds = {x['command']: x for x in c.get('commands', [])}
     if 'chatgpt.newCodexPanel' not in cmds or 'chatgpt.openSidebar' not in cmds:
-        print(f'[SKIP manifest] {ext}: commands changed'); return
+        print(f'[SKIP manifest] {ext}: commands changed', file=sys.stderr); return
     cmds['chatgpt.newCodexPanel']['icon'] = cmds['chatgpt.openSidebar'].get('icon')
     for item in c.get('menus', {}).get('editor/title', []):
         if item.get('command') == 'chatgpt.openSidebar':
@@ -120,9 +128,24 @@ def main():
     lock = Path.home() / '.chatgpt-rtl-patch.lock'
     with lock.open('a') as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
+        # One failing step must not cost the other steps or the other extensions.
+        def folder_step(ext):
+            if folder_load_error:
+                raise RuntimeError(f'chatgpt-folder-patch.py: {folder_load_error}')
+            folder_patch.patch_folder_filter(ext, (REPO / 'chatgpt-folder-filter.js').read_text(), atomic_write, args.revert)
+        steps = [('folder filter', folder_step),
+                 ('rtl', lambda ext: patch(ext, ui, css, args.revert)),
+                 ('manifest', lambda ext: patch_manifest(ext, args.revert))]
+        failed = 0
         for ext in dirs:
-            patch(ext.resolve(), ui, css, args.revert)
-            patch_manifest(ext.resolve(), args.revert)
+            for name, step in steps:
+                try:
+                    step(ext.resolve())
+                except Exception as error:
+                    failed += 1
+                    print(f'[FAILED {name}] {ext}: {error} {getattr(error, "stderr", "") or ""}', file=sys.stderr)
+    if failed:
+        sys.exit(1)
 
 
 if __name__ == '__main__':

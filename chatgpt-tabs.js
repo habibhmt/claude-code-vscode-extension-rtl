@@ -7,9 +7,10 @@
   var storageKey = 'chatgpt-rtl-panel-tabs-v1';
   var tabs = [], active = null, router = null, bar, list, notice, busy = false;
   var previousPath = null, unsubscribe = null, pickingHistory = false;
+  var panelState = null;
 
   function threadPath(path) {
-    return typeof path === 'string' && (path === '/' || path === '/extension/panel/new' || /^\/(local|remote)\/[^/?#]+(?:\?[^#]*)?$/.test(path));
+    return typeof path === 'string' && (path === '/' || path === '/extension/panel/new' || /^\/(local|remote)\/(?!client-new-thread:)[^/?#]+(?:\?[^#]*)?$/.test(path));
   }
   function readSaved() {
     try {
@@ -26,7 +27,15 @@
   function save() {
     try { sessionStorage.setItem(storageKey, JSON.stringify(tabs)); } catch (_) {}
   }
-  function say(text) { notice.textContent = text; }
+  // Outside the tab row, which the one-row look hides (Habib, 1 Nov); an error nobody sees is a silent break.
+  var sayTimer = 0, sayStays = false;
+  function say(text, stay) {
+    if (sayStays && !stay) return;  // nothing brings the tabs back, so the breakage keeps its message
+    sayStays = !!stay;
+    notice.textContent = text;
+    clearTimeout(sayTimer);
+    if (text && !stay) sayTimer = setTimeout(function () { notice.textContent = ''; }, 8000);
+  }
   function updateTitle() {
     var title = document.title.trim();
     if (!title || /^(ChatGPT|Codex)$/i.test(title) || currentPath() !== active) return;
@@ -90,6 +99,9 @@
       active = path;
     } else active = null;
     previousPath = path;
+    if (panelState && threadPath(path)) {
+      try { panelState.write(path); } catch (_) {}
+    }
     save(); render();
   }
   async function navigate(path) {
@@ -190,7 +202,7 @@
       navigate('/extension/panel/new');
     });
     add.dataset.crtlNewTab = '';
-    notice = document.createElement('span'); notice.setAttribute('role', 'status'); notice.dir = 'rtl';
+    notice = document.createElement('span'); notice.id = 'crtl-payam'; notice.setAttribute('role', 'status'); notice.setAttribute('aria-live', 'polite'); notice.dir = 'rtl';
     var history = button('گفتگوی قدیمی', 'افزودن گفتگوی قدیمی از تاریخچه به همین پنل', function () {
       pickingHistory = true;
       window.dispatchEvent(new CustomEvent('open-recent-tasks-menu'));
@@ -198,7 +210,7 @@
     });
     history.dataset.crtlHistory = '';
     document.addEventListener('click', historySelection, true);
-    bar.append(list, add, history, notice); document.body.appendChild(bar);
+    bar.append(list, add, history); document.body.append(bar, notice);
     // Claude-style head icons beside aA (Habib, 31 Oct: «مثل همون کلود کد باشه»): ⊕ new chat, 🕘 earlier chats.
     var sar = document.createElement('div'); sar.id = 'crtl-sar';
     function icon(svg, label, action) {
@@ -211,12 +223,23 @@
     var saat = icon('<svg ' + SVG + '><circle cx="8" cy="8" r="6.3"/><path d="M8 4.6V8l2.3 1.5"/></svg>', 'گفتگوهای قبلی', function () {
       // Codex's own history menu lives in a thread's header; on a fresh chat there is none,
       // so fall back to Codex's home page, which lists the earlier chats.
-      function menuBaz() { return !!document.querySelector('input[placeholder*="recent" i]'); }
+      // Once the menu appeared, its later disappearance means it was dismissed
+      // or a chat was selected. Never mistake that for a missing native header.
+      var requestedPath = currentPath(), sawMenu = false;
+      function menuBaz() { return !!document.querySelector('#recent-tasks-search,input[placeholder*="recent" i]'); }
+      var menuObserver = new MutationObserver(function () {
+        if (menuBaz()) { sawMenu = true; menuObserver.disconnect(); }
+      });
+      menuObserver.observe(document.body, {childList:true,subtree:true});
       window.dispatchEvent(new CustomEvent('open-recent-tasks-menu'));
       setTimeout(function () {
-        if (menuBaz()) return;
-        navigate('/').then(function () {
-          setTimeout(function () { window.dispatchEvent(new CustomEvent('open-recent-tasks-menu')); }, 400);
+        menuObserver.disconnect();
+        if (sawMenu || menuBaz() || currentPath() !== requestedPath) return;
+        navigate('/').then(function (opened) {
+          if (!opened) return;
+          setTimeout(function () {
+            if (currentPath() === '/') window.dispatchEvent(new CustomEvent('open-recent-tasks-menu'));
+          }, 400);
         });
       }, 300);
     });
@@ -248,7 +271,7 @@
       }
     }, 700);
     document.documentElement.classList.add('crtl-has-tabs');
-    say('در انتظار آماده‌شدن گفتگو…'); render();
+    render();
     var titleObserver = new MutationObserver(updateTitle);
     var title = document.head.querySelector('title');
     if (title) titleObserver.observe(title, {childList:true,characterData:true,subtree:true});
@@ -256,9 +279,25 @@
     var timer = setInterval(function () {
       router = findRouter(); attempts++;
       if (router) {
-        clearInterval(timer); say(''); unsubscribe = router.subscribe(sync); sync(router.state); updateTitle();
+        clearInterval(timer); say('');
+        var startupPath = currentPath();
+        unsubscribe = router.subscribe(sync);
+        sync(router.state);
+        // Explicit editor routes always win. Only the default home entrypoint
+        // resumes this panel's saved chat, after its workspace has been checked.
+        var explicitRoute = document.querySelector('meta[name="initial-route"]')?.content ||
+          new URL(window.location.href).searchParams.get('initialRoute');
+        var stateBridge = window.__crtlPanelState;
+        if (stateBridge) stateBridge.read().then(function (savedPath) {
+          panelState = stateBridge;
+          if (!explicitRoute && startupPath === '/' && currentPath() === startupPath &&
+              threadPath(savedPath) && savedPath !== '/') {
+            navigate(savedPath).then(updateTitle);
+          } else { sync(router.state); updateTitle(); }
+        }).catch(function () { updateTitle(); });
+        else updateTitle();
       } else if (attempts >= 120) {
-        clearInterval(timer); say('اتصال تب‌ها برقرار نشد؛ این نسخه نیاز به بررسی دارد.');
+        clearInterval(timer); say('اتصال تب‌ها برقرار نشد؛ این نسخه نیاز به بررسی دارد.', true);
       }
     }, 500);
     window.addEventListener('pagehide', function () { clearInterval(timer); document.removeEventListener('click', historySelection, true); titleObserver.disconnect(); if (unsubscribe) unsubscribe(); }, {once: true});

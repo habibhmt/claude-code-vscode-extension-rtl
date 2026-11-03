@@ -277,7 +277,7 @@ export function khandan_ravand(list) {
 }
 // a witness counts only if the code finds it in a message Habib typed himself, in two different messages at least: a model can make up a quote
 const yeksan_harf = (t) => String(t || '').normalize('NFC').replace(/‌/g, ' ').replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/\s+/g, ' ').trim()
-const payam_dastgah = /^\s*(The [^\n]{1,60} plugin sent a message|<task-notification|<command-|<local-command-|\[Request interrupted|\[Cross-session|Continue from where you left off|This session is being continued|Base directory for this skill|خودکار \(از مودِ|زبان \(از مودِ|\(این پیام از مودِ)/
+const payam_dastgah = /^\s*(The [^\n]{1,60} plugin sent a message|<task-notification|<command-|<local-command-|\[Request interrupted|\[Cross-session|Continue from where you left off|This session is being continued|Base directory for this skill|روند \(از مودِ|خودکار \(از مودِ|زبان \(از مودِ|این را خودت انجام بده و از من نپرس|\(این پیام از مودِ)/
 // of «Answering your earlier question "Q": A» only A is his; Q is the agent's
 const javab_panjere = (t) => t.split('\n').map((l) => { const i = l.lastIndexOf('":'); return i < 0 ? '' : l.slice(i + 2) }).join('\n')
 export function payam_ha_ye_habib(msgs) {
@@ -285,6 +285,33 @@ export function payam_ha_ye_habib(msgs) {
     .map((m) => m.text.replace(system_reminder_regex, '').replace(/<browser_instruction>[\s\S]*?<\/browser_instruction>/g, '').replace(/\[Image:[^\]]*\]/g, ''))
     .filter((t) => !payam_dastgah.test(t))
     .map((t) => yeksan_harf(/^\s*Answering your earlier question/.test(t) ? javab_panjere(t) : t)).filter(Boolean)
+}
+// The session's list loses everything before a compact and every message sent while the agent worked, so 41 of 52 trends
+// were thrown away as made up (3 Nov, real log: 7 of his messages seen in a chat of hundreds). The chat file keeps them all;
+// these two line shapes are his typed messages. Image data is cut first: one chat's lines were 13 MB with it.
+export const payam_transcript_grep = '"origin":\\{"kind":"human"\\}|"attachment":\\{"type":"queued_command"'
+export const had_tedad_payam_transcript_khat = 3000
+export function khandan_payam_transcript(stdout) {
+  const dide = new Set()
+  return String(stdout || '').split('\n').flatMap((l) => {
+    let e
+    try { e = JSON.parse(l) } catch { return [] }
+    if (e.isSidechain) return []
+    const c = e.attachment?.type === 'queued_command' ? e.attachment.prompt : e.message?.content
+    const text = typeof c === 'string' ? c : Array.isArray(c) ? c.filter((b) => b?.type === 'text').map((b) => b.text).join('\n') : ''
+    if (!text.trim() || dide.has(text)) return []
+    dide.add(text)
+    return [{ role: 'user', text }]
+  })
+}
+async function payam_ha_az_file($, msgs) {
+  try {
+    const r = await $.process.run(['sh', '-c', 'grep -E "$1" "$2" | sed -E \'s/"data":"[^"]*"/"data":""/g\' | tail -n "$3"', 'sh', payam_transcript_grep, await masir_file_transcript($), String(had_tedad_payam_transcript_khat)], { timeoutMs: 60000 })
+    const ha = r.exitCode === 0 ? khandan_payam_transcript(r.stdout) : []
+    return ha.length ? ha : msgs
+  } catch {
+    return msgs
+  }
 }
 export function ravand_ba_shahed(list, msgs, zade = []) {
   const ha = payam_ha_ye_habib(msgs), z = zade.map(yeksan_harf)
@@ -811,7 +838,7 @@ async function khandan_khodkar_ferestade($) {
     try { o = JSON.parse(String(await $.fs.read(await masir_khodkar_ferestade($)))) } catch {}
     const list = (x) => (Array.isArray(x) ? x.filter((k) => typeof k === 'string') : [])
     const tedad = o?.tedad && typeof o.tedad === 'object' ? Object.fromEntries(Object.entries(o.tedad).filter(([, n]) => Number.isInteger(n))) : {}
-    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde), rah: list(o?.rah), tedad })
+    khodkar_ferestade_har_chat.set(id, { khodkar: list(o?.khodkar), nakarde: list(o?.nakarde), ravand: list(o?.ravand), rah: list(o?.rah), tedad })
   }
   return khodkar_ferestade_har_chat.get(id)
 }
@@ -828,8 +855,14 @@ function tedad_kar(tedad, kar) {
 }
 // a «نکرده» goes with its own number, as the box shows it (28 Oct 17:32: «اون چیزی که نمایش برای
 // خود منه ولی توی پیامی که میره … بر مدل میره دیدنمیشه»)
-export function matn_ferestadan_khodkar(kh, nk) {
-  const parts = ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر راهی که آمده نشد، منتظر نمان: از کارها و تجربه‌های قبلی یا ایجنتِ دیگری که ابزارش را دارد راهِ تازه پیدا کن و انجامش بده؛ فقط اگر خلافِ دستورِ حبیب است انجام نده و بگو کدام دستور.']
+// «روند» on top of all (Habib, 3 Nov 05:18: «چرا روند مثل نکرده و خودکار داخل چت ایمپورت نمیشه ؟ بالای همه باید بیاد روند»)
+const matn_ravand_dar_chat = (rv) => 'روند (از مودِ «حدس»): جهتی که حبیب در حرف‌هایش تکرار کرده؛ کارِ تازه نیست، در کارهایت رعایت کن:\n' +
+  rv.map((x, i) => adad_farsi(i + 1) + '. ' + x.ravand + (x.khaste ? ' ⇐ ' + x.khaste : '') + ' — ' + x.shahed.map((y) => '«' + y.harf + '»').join(' · ')).join('\n')
+// the same trend comes back in new words, so it is known by his quotes, not by the model's sentence
+const kelid_ravand = (x) => x.shahed.map((y) => yeksan_harf(y.harf)).sort().join(' | ')
+export function matn_ferestadan_khodkar(kh, nk, rv = []) {
+  const parts = kh.length || nk.length ? ['خودکار (از مودِ «حدس»، به خواستِ حبیب: هر «خودکار» همان لحظه به چت می‌آید): این‌ها را خودت انجام بده و از من نپرس؛ نتیجهٔ هر کدام را خودت چک کن. اگر حبیب قبلاً درباره‌اش حرفی زده (سرچ در چت‌های قبلی)، طبقِ همان. اگر راهی که آمده نشد، منتظر نمان: از کارها و تجربه‌های قبلی یا ایجنتِ دیگری که ابزارش را دارد راهِ تازه پیدا کن و انجامش بده؛ فقط اگر خلافِ دستورِ حبیب است انجام نده و بگو کدام دستور.'] : []
+  if (rv.length) parts.unshift(matn_ravand_dar_chat(rv))
   if (kh.length) parts.push(kh.map((x, i) => adad_farsi(i + 1) + '. ' + x.kar + ' ⇐ با ' + x.abzar + (x.chek ? '؛ چک: ' + x.chek : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
   if (nk.length) parts.push('این «خودکار»ها قبلاً فرستاده شد و هنوز انجام نشده (نکرده):\n' + nk.map((x, i) => (x.sh ? 'ک-' + adad_farsi(x.sh) : adad_farsi(i + 1) + '.') + ' ' + x.harf + (x.chera ? ' — ' + x.chera : '') + (x.bar_sevom ? matn_bar_sevom : '')).join('\n'))
   return parts.join('\n\n')
@@ -839,13 +872,14 @@ async function ferestadan_khodkar($) {
   const id = await $.session.id()
   const b = baraye_ferestadan_har_chat.get(id)
   baraye_ferestadan_har_chat.delete(id)
-  if (!b || (!b.khodkar.length && !b.nakarde.length)) return
+  if (!b || (!b.khodkar.length && !b.nakarde.length && !b.ravand?.length)) return
   // /hads off, or the part ticked off, during the answer's end (the file is read now): it does not go
   const q = await khandan_file_chat($)
   if (!q) return
   if (!q.khodkar) b.khodkar = []
   if (!q.nakarde) b.nakarde = []
   const f = await khandan_khodkar_ferestade($)
+  const rv = q.ravand ? (b.ravand || []).filter((x) => !f.ravand.includes(kelid_ravand(x))) : []
   // once per work AND way: the same work with a new way (an excuse answered) goes again; a work sent before the
   // ways were kept counts by its work alone
   const qadimi = f.khodkar.filter((k) => !f.rah.some((r) => r.startsWith(k + ' ⇐ ')))
@@ -857,16 +891,16 @@ async function ferestadan_khodkar($) {
   const tedad_ghabli = JSON.stringify(f.tedad)
   const kh = shomar(kh0, (x) => x.kar)
   const nk = shomar(nk0, (x) => x.harf)
-  if (!kh.length && !nk.length) return
+  if (!kh.length && !nk.length && !rv.length) return
   // sent first, written after: a send that fails is not counted as sent and goes next time
-  try { await $.prompt.submit({ text: matn_ferestadan_khodkar(kh, nk) }) } catch (e) {
+  try { await $.prompt.submit({ text: matn_ferestadan_khodkar(kh, nk, rv) }) } catch (e) {
     f.tedad = JSON.parse(tedad_ghabli)
     await benevis_daftar($, 'khodkar_nafereste', { dalil: String(e?.message || e).slice(0, 200) })
     return
   }
-  f.khodkar.push(...kh.map((x) => x.kar)); f.rah.push(...kh.map(kelid_rah)); f.nakarde.push(...nk.map((x) => x.harf))
+  f.khodkar.push(...kh.map((x) => x.kar)); f.rah.push(...kh.map(kelid_rah)); f.nakarde.push(...nk.map((x) => x.harf)); f.ravand.push(...rv.map(kelid_ravand))
   try { await $.fs.write(await masir_khodkar_ferestade($), JSON.stringify(f) + '\n') } catch {}
-  await benevis_daftar($, 'khodkar_ferestade', { khodkar_ha: kh, nakarde_ha: nk.map((x) => x.harf) })
+  await benevis_daftar($, 'khodkar_ferestade', { khodkar_ha: kh, nakarde_ha: nk.map((x) => x.harf), ravand_ha: rv })
   $.ui.invalidate('ui.render')
 }
 
@@ -923,8 +957,16 @@ async function hads_ba_fork($, p = { hads: true }, pj = null) {
   if (!p.ravand) ravand_akhar = []
   if (p.ravand && got?.ravand) {
     try {
-      ravand_akhar = ravand_ba_shahed(got.ravand, await $.session.messages(), await khandan_ravand_zade($)); hads_baraye_chat = id
-      await benevis_daftar($, 'ravand', { rah: 'fork', ravand_ha: ravand_akhar, hazf_shode: got.ravand.length - ravand_akhar.length })
+      const msgs = await payam_ha_az_file($, await $.session.messages())
+      const zade = await khandan_ravand_zade($)
+      const taze = ravand_ba_shahed(got.ravand, msgs, zade)
+      // a trend does not end because this answer found none: it stays until pressed or replaced (Habib, 3 Nov: «اصلا ندیدم روندی پیشنهاد بده»)
+      ravand_akhar = taze.length ? taze : ravand_akhar.filter((x) => !zade.map(yeksan_harf).includes(yeksan_harf(x.text))); hads_baraye_chat = id
+      await baraye_ferestadan($, 'ravand', taze)
+      const ha = payam_ha_ye_habib(msgs)
+      // what the code threw away and why: without it «روند» going empty cannot be told from the model finding nothing
+      await benevis_daftar($, 'ravand', { rah: 'fork', ravand_ha: taze, hazf_shode: got.ravand.length - taze.length, tedad_payam_habib: ha.length, tedad_payam_kol: msgs.length,
+        rad_shode: got.ravand.filter((x) => !taze.includes(x)).map((x) => ({ label: x.label, shahed: x.shahed.map((y) => ({ harf: y.harf, payam: ha.filter((m) => m.includes(yeksan_harf(y.harf))).length })) })) })
       $.ui.invalidate('ui.render')
     } catch {}
   }
@@ -1246,16 +1288,17 @@ export function khandan_hook_ha(text) {
 export const had_hook_kuchak_radif = 6
 export const had_hook_bozorg_radif = 3
 export const had_hook_bozorg_harf = 600
+async function masir_file_transcript($) {
+  if (masir_transcript) return masir_transcript
+  const slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
+  return (await $.env.get('HOME')) + '/.claude/projects/' + slug + '/' + (await $.session.id()) + '.jsonl'
+}
 async function khandan_hook_az_transcript($) {
   try {
     const t = await $.clock.now()
     if (t - zaman_khandan_hook < 2000) return
     zaman_khandan_hook = t
-    let path = masir_transcript
-    if (!path) {
-      const slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
-      path = (await $.env.get('HOME')) + '/.claude/projects/' + slug + '/' + (await $.session.id()) + '.jsonl'
-    }
+    const path = await masir_file_transcript($)
     // only the file's last had_hook_transcript_byte are searched: a long chat's transcript is hundreds of MB,
     // and this runs after tools. The first line of the cut is half a line; parseHooks skips it.
     const r = await $.process.run(['sh', '-c', 'tail -c "$4" "$2" | grep -E "$1" | tail -n "$3"', 'sh', hook_transcript_grep, path, String(had_hook_transcript_khat), String(had_hook_transcript_byte)])

@@ -28,9 +28,12 @@ const css=fs.readFileSync(__dirname+'/chatgpt-rtl.css','utf8');
   const page=await browser.newPage({viewport:{width:700,height:600}});
   page.on('pageerror',error=>console.error('Fixture page error:',error.message));
   await page.route('https://crtl.test/**',route=>route.fulfill({contentType:'text/html',body:'<html><body><div id="root"></div></body></html>'}));
-  async function start(payload,expectTabs=true){await page.goto('https://crtl.test/');await page.evaluate(()=>sessionStorage.clear());await page.addScriptTag({content:bundle.outputFiles[0].text});await page.addStyleTag({content:css});await page.addScriptTag({content:payload});await page.waitForSelector(expectTabs?'[role="tab"]':'#crtl-tabs');}
+  async function start(payload,expectTabs=true){await page.goto('https://crtl.test/');await page.evaluate(()=>sessionStorage.clear());await page.addScriptTag({content:bundle.outputFiles[0].text});await page.addStyleTag({content:css});await page.addStyleTag({content:'html.crtl-has-tabs #crtl-tabs{display:flex!important;top:auto!important;bottom:0}'});await page.addScriptTag({content:payload});await page.waitForSelector(expectTabs?'[role="tab"]':'#crtl-tabs');}
   async function settled(){await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await page.waitForFunction(()=>document.querySelector('h1').textContent===window.testRouter.state.location.pathname+window.testRouter.state.location.search && document.querySelector('#crtl-tabs [aria-selected=true]')?.dataset.crtlTab===document.querySelector('h1').textContent);}
   await start(source);
+  const threadPath=new Function(source.match(/function threadPath[\s\S]*?\n  }/)[0]+';return threadPath')();
+  assert.equal(threadPath('/local/client-new-thread:abc'),false);assert.equal(threadPath('/local/abc'),true);
+  assert.equal(await page.locator('#crtl-payam').isVisible(),false);
   const tabs=page.locator('#crtl-tabs [role="tab"]'),add=page.locator('[data-crtl-new-tab]');
   await page.locator('textarea').fill('پیش‌نویس اول');await add.click();
   await page.waitForFunction(()=>document.querySelectorAll('#crtl-tabs [role="tab"]').length===2);
@@ -91,10 +94,16 @@ const css=fs.readFileSync(__dirname+'/chatgpt-rtl.css','utf8');
   await page.waitForFunction(()=>document.querySelector('h1').textContent==='/local/wrong-thread');
   const badRoute=await page.locator('h1').innerText();
   assert.throws(()=>assert.equal(badRoute,'/extension/panel/new'));
+  await start(source);await page.locator('[data-crtl-history]').click();
+  assert.match(await page.locator('#crtl-payam').innerText(),/گفتگوی موردنظر/);
+  await page.waitForTimeout(8500);assert.equal(await page.locator('#crtl-payam').isVisible(),false);
   if (memoryMode) {
    const disconnected=source.replace('return memoryRouter(nav);','return null;').replace('attempts >= 120','attempts >= 2');
    assert.notEqual(disconnected,source);await start(disconnected,false);
-   await page.waitForFunction(()=>document.querySelector('#crtl-tabs [role=status]').textContent.includes('اتصال تب‌ها برقرار نشد'));
+   await page.waitForFunction(()=>document.querySelector('#crtl-payam').textContent.includes('اتصال تب‌ها برقرار نشد'));
+   assert.equal(await page.locator('#crtl-payam').isVisible(),true);assert.equal(await page.locator('#crtl-tabs #crtl-payam').count(),0);
+   await page.locator('[data-crtl-history]').click();await page.waitForTimeout(8500);
+   assert.match(await page.locator('#crtl-payam').innerText(),/اتصال تب‌ها برقرار نشد/);
    assert.equal(await tabs.count(),0);assert.equal(await add.isDisabled(),true);
   }
   const noHistory=source.replace("document.addEventListener('click', historySelection, true);", '// disabled history connection');

@@ -1,4 +1,9 @@
 /* Scoped to transcript prose; editors, diffs, navigation and composer stay native. */
+/* Vazirmatn is installed locally; make it the default, including after autofix. */
+.thread-scroll-container :is([class*="MarkdownContent"],.rich-text-user-turn,[data-user-message-bubble]),
+[data-composer-surface-variant] [contenteditable="true"] {
+  font-family:Vazirmatn,Tahoma,sans-serif!important;
+}
 .thread-scroll-container :is([class*="MarkdownContent"],.rich-text-user-turn,[data-user-message-bubble]) {
   direction: rtl; text-align: right; unicode-bidi: plaintext;
 }
@@ -125,7 +130,6 @@ html.crtl-has-tabs #root {height:calc(100dvh - 58px)!important}
 #crtl-tabs [role="tab"][aria-selected="true"] {background:var(--vscode-list-activeSelectionBackground,#294b69);color:var(--vscode-list-activeSelectionForeground,#fff)}
 #crtl-tabs button:focus-visible {outline:2px solid var(--vscode-focusBorder,#58a6ff);outline-offset:-2px}
 #crtl-tabs button:disabled {opacity:.55;cursor:default}
-#crtl-tabs [role="status"] {font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Merge native conversation header actions into the tabs row. Keep native
    buttons mounted so their menus and keyboard behavior remain available. */
@@ -206,3 +210,19 @@ html.crtl-has-tabs #root {height:calc(100dvh - 34px)!important}
 [data-composer-surface-variant]:focus-within {box-shadow:0 0 0 1.5px #c9504a!important}
 /* ③ aA at the bottom right, beside the composer */
 .crtl-bar.crtl-gear,.crtl-gear {top:auto!important;bottom:10px!important;right:10px!important;left:auto!important}
+
+/* Put the ordinary timestamp/copy row beside its own message. Grid keeps both
+   in normal flow, so long messages and the native virtualizer measure correctly.
+   Editing, reactions, status chips and compact-mode variants stay native. */
+.thread-scroll-container [class~="group/user-message"]:has(> [data-user-message-bubble]):has(> .flex-row-reverse > .isolate):not(:has(> .flex-row-reverse > :not(.isolate))) {
+  display:grid!important;grid-template-columns:auto minmax(0,1fr)!important;
+  align-items:center!important;column-gap:8px!important;row-gap:0!important;direction:ltr;
+}
+.thread-scroll-container [class~="group/user-message"]:has(> .flex-row-reverse > .isolate):not(:has(> .flex-row-reverse > :not(.isolate))) > [data-user-message-bubble] {
+  grid-column:2;grid-row:1;justify-self:end;max-width:100%!important;
+}
+.thread-scroll-container [class~="group/user-message"]:has(> [data-user-message-bubble]):not(:has(> .flex-row-reverse > :not(.isolate))) > .flex-row-reverse:has(> .isolate) {
+  grid-column:1;grid-row:1;justify-self:start;max-width:120px;font-size:11px!important;line-height:18px!important;
+}
+#crtl-payam {position:fixed;top:30px;inset-inline:40px;z-index:2147483000;width:fit-content;margin-inline:auto;padding:3px 8px;border-radius:5px;font-size:11px;background:var(--vscode-editorWidget-background,#252526);color:var(--vscode-foreground,inherit);border:1px solid rgba(127,127,127,.35);pointer-events:none}
+#crtl-payam:empty {display:none}

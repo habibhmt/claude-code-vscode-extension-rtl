@@ -18,7 +18,7 @@ const $ = {
   store: { get: async (k) => store[k], set: async (k, v) => { store[k] = v } },
   clock: { after: (ms, fn) => { pending.push(fn()) }, now: async () => $.t },
   command: { register: async () => {} },
-  process: { run: async (argv, init) => { if (argv?.[0] === 'grep') { calls.sanad = [...(calls.sanad || []), argv]; const t = argv[5] in flags ? flags[argv[5]] : $.files[argv[5]]; return { exitCode: t !== undefined && String(t).includes(argv[4]) ? 0 : 1, stdout: '' } } if (argv?.[0] === 'git') { calls.git = [...(calls.git || []), argv]; return { exitCode: 0, stdout: argv.includes('-200') ? ($.gitLog || '') : ($.gitRecent || '') } } if (/hafeze_dayere\.py$/.test(argv?.[0] || '')) { const sid = argv[argv.indexOf('--chat') + 1]; calls.dayere = [...(calls.dayere || []), argv.slice(1)]; if (argv[1] === 'set' && !$.dayereBroken && !$.dayereSetIgnored) dayere[sid] = argv[2]; return { exitCode: 0, stdout: $.dayereBroken ? 'Traceback\n' : JSON.stringify({ dayere: dayere[sid] || 'poshe', az: 'sarasari' }) + '\n' } } if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
+  process: { run: async (argv, init) => { if (argv?.[4]?.includes?.('queued_command')) return { exitCode: 0, stdout: '' }; if (argv?.[0] === 'grep') { calls.sanad = [...(calls.sanad || []), argv]; const t = argv[5] in flags ? flags[argv[5]] : $.files[argv[5]]; return { exitCode: t !== undefined && String(t).includes(argv[4]) ? 0 : 1, stdout: '' } } if (argv?.[0] === 'git') { calls.git = [...(calls.git || []), argv]; return { exitCode: 0, stdout: argv.includes('-200') ? ($.gitLog || '') : ($.gitRecent || '') } } if (/hafeze_dayere\.py$/.test(argv?.[0] || '')) { const sid = argv[argv.indexOf('--chat') + 1]; calls.dayere = [...(calls.dayere || []), argv.slice(1)]; if (argv[1] === 'set' && !$.dayereBroken && !$.dayereSetIgnored) dayere[sid] = argv[2]; return { exitCode: 0, stdout: $.dayereBroken ? 'Traceback\n' : JSON.stringify({ dayere: dayere[sid] || 'poshe', az: 'sarasari' }) + '\n' } } if (/cat >>/.test(argv?.[2] || '') && /\.nakarde_anjam_shod\.jsonl$/.test(argv[4])) { flags[argv[4]] = (flags[argv[4]] || '') + init.stdin; return { exitCode: 0, stdout: '' } } if (/cat >>/.test(argv?.[2] || '')) { (/\.usage\.jsonl$/.test(argv[4]) ? usages : events).push(JSON.parse(init.stdin)); return { exitCode: 0, stdout: '' } } calls.run = (calls.run || 0) + 1; calls.argv = argv; if ($.tailFails) throw new Error('no tail'); return { exitCode: 0, stdout: $.tail || '' } } },
   fs: { write: async (f, t) => { flags[f] = t }, read: async (f) => { if (f in flags) return flags[f]; if ($.files[f] === undefined) throw new Error('no'); return $.files[f] }, list: async () => Object.keys($.files).map((k) => ({ name: k.replace('.remember/', '') })) },
 }
 const flags = {}
@@ -702,7 +702,7 @@ out.khodkarFerestade = { first: sub1.length === 1 && /۱\. چکِ اپ ⇐ با 
   third: calls.submit.length, file: flags['/h/.claude/hads-log/X.khodkar_ferestade.json'],
   logged: events.filter((e) => e.kind === 'khodkar_ferestade' && e.sid === 'X').length }
 assert.deepEqual(out.khodkarFerestade, { first: true, tick: ['✓ فرستاده شد', '✓ فرستاده شد'], second: true, rule: true,
-  nkRow: ['ک-۱ خودکار: چکِ اپ ✓ فرستاده شد', 'ک-۲ «حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"],"tedad":{"چکِ اپ":2,"سرچِ حرفِ حبیب":1}}\n', logged: 2 })
+  nkRow: ['ک-۱ خودکار: چکِ اپ ✓ فرستاده شد', 'ک-۲ «حرفِ دیگرِ حبیب»'], third: 2, file: '{"khodkar":["چکِ اپ","سرچِ حرفِ حبیب"],"nakarde":["چکِ اپ"],"ravand":[],"rah":["چکِ اپ ⇐ Bash: xcrun simctl","سرچِ حرفِ حبیب ⇐ hafeze_search.py"],"tedad":{"چکِ اپ":2,"سرچِ حرفِ حبیب":1}}\n', logged: 2 })
 // an excuse gets a new way, not a wait (Habib, 26 Oct 07:44): the fork is told what was sent and to answer excuses; the same
 // work with a NEW way goes again, the same way does not; an excuse does not take a «نکرده» out
 {
@@ -875,6 +875,7 @@ out.ravandBazbini = {
   skill: rvN(M1, 'حتما بخوان این را', [U(M1), U('Base directory for this skill: /x\nحتما بخوان این را')]),
   local: rvN(M1, 'خروجیِ فرمان محلی', [U(M1), U('<local-command-stdout>خروجیِ فرمان محلی</local-command-stdout>')]),
   khodkar: rvN(M1, 'این‌ها را خودت انجام بده', [U(M1), U('خودکار (از مودِ «حدس»): این‌ها را خودت انجام بده')]),
+  khodkarGhadim: rvN(M1, 'دیدنِ قالبِ خودکار', [U(M1), U('این را خودت انجام بده و از من نپرس: دیدنِ قالبِ خودکار')]),
   soalPanjere: rvN(M1, 'آیا بزنم همه را', [U(M1), U('Answering your earlier question "آیا بزنم همه را": بله بزن')]),
   javabPanjere: rvN(M1, 'بله بزن همه را', [U(M1), U('Answering your earlier question "آیا؟": بله بزن همه را')]),
   browser: rvN(M1, 'کدکس به کجا رسید', [U(M1), U('<browser_instruction>راهنمای مرورگر اینجا</browser_instruction>کدکس به کجا رسید')]),
@@ -886,7 +887,7 @@ out.ravandBazbini = {
   tekrari: rvN(M1, M1, [U(M1), U(M1)]),
   seNoghte: rvN('کمتر از من …', 'دفعه دوم هی...', [U(M1), U(M2)]),
 }
-assert.deepEqual(out.ravandBazbini, { skill: 0, local: 0, khodkar: 0, soalPanjere: 0, javabPanjere: 1, browser: 1, browserMatn: 0, aks: 0, tartib1: 1, tartib2: 1, kutah: 0, tekrari: 0, seNoghte: 1 })
+assert.deepEqual(out.ravandBazbini, { skill: 0, local: 0, khodkar: 0, khodkarGhadim: 0, soalPanjere: 0, javabPanjere: 1, browser: 1, browserMatn: 0, aks: 0, tartib1: 1, tartib2: 1, kutah: 0, tekrari: 0, seNoghte: 1 })
 // the fork left «ravand» out: the last list stays
 out.ravandNabud = mod.khandan_javab_fork('{"hads": [{"label": "a", "text": "b"}]}')?.ravand; assert.equal(out.ravandNabud, undefined)
 $.forkReply = { isAnswered: true, usage: {}, text: '{"hads": [{"label": "ی", "text": "حدسِ یک"}]}' }; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }; await H['command.run']($, { args: 'now' }); await flush()
@@ -922,6 +923,40 @@ out.ravandTanha = { fork: calls.fork.length - rvF1, radif: !!find(await render()
 assert.deepEqual(out.ravandTanha, { fork: 1, radif: true, hadsDarPrompt: false })
 flags['/h/.claude/hads-on/RV'] = 'on -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; await H['command.run']($, { args: 'now' }); await flush()
 out.ravandKhamush = /"ravand"/.test(calls.fork.at(-1).prompt); assert.equal(out.ravandKhamush, false)
+// after a compact the session list has only a few of his messages; the chat file has them all (3 Nov, real log)
+const khatFile = (t, ezafe = {}) => JSON.stringify({ isSidechain: false, type: 'user', origin: { kind: 'human' }, message: { role: 'user', content: [{ type: 'text', text: t }] }, ...ezafe })
+out.ravandFilePayam = mod.khandan_payam_transcript([khatFile(M1), khatFile(M1), JSON.stringify({ isSidechain: false, attachment: { type: 'queued_command', prompt: [{ type: 'text', text: M2 }] } }), khatFile('حرفِ کارگر', { isSidechain: true }), 'خطِ نیمه {'].join('\n')).map((m) => m.text)
+assert.deepEqual(out.ravandFilePayam, [M1, M2])
+assert.equal('"origin":{"kind":"human"}'.match(new RegExp(mod.payam_transcript_grep))?.length, 1)
+const rvRun3 = $.process.run; let rvFileKhat = [khatFile(M1), khatFile(M2)].join('\n')
+$.process.run = async (argv, init) => (argv[2]?.includes?.('grep -E') && argv[4] === mod.payam_transcript_grep ? { exitCode: 0, stdout: rvFileKhat } : rvRun3(argv, init))
+$.sid = 'RVF'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVF'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; $.msgs = [U('پیامِ بعد از فشرده شدن')]; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }
+await H['command.run']($, { args: 'now' }); await flush(); out.ravandAzFile = !!find(await render(), 'hads-rv-0')
+// a later answer whose trends are all thrown away does not wipe the one on screen
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, 'حرفی که نگفت')] }) }; await H['command.run']($, { args: 'now' }); await flush(); out.ravandMiManad = !!find(await render(), 'hads-rv-0')
+// the file unreadable: the session's list is used, and a real rule still throws made-up quotes away
+$.sid = 'RVG'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVG'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; rvFileKhat = ''; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvRow(M1, M2)] }) }; $.msgs = rvMsgs
+await H['command.run']($, { args: 'now' }); await flush(); out.ravandFileNabud = !!find(await render(), 'hads-rv-0')
+$.process.run = rvRun3; $.sid = 'RV'; $.msgs = rvMsgs
+assert.deepEqual([out.ravandAzFile, out.ravandMiManad, out.ravandFileNabud], [true, true, true])
+// «روند» goes into the chat like «خودکار», on top, once per trend even in new words
+const rvDar = (r, h) => ({ ...rvRow(M1, M2), ravand: r, ...h })
+$.sid = 'RVC'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVC'] = 'on -hads -nakarde -cron -do_jomle -porsesh -hook -zaban'; $.msgs = rvMsgs
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvDar('جهتِ یک')], khodkar: [{ kar: 'کارِ الف', abzar: 'Bash' }] }) }
+const rvC0 = calls.submit.length; await H['command.run']($, { args: 'now' }); await flush(); const rvCt = calls.submit.slice(rvC0).map((x) => x.text || x)
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvDar('جهتِ یک با واژهٔ دیگر')] }) }
+const rvC1 = calls.submit.length; await H['command.run']($, { args: 'now' }); await flush()
+flags['/h/.claude/hads-on/RVC'] = 'on -ravand -hads -nakarde -cron -do_jomle -porsesh -hook -zaban'; $.sid = 'RVD'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVD'] = 'on -ravand -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+$.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvDar('جهتِ دو')] }) }; const rvC2 = calls.submit.length; await H['command.run']($, { args: 'now' }); await flush()
+out.ravandDarChat = { yek: rvCt.length, bala: rvCt[0]?.indexOf('روند (از مود') === 0, khodkarZir: rvCt[0]?.indexOf('کارِ الف') > rvCt[0]?.indexOf('جهتِ یک'), shahed: rvCt[0]?.includes(M1), dobare: calls.submit.length - rvC1 - 0, khamush: calls.submit.length - rvC2 }
+$.sid = 'RV'
+assert.deepEqual(out.ravandDarChat, { yek: 1, bala: true, khodkarZir: true, shahed: true, dobare: 0, khamush: 0 })
+assert.equal(mod.matn_ferestadan_khodkar([], [], [rvDar('تنها')]).includes('این‌ها را خودت'), false)
+// ticked off during the answer's end: it does not go
+$.sid = 'RVE'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/RVE'] = 'on -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; $.forkReply = { isAnswered: true, usage: {}, text: JSON.stringify({ ravand: [rvDar('جهتِ سه')] }) }
+const rvRun4 = $.process.run; $.process.run = async (argv, init) => { if (/"kind":"ravand"/.test(init?.stdin || '')) flags['/h/.claude/hads-on/RVE'] = 'on -ravand -hads -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'; return rvRun4(argv, init) }
+const rvC3 = calls.submit.length; await H['command.run']($, { args: 'now' }); await flush(); $.process.run = rvRun4; $.sid = 'RV'
+out.ravandTikVasat = calls.submit.length - rvC3; assert.equal(out.ravandTikVasat, 0)
 // a reply with no answer is counted too (it may have cost money); only «nothing to fork» made no call
 flags['/h/.claude/hads-on/RV'] = 'on'; const rvU0 = usages.length; $.forkReply = { isAnswered: false, reason: 'api-error' }; await H['command.run']($, { args: 'now' }); await flush()
 out.biJavabShomorde = usages.slice(rvU0).filter((u) => u.rah === 'fork').length; assert.equal(out.biJavabShomorde, 1)

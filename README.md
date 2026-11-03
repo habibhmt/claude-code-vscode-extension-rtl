@@ -391,14 +391,56 @@ listener. Query parameters are preserved when switching tabs. Leaving settings
 through the MemoryRouter fallback is refused so native unsaved-settings
 confirmation is not bypassed. This is an internal integration and can require maintenance after
 an extension update. If the router cannot be found, the add button stays disabled
-and an explanation is shown; host executable code and native bundled assets are
-not patched. `test_chatgpt_tabs.cjs` uses real React/React Router in an isolated
+and an explanation is shown. The tab feature does not patch host executable code
+or native bundled assets; the separate folder-list filter below does.
+`test_chatgpt_tabs.cjs` uses real React/React Router in an isolated
 fixture to test navigation, native draft entry, saved thread tabs, close behavior, failed
 navigation and deliberate routing breakage. Run with
 `NODE_PATH=/tmp/chatgpt-rtl-qa/node_modules node test_chatgpt_tabs.cjs` and again
 with `TABS_ROUTER=memory` for the Windsurf router. The latter also removes the
 MemoryRouter connection deliberately and verifies the disabled error state.
 Live IDE testing is separate.
+
+### Codex chat lists follow the open folder
+
+The same installer applies `chatgpt-folder-patch.py` to the inspected VS Code
+extension layout. The recent-chat hook and merged history view return only local
+chats whose recorded `cwd` matches an open workspace folder. The native VS Code
+Chat Sessions provider and webview recent-history request both supply those
+folders before the page-size limit, so newer chats in other projects cannot
+push older chats from this project out of the fetched page. Other app-server requests and
+stored chats are unchanged. Imported Claude chats follow the same folder rule
+when they are already available in Codex history. This does not perform imports
+or repair missing/incorrect folder metadata.
+
+Multiple open roots are included. Empty windows retain native unfiltered
+history. Remote hosts and cloud tasks without a matching local folder are not
+shown in the scoped recent view. Folder comparison is exact after separator and
+trailing-slash normalization; subfolders, worktrees outside the open folder and
+similarly named sibling folders are separate. While workspace roots load, the
+recent view does not display unfiltered chats.
+
+The installer checks the native code contracts and skips unsupported layouts,
+reporting `[SKIP folder filter]`. It stores original-file backups plus hashes in
+`webview/.chatgpt-folder-filter.json`, rejects unexpected external modifications,
+validates JavaScript before writing, and restores the originals with `--revert`.
+After installation, use **Developer: Reload Window** in the intended VS Code
+window. Automatic installation never reloads the IDE.
+
+The native root query uses the parameterized-query hook (`app-scope` export `c`)
+with `{hostId: 'local'}`; the host provider requires an options object.
+`node test_chatgpt_folder_query.cjs` runs the installed React and query-family
+implementation and the actual host provider with a fixture filesystem response.
+It separately restores the previous wrong signal hook and removes the host
+options, verifying that the own-chat check catches both empty-list regressions.
+
+Checks: `python3 test_chatgpt_folder_patch.py` uses a copy of the installed assets,
+executes both actual list providers with an isolated fake server, checks
+filtering before pagination, and verifies exact restoration. Run
+`node test_chatgpt_folder_filter.cjs` for the React browser fixture: folder switch,
+multi-root, native title search, imported-chat folder matching and unchanged
+source records. Deliberate leakage and deliberate hiding must both be detected.
+These checks do not substitute for reloading and inspecting a live VS Code window.
 
 Async question cards are scoped by `data-codex-composer-request-navigation`;
 their question text, options and custom answer field now have RTL direction.

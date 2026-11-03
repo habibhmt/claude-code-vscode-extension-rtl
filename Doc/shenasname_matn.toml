@@ -1198,3 +1198,21 @@ noe = "sabet"
 ba_motaghayerha = ["shekast_fork_har_chat", "hads_har_chand_javab"]
 tarif = "23"
 tayid = "حبیب ۲ نوا «بزن همه رو»"
+
+[payam_transcript_grep]
+yani = "کجا: «روند» · چیه: دو شکلِ خطی که در فایلِ چت پیامِ تایپ‌شدهٔ حبیب است (پیامِ عادی و پیامی که وسطِ کار فرستاده)"
+chera = "حبیب ۳ نوامبر «اصلا نیددیدم روندی پیشنهاد بده»"
+ozv = "ravand"
+noe = "sabet"
+ba_motaghayerha = ["had_tedad_payam_transcript_khat"]
+tarif = "23"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-11-03 04:40)"
+
+[had_tedad_payam_transcript_khat]
+yani = "کجا: «روند» · چیه: از فایلِ چت فقط این تعداد از آخرین پیام‌های حبیب خوانده می‌شود · مثال: ⟦had_tedad_payam_transcript_khat⟧"
+chera = "حبیب ۳ نوامبر «اصلا نیددیدم روندی پیشنهاد بده»"
+ozv = "ravand"
+noe = "sabet"
+ba_motaghayerha = ["payam_transcript_grep"]
+tarif = "23"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-11-03 04:40)"

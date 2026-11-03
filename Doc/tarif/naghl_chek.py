@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
-# Every «…» in the given tarif files (default: all of Doc/tarif) must be Habib's own words: what he typed in this chat, his
+# Every «…» in the given tarif files (default: all of Doc/tarif) must be Habib's own words: what he typed in this chat or this project's other Claude and Codex chats, his
 # answers in question windows, soal-javab/kham/136-mojri.md or ~/.claude/CLAUDE.md. Agent messages
 # (cross-session), tool output and summaries do not count. A «…» on a line saying "از راهِ" or
 # "به نقلِ" may instead match a relayed agent message. Prints what is not found; exit = count.
 import json, os, re, sys, glob
 H = os.path.expanduser('~')
-AGENT = re.compile(r'<cross-session-message|Another Claude session sent a message|<system-reminder|<task-notification')
+AGENT = re.compile(r'<cross-session-message|Another Claude session sent a message|<system-reminder|<task-notification|plugin sent a message')
 ANSWER = re.compile(r'"=\"(.*?)\"(?=[.,] |\.$)', re.S)
 habib, relay = [], []
 P = H + '/.claude/projects/-Users-habib-1-MY-WORK-136th-day-fix-rtl-claude/'
 # this chat (مجری) and its ناظر, who also heard Habib directly
-for l in (x for f in ('6d39ff34-b0b1-48ae-a27b-6dc2870b9578', '1ab9bf32-ee8d-4ab4-bd88-194b19629292') for x in open(P + f + '.jsonl')):
+ASLI = ('6d39ff34-b0b1-48ae-a27b-6dc2870b9578', '1ab9bf32-ee8d-4ab4-bd88-194b19629292')
+# the project's other chats count only for what Claude Code itself stamped as typed by him
+for l, sakht in ((x, os.path.basename(f)[:-6] not in ASLI) for f in glob.glob(P + '*.jsonl') for x in open(f, errors='ignore')):
+    if sakht and '"kind":"human"' not in l: continue
     try: o = json.loads(l)
     except Exception: continue
     a = o.get('attachment')
@@ -32,6 +35,19 @@ for l in (x for f in ('6d39ff34-b0b1-48ae-a27b-6dc2870b9578', '1ab9bf32-ee8d-4ab
             (relay if AGENT.search(t) else habib).append(t)
         elif b.get('type') == 'tool_result' and isinstance(b.get('content'), str) and b['content'].startswith(('Your questions have been answered', 'The user answered:')):
             habib += ANSWER.findall(b['content'])
+# his words in this project's Codex chats (role user; the wrappers Codex adds start with «<»)
+for f in glob.glob(H + '/.codex/sessions/*/*/*/rollout-*.jsonl'):
+    try: rows = open(f, errors='ignore').readlines()
+    except Exception: continue
+    if not rows or '136th-day-fix-rtl-claude' not in rows[0]: continue
+    for l in rows:
+        if '"role":"user"' not in l: continue
+        try: o = json.loads(l)
+        except Exception: continue
+        if o.get('type') != 'response_item': continue
+        for b in o.get('payload', {}).get('content') or []:
+            t = b.get('text', '') if isinstance(b, dict) else ''
+            if t and not t.lstrip().startswith('<'): habib.append(t)
 # kham: only the last column (Habib's answer), not the agent's question beside it
 try: habib += [r.rstrip(' |\n').rsplit(' | ', 1)[-1] for r in open(H + '/1-MY-WORK/0th-day-secreter-director-from-all-sources/soal-javab/kham/136-mojri.md') if r.startswith('| 20')]
 except Exception: pass

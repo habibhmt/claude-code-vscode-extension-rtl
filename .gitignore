@@ -25,3 +25,5 @@ __pycache__/
 node_modules/
 khabar_noskhe.log
 khabar_noskhe.done
+
+claude-code-github/

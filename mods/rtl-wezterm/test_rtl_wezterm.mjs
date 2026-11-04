@@ -28,6 +28,9 @@ for (const [name, input, want] of cases) {
 }
 const bold = layoutParagraph([{ text: 'جاری:', style: 1 }, { text: ' منتظر جواب', style: 0 }], { width: 80, base: 'rtl-share', share: 0.3, mode: 'logical', arabic: 'letters' })[0].spans.map(s => s.text).join('')
 assert.equal(bold, G + 'منتظر جواب' + G + ':جاری', 'a change of style is a piece of its own')
+const boldPhrase = layoutParagraph([{ text: 'خط ۸:', style: 1 }, { text: ' اگر قیمت', style: 0 }], { width: 80, base: 'rtl-share', share: 0.3, mode: 'logical', arabic: 'letters' })[0].spans
+assert.equal(boldPhrase.find(s => s.style === 1).text, G + ':خط\u00a0۸', 'a space inside a styled stretch cannot split it')
+assert.ok(boldPhrase.filter(s => s.style === 0).every(s => !s.text.includes('\u00a0')), 'plain text keeps ordinary spaces')
 const runs = (list, base = 'rtl-share') => layoutParagraph(list, { width: 80, base, share: 0.3, mode: 'logical', arabic: 'letters' })[0].spans
 const spans = runs([{ text: 'در ', style: 0 }, { text: 'Doc.md', style: 2 }])
 assert.equal(spans.map(s => s.text).join(''), G + 'Doc.md' + G + 'در', 'plain text after a coloured word opens with its own guard')

@@ -43,7 +43,7 @@ export const TAB_STOP = 4
 // (ZWSP, soft hyphen, BOM) have no glyph and are not drawn either. Inside a cluster (ZWJ, VS16)
 // they stay with it.
 const UNDRAWN = /^\p{Cf}+$/u
-const SPACE = /^[\t   - 　]$/u
+const SPACE = /^[\t \u00a0 - 　]$/u
 // C0 and C1 controls other than tab and newline never reach a leaf.
 const CONTROL = /[\u0000-\u0008\u000B-\u001F\u007F-\u009F]/gu
 const LINE_BREAK = /\r\n?|[\u2028\u2029\u0085]/gu
@@ -206,6 +206,9 @@ function place(text: string, styleAt: Int32Array, isolated: Uint8Array, opts: La
       const c = line[i]
       if (!c.drawn) continue
       let glyph = c.text === '\t' ? ' '.repeat(c.width) : c.text
+      // A plain space may stay unstyled on screen, so a bold phrase reaches WezTerm as one stretch per word,
+      // each turned on its own: the words come out in reverse order. A no-break space keeps the stretch whole.
+      if (opts.mode === 'logical' && glyph === ' ' && styleAt[c.start] !== 0) glyph = '\u00a0'
       if (opts.mode === 'visual' && final[i] & 1) {
         glyph = mirror(glyph) ?? glyph
         if (opts.arabic !== 'forms') glyph = joinersFirst(glyph, i === lastDrawn || spans.length === 0)

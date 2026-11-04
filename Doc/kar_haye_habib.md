@@ -13,4 +13,4 @@
 | همه | قاعده‌ها و حافظه | `CLAUDE.md`، `MEMORY.md`، auto-memory، compact | `~/.claude/CLAUDE.md` |
 | همه | ساب‌ایجنت با Sonnet، پنجرهٔ سؤال (AskUserQuestion)، تایمرِ کش | Agent، مدل‌ها، prompt cache | — |
 | همه | ویس (دیکته) و زبانِ فارسی | voice mode، زبان‌ها | — |
-| همه | کار با کروم (CDP) و کامپیوتر یوز | Claude in Chrome، computer use | `~/.claude/skills/chrome-cdp/` |
+| همه | کار با کروم (CDP) و کامپیوتر یوز | Claude in Chrome، computer use | `~/.claude/skills/browser/` |

@@ -1,0 +1,12 @@
+{
+  // Strict, as the engine's generated config is, with one exception: noUncheckedIndexedAccess is
+  // off, since the bidi and layout code indexes typed arrays and cluster lists by computed
+  // positions throughout; the unit tests and the fuzz certificate cover those bounds.
+  // The Node unit tests (*.spec.ts) are typed by ../../tsconfig.node.json instead.
+  "extends": "./.claude-plugin/types/tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["hooks", "src", "types", "vendor", "tests/**/*.test.ts", "tests/**/*.test.tsx"]
+}

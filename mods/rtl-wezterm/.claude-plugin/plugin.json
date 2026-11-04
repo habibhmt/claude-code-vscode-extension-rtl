@@ -1,0 +1,80 @@
+{
+  "name": "rtl",
+  "version": "0.0.1",
+  "description": "Right-to-left Hebrew, Arabic and Persian for the Claude Code terminal",
+  "author": {
+    "name": "Ofek Betzalel",
+    "url": "https://github.com/ofekbetzalel"
+  },
+  "homepage": "https://github.com/ofekbetzalel/claude-code-cli-rtl",
+  "repository": "https://github.com/ofekbetzalel/claude-code-cli-rtl",
+  "license": "MIT",
+  "keywords": [
+    "rtl",
+    "bidi",
+    "hebrew",
+    "arabic",
+    "persian"
+  ],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "order": {
+      "type": "string",
+      "title": "Character order",
+      "description": "visual (default): the mod arranges right-to-left text itself, so it reads right in Windows Terminal, the VS Code terminal and browser terminals built on xterm.js. logical: keep the typed order and only align right, for terminals that reorder text themselves (GNOME Terminal, mlterm). In Konsole, turn its bidi off and keep visual. off: Claude Code draws text as usual.",
+      "default": "logical",
+      "options": [
+        "visual",
+        "logical",
+        "off"
+      ]
+    },
+    "direction": {
+      "type": "string",
+      "title": "Paragraph direction",
+      "description": "rtl-share (default): a paragraph is RTL when its first strong letter is RTL, or when at least 30% of its letters (outside inline code) are RTL, so a Hebrew sentence that starts with an English word or a path still reads right-to-left. first-strong: Unicode's rule alone (UAX #9 P2/P3).",
+      "default": "rtl-share",
+      "options": [
+        "rtl-share",
+        "first-strong"
+      ]
+    },
+    "textColor": {
+      "type": "string",
+      "title": "Text color for RTL rows",
+      "description": "RTL rows are drawn in an explicit color (the theme's text color by default: white on dark themes, black on light ones). If your terminal's default text color differs (for example #d4d4d4), set it here as #rrggbb so RTL rows match the rest of the text.",
+      "default": ""
+    },
+    "preview": {
+      "type": "string",
+      "title": "Prompt preview",
+      "description": "on (default): the prompt box shows right-to-left text backwards, both what you type and Claude Code's dim suggestion (Tab takes it), and a mod cannot redraw it, so the band above the prompt shows the same text right-to-left while it holds right-to-left letters. The mod sees the suggestion arrive but not every way it leaves, so the band shows the suggestion it saw offered, and can differ from the box for a moment. draft: what you type only, never the suggestion. off: no preview. /rtl-draft opens a side pane with the whole draft and the cursor instead. Display only: what you type and send is unchanged.",
+      "default": "on",
+      "options": [
+        "on",
+        "draft",
+        "off"
+      ]
+    },
+    "recap": {
+      "type": "string",
+      "title": "Recap band",
+      "description": "off (default). on: first turn off Claude Code's own Session recap in /config; while it is on, this band stays hidden. Claude Code's automatic recap reads backwards in right-to-left text and a mod cannot draw it, so the mod shows its own above the prompt: after Claude Code's idle notification (the turn is done and you have not touched the terminal for a minute), three minutes more, then one more model operation on the session's model over the conversation. It may make more than one request, the conversation is read from the prompt cache only if the cache still holds it, and a recap dropped because you came back is still charged. Typing cancels it; the next prompt clears it; nothing is stored in the conversation.",
+      "default": "off",
+      "options": [
+        "off",
+        "on"
+      ]
+    },
+    "arabic": {
+      "type": "string",
+      "title": "Arabic and Persian letters",
+      "description": "letters (default): plain letters, which Windows Terminal joins with its font; browser terminals built on xterm.js show them unjoined. forms: each letter in its joined shape, for browser terminals whose font has Arabic presentation forms (DejaVu Sans Mono does). Keep letters in Windows Terminal. Hebrew is not affected.",
+      "default": "letters",
+      "options": [
+        "letters",
+        "forms"
+      ]
+    }
+  }
+}

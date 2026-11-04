@@ -1,6 +1,8 @@
 // Run: node --experimental-strip-types mods/rtl-wezterm/test_rtl_wezterm.mjs
 import assert from 'node:assert/strict'
 import { layoutParagraph } from './src/layout.ts'
+import { settingsFrom } from './src/options.ts'
+import { modelAssistant } from './src/render.ts'
 
 const G = '⠀'
 const lay = (text, mode = 'logical', width = 80) =>
@@ -36,4 +38,9 @@ assert.equal(row('hello world 100'), 'hello world 100', 'left-to-right row untou
 for (const r of lay('سلام دنیا English و ۲۰۰ دلار', 'visual')) assert.ok(!r.spans.some(s => s.text.includes(G)), 'visual order has no guard')
 const wrapped = lay('یک دو سه چهار پنج شش هفت هشت نه ده', 'logical', 12)
 assert.ok(wrapped.length > 1 && wrapped.every(r => r.width <= 12 && r.spans[0].text.startsWith(G)), 'each wrapped row fits, guard included')
+// a table cell also holds the row's guard: the word must not break
+const { settings } = settingsFrom({ order: 'logical' })
+const tableText = '| قیمت | مقدار |\n|---|---|\n| قبل | ۱۰۰ دلار |\n| بعد | ۲۰۰ دلار |'
+const tableRows = JSON.stringify(modelAssistant(tableText, 80, true, settings).rows)
+for (const word of ['قیمت', 'مقدار', 'قبل', 'بعد', 'دلار', '۱۰۰', '۲۰۰']) assert.ok(tableRows.includes(word), 'a table cell keeps its whole text: ' + word)
 console.log('rtl-wezterm: all checks passed')

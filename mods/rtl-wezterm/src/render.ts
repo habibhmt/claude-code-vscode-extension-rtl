@@ -251,8 +251,10 @@ function tableLines(t: Table, room: number, style: number, s: Settings, flow: bo
   const rtlText = (text: string) => (resolveParagraph(text, null, s.base, s.share).level & 1) === 1
   const rtl = rtlText(head.map(prose).join(' ')) || (flow ?? rtlText(all.flat().map(prose).join(' ')))
 
-  const words = (runs: Run[]) => Math.max(TABLE_MIN, ...plain(runs).split(/\s+/).filter(Boolean).map(textWidth))
-  const full = (runs: Run[]) => Math.max(textWidth(plain(runs)), TABLE_MIN)
+  // In logical order a right-to-left row opens with a one-cell guard (layout.ts), so a cell holds one cell less text
+  const guard = s.mode === 'logical' ? 1 : 0
+  const words = (runs: Run[]) => Math.max(TABLE_MIN, ...plain(runs).split(/\s+/).filter(Boolean).map(w => textWidth(w) + guard))
+  const full = (runs: Run[]) => Math.max(textWidth(plain(runs)) + guard, TABLE_MIN)
   const minW = t.align.map((_, c) => Math.max(...all.map(r => words(r[c]))))
   const ideal = t.align.map((_, c) => Math.max(...all.map(r => full(r[c]))))
   const room0 = Math.max(room - (1 + n * 3), n * TABLE_MIN)

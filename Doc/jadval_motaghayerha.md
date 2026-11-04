@@ -79,8 +79,7 @@
 | 73 | `matn_yadavari_zaban` | sabet | متنی که «زبان» بعد از جوابِ انگلیسی به چت می‌فرستد تا مدل فارسی حرف بزند | mods/hads/hooks/register.js:667 | begu_do_jomle, chek_zaban | 01 | `had_tedad_kamtarin_zaban_harf`, `zaban_yadavari_shod` | ✓ |
 | 74 | `prompt_az_hads` | sabet | سرِ هر پرومپتِ ترجمه: این پیام از مود است نه از حبیب، و ابزاری صدا نزن | mods/hads/hooks/register.js:683 | englisi_ast, prompt_tarjome_kadr | 22 | — | ؟ |
 | 75 | `ghaede_tarjome` | sabet | قاعدهٔ ترجمهٔ جواب: قالب‌بندی و کد و فرمان دست‌نخورده، چیزی کم یا زیاد نشود | mods/hads/hooks/register.js:685 | englisi_ast | 22 | — | ؟ |
-| 76 | `prompt_tarjome_ezafe` | sabet | تکه‌ای که به فورکِ مشترک اضافه می‌شود تا کلیدِ tarjome را هم در همان JSON بدهد | mods/hads/hooks/register.js:686 | englisi_ast, hads_ba_fork, jambandi | 22 | — | ؟ |
-| 77 | `prompt_tarjome_javab` | sabet | پرومپتِ فورکِ جدا برای ترجمهٔ آخرین جواب، وقتی فورکِ مشترکی نبود | mods/hads/hooks/register.js:687 | englisi_ast, tarjome_ba_fork_khodash | 22 | — | ؟ |
+| 77 | `prompt_tarjome_javab` | sabet | پرومپتِ Sonnet برای ترجمهٔ آخرین جواب | mods/hads/hooks/register.js:687 | englisi_ast, tarjome_ba_fork_khodash | 22 | — | ؟ |
 | 78 | `had_tedad_tarjome_radif` | sabet | چند ترجمهٔ آخر در فایلِ tarjome.jsonl هر چت می‌ماند: ⟦had_tedad_tarjome_radif⟧ | mods/hads/hooks/register.js:689 | prompt_tarjome_kadr, sabt_tarjome | 22 | — | ؟ |
 | 79 | `tarjome_kadr_dar_kar` | motaghayer | دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند | mods/hads/hooks/register.js:729 | begu, khandan, register, tarjome_ba_fork_khodash | 22 | — | ؟ |
 | 80 | `zaban_yadavari_shod` | vaziat | برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود) | mods/hads/hooks/register.js:756 | chek_zaban, khandan | 01 | `matn_yadavari_zaban` | ✓ |

@@ -1087,34 +1087,40 @@ console.log(JSON.stringify(out))
   $.sid = 'TJ'; $.msgs = [{ role: 'user', text: 'x' }, { role: 'assistant', text: en }]; $.ctx = 1000
   const end = async () => { await H['turn.complete']($, {}, next); await flush() }
   flags[on] = 'on -hads -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
-  let n = calls.fork.length; await end()
-  const offForks = calls.fork.length - n, offFile = f in flags
-  // tick on, nothing else due: its own fork, in the chat's own fork call
+  const tr = []; const guessOld = $.guessModel; const forkOld = $.forkReply; let trReply = 'پچ زده شد.'
+  $.guessModel = async (o) => { tr.push(o); return { isAnswered: true, text: trReply, usage: {} } }
+  const yek = (o) => ({ model: o.model, effort: o.effort, matn: o.prompt.map((x) => x.text).join('\n') })
+  let n = tr.length, fk = calls.fork.length; await end()
+  const offCalls = tr.length - n + calls.fork.length - fk, offFile = f in flags
+  // tick on, nothing else due: Sonnet at low effort with the answer's text, no fork
   $.files = { '/proj/Doc/tarif/00_vazhe_name.md': 'واژهٔ-تست' }
-  flags[on] += ' +tarjome'; $.forkReply = { isAnswered: true, text: 'پچ زده شد.', usage: {} }
-  n = calls.fork.length; await end()
-  const own = { forks: calls.fork.length - n, prompt: calls.fork.at(-1).prompt.startsWith(mod.prompt_tarjome_javab) && calls.fork.at(-1).prompt.includes('واژهٔ-تست'), row: JSON.parse(flags[f].trim()) }
+  flags[on] += ' +tarjome'; $.forkReply = { isAnswered: true, text: 'جواب فورک نباید ثبت شود', usage: {} }
+  n = tr.length; fk = calls.fork.length; await end()
+  const o1 = yek(tr.at(-1))
+  const own = { calls: tr.length - n, forks: calls.fork.length - fk, model: o1.model, effort: o1.effort, hasAnswer: o1.matn.includes(en), hasVazhe: o1.matn.includes('واژهٔ-تست'), row: JSON.parse(flags[f].trim()) }
   // the same answer again: not paid for twice
-  n = calls.fork.length; await end(); const again = calls.fork.length - n
+  n = tr.length; await end(); const again = tr.length - n
   // Persian answer: nothing
   $.msgs = [{ role: 'assistant', text: 'این جواب فارسی است و هیچ نیازی به ترجمه ندارد چون خودش فارسی نوشته شده.' }]
-  n = calls.fork.length; await end(); const persian = calls.fork.length - n
-  // the shared fork due: one fork, translation inside its JSON
+  n = tr.length; await end(); const persian = tr.length - n
+  // guesses due too: the guess fork carries no translation, Sonnet still does it
   flags[on] = 'on -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban +tarjome'
   $.msgs = [{ role: 'assistant', text: 'A second English answer that is long enough to count as an English reply here.' }]; hads_due_reset()
-  $.forkReply = { isAnswered: true, text: '{"hads":[{"label":"یک","text":"کار"}],"tarjome":"جوابِ دوم\\nخطِ دو"}', usage: {} }
-  n = calls.fork.length; await end()
-  const shared = { forks: calls.fork.length - n, asked: calls.fork.at(-1).prompt.includes('"tarjome"'), row: JSON.parse(flags[f].trim().split('\n').at(-1)).text }
-  // the press: fills, never sends; newer typing wins
-  $.typed = 'سلام دنیا'; $.forkReply = { isAnswered: true, text: 'Hello world', usage: {} }
-  const t = await render(); const fill0 = calls.fill.length, sub0 = calls.submit.length
+  $.forkReply = { isAnswered: true, text: '{"hads":[{"label":"یک","text":"کار"}]}', usage: {} }; trReply = 'جوابِ دوم'
+  n = tr.length; fk = calls.fork.length; await end()
+  const shared = { forks: calls.fork.length - fk, asked: calls.fork.at(-1).prompt.includes('"tarjome"'), sonnet: tr.length - n, row: JSON.parse(flags[f].trim().split('\n').at(-1)).text }
+  // the press: Sonnet at low effort, the box text and the chat's last messages; fills, never sends; newer typing wins
+  $.typed = 'سلام دنیا'; trReply = 'Hello world'
+  const t = await render(); const fill0 = calls.fill.length, sub0 = calls.submit.length; fk = calls.fork.length
   await find(t, 'hads-tarjome-kadr').onPress()
-  const press = { fill: calls.fill.at(-1)?.text, sent: calls.submit.length - sub0, tik: find(t, 'hads-tarjome-tik').label }
+  const o2 = yek(tr.at(-1))
+  const press = { fill: calls.fill.at(-1)?.text, sent: calls.submit.length - sub0, forks: calls.fork.length - fk, model: o2.model, effort: o2.effort, hasText: o2.matn.includes('سلام دنیا'), hasChat: o2.matn.includes('A second English answer'), tik: find(t, 'hads-tarjome-tik').label }
   const readOld = $.prompt.read; let k = 0; $.prompt.read = async () => (k++ ? 'سلام دنیا و بیشتر' : 'سلام دنیا')
   const fill1 = calls.fill.length; await find(t, 'hads-tarjome-kadr').onPress(); press.newerWins = calls.fill.length - fill1; $.prompt.read = readOld
-  out.tarjome = { offForks, offFile, own: own.forks, ownPrompt: own.prompt, text: own.row.text, kelid: own.row.kelid === mod.kelid_tarjome(en), again, persian, shared, press, fill0: fill0 >= 0 }
-  assert.deepEqual(out.tarjome, { offForks: 0, offFile: false, own: 1, ownPrompt: true, text: 'پچ زده شد.', kelid: true, again: 0, persian: 0,
-    shared: { forks: 1, asked: true, row: 'جوابِ دوم\nخطِ دو' }, press: { fill: 'Hello world', sent: 0, tik: '✓ ترجمه' , newerWins: 0 }, fill0: true })
+  $.guessModel = guessOld; $.forkReply = forkOld
+  out.tarjome = { offCalls, offFile, own: { ...own, row: undefined }, text: own.row.text, kelid: own.row.kelid === mod.kelid_tarjome(en), again, persian, shared, press, fill0: fill0 >= 0 }
+  assert.deepEqual(out.tarjome, { offCalls: 0, offFile: false, own: { calls: 1, forks: 0, model: mod.model_do_jomle_va_hads, effort: 'low', hasAnswer: true, hasVazhe: true, row: undefined }, text: 'پچ زده شد.', kelid: true, again: 0, persian: 0,
+    shared: { forks: 1, asked: false, sonnet: 1, row: 'جوابِ دوم' }, press: { fill: 'Hello world', sent: 0, forks: 0, model: mod.model_do_jomle_va_hads, effort: 'low', hasText: true, hasChat: true, tik: '✓ ترجمه', newerWins: 0 }, fill0: true })
   // the box closed: the press is still in sight
   flags[on] += ' tak_dokme'; assert.ok(find(await render(), 'hads-tarjome-kadr')); assert.ok(find(await render(), 'hads-dot'))
   // the page makes the same key: test_claude_tarjome.cjs holds the same literal

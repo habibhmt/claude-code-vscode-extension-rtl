@@ -714,16 +714,10 @@ meghdar = ""
 khanandeha = ["englisi_ast"]
 jaye = ["mods/hads/hooks/register.js:685"]
 
-[prompt_tarjome_ezafe]
-yani = "تکه‌ای که به فورکِ مشترک اضافه می‌شود تا کلیدِ tarjome را هم در همان JSON بدهد"
-meghdar = ""
-khanandeha = ["englisi_ast", "hads_ba_fork", "jambandi"]
-jaye = ["mods/hads/hooks/register.js:686"]
-
 [prompt_tarjome_javab]
-yani = "پرومپتِ فورکِ جدا برای ترجمهٔ آخرین جواب، وقتی فورکِ مشترکی نبود"
+yani = "پرومپتِ Sonnet برای ترجمهٔ آخرین جواب"
 meghdar = ""
-khanandeha = ["englisi_ast", "tarjome_ba_fork_khodash"]
+khanandeha = ["englisi_ast", "tarjome_javab"]
 jaye = ["mods/hads/hooks/register.js:687"]
 
 [had_tedad_tarjome_radif]
@@ -735,7 +729,7 @@ jaye = ["mods/hads/hooks/register.js:689"]
 [tarjome_kadr_dar_kar]
 yani = "دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند"
 meghdar = ""
-khanandeha = ["begu", "khandan", "register", "tarjome_ba_fork_khodash"]
+khanandeha = ["begu", "khandan", "register", "tarjome_javab"]
 jaye = ["mods/hads/hooks/register.js:729"]
 
 [tarjome_ha]

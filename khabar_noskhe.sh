@@ -26,7 +26,7 @@ had_kharj_claude_usd=0.5
 
 bresh() {
     local ghadim="$1" taze="$2" matn
-    matn="$(curl -fsS --max-time 30 "$CHANGELOG_URL")" || { echo "khabar_noskhe: CHANGELOG نرسید ($CHANGELOG_URL)" >&2; return 3; }
+    matn="$(curl -fsS --retry 2 --max-time 120 "$CHANGELOG_URL")" || { echo "khabar_noskhe: CHANGELOG نرسید ($CHANGELOG_URL)" >&2; return 3; }
     for v in "$taze" "$ghadim"; do
         grep -qxF "## $v" <<<"$matn" || { echo "khabar_noskhe: «## ${v}» در CHANGELOG نیست" >&2; return 2; }
     done

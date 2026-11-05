@@ -5,7 +5,7 @@
 const fs = require('node:fs'), os = require('node:os'), path = require('node:path'), assert = require('node:assert/strict');
 const { execFileSync, spawn } = require('node:child_process');
 const UI = process.env.BUTTONS_JS || __dirname + '/claude-ui-buttons.js', HOST = process.env.HOST_JS || __dirname + '/claude-host-hook.js';
-const SH = process.env.FIX_SH || __dirname + '/fix-rtl-claude.sh', FA = process.env.FA_JSON || __dirname + '/claude-tanzimat-fa.json';
+const SH = process.env.FIX_SH || __dirname + '/fix-rtl-claude.sh', FA = process.env.FA_JSON || __dirname + '/claude-tanzimat-fa.json', TOZIH = process.env.TOZIH_JSON || __dirname + '/claude-tanzimat-tozih.json';
 const WRAPPER = process.env.WRAPPER || path.join(os.homedir(), '.claude/claude_abzar_kam.sh');
 const PANJERE_PY = path.join(os.homedir(), '1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -48,19 +48,35 @@ assert.equal(globalThis.__crtl_baz_shodan(SID3, P1).effort, 'max', 'its chat sti
 
 // the rows
 const rows = H.radifha();
-assert.equal(rows.length, 173, '173 settings in the tab');
+assert.equal(rows.length, 174, '173 settings of the schema and the browser switch');
+assert.equal(rows.find((r) => r.k === 'claudeInChromeDefaultEnabled').no, 'onoff', 'the browser switch is an on-off row');
 ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow'].forEach((k) => assert.ok(rows.some((r) => r.k === k), k + ' is there'));
 ['apiKeyHelper', 'proxyAuthHelper', 'awsCredentialExport', 'awsAuthRefresh', 'gcpAuthRefresh', 'processWrapper', 'otelHeadersHelper', '$schema'].forEach((k) => assert.ok(!rows.some((r) => r.k === k), k + ' never appears'));
 const count = (no) => rows.filter((r) => r.no === no).length;
 const choiceOrText = rows.filter((r) => r.pish).map((r) => r.k).sort();
 assert.deepEqual(choiceOrText, ['theme', 'timeFormat'], 'a choice-or-text setting is a one-line text box that offers its choices');
 assert.equal(count('json') + choiceOrText.length, 55, '55 complex settings get a text box');
-assert.equal(rows.length - count('json') - choiceOrText.length, 118, '118 simple settings');
+assert.equal(rows.length - count('json') - choiceOrText.length, 119, '119 simple settings');
 assert.deepEqual(rows.find((r) => r.k === 'theme').pish.slice(0, 2), ['auto', 'dark'], 'a choice-or-text setting offers its choices');
 // every row has its Persian line, and no line is left over
 const fa = J(FA);
 rows.forEach((r) => assert.ok(typeof fa[r.k] === 'string' && /[؀-ۿ]/.test(fa[r.k]), 'Persian line for ' + r.k));
 Object.keys(fa).forEach((k) => assert.ok(rows.some((r) => r.k === k), 'a Persian line with no setting: ' + k));
+// Habib, 5 Nov: every setting explains itself in simple words with an example
+const tozih = J(TOZIH);
+rows.forEach((r) => assert.ok(typeof tozih[r.k].sharh === 'string' && /[؀-ۿ]/.test(tozih[r.k].sharh) && /مثال/.test(tozih[r.k].sharh), 'an explanation with an example for ' + r.k));
+// Habib, 5 Nov: the value's meaning: on and off, or a line carrying the value, and what empty means
+rows.forEach((r) => {
+  const e = tozih[r.k];
+  assert.ok((e.on && e.off) || e.ba, 'the meaning of a value for ' + r.k);
+  assert.ok(r.k === 'claudeInChromeDefaultEnabled' || 'pish' in e || e.khali, 'the default or the meaning of empty for ' + r.k);
+  // a default the app states in words is the default here: never one from my head
+  const m = /\(defaults? (?:to )?:?\s*([\w.]+)|\bdefault[: ]+([\w.]+)|Defaults to ["']?([\w.]+)/i.exec(r.desc || '');
+  if (m && /^(true|false|\d[\d.]*|never|5m|bash)$/.test(m[1] || m[2] || m[3]) && 'pish' in e) assert.equal(String(e.pish), m[1] || m[2] || m[3], 'the app states the default of ' + r.k);
+});
+assert.equal(tozih.cleanupPeriodDays.pish, 30, 'the app says 30');
+assert.equal(tozih.bashOutputMaxChars.pish, 30000, 'the app says 30000');
+Object.keys(tozih).forEach((k) => assert.ok(rows.some((r) => r.k === k), 'an explanation with no setting: ' + k));
 
 // the validator, on the app's real schema
 const schema = J(process.env.CRTL_SCHEMA).properties;
@@ -77,7 +93,7 @@ function fakeChat(sid, cwd, uc) {
   const applied = { model: 'claude-opus-5-5', effort: 'medium', ultracode: !!uc, ultracodeRequested: !!uc };
   const ch = { sessionId: sid, cwd, remoteControlState: { status: 'connected' }, calls: [], applied, query: {
     applyFlagSettings: async (s) => { ch.calls.push(s); if ('effortLevel' in s) applied.effort = s.effortLevel; if ('model' in s && s.model) applied.model = s.model; if ('ultracode' in s) applied.ultracodeRequested = !!s.ultracode; },
-    getSettings: async () => ({ applied: { ...applied }, effective: { language: 'persian' }, sources: [{ source: 'localSettings', settings: { language: 'persian' } }] }),
+    getSettings: async () => ({ applied: { ...applied }, effective: { language: 'persian', env: { RAZ2: 'nabayad-bebini' } }, sources: [{ source: 'localSettings', settings: { language: 'persian', env: { RAZ2: 'nabayad-bebini' } } }] }),
     getContextUsage: async () => ({ autoCompactThreshold: 267000 }),
     supportedModels: async () => [{ value: 'default', displayName: 'Default' }, { value: 'opus', displayName: 'Opus' }, { value: 'sonnet', displayName: 'Sonnet' }],
   } };
@@ -343,7 +359,7 @@ async function hostLogic() {
 
   // ---- what the tab reads
   const f = await H.fehrestTanzim({ reqId: 7, sid: SID1, channel: 'ch1' });
-  assert.equal(f.reqId, 7); assert.equal(f.rows.length, 173); assert.equal(f.cwd, P1);
+  assert.equal(f.reqId, 7); assert.equal(f.rows.length, 174); assert.equal(f.cwd, P1);
   assert.equal(f.alan.thr, 267000, 'the engine\'s own compaction point');
   assert.equal(f.alan.remote, c1.remoteControlState.status);
   assert.deepEqual(f.models.map((m) => m.value), ['default', 'opus', 'sonnet']);
@@ -351,6 +367,100 @@ async function hostLogic() {
   const fNo = await H.fehrestTanzim({ reqId: 8, sid: '', cwd: P2 });
   assert.equal(fNo.alan, null, 'no chat yet: the tab still opens');
   assert.equal(fNo.cwd, P2);
+
+  // ---- the browser switch. Habib, 5 Nov: «فقط تنظیمات چت بذار و فعلاً هم سراسری خاموشش کن»
+  const CK = 'claudeInChromeDefaultEnabled', cj = path.join(home, '.claude.json');
+  fs.writeFileSync(cj, JSON.stringify({ claudeInChromeDefaultEnabled: true, nashan: 1 }));
+  fs.writeFileSync(USER, JSON.stringify({ theme: 'dark' }));
+  fs.rmSync(STORE, { force: true });
+  const chromeLog = [];
+  owner.chromeSettingFlipCount = 5;
+  owner.setChromeSetting = async (id, on) => {
+    chromeLog.push(['global', id, on]);
+    if (owner.chromeErr) return { error: owner.chromeErr };
+    return { dialog: { enabled_by_default: owner.chromeMande ? !on : on } };
+  };
+  owner.ensureChromeMcpEnabled = async (id, t) => { chromeLog.push(['on', id, t && t.bySetting && t.bySetting.flips]); owner.channels.get(id).chromeMcpState = { status: 'connected' }; };
+  owner.disableChromeMcp = async (id, t) => { chromeLog.push(['off', id, !!(t && t.quiet)]); owner.channels.get(id).chromeMcpState = { status: 'disconnected' }; };
+  c1.chromeMcpState = { status: 'disconnected' }; c2.chromeMcpState = { status: 'disconnected' };
+  delete c1.__crtlChrome; delete c2.__crtlChrome;
+  const userBefore = fs.readFileSync(USER, 'utf8');
+  let rc = await save({ sath: 'chat', key: CK, value: 'true', sid: SID1 });
+  assert.ok(rc.ok, rc.matn);
+  assert.deepEqual(chromeLog, [['on', 'ch1', 5]], 'one chat connects, by the door the app uses for its own switch');
+  assert.equal(J(STORE).chat[SID1][CK].v, true, 'the chat level is kept');
+  assert.equal(fs.readFileSync(USER, 'utf8'), userBefore, 'settings.json is not touched');
+  assert.equal(J(cj).claudeInChromeDefaultEnabled, true, 'nor the global switch');
+  assert.ok(!(CK in (launch(SID1, P1).settings || {})), 'not on the flags of a launch');
+  chromeLog.length = 0;
+  rc = await save({ sath: 'chat', key: CK, value: 'true', sid: SID1 });
+  assert.deepEqual(chromeLog, [], 'same value: nothing knocks');
+  assert.match(rc.matn, /چتی عوض نشد/);
+  rc = await save({ sath: 'chat', key: CK, value: 'false', sid: SID1 });
+  assert.deepEqual(chromeLog, [['off', 'ch1', true]], 'off goes the quiet way, so the model is not sent a message');
+  chromeLog.length = 0;
+  c1.chromeMcpState = { status: 'connected' }; c1.chromeToolsAutoAllowed = true;
+  rc = await save({ sath: 'chat', key: CK, value: 'true', sid: SID1 });
+  assert.deepEqual(chromeLog, [], 'already connected by hand: nothing knocks');
+  rc = await save({ sath: 'chat', key: CK, value: 'false', sid: SID1 });
+  assert.deepEqual(chromeLog, [['off', 'ch1', false]], 'a chat connected by hand needs the loud door, or it would stay connected');
+  c1.chromeToolsAutoAllowed = false;
+  chromeLog.length = 0;
+  // the project level holds in the store only, and reaches only that folder
+  rc = await save({ sath: 'poshe', key: CK, value: 'true', sid: SID2 });
+  assert.ok(rc.ok, rc.matn);
+  assert.deepEqual(chromeLog, [['on', 'ch2', 5]], 'only the chat of that folder');
+  assert.ok(!(fs.existsSync(local(P2)) && CK in J(local(P2))), 'no such key in the project file');
+  chromeLog.length = 0;
+  // the fresh global save goes through the app and beats everything older
+  rc = await save({ sath: 'sarasari', key: CK, value: 'false', sid: SID1 });
+  assert.ok(rc.ok, rc.matn);
+  assert.deepEqual(chromeLog[0], ['global', 'ch1', false], 'the app\'s own save');
+  assert.match(rc.matn, /چت تازه خودکار وصل نمی‌شود/);
+  assert.equal(J(STORE).sarasari[CK].v, false);
+  assert.ok(!(CK in J(STORE).chat[SID1]) && !(CK in (J(STORE).poshe[P2] || {})), 'older levels step aside');
+  assert.ok(chromeLog.some((x) => x[0] === 'off' && x[1] === 'ch2'), 'the project\'s chat goes off too');
+  assert.ok(!(CK in J(USER)), 'never in settings.json');
+  // what can go wrong with the global save
+  const anbarPish = fs.readFileSync(STORE, 'utf8');
+  rc = await H.sabtTanzim({ sath: 'sarasari', key: CK, value: 'true', sid: '', channel: '' });
+  assert.equal(rc.ok, false); assert.match(rc.matn, /چت باز/, 'no chat to ask');
+  owner.chromeErr = 'boom';
+  rc = await save({ sath: 'sarasari', key: CK, value: 'true', sid: SID1 });
+  assert.equal(rc.ok, false); assert.equal(rc.matn, 'boom', 'the app\'s own words');
+  delete owner.chromeErr; owner.chromeMande = true;
+  rc = await save({ sath: 'sarasari', key: CK, value: 'true', sid: SID1 });
+  assert.equal(rc.ok, false); assert.match(rc.matn, /مقدار قبلی/, 'written but not taken: said');
+  delete owner.chromeMande;
+  assert.equal(fs.readFileSync(STORE, 'utf8'), anbarPish, 'a failed save keeps nothing');
+  rc = await save({ sath: 'chat', key: CK, value: 'maybe', sid: SID1 });
+  assert.equal(rc.ok, false); assert.match(rc.matn, /روشن یا خاموش/);
+  rc = await save({ sath: 'chat', key: CK, value: '', sid: SID1 });
+  assert.equal(rc.ok, false); assert.match(rc.matn, /مقداری نداشت/);
+  // the tab reads the real switch and this chat's connection
+  c1.chromeMcpState = { status: 'connected' };
+  let fc = await H.fehrestTanzim({ reqId: 9, sid: SID1, channel: 'ch1' });
+  assert.deepEqual(fc.chrome, { on: true, vasl: 'connected' });
+  fs.writeFileSync(cj, JSON.stringify({ claudeInChromeDefaultEnabled: false }));
+  fc = await H.fehrestTanzim({ reqId: 10, sid: '', cwd: P2 });
+  assert.deepEqual(fc.chrome, { on: false, vasl: '' }, 'no chat: only the switch');
+  // a chat born later hears its level, twice, and knocks once
+  fs.writeFileSync(STORE, JSON.stringify({ chat: { [SID3]: { [CK]: { v: true, t: 9 } } } }));
+  const cTaze = fakeChat(SID3, P1); cTaze.chromeMcpState = { status: 'disconnected' };
+  owner.channels.set('ch3', cTaze);
+  chromeLog.length = 0;
+  H.tanzimRemoteSabr(20);
+  globalThis.__crtl_kanal_taze(owner, 'ch3', cTaze);
+  await sleep(150);
+  assert.deepEqual(chromeLog, [['on', 'ch3', 5]], 'born connected by its own level');
+  owner.channels.delete('ch3');
+  // an older app has none of these doors: no crash
+  delete owner.ensureChromeMcpEnabled; delete owner.disableChromeMcp; delete owner.setChromeSetting;
+  fs.rmSync(STORE, { force: true }); delete c1.__crtlChrome;
+  rc = await save({ sath: 'chat', key: CK, value: 'true', sid: SID1 });
+  assert.ok(rc.ok, rc.matn);
+  rc = await save({ sath: 'sarasari', key: CK, value: 'false', sid: SID1 });
+  assert.equal(rc.ok, false, 'the global level says it cannot');
 
   owner.channels.clear();
   H.SAHEB.clear();
@@ -360,6 +470,8 @@ function patches() {
   // ---- the three patches on the real bundle; each regex must land, and the result must parse
   const sh = fs.readFileSync(SH, 'utf8');
   assert.ok(/TANZIMAT_FA_FILE/.test(sh.split('hash_stdin')[0]) && /\$\(cat "\$TANZIMAT_FA_FILE"/.test(sh), 'the Persian lines are part of the stamp');
+  assert.ok(/\$\(cat "\$TANZIMAT_TOZIH_FILE"/.test(sh), 'the explanations are part of the stamp');
+  assert.ok(/CRTL_TANZIMAT_TOZIH_FILE="\$TANZIMAT_TOZIH_FILE"/.test(sh) && /seed \+= 'window\.__CRTL_TANZIMAT_TOZIH='/.test(sh), 'and reach the page');
   const pyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tzpy-'));
   const runPy = (src, block, name) => {
     const inF = path.join(pyDir, name), py = path.join(pyDir, name + '.py');
@@ -426,7 +538,7 @@ function startEngine(bin, cwd, launchArgs) {
   const p = spawn(bin, a, { cwd, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, CLAUDE_CONFIG_DIR: CL, HOME: realHome } });
   let buf = '', n = 0; const wait = {};
   p.stdout.on('data', (d) => { buf += d; let i; while ((i = buf.indexOf('\n')) >= 0) { const l = buf.slice(0, i); buf = buf.slice(i + 1); try { const m = JSON.parse(l); if (m.type === 'control_response') wait[m.response.request_id]?.(m.response); } catch {} } });
-  const req = (r) => new Promise((res, rej) => { const id = 'r' + (++n); wait[id] = res; p.stdin.write(JSON.stringify({ type: 'control_request', request_id: id, request: r }) + '\n'); setTimeout(() => rej(new Error('engine timeout ' + r.subtype)), 45000).unref(); });
+  const req = (r) => new Promise((res, rej) => { const id = 'r' + (++n); wait[id] = res; p.stdin.write(JSON.stringify({ type: 'control_request', request_id: id, request: r }) + '\n'); setTimeout(() => rej(new Error('engine timeout ' + r.subtype)), 180000).unref(); });
   return { p, req, async look() { const g = await req({ subtype: 'get_settings' }), c = await req({ subtype: 'get_context_usage' }); return { ...g.response.applied, thr: c.response.autoCompactThreshold }; } };
 }
 function launchArgs(c) {
@@ -512,7 +624,10 @@ async function panelInBrowser() {
   fs.writeFileSync(USER, JSON.stringify({ modelSettings: { 'claude-opus-5-5': { effortLevel: 'xhigh' } } }));
   fs.rmSync(STORE, { force: true });
   const cp = fakeChat(SID1, P1);
-  const own = { channels: new Map([['chP', cp]]), toggles: [], async toggleRemoteControl() {} };
+  const own = { channels: new Map([['chP', cp]]), toggles: [], async toggleRemoteControl() {}, chromeSettingFlipCount: 1,
+    async ensureChromeMcpEnabled() { cp.chromeMcpState = { status: 'connected' }; }, async disableChromeMcp() { cp.chromeMcpState = { status: 'disconnected' }; } };
+  cp.chromeMcpState = { status: 'disconnected' };
+  fs.writeFileSync(path.join(home, '.claude.json'), JSON.stringify({ claudeInChromeDefaultEnabled: false, verbose: true, env: { RAZ: 'nabayad-bebini' } }));
   H.SAHEB.add(own);
   globalThis.__crtl_kanal_taze(own, 'chP', cp);
   const ctx = await b.newContext({ viewport: { width: 1200, height: 800 } });
@@ -529,7 +644,7 @@ async function panelInBrowser() {
   await pg.evaluate((sid) => {
     window.acquireVsCodeApi = () => ({ postMessage: (m) => { window.__hostMsg(m).then((r) => { if (r) window.postMessage(r, '*'); }); }, getState: () => ({ sessionID: sid }), setState() {} });
   }, SID1);
-  await pg.addScriptTag({ content: 'window.__CRTL_TANZIMAT_FA=' + JSON.stringify(J(FA)) + ';' + fs.readFileSync(UI, 'utf8') });
+  await pg.addScriptTag({ content: 'window.__CRTL_TANZIMAT_FA=' + JSON.stringify(J(FA)) + ';window.__CRTL_TANZIMAT_TOZIH=' + JSON.stringify(J(TOZIH)) + ';' + fs.readFileSync(UI, 'utf8') });
   await pg.evaluate(() => window.acquireVsCodeApi());
   await pg.waitForSelector('#crtl-panel', { state: 'attached' });
   // row 1: page one keeps its things, without the effort row; the tab is separate
@@ -544,7 +659,7 @@ async function panelInBrowser() {
   assert.equal(await pg.locator('#crtl-page-font').isVisible(), false, 'the tab replaces page one');
   assert.ok((await pg.locator('#crtl-panel').boundingBox()).width > pw + 100, 'and is wider');
   // rows 2 and 3
-  assert.equal(await pg.locator('.crtl-tz-row').count(), 173, 'every setting has a row');
+  assert.equal(await pg.locator('.crtl-tz-row').count(), 174, 'every setting has a row');
   assert.deepEqual(await pg.$$eval('.crtl-tz-row', (r) => r.slice(0, 5).map((x) => x.dataset.k)), ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow'], 'his five on top');
   assert.equal(await pg.locator('.crtl-tz-row[data-k="permissions"] textarea').count(), 1, 'a complex setting has a text box');
   assert.equal(await pg.locator('.crtl-tz-row[data-k="verbose"] select').count(), 1, 'on-off is a menu');
@@ -552,8 +667,8 @@ async function panelInBrowser() {
   // the first row's note reads the engine
   const row = (k) => pg.locator(`.crtl-tz-row[data-k="${k}"]`);
   await pg.waitForFunction(() => /medium/.test(document.querySelector('.crtl-tz-row[data-k="effortLevel"] .crtl-tz-note').textContent));
-  assert.equal(await row('language').locator('.crtl-tz-note').textContent(), 'الان: persian از پروژه', 'the note says what and from where');
-  assert.equal(await row('autoCompactWindow').locator('.crtl-tz-note').textContent(), 'الان: کامپکت سر ۲۶۷ هزار از پیش‌فرض کلود', 'the compaction point from the engine');
+  assert.equal(await row('language').locator('.crtl-tz-note').textContent(), 'الان: persian از پروژه؛ یعنی مدل به زبان persian جواب می‌دهد', 'the note says what, from where, and what it means');
+  assert.equal(await row('autoCompactWindow').locator('.crtl-tz-note').textContent(), 'الان: کامپکت سر ۲۶۷ هزار (پیش‌فرض کلود)؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود', 'the compaction point from the engine');
   assert.ok(await row('model').locator('select option[value="sonnet"]').count() === 1, 'models from the engine');
   assert.equal(await row('model').locator('select option[value="default"]').count(), 0, 'no Default among them');
   assert.ok(await row('model').locator('select option[value="claude-opus-5-5"]').count() === 1, 'the full names in the file too');
@@ -621,7 +736,7 @@ async function panelInBrowser() {
   assert.equal(await tick('effortLevel', 'sarasari').isChecked(), false, 'the tick clears after a save');
   assert.equal(await sabt.isDisabled(), true);
   await popup.getByRole('button', { name: 'باشه' }).click();
-  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="effortLevel"] .crtl-tz-note').textContent === 'الان: max از سراسری');
+  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="effortLevel"] .crtl-tz-note').textContent === 'الان: max از سراسری؛ یعنی مدل بیشترین فکر را می‌کند و گران‌ترین است');
   // Esc: the popup first, the panel after
   await tick('effortLevel', 'sarasari').click();
   await pg.keyboard.press('Escape');
@@ -637,7 +752,7 @@ async function panelInBrowser() {
   await pg.waitForFunction(() => /ریلود/.test((document.querySelector('#crtl-panel .crtl-tz-popup') || {}).textContent || ''));
   assert.equal(J(local(P1)).autoCompactWindow, 333000);
   await popup.getByRole('button', { name: 'باشه' }).click();
-  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="autoCompactWindow"] .crtl-tz-note').textContent === 'الان: کامپکت سر ۲۶۷ هزار از پروژه · ثبت‌شده: ۳۰۰ هزار؛ بعد از ریلود');
+  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="autoCompactWindow"] .crtl-tz-note').textContent === 'الان: کامپکت سر ۲۶۷ هزار از پروژه؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود · ثبت‌شده: ۳۰۰ هزار؛ بعد از ریلود');
   // a level's own value fills the box when its tick lands, typed back as the number he knows
   await tick('autoCompactWindow', 'poshe').click();
   assert.equal(await acInput.inputValue(), '300000', 'typed number, not the window');
@@ -655,8 +770,54 @@ async function panelInBrowser() {
   await popup.locator('.crtl-tz-box').click({ position: { x: 5, y: 5 } });
   assert.equal(await pg.locator('#crtl-panel').evaluate((p) => p.classList.contains('crtl-open')), true, 'the panel stays open');
   await popup.getByRole('button', { name: 'نه', exact: true }).click();
+  // Habib, 5 Nov: a click on a setting explains it, with a simple example
+  const ckRow = row('claudeInChromeDefaultEnabled');
+  assert.equal(await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => !x.querySelector('.crtl-tz-tozih')).length), 0, 'every row has its explanation');
+  assert.equal(await ckRow.locator('.crtl-tz-tozih').isVisible(), true, 'open from the start');
+  assert.match(await ckRow.locator('.crtl-tz-tozih').textContent(), /مثال/);
+  assert.match(await ckRow.locator('.crtl-tz-tozih').textContent(), /CDP/, 'it says the numbered Chromes are something else');
+  assert.equal(await ckRow.locator('.crtl-tz-head').getAttribute('aria-expanded'), 'true');
+  await ckRow.locator('.crtl-tz-fa').click();
+  assert.equal(await ckRow.locator('.crtl-tz-tozih').isVisible(), false, 'a click closes it');
+  assert.equal(await ckRow.locator('.crtl-tz-head').getAttribute('aria-expanded'), 'false');
+  assert.equal(await ckRow.locator('input[type=checkbox]:checked').count(), 0, 'a click on the name ticks nothing');
+  assert.equal(await ckRow.locator('.crtl-tz-note').isVisible(), true, 'the value stays when the explanation closes');
+  await ckRow.locator('.crtl-tz-head').click();
+  assert.equal(await ckRow.locator('.crtl-tz-tozih').isVisible(), true, 'a second click opens it');
+  await ckRow.locator('.crtl-tz-head').focus();
+  await pg.keyboard.press('Enter');
+  assert.equal(await ckRow.locator('.crtl-tz-tozih').isVisible(), false, 'the keyboard closes it too');
+  await pg.keyboard.press('Enter');
+  // Habib, 5 Nov: under each row the real value and what it means, never a bare dash
+  assert.equal(await row('verbose').locator('.crtl-tz-note').textContent(), 'الان: روشن از ‎~/.claude.json؛ یعنی خروجی ابزارها کامل نشان داده می‌شود', 'a value in the engine\'s other file is not the default');
+  assert.match(await row('env').locator('.crtl-tz-note').textContent(), /RAZ2/, 'the variable\'s name shows');
+  assert.ok(!/nabayad-bebini/.test(await row('env').locator('.crtl-tz-note').textContent()), 'a variable\'s value never shows');
+  assert.deepEqual((await H.fehrestTanzim({ sid: SID1 })).jahani, { verbose: true }, 'only settings, and never the file\'s variables');
+  assert.equal(await row('cleanupPeriodDays').locator('.crtl-tz-note').textContent(), 'الان: 30 (پیش‌فرض کلود)؛ یعنی فایل هر چت 30 روز می‌ماند و بعد خودکار پاک می‌شود', 'the default the app states');
+  assert.equal(await row('policyHelper').locator('.crtl-tz-note').textContent(), 'الان: خالی؛ یعنی هیچ برنامه‌ای برای ساختن تنظیمات سازمان اجرا نمی‌شود', 'no default: empty and its meaning');
+  assert.equal(await row('respectGitignore').locator('.crtl-tz-note').textContent(), 'الان: روشن (پیش‌فرض کلود)؛ یعنی فایل‌های داخل .gitignore در پیشنهاد @ نمی‌آیند');
+  assert.equal(await pg.$$eval('.crtl-tz-note', (n) => n.filter((x) => /—/.test(x.textContent) || x.textContent.trim() === '').length), 0, 'no row shows a bare dash or nothing');
+  // the browser row: three levels, the real switch, this chat's connection
+  assert.equal(await ckRow.locator('input[type=checkbox]').count(), 3, 'global, project, chat');
+  assert.equal(await ckRow.locator('.crtl-tz-note').textContent(), 'الان: سراسری خاموش · این چت وصل نیست؛ یعنی مرورگر فقط با @browser یا کلید همین چت وصل می‌شود');
+  await tick('claudeInChromeDefaultEnabled', 'sarasari').click();
+  assert.match(await popup.textContent(), /کروم‌های شماره‌دار/, 'the popup says the numbered Chromes stay');
+  await popup.getByRole('button', { name: /مطمئنم/ }).click();
+  assert.equal(await ckRow.locator('select').inputValue(), 'false', 'the box shows the real switch');
+  await tick('claudeInChromeDefaultEnabled', 'chat').click();
+  await ckRow.locator('select').selectOption('true');
+  await ckRow.locator('.crtl-tz-sabt').click();
+  await pg.waitForFunction(() => /ثبت شد/.test((document.querySelector('#crtl-panel .crtl-tz-popup') || {}).textContent || ''));
+  assert.equal(J(STORE).chat[SID1].claudeInChromeDefaultEnabled.v, true, 'saved for this chat');
+  await popup.getByRole('button', { name: 'باشه' }).click();
+  await pg.waitForFunction(() => /این چت وصل است · آخرین ثبت: روشن از چت/.test(document.querySelector('.crtl-tz-row[data-k="claudeInChromeDefaultEnabled"] .crtl-tz-note').textContent));
+  assert.equal(await ckRow.locator('.crtl-tz-note').textContent(), 'الان: سراسری خاموش · این چت وصل است · آخرین ثبت: روشن از چت؛ یعنی مرورگر فقط با @browser یا کلید همین چت وصل می‌شود', 'the switch stays off, this chat is on');
   // search
   const search = pg.locator('.crtl-tz-search');
+  for (const w of ['browser', 'برازر', 'مرورگر', 'chrome']) {
+    await search.fill(w);
+    assert.ok((await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).map((x) => x.dataset.k))).includes('claudeInChromeDefaultEnabled'), 'found by ' + w);
+  }
   await search.fill('ریموت');
   const seen = await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).map((x) => x.dataset.k));
   assert.ok(seen.includes('remoteControlAtStartup') && seen.includes('disableRemoteControl') && seen.length < 8, 'Persian search: ' + seen);
@@ -664,7 +825,7 @@ async function panelInBrowser() {
   const seen2 = await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).map((x) => x.dataset.k));
   assert.ok(seen2.includes('autoCompactWindow') && seen2.includes('autoCompactEnabled'), 'English search: ' + seen2);
   await search.fill('');
-  assert.equal(await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).length), 173);
+  assert.equal(await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).length), 174);
   // another save reaches the open tab, and the extension's own labels re-read
   await pg.evaluate(() => { window.__crtl_sessions = new Set([{ claudeChannelId: 'chP', n: 0, rereadAppliedSettings() { this.n++; } }, { claudeChannelId: 'other', n: 0, rereadAppliedSettings() { this.n++; } }]); });
   await pg.evaluate(() => window.postMessage({ type: 'crtl-tanzimat-taze', channelId: 'chP' }, '*'));
@@ -676,7 +837,7 @@ async function panelInBrowser() {
   await pg.locator('#crtl-page-font').getByRole('button', { name: 'فشرده' }).click();
   assert.equal(await pg.locator('#crtl-page-font').isVisible(), true, 'a rebuild keeps page one showing');
   await pg.getByRole('tab', { name: 'تنظیمات کلود' }).click();
-  await pg.waitForFunction(() => document.querySelectorAll('.crtl-tz-row').length === 173);
+  await pg.waitForFunction(() => document.querySelectorAll('.crtl-tz-row').length === 174);
   await b.close();
   H.SAHEB.clear();
 }
@@ -703,11 +864,11 @@ async function questionWindow() {
       function Opt(p){return e('div',{className:'option_h',tabIndex:0,role:M?'checkbox':'radio','aria-checked':p.selected,onClick:p.onSelect,onKeyDown:function(f){if(f.key==='Enter'||f.key===' '){f.preventDefault();p.onSelect()}}},
         e('div',{className:'optionCheckbox_h',style:{width:'16px',height:'16px',border:'1px solid #888',display:'inline-block'}}),
         e('div',{className:'optionContent_h'},e('div',{className:'optionLabel_h'},p.label),p.desc&&e('div',{className:'optionDescription_h'},p.desc),p.children))}
-      function Q(){var S=React.useState([]),a=S[0],setA=S[1],O=React.useState(''),o=O[0],setO=O[1],d=React.useRef(null),clicks=React.useRef(0);
+      function Q(){var S=React.useState([]),a=S[0],setA=S[1],O=React.useState(''),o=O[0],setO=O[1],d=React.useRef(null),clicks=React.useRef(0),FF=React.useState(false),fold=FF[0],setFold=FF[1];
         window.__q=function(){return{ans:a,other:o}};
         function R(l){setA(function(pr){if(M)return pr.indexOf(l)>=0?pr.filter(function(x){return x!==l}):pr.concat(l);return[l]});if(l==='Other')setTimeout(function(){d.current&&d.current.focus()},0)}
         function has(l){return a.indexOf(l)>=0}
-        return e('div',{className:'permissionRequestContainer_q',tabIndex:0,onFocus:function(ke){if(ke.target===ke.currentTarget){ke.currentTarget.blur();var fo=ke.currentTarget.querySelector('[role=radio],[role=checkbox]');if(fo)fo.focus()}}},e('div',{className:'withPreview_h'},e('div',{className:'questionsContainer_h'},e('div',{className:'questionBlock_h'},e('div',{className:'questionText_h'},'سوال این پنجره چیست و چرا باید کپی شود'),
+        return e('div',{className:'permissionRequestContainer_q',tabIndex:0,onFocus:function(ke){if(ke.target===ke.currentTarget){ke.currentTarget.blur();var fo=ke.currentTarget.querySelector('[role=radio],[role=checkbox]');if(fo)fo.focus()}}},e('div',{className:'withPreview_h'},e('button',{className:'navTab_h navTabActive_h',onClick:function(){if(fold)setFold(false)}},'سربرگ'),e('button',{id:'tafold',onClick:function(){setFold(!fold)}},'جمع'),e('div',{className:'questionsContainer_h'+(fold?' questionsContainerFolded_h':''),style:fold?{display:'none'}:null},e('div',{className:'questionBlock_h'},e('div',{className:'questionText_h'},'سوال این پنجره چیست و چرا باید کپی شود'),
           e('div',{className:'optionsContainer_h'},['بله','خیر'].map(function(l){return e(Opt,{key:l,label:l+' گزینهٔ بلند برای انتخاب متن',desc:'توضیح '+l+' که می‌شود کپی‌اش کرد',selected:has(l),onSelect:function(){R(l)}})}),
             e(Opt,{label:'Other',selected:has('Other'),onSelect:function(){R('Other')}},has('Other')&&e('div',{onClick:function(z){z.stopPropagation()}},e(Box,{ref:d,value:o,onChange:setO})))))),
           e('div',{className:'previewPane_h',role:'region',tabIndex:-1},e('table',null,e('tbody',null,e('tr',null,e('td',{id:'cell'},'خانهٔ جدول پیش‌نمایش که باید کپی شود')))))))}
@@ -800,6 +961,15 @@ async function questionWindow() {
   await pg.locator('[class*="optionsContainer_"] [contenteditable]').click();
   await sleep(600);
   assert.ok((await q(pg)).ans.includes('Other'), 'a click in the box leaves Other ticked');
+  await pg.context().close();
+  // ---- a folded window (the app's display:none): it opens, and the text lands where he can see it
+  pg = await open(false);
+  await pg.locator('#tafold').click();
+  assert.equal(await pg.locator('[class*="optionsContainer_"]').isVisible(), false, 'folded');
+  await pg.locator('.crtl-top .crtl-btn', { hasText: 'b1' }).click();
+  await pg.waitForFunction((t) => window.__q().other === t, T1);
+  assert.equal(await pg.locator('[class*="optionsContainer_"] [contenteditable]').isVisible(), true, 'the window opened and the box is seen');
+  assert.equal(await pg.locator('[aria-label="Message input"]').textContent(), '', 'the typing box stays empty');
   await pg.context().close();
   // ---- with no question open the button writes in the typing box, as always
   pg = await open(false);

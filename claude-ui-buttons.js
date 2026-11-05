@@ -374,12 +374,15 @@
     'html.crtl-tab-claude.crtl-panel-left [class*="chatContainer_"]>[class*="inputContainer_"]{margin-left:580px!important;margin-right:8px!important}',
     'html.crtl-tab-claude.crtl-panel-right [class*="chatContainer_"]>[class*="inputContainer_"]{margin-right:580px!important;margin-left:8px!important}}',
     '#crtl-page-claude{flex-direction:column;gap:4px;min-width:0}',
+    '.crtl-tz-head-baz{cursor:pointer}' +
+    '.crtl-tz-head-baz .crtl-tz-fa::after{content:" ؟";opacity:.55}' +
+    '.crtl-tz-tozih{font-size:.92em;line-height:1.7;padding:6px 8px;margin:4px 0;background:rgba(127,127,127,.14);border-radius:6px;user-select:text;overflow-wrap:anywhere}' +
     '.crtl-tz-search{width:100%;box-sizing:border-box;background:rgba(127,127,127,.15);border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:3px 6px;font:inherit}',
     '.crtl-tz-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid rgba(127,127,127,.2);min-width:0;flex-shrink:0}',
     '.crtl-tz-head{display:flex;gap:6px;justify-content:space-between;align-items:baseline;min-width:0}',
     '.crtl-tz-fa{flex:1;min-width:0}',
     '.crtl-tz-en{flex:none;max-width:45%;direction:ltr;opacity:.5;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
-    '.crtl-tz-note{opacity:.65;font-size:10px;min-height:1.4em;overflow-wrap:anywhere}',
+    '.crtl-tz-note{opacity:.9;font-size:11px;line-height:1.6;min-height:1.4em;overflow-wrap:anywhere}',
     '.crtl-tz-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}',
     '.crtl-tz-ticks{display:flex;gap:6px;flex:none}',
     '.crtl-tz-ticks label{display:flex;align-items:center;gap:2px;cursor:pointer;white-space:nowrap}',
@@ -1468,6 +1471,11 @@
   function bordan_be_other(c, line) {
     var box = document.querySelector('[class*="questionsContainer_"]');
     if (!box) return false;
+    // a folded window is display:none: the text would land in a box nobody sees. The active tab unfolds it (the app's own click).
+    if (/questionsContainerFolded_/.test(box.className)) {
+      var tab = document.querySelector('[class*="navTabActive_"]');
+      if (tab) tab.click();
+    }
     var ops = box.querySelectorAll('[class*="optionsContainer_"] [role="radio"],[class*="optionsContainer_"] [role="checkbox"]');
     var other = ops[ops.length - 1];
     if (!other) return false;
@@ -2176,7 +2184,8 @@
   // تعیین کنم هر چی تنظیم ک ه هست به صورت سراسری پروژه چت ضمن اینکه برای سراسری یه پاپ اپ بیاد که مطمینی میخوای
   // یرایری باشه و اگه اکی دادم اونوقت بزاره بزنم». Every row: three ticks of which one lands, a value, ثبت, a popup.
   // The rows come from the host (the app's own schema); the Persian line of each from claude-tanzimat-fa.json.
-  var TZ_BALA = ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow'];
+  var TZ_CHROME = 'claudeInChromeDefaultEnabled';
+  var TZ_BALA = ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow', TZ_CHROME];
   var TZ_SATH = [['sarasari', 'سراسری'], ['poshe', 'پروژه'], ['chat', 'چت']];
   var TZ_ESM_SATH = { sarasari: 'سراسری', poshe: 'پروژه', chat: 'چت' };
   var TZ_ESM_MANBA = { userSettings: 'سراسری', projectSettings: 'پروژه', localSettings: 'پروژه', flagSettings: 'همین چت', policySettings: 'سازمان' };
@@ -2303,6 +2312,7 @@
   // the value this level holds now: what fills the box when its tick lands
   function tz_maghdar_sath(k, sath) {
     var d = TZ.data || {}, s = (d.sath || {})[sath] || {};
+    if (k === TZ_CHROME && sath === 'sarasari') return (d.chrome || {}).on;
     if (s[k] && Object.prototype.hasOwnProperty.call(s[k], 'v')) return s[k].v;
     var f = sath === 'sarasari' ? d.karbar : sath === 'poshe' ? d.mahalli : null;
     if (!f) return undefined;
@@ -2321,13 +2331,50 @@
     return String(v);
   }
 
-  // «الان: X از Y», from the engine of this chat, so it says what is really in force
+  // Habib, 5 Nov: «اون تنظیمات رو بخونه و تنظیم فعلی را نشان بده که چیه و مفهومش را هم نشان بده که چیه»
+  function tz_dade(k) {
+    var e = (window.__CRTL_TANZIMAT_TOZIH || {})[k];
+    return e && typeof e === 'object' ? e : {};
+  }
+  function tz_nemayesh(k, v) {
+    if (k === 'env' && v && typeof v === 'object') return Object.keys(v).join('، ') || '—'; // names only: values can be secret
+    return tz_neveshte(v);
+  }
+  function tz_mani(k, v, nemayesh) {
+    var e = tz_dade(k), s = '';
+    if (e.gozine && Object.prototype.hasOwnProperty.call(e.gozine, String(v))) s = e.gozine[String(v)];
+    else if (v === true && e.on) s = e.on;
+    else if (v === false && e.off) s = e.off;
+    else if (e.ba && e.ba !== '{v}') s = e.ba.replace('{v}', nemayesh === undefined ? tz_nemayesh(k, v) : nemayesh);
+    return s ? '؛ یعنی ' + s : '';
+  }
+  // nothing set anywhere: the default the app states, or «خالی», and what that means
+  function tz_khali(k) {
+    var e = tz_dade(k);
+    if (Object.prototype.hasOwnProperty.call(e, 'pish')) return tz_neveshte(e.pish) + ' (پیش‌فرض کلود)' + tz_mani(k, e.pish);
+    return 'خالی' + (e.khali ? '؛ یعنی ' + e.khali : '');
+  }
+  function tz_sar(k, v, az, nemayesh) {
+    var x = nemayesh === undefined ? tz_nemayesh(k, v) : nemayesh;
+    var pish = az === 'پیش‌فرض کلود';
+    if (v && typeof v === 'object' && k !== 'env') return 'الان از ' + az;
+    return 'الان: ' + x + (pish ? ' (پیش‌فرض کلود)' : ' از ' + az);
+  }
+
+  // «الان: X از Y؛ یعنی …», from the engine of this chat, so it says what is really in force
   function tz_matn_alan(k) {
     var d = TZ.data || {}, a = d.alan, w = (d.barande || {})[k];
     var az = w ? TZ_ESM_SATH[w.sath] : '';
+    if (k === TZ_CHROME) {
+      var c = d.chrome || {};
+      var vasl = c.vasl === 'connected' ? 'این چت وصل است' : c.vasl === 'connecting' ? 'این چت در حال وصل شدن است' : c.vasl === 'error' ? 'این چت خطا دارد' : c.vasl ? 'این چت وصل نیست' : '';
+      return 'الان: سراسری ' + (c.on === undefined ? 'معلوم نیست' : c.on ? 'روشن' : 'خاموش') + (vasl ? ' · ' + vasl : '') + (w ? ' · آخرین ثبت: ' + tz_neveshte(w.v) + ' از ' + az : '') + (c.on === undefined ? '' : tz_mani(k, !!c.on));
+    }
+    var jahani = d.jahani || {}, darJahani = Object.prototype.hasOwnProperty.call(jahani, k);
     if (!a) {
-      if (!w) return 'این چت هنوز شروع نشده';
-      return 'ثبت‌شده: ' + (k === 'autoCompactWindow' ? tz_hezar(w.v - TZ_FASELE_TOKEN) : tz_neveshte(w.v)) + ' از ' + az;
+      if (w) return 'ثبت‌شده: ' + (k === 'autoCompactWindow' ? tz_hezar(w.v - TZ_FASELE_TOKEN) + tz_mani(k, w.v - TZ_FASELE_TOKEN, tz_hezar(w.v - TZ_FASELE_TOKEN)) : tz_nemayesh(k, w.v) + ' از ' + az + tz_mani(k, w.v));
+      if (darJahani) return 'ثبت‌شده: ' + tz_nemayesh(k, jahani[k]) + ' از ‎~/.claude.json' + tz_mani(k, jahani[k]);
+      return 'این چت هنوز شروع نشده · ' + tz_khali(k);
     }
     var v;
     if (k === 'effortLevel') v = a.applied.effort;
@@ -2336,19 +2383,26 @@
     else if (k === 'remoteControlAtStartup') v = a.remote === 'connecting' ? 'در حال وصل' : a.remote === 'disconnected' || a.remote === 'error' ? false : a.remote ? true : undefined;
     else if (k === 'autoCompactWindow') v = a.thr;
     else v = (a.effective || {})[k];
+    var azManba;
     if (!az) {
       for (var i = (a.sources || []).length - 1; i >= 0; i--) {
         var src = a.sources[i], st = src.settings || {};
         var darModel = (k === 'effortLevel' || k === 'autoCompactWindow') && st.modelSettings && a.applied.model && st.modelSettings[a.applied.model] && st.modelSettings[a.applied.model][k] !== undefined;
-        if (Object.prototype.hasOwnProperty.call(st, k) || darModel) { az = TZ_ESM_MANBA[src.source] || src.source; break; }
+        if (Object.prototype.hasOwnProperty.call(st, k) || darModel) { az = TZ_ESM_MANBA[src.source] || src.source; azManba = darModel ? st.modelSettings[a.applied.model][k] : st[k]; break; }
       }
     }
-    if (!az) az = 'پیش‌فرض کلود';
-    var matn = k === 'autoCompactWindow'
-      ? (typeof v === 'number' ? 'الان: کامپکت سر ' + tz_hezar(v) + ' از ' + az : 'الان: معلوم نیست')
-      : 'الان: ' + tz_neveshte(v) + ' از ' + az;
-    if (k === 'autoCompactWindow' && w && typeof v === 'number' && w.v - TZ_FASELE_TOKEN !== v) matn += ' · ثبت‌شده: ' + tz_hezar(w.v - TZ_FASELE_TOKEN) + '؛ بعد از ریلود';
-    return matn;
+    if (k === 'autoCompactWindow') {
+      if (typeof v !== 'number') return 'الان: معلوم نیست';
+      var matn = 'الان: کامپکت سر ' + tz_hezar(v) + (az ? ' از ' + az : ' (پیش‌فرض کلود)') + tz_mani(k, v, tz_hezar(v));
+      if (w && w.v - TZ_FASELE_TOKEN !== v) matn += ' · ثبت‌شده: ' + tz_hezar(w.v - TZ_FASELE_TOKEN) + '؛ بعد از ریلود';
+      return matn;
+    }
+    if (v !== undefined && v !== null) return tz_sar(k, v, az || 'پیش‌فرض کلود') + tz_mani(k, v);
+    if (darJahani) return tz_sar(k, jahani[k], '‎~/.claude.json') + tz_mani(k, jahani[k]);
+    // written somewhere, yet this chat's engine doesn't report it: say so, never claim it is in force
+    var sabti = w ? w.v : azManba;
+    if (az && sabti !== undefined) return 'ثبت‌شده: ' + tz_nemayesh(k, sabti) + ' از ' + az + ' · موتور این چت هنوز آن را نشان نمی‌دهد' + tz_mani(k, sabti);
+    return 'الان: ' + tz_khali(k);
   }
 
   function tz_gozine_ha(sel, list) {
@@ -2419,10 +2473,11 @@
 
   function tz_sakht_radif(r) {
     var k = r.k, fa = (window.__CRTL_TANZIMAT_FA || {})[k] || r.desc || k;
+    var tozih = tz_dade(k).sharh || '';
     var wrap = document.createElement('div');
     wrap.className = 'crtl-tz-row';
     wrap.dataset.k = k;
-    wrap.dataset.jost = (k + ' ' + fa).toLowerCase();
+    wrap.dataset.jost = (k + ' ' + fa + ' ' + tozih).toLowerCase();
     var head = document.createElement('div');
     head.className = 'crtl-tz-head';
     var faEl = document.createElement('span');
@@ -2438,6 +2493,27 @@
     var note = document.createElement('div');
     note.className = 'crtl-tz-note';
     wrap.appendChild(note);
+    // Habib, 5 Nov: «برای … کل تنظیمات داخل پرانتز با مثال ساده توضیح براشون بذار»؛ جوابِ پنجره: شرح همیشه باز و با کلیک بسته شود
+    if (tozih) {
+      var tozihEl = document.createElement('div');
+      tozihEl.className = 'crtl-tz-tozih';
+      tozihEl.textContent = tozih;
+      wrap.appendChild(tozihEl);
+      head.classList.add('crtl-tz-head-baz');
+      head.setAttribute('role', 'button');
+      head.setAttribute('tabindex', '0');
+      head.setAttribute('aria-expanded', 'true');
+      head.title = 'برای بستن یا باز کردن توضیح کلیک کن';
+      var bazBaste = function () {
+        var baz = tozihEl.style.display === 'none';
+        tozihEl.style.display = baz ? 'block' : 'none';
+        head.setAttribute('aria-expanded', baz ? 'true' : 'false');
+      };
+      head.addEventListener('click', bazBaste);
+      head.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bazBaste(); }
+      });
+    }
 
     var tick = null, dirty = false, boxes = {};
     var hint = null;
@@ -2478,7 +2554,8 @@
         if (f[0] !== 'sarasari') { bezan_tick(f[0]); return; }
         // «و اگه اکی دادم اونوقت بزاره بزنم»: no OK, no tick
         box.checked = false;
-        tz_popup('مطمئنی می‌خواهی «' + k + '» سراسری باشد؟ با ثبت آن، همهٔ چت‌ها با هر مدلی این مقدار را می‌گیرند، حتی چتی که مقدار خودش را داشت.',
+        tz_popup(k === TZ_CHROME ? 'مطمئنی می‌خواهی مرورگر سراسری باشد؟ با ثبت آن، همهٔ چت‌های این پنجره و هر چت تازه این مقدار را می‌گیرند، حتی چتی که مقدار خودش را داشت. کروم‌های شماره‌دار (CDP) دست نمی‌خورند.'
+          : 'مطمئنی می‌خواهی «' + k + '» سراسری باشد؟ با ثبت آن، همهٔ چت‌ها با هر مدلی این مقدار را می‌گیرند، حتی چتی که مقدار خودش را داشت.',
           [['مطمئنم، سراسری', function () { bezan_tick('sarasari'); }], ['نه', null]]);
       });
       lab.appendChild(box);

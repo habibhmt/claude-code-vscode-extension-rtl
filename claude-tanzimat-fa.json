@@ -4,7 +4,6 @@
   "remoteControlAtStartup": "ریموت کنترل: چت از گوشی و دستگاه دیگر در دسترس باشد",
   "ultracode": "اولتراکد: کارِ بزرگ با ایجنت و ورک‌فلو؛ تیکش ایجنت و ورک‌فلو را هم باز می‌کند",
   "autoCompactWindow": "اتوکامپکت: روی چند توکن کانتکست کامپکت شود؛ رممبر ۲۰ هزار زودتر",
-
   "policyHelper": "برنامه‌ای که موقع شروع، تنظیمات سازمان را می‌سازد؛ فقط از سمت مدیر سازمان خوانده می‌شود",
   "fileSuggestion": "برنامهٔ دلخواه برای پیشنهاد فایل وقتی @ می‌زنی",
   "respectGitignore": "فهرست فایل‌ها، فایل‌های داخل .gitignore را نشان ندهد (پیش‌فرض روشن)",
@@ -172,5 +171,6 @@
   "autoMode": "متن دلخواه برای داور حالت Auto",
   "disableDeepLinkRegistration": "لینک‌های claude-cli:// در سیستم ثبت نشوند",
   "voiceEnabled": "ویس روشن باشد",
-  "defaultView": "نمای پیش‌فرض: chat فقط پیام‌ها، transcript همه‌چیز"
+  "defaultView": "نمای پیش‌فرض: chat فقط پیام‌ها، transcript همه‌چیز",
+  "claudeInChromeDefaultEnabled": "برازر: افزونهٔ کروم (Claude in Chrome، مرورگر) خودکار به چت وصل شود"
 }

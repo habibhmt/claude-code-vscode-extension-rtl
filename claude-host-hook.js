@@ -68,13 +68,15 @@
     var SID_RE = /^[0-9a-f-]{36}$/;
     var FASELE_COMPACT = 33000;            // the engine compacts 33K before its window (measured: 300K ⇒ 267000, 1M ⇒ 967000)
     var EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
-    var BALA = { effortLevel: 1, model: 1, remoteControlAtStartup: 1, ultracode: 1, autoCompactWindow: 1 };
+    var CHROME_KELID = 'claudeInChromeDefaultEnabled';   // the app's own switch for its Chrome extension: not in settings.json but in .claude.json, written only by the app
+    var BALA = { effortLevel: 1, model: 1, remoteControlAtStartup: 1, ultracode: 1, autoCompactWindow: 1, claudeInChromeDefaultEnabled: 1 };
     // these run a program on every launch: they don't belong in a form (the table Habib approved: they do not appear)
     var MAMNU = { apiKeyHelper: 1, proxyAuthHelper: 1, awsCredentialExport: 1, awsAuthRefresh: 1, gcpAuthRefresh: 1, processWrapper: 1, otelHeadersHelper: 1, $schema: 1 };
     function shey(o) { return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; }
     function anbarMasir() { return process.env.CRTL_TANZIMAT || path.join(HOME, 'crtl_tanzimat.json'); }
     function userMasir() { return path.join(process.env.CLAUDE_CONFIG_DIR || HOME, 'settings.json'); }
     function mahalliMasir(cwd) { return path.join(cwd, '.claude', 'settings.local.json'); }
+    function claudeJsonMasir() { return path.join(process.env.CLAUDE_CONFIG_DIR || path.dirname(HOME), '.claude.json'); }
     function jsonKhan(p) { try { return shey(JSON.parse(fs.readFileSync(p, 'utf8'))); } catch (e) { return {}; } }
     function atomi(p, matn) {
       var tmp = p + '.' + process.pid + '.' + Date.now() + '.tmp';
@@ -123,7 +125,7 @@
       var out = {};
       kelidha(a, sid, cwd).forEach(function (k) {
         var w = barande(a, sid, cwd, k);
-        if (!w || k === 'remoteControlAtStartup') return;
+        if (!w || k === 'remoteControlAtStartup' || k === CHROME_KELID) return;
         if (w.sath !== 'chat' && w.v && typeof w.v === 'object') return;
         out[k] = w.v;
       });
@@ -180,6 +182,26 @@
       if (on ? (st !== 'disconnected' && st !== 'error') : st === 'disconnected') return Promise.resolve(false);
       return Promise.resolve(o.toggleRemoteControl(id, on)).then(function () { return true; });
     }
+    // One chat's browser (Habib, 5 Nov: «فقط تنظیمات چت بذار»). The same two doors the app's own setting uses, so no extra turn is spent;
+    // only a chat connected by hand with @browser needs the loud door, which tells the model the tools are gone.
+    function chromeBezan(o, id, ch, on) {
+      var st = ch.chromeMcpState && ch.chromeMcpState.status;
+      if (on) {
+        if (typeof o.ensureChromeMcpEnabled !== 'function' || st === 'connected' || st === 'connecting') return Promise.resolve(false);
+        return Promise.resolve(o.ensureChromeMcpEnabled(id, { bySetting: { flips: o.chromeSettingFlipCount } })).then(function () { return true; });
+      }
+      if (typeof o.disableChromeMcp !== 'function' || st === 'disconnected') return Promise.resolve(false);
+      return Promise.resolve(o.disableChromeMcp(id, ch.chromeToolsAutoAllowed ? undefined : { quiet: true })).then(function () { return true; });
+    }
+    // The global level goes through the app's own save: it runs `claude edit-chrome-settings` and tells the open chats of every tab.
+    function chromeSarasari(yaft, on) {
+      if (!yaft || typeof yaft.owner.setChromeSetting !== 'function') return Promise.resolve('برای ثبت سراسری یک چت باز در همین پنجره لازم است');
+      return zamandar(Promise.resolve(yaft.owner.setChromeSetting(yaft.id, on)), 12000).then(function (r) {
+        if (!r) return 'جوابی از کلود نیامد؛ ثبت معلوم نیست';
+        if (r.error) return String(r.error);
+        return r.dialog && r.dialog.enabled_by_default !== on ? 'نوشته شد ولی کلود هنوز مقدار قبلی را می‌گوید؛ دوباره تب را باز کن' : '';
+      });
+    }
     // Push what changed for one chat. The engine loses ultracode when effort changes, unless effort goes with it (measured),
     // and takes a model's own effort when the model changes: so model first, then effort again.
     function pushChat(o, id, ch, a, taghir) {
@@ -202,6 +224,13 @@
         taghir.remoteControlAtStartup = (taghir.remoteControlAtStartup || 0) + 1;
         if (wRemote) kar.push(function () { return remoteBezan(o, id, ch, wRemote.v === true); });
       }
+      var wChrome = barande(a, sid, cwd, CHROME_KELID);
+      var cNow = wChrome ? JSON.stringify(wChrome.v) : '', cOld = typeof ch.__crtlChrome === 'string' ? ch.__crtlChrome : '';
+      ch.__crtlChrome = cNow;
+      if (cNow !== cOld) {
+        taghir[CHROME_KELID] = (taghir[CHROME_KELID] || 0) + 1;
+        if (wChrome) kar.push(function () { return chromeBezan(o, id, ch, wChrome.v === true); });
+      }
       if (hast) {
         var q = ch.query;
         kar.push(function () {
@@ -220,7 +249,7 @@
       }
       if (!kar.length) return Promise.resolve();
       return kar.reduce(function (p, fn) { return p.then(fn); }, Promise.resolve()).then(function () {
-        logKhat('push ' + (sid || id) + ' ' + Object.keys(f).map(function (k) { return barayeLog(k, f[k]); }).join(' ') + (rNow !== rOld ? ' remote=' + rNow : '') + ' ok');
+        logKhat('push ' + (sid || id) + ' ' + Object.keys(f).map(function (k) { return barayeLog(k, f[k]); }).join(' ') + (rNow !== rOld ? ' remote=' + rNow : '') + (cNow !== cOld ? ' browser=' + cNow : '') + ' ok');
         ferestBeSafhe({ type: 'crtl-tanzimat-taze', channelId: id });
       }, function (e) {
         var pk = String(e && e.message || e);
@@ -261,6 +290,16 @@
               else remoteBezan(o, id, ch, true).then(null, function () {});
             } catch (e) {}
           }, w.v === false ? 0 : REMOTE_ON_SABR);
+        }
+        var wc = barande(a, sid, cwd, CHROME_KELID);
+        ch.__crtlChrome = wc ? JSON.stringify(wc.v) : '';
+        if (wc) {
+          // the app connects by its own switch some moments after the chat is born, so the chat's word is said twice
+          [REMOTE_ON_SABR, REMOTE_ON_SABR * 4].forEach(function (ms) {
+            setTimeout(function () {
+              try { if (o.channels.get(id) === ch) chromeBezan(o, id, ch, wc.v === true).then(null, function () {}); } catch (e) {}
+            }, ms);
+          });
         }
         chashmBeAnbar();
       } catch (e) {}
@@ -334,6 +373,7 @@
         r.desc = String(s[k].description || '').slice(0, 300);
         return r;
       });
+      RADIF.push({ no: 'onoff', k: CHROME_KELID, desc: 'Claude in Chrome: connect the Chrome extension to every session (the app\'s "Enabled by default").' });
       return RADIF;
     }
     // The features the app's schema uses, and no more (checked 5 Nov: no $ref, oneOf or allOf).
@@ -388,6 +428,7 @@
     function khamBeMaghdar(k, kham) {
       var t = kham === null || kham === undefined ? '' : String(kham).trim();
       if (!t) return { hazf: true };
+      if (k === CHROME_KELID) return t === 'true' ? { v: true } : t === 'false' ? { v: false } : { khata: 'فقط روشن یا خاموش' };
       if (k === 'effortLevel') return EFFORTS.indexOf(t) !== -1 ? { v: t } : { khata: 'افورت فقط low، medium، high، xhigh یا max' };
       if (k === 'model') return /\s/.test(t) ? { khata: 'اسم مدل فاصله ندارد' } : { v: t };
       if (k === 'autoCompactWindow') {
@@ -475,10 +516,15 @@
       var modelGet = ch && k === 'effortLevel' && sath === 'sarasari'
         ? zamandar(Promise.resolve(ch.query.getSettings()), 2000).then(function (g) { return g && g.applied && g.applied.model; })
         : Promise.resolve('');
-      return modelGet.then(function (modelAlan) {
+      var chromeGet = k === CHROME_KELID && sath === 'sarasari' && !hazf ? chromeSarasari(yaft, v) : Promise.resolve('');
+      return chromeGet.then(function (kh) {
+        if (kh) return { ok: false, matn: kh };
+        return modelGet;
+      }).then(function (modelAlan) {
+        if (modelAlan && modelAlan.ok === false) return modelAlan;
         try {
-          if (sath === 'sarasari') nevisSarasari(k, v, hazf, modelAlan);
-          if (sath === 'poshe') nevisPoshe(cwd, k, v, hazf);
+          if (sath === 'sarasari' && k !== CHROME_KELID) nevisSarasari(k, v, hazf, modelAlan);
+          if (sath === 'poshe' && k !== CHROME_KELID) nevisPoshe(cwd, k, v, hazf);
         } catch (e) {
           return { ok: false, matn: 'فایل نوشته نشد: ' + (e && e.message || e) };
         }
@@ -491,7 +537,7 @@
             Object.keys(a.poshe).forEach(function (pp) {
               if (!ast(shey(a.poshe[pp])[k])) return;
               delete a.poshe[pp][k];
-              try { nevisPoshe(pp, k, null, true); } catch (e) {}
+              if (k !== CHROME_KELID) try { nevisPoshe(pp, k, null, true); } catch (e) {}
             });
             Object.keys(a.chat).forEach(function (s) { if (ast(shey(a.chat[s])[k])) delete a.chat[s][k]; });
           }
@@ -514,6 +560,11 @@
     }
     var ESM_SATH = { sarasari: 'سراسری', poshe: 'پروژه', chat: 'چت' };
     function matnSabt(k, v, hazf, n, sath, sagf) {
+      if (k === CHROME_KELID) {
+        if (hazf) return 'از سطح ' + ESM_SATH[sath] + ' پاک شد؛ برای اطمینان ریلود کن';
+        if (sath === 'sarasari') return v ? 'ثبت شد؛ چت‌های باز این پنجره و هر چت تازه به مرورگر وصل می‌شوند' : 'ثبت شد؛ چت‌های باز این پنجره قطع می‌شوند و چت تازه خودکار وصل نمی‌شود';
+        return 'ثبت شد؛ ' + (n ? 'همین الان روی ' + adadFa(n) + ' چت این پنجره' : 'در این پنجره چتی عوض نشد؛ یا چتی باز نیست یا همین مقدار را داشتند');
+      }
       if (k === 'autoCompactWindow') {
         if (hazf) return 'از سطح ' + ESM_SATH[sath] + ' پاک شد؛ بعد از ریلود اعمال می‌شود';
         var noghte = v - FASELE_COMPACT;
@@ -539,7 +590,11 @@
       radifha().forEach(function (r) { var w = barande(a, sid, cwd, r.k); if (w) bar[r.k] = w; });
       var out = { type: 'crtl-tanzimat-list', reqId: m.reqId, sid: sid, cwd: cwd, rows: radifha(), barande: bar,
         sath: { sarasari: a.sarasari, poshe: shey(a.poshe[cwd]), chat: shey(a.chat[sid]) },
-        karbar: jsonKhan(userMasir()), mahalli: cwd ? jsonKhan(mahalliMasir(cwd)) : {}, alan: null, models: [] };
+        karbar: jsonKhan(userMasir()), mahalli: cwd ? jsonKhan(mahalliMasir(cwd)) : {}, alan: null, models: [],
+        chrome: { on: jsonKhan(claudeJsonMasir())[CHROME_KELID], vasl: ch && ch.chromeMcpState ? ch.chromeMcpState.status : '' }, jahani: {} };
+      // the engine also reads some settings from ~/.claude.json; a value there is not «پیش‌فرض کلود»
+      var kj = jsonKhan(claudeJsonMasir());
+      radifha().forEach(function (r) { if (r.k !== 'env' && r.k !== CHROME_KELID && kj[r.k] !== undefined) out.jahani[r.k] = kj[r.k]; });
       if (!ch) return Promise.resolve(out);
       var q = ch.query;
       return Promise.all([

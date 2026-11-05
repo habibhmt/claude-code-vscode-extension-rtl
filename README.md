@@ -160,8 +160,16 @@ A folded `Thinking` or tool-call block opens on hover, and a click pins it open.
 
 The panel has two tabs: **فونت** (everything above) and **تنظیمات کلود**, with every
 setting of the app's own schema: effort, model, Remote Control, ultracode and
-auto-compact on top, then the rest, searchable, each with a line in Persian
-([`claude-tanzimat-fa.json`](claude-tanzimat-fa.json)).
+auto-compact and the browser switch on top, then the rest, searchable, each with a line in
+Persian ([`claude-tanzimat-fa.json`](claude-tanzimat-fa.json)). Under each row: the real value and
+what it means, then a simple explanation with an example, open from the start; a click on the row's
+name closes it ([`claude-tanzimat-tozih.json`](claude-tanzimat-tozih.json)). A default comes only
+from the app's schema text or the engine's code; where neither states one, the row says «خالی» and
+what that means. Of `env`, only the names show.
+
+The browser row is `claudeInChromeDefaultEnabled`, the extension behind the "Browser connected" notice.
+It lives in `~/.claude.json`, so the global level goes through the app's own save, and the project and
+chat levels connect or disconnect the chat itself. Numbered Chromes reached over CDP don't depend on it.
 
 | Part of a row | What it does |
 |---|---|

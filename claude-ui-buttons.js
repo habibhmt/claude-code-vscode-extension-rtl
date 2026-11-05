@@ -2348,11 +2348,15 @@
     else if (e.ba && e.ba !== '{v}') s = e.ba.replace('{v}', nemayesh === undefined ? tz_nemayesh(k, v) : nemayesh);
     return s ? '؛ یعنی ' + s : '';
   }
-  // nothing set anywhere: the default the app states, or «خالی», and what that means
+  // nothing set anywhere. The default the running app states wins, so an update moves it here too. A default known only from the
+  // engine's code says which version it was checked on, and says so when this version isn't checked yet. Otherwise «خالی» and its meaning.
+  var TZ_NOSKHE_PISH = '2.1.318';
   function tz_khali(k) {
-    var e = tz_dade(k);
-    if (Object.prototype.hasOwnProperty.call(e, 'pish')) return tz_neveshte(e.pish) + ' (پیش‌فرض کلود)' + tz_mani(k, e.pish);
-    return 'خالی' + (e.khali ? '؛ یعنی ' + e.khali : '');
+    var e = tz_dade(k), d = TZ.data || {}, z = d.pishZende || {};
+    if (!Object.prototype.hasOwnProperty.call(e, 'pish')) return 'خالی' + (e.khali ? '؛ یعنی ' + e.khali : '');
+    if (Object.prototype.hasOwnProperty.call(z, k)) return tz_neveshte(z[k]) + ' (پیش‌فرض کلود)' + tz_mani(k, z[k]);
+    var sanjide = d.pishSanjide || TZ_NOSKHE_PISH;
+    return tz_neveshte(e.pish) + ' (پیش‌فرض نسخهٔ ' + sanjide + (d.noskhe && d.noskhe !== sanjide ? '؛ این نسخه سنجیده نشده' : '') + ')' + tz_mani(k, e.pish);
   }
   function tz_sar(k, v, az, nemayesh) {
     var x = nemayesh === undefined ? tz_nemayesh(k, v) : nemayesh;

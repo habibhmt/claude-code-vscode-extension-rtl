@@ -75,6 +75,7 @@ rows.forEach((r) => {
   if (m && /^(true|false|\d[\d.]*|never|5m|bash)$/.test(m[1] || m[2] || m[3]) && 'pish' in e) assert.equal(String(e.pish), m[1] || m[2] || m[3], 'the app states the default of ' + r.k);
 });
 assert.equal(tozih.cleanupPeriodDays.pish, 30, 'the app says 30');
+// the file's defaults agree with what the app states today; each one the app states is read live, so it can't go stale
 assert.equal(tozih.bashOutputMaxChars.pish, 30000, 'the app says 30000');
 Object.keys(tozih).forEach((k) => assert.ok(rows.some((r) => r.k === k), 'an explanation with no setting: ' + k));
 
@@ -369,6 +370,40 @@ async function hostLogic() {
   assert.equal(fNo.cwd, P2);
 
   // ---- the browser switch. Habib, 5 Nov: «فقط تنظیمات چت بذار و فعلاً هم سراسری خاموشش کن»
+  // a default the app states is read live from its own text
+  for (const [t, v] of [['(default: 30). Minimum 1', 30], ['(default 30000; values', 30000], ['(default: 0.01 = 1%)', 0.01], ['(defaults to true)', true], ['Default: true.', true], ['Defaults to false.', false], ["Defaults to 'bash' on", 'bash'], ['Defaults to 5m to match', '5m'], ['"prefix" (the default) lets', 'prefix'], ['"auto" (default, follows', 'auto'], ['0 (the default) means', 0], ['When absent or true, on', true], ['When absent or false, off', false], ['Unset defaults to on once', true], ['Default off preserves', false], ['no word here', undefined]]) assert.strictEqual(H.pishAzShema(t), v, t);
+  const fz = await H.fehrestTanzim({ sid: SID1 });
+  let zende = 0;
+  for (const r of fz.rows) if ('pish' in tozih[r.k] && r.k in fz.pishZende) { zende++; assert.strictEqual(fz.pishZende[r.k], tozih[r.k].pish, 'the file and the app agree on ' + r.k); }
+  assert.ok(zende >= 29, 'most stated defaults are read live: ' + zende);
+  assert.equal(fz.noskhe, J(path.join(path.dirname(process.env.CRTL_SCHEMA), 'package.json')).version, 'the running version');
+  assert.equal(fz.pishSanjide, '', 'no stamp yet');
+  // the checker that runs with every version's news: it says what moved, and stamps only when nothing did
+  {
+    const PY = process.env.PISHFARZ_PY || path.join(__dirname, 'Doc/abzar/chek_pishfarz.py');
+    const ext = fs.mkdtempSync(path.join(os.tmpdir(), 'pz-')), cfg = fs.mkdtempSync(path.join(os.tmpdir(), 'pz-'));
+    fs.mkdirSync(path.join(ext, 'resources/native-binary'), { recursive: true });
+    fs.writeFileSync(path.join(ext, 'package.json'), JSON.stringify({ version: '9.9.9' }));
+    const sh = J(process.env.CRTL_SCHEMA), man = Object.keys(tozih).filter((k) => 'pish' in tozih[k] && H.pishAzShema((sh.properties[k] || {}).description) === undefined);
+    const bin = (ha) => fs.writeFileSync(path.join(ext, 'resources/native-binary/claude'), ha.map((k) => { const v = tozih[k].pish; return k + (v === true ? '??!0' : v === false ? '??!1' : ':"' + v + '"'); }).join(' '));
+    const shema = (o) => fs.writeFileSync(path.join(ext, 'claude-code-settings.schema.json'), JSON.stringify(o));
+    const ran = () => execFileSync('python3', [PY, '--ext', ext], { encoding: 'utf8', env: { ...process.env, CLAUDE_CONFIG_DIR: cfg, TOZIH_JSON: TOZIH } });
+    const mohr = path.join(cfg, 'crtl_pish_sanjide.json');
+    shema(sh); bin(man);
+    assert.match(ran(), /فرق دارد یا پیدا نشد \| 0 \|/, 'nothing moved');
+    assert.equal(J(mohr).noskhe, '9.9.9', 'stamped');
+    fs.unlinkSync(mohr);
+    const s2 = JSON.parse(JSON.stringify(sh));
+    s2.properties.cleanupPeriodDays.description = s2.properties.cleanupPeriodDays.description.replace('default: 30', 'default: 14');
+    shema(s2);
+    assert.match(ran(), /`cleanupPeriodDays` \| 30 \| 14 \| راهنمای برنامه/, 'a moved default is named with both numbers');
+    assert.equal(fs.existsSync(mohr), false, 'no stamp when something moved');
+    shema(sh); bin(man.filter((k) => k !== 'verbose'));
+    assert.match(ran(), /`verbose` \| False \| پیدا نشد \| کد موتور/, 'gone from the engine is named');
+    assert.equal(fs.existsSync(mohr), false);
+    assert.match(execFileSync('python3', [PY, '--ext', ''], { encoding: 'utf8', env: { ...process.env, CLAUDE_CONFIG_DIR: cfg, TOZIH_JSON: TOZIH } }), /سنجیده نشد/, 'no extension, no guess from another one');
+    assert.equal(fs.existsSync(mohr), false);
+  }
   const CK = 'claudeInChromeDefaultEnabled', cj = path.join(home, '.claude.json');
   fs.writeFileSync(cj, JSON.stringify({ claudeInChromeDefaultEnabled: true, nashan: 1 }));
   fs.writeFileSync(USER, JSON.stringify({ theme: 'dark' }));
@@ -797,6 +832,25 @@ async function panelInBrowser() {
   assert.equal(await row('policyHelper').locator('.crtl-tz-note').textContent(), 'الان: خالی؛ یعنی هیچ برنامه‌ای برای ساختن تنظیمات سازمان اجرا نمی‌شود', 'no default: empty and its meaning');
   assert.equal(await row('respectGitignore').locator('.crtl-tz-note').textContent(), 'الان: روشن (پیش‌فرض کلود)؛ یعنی فایل‌های داخل .gitignore در پیشنهاد @ نمی‌آیند');
   assert.equal(await pg.$$eval('.crtl-tz-note', (n) => n.filter((x) => /—/.test(x.textContent) || x.textContent.trim() === '').length), 0, 'no row shows a bare dash or nothing');
+  // a default only the engine's code shows says which version it was checked on
+  const NOSKHE = J(path.join(path.dirname(process.env.CRTL_SCHEMA), 'package.json')).version, MANI_TH = 'یعنی خلاصهٔ فکر مدل نشان داده نمی‌شود';
+  const naTaze = NOSKHE === '2.1.318' ? '' : '؛ این نسخه سنجیده نشده';
+  assert.equal(await row('showThinkingSummaries').locator('.crtl-tz-note').textContent(), 'الان: خاموش (پیش‌فرض نسخهٔ 2.1.318' + naTaze + ')؛ ' + MANI_TH);
+  const tazeKon = async () => { await pg.getByRole('tab', { name: 'فونت' }).click(); await pg.getByRole('tab', { name: 'تنظیمات کلود' }).click(); };
+  const MOHR = path.join(home, '.claude', 'crtl_pish_sanjide.json');
+  fs.writeFileSync(MOHR, JSON.stringify({ noskhe: '2.1.300' }));
+  await tazeKon();
+  await pg.waitForFunction(() => /2\.1\.300/.test(document.querySelector('.crtl-tz-row[data-k="showThinkingSummaries"] .crtl-tz-note').textContent));
+  assert.equal(await row('showThinkingSummaries').locator('.crtl-tz-note').textContent(), 'الان: خاموش (پیش‌فرض نسخهٔ 2.1.300؛ این نسخه سنجیده نشده)؛ ' + MANI_TH, 'an update is not checked yet');
+  fs.writeFileSync(MOHR, JSON.stringify({ noskhe: NOSKHE }));
+  await tazeKon();
+  await pg.waitForFunction((v) => document.querySelector('.crtl-tz-row[data-k="showThinkingSummaries"] .crtl-tz-note').textContent.includes(v + ')'), NOSKHE);
+  fs.unlinkSync(MOHR);
+  // what the app states wins over the file: an update moves it with no help
+  await pg.evaluate(() => { window.__CRTL_TANZIMAT_TOZIH.cleanupPeriodDays.pish = 31; });
+  await tazeKon();
+  await sleep(300);
+  assert.match(await row('cleanupPeriodDays').locator('.crtl-tz-note').textContent(), /الان: 30 \(پیش‌فرض کلود\)/, 'read from the app, not the file');
   // the browser row: three levels, the real switch, this chat's connection
   assert.equal(await ckRow.locator('input[type=checkbox]').count(), 3, 'global, project, chat');
   assert.equal(await ckRow.locator('.crtl-tz-note').textContent(), 'الان: سراسری خاموش · این چت وصل نیست؛ یعنی مرورگر فقط با @browser یا کلید همین چت وصل می‌شود');

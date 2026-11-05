@@ -89,7 +89,10 @@ $tekke
         grep -q '|' <<<"$javab" || khata "جوابِ Sonnet جدول نداشت ($ghadim ⇐ $taze): $(head -c 300 <<<"$javab")"
     fi
 
-    { echo "$javab"; echo; echo "---"; echo "## متنِ خامِ CHANGELOG"; echo; echo "$tekke"; } > "$gozaresh"
+    # the settings tab's defaults against this version; equal ⇒ the tab stops saying «این نسخه سنجیده نشده»
+    PY="$(command -v /opt/homebrew/bin/python3 || command -v python3)"
+    pishfarz="$("$PY" "$REPO_DIR/Doc/abzar/chek_pishfarz.py" --ext "$(ls -d "$EXT_DIR"/anthropic.claude-code-"$taze"-* 2>/dev/null | sort -V | tail -1)" 2>&1)" || pishfarz="## پیش‌فرض‌های تب تنظیمات"$'\n\n'"سنجیده نشد: $(tail -c 200 <<<"$pishfarz")"
+    { echo "$javab"; echo; echo "$pishfarz"; echo; echo "---"; echo "## متنِ خامِ CHANGELOG"; echo; echo "$tekke"; } > "$gozaresh"
     echo "$taze" > "$DONE_FILE"
     say "✅ گزارش: $gozaresh"
     notif "کلود کد $taze آمد" "گزارشِ تغییرات و آنچه به کارِ تو می‌خورد: Doc/khabar_noskhe/$taze.md"

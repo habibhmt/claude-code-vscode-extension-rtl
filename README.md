@@ -164,8 +164,9 @@ auto-compact and the browser switch on top, then the rest, searchable, each with
 Persian ([`claude-tanzimat-fa.json`](claude-tanzimat-fa.json)). Under each row: the real value and
 what it means, then a simple explanation with an example, open from the start; a click on the row's
 name closes it ([`claude-tanzimat-tozih.json`](claude-tanzimat-tozih.json)). A default comes only
-from the app's schema text or the engine's code; where neither states one, the row says «خالی» and
-what that means. Of `env`, only the names show.
+from the app's schema text, read live, or the engine's code, labelled with the version it was
+checked on ([`Doc/abzar/chek_pishfarz.py`](Doc/abzar/chek_pishfarz.py) runs with each version's news);
+where neither states one, the row says «خالی» and what that means. Of `env`, only the names show.
 
 The browser row is `claudeInChromeDefaultEnabled`, the extension behind the "Browser connected" notice.
 It lives in `~/.claude.json`, so the global level goes through the app's own save, and the project and

@@ -352,6 +352,20 @@
       return process.env.CRTL_SCHEMA || path.join(typeof __dirname === 'string' ? __dirname : '', 'claude-code-settings.schema.json');
     }
     function shemaKhan() { return JSON.parse(fs.readFileSync(shemaMasir(), 'utf8')).properties || {}; }
+    // A default the app itself states in a setting's description, so an update changes it here too. Same patterns as Doc/abzar/chek_pishfarz.py.
+    var PISH_RE = [/\(defaults?:?\s+(?:to\s+)?["']?([\w\-]+(?:\.\d+)?)/, /\bDefaults? to ["'`]?([\w\-]+(?:\.\d+)?)/, /\bDefault:\s*([\w\-]+(?:\.\d+)?)/,
+      /["']([\w\-]+(?:\.\d+)?)["'] \((?:the )?default\b/, /\b(\d+) \(the default\)/, /\bWhen absent or (true|false)\b/, /\bUnset defaults to (on|off)\b/, /\bDefault (on|off)\b/];
+    function pishAzShema(desc) {
+      for (var i = 0; i < PISH_RE.length; i++) {
+        var m = PISH_RE[i].exec(String(desc || ''));
+        if (!m) continue;
+        var x = m[1];
+        if (x === 'true' || x === 'on') return true;
+        if (x === 'false' || x === 'off') return false;
+        return /^\d+(\.\d+)?$/.test(x) ? Number(x) : x;
+      }
+      return undefined;
+    }
     function noeRadif(p) {
       if (p.type === 'boolean') return { no: 'onoff' };
       if (p.type === 'string' && p.enum) return { no: 'choice', enum: p.enum };
@@ -371,6 +385,7 @@
         var r = noeRadif(s[k]);
         r.k = k;
         r.desc = String(s[k].description || '').slice(0, 300);
+        r.pz = pishAzShema(s[k].description); // from the whole text: some state it past the cut
         return r;
       });
       RADIF.push({ no: 'onoff', k: CHROME_KELID, desc: 'Claude in Chrome: connect the Chrome extension to every session (the app\'s "Enabled by default").' });
@@ -595,6 +610,10 @@
       // the engine also reads some settings from ~/.claude.json; a value there is not «پیش‌فرض کلود»
       var kj = jsonKhan(claudeJsonMasir());
       radifha().forEach(function (r) { if (r.k !== 'env' && r.k !== CHROME_KELID && kj[r.k] !== undefined) out.jahani[r.k] = kj[r.k]; });
+      out.pishZende = {};
+      radifha().forEach(function (r) { if (r.pz !== undefined) out.pishZende[r.k] = r.pz; });
+      out.noskhe = jsonKhan(path.join(path.dirname(shemaMasir()), 'package.json')).version || '';
+      out.pishSanjide = jsonKhan(path.join(HOME, 'crtl_pish_sanjide.json')).noskhe || '';
       if (!ch) return Promise.resolve(out);
       var q = ch.query;
       return Promise.all([
@@ -610,7 +629,7 @@
       });
     }
 
-    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { ref: ref, card: card, sessionRecord: sessionRecord, vaghtEffortGhadimi: vaghtEffortGhadimi, anbarKhan: anbarKhan, barande: barande, parchamha: parchamha, radifha: radifha, sanjesh: sanjesh, khamBeMaghdar: khamBeMaghdar, sabtTanzim: sabtTanzim, fehrestTanzim: fehrestTanzim, pushHame: pushHame, SAHEB: SAHEB, SAFHE: SAFHE, tanzimRemoteSabr: function (ms) { REMOTE_ON_SABR = ms; } }; return; }
+    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { pishAzShema: pishAzShema, ref: ref, card: card, sessionRecord: sessionRecord, vaghtEffortGhadimi: vaghtEffortGhadimi, anbarKhan: anbarKhan, barande: barande, parchamha: parchamha, radifha: radifha, sanjesh: sanjesh, khamBeMaghdar: khamBeMaghdar, sabtTanzim: sabtTanzim, fehrestTanzim: fehrestTanzim, pushHame: pushHame, SAHEB: SAHEB, SAFHE: SAFHE, tanzimRemoteSabr: function (ms) { REMOTE_ON_SABR = ms; } }; return; }
     try { vaghtEffortGhadimi(); } catch (e) {}
     var vscode = require('vscode');
     function poshePishfarz() {

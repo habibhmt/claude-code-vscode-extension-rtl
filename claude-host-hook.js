@@ -59,8 +59,508 @@
       return { text: lines.join('\n'), remote: remoteRef ? (title ? title + ' ' : '') + '[' + remoteRef + ']' : '' };
     }
 
-    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { ref: ref, card: card, sessionRecord: sessionRecord }; return; }
+    /* ---------------- the «تنظیمات کلود» tab ---------------- */
+    // Habib, 5 Nov 02:34: «توی تب تنظیمات کلود رو بتونم تعیین کنم هر چی تنظیم ک ه هست به صورت سراسری پروژه چت».
+    // The store ~/.claude/crtl_tanzimat.json holds every save: {sarasari:{k:{v,t}}, poshe:{cwd:{k:{v,t}}}, chat:{sid:{k:{v,t}}}}.
+    // The newest save among the three levels wins for a chat (Habib's «خیر»: a chat's own value is not immune; چت ۱۸۹ low
+    // دارد، سراسری max ثبت می‌کنی ⇐ ۱۸۹ هم max). doc/abzar/panjere_chat.py in repo 203 reads the same format.
+    // The levels the app's own files can hold are written there too, so a terminal chat sees them.
+    var SID_RE = /^[0-9a-f-]{36}$/;
+    var FASELE_COMPACT = 33000;            // the engine compacts 33K before its window (measured: 300K ⇒ 267000, 1M ⇒ 967000)
+    var EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
+    var BALA = { effortLevel: 1, model: 1, remoteControlAtStartup: 1, ultracode: 1, autoCompactWindow: 1 };
+    // these run a program on every launch: they don't belong in a form (the table Habib approved: they do not appear)
+    var MAMNU = { apiKeyHelper: 1, proxyAuthHelper: 1, awsCredentialExport: 1, awsAuthRefresh: 1, gcpAuthRefresh: 1, processWrapper: 1, otelHeadersHelper: 1, $schema: 1 };
+    function shey(o) { return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; }
+    function anbarMasir() { return process.env.CRTL_TANZIMAT || path.join(HOME, 'crtl_tanzimat.json'); }
+    function userMasir() { return path.join(process.env.CLAUDE_CONFIG_DIR || HOME, 'settings.json'); }
+    function mahalliMasir(cwd) { return path.join(cwd, '.claude', 'settings.local.json'); }
+    function jsonKhan(p) { try { return shey(JSON.parse(fs.readFileSync(p, 'utf8'))); } catch (e) { return {}; } }
+    function atomi(p, matn) {
+      var tmp = p + '.' + process.pid + '.' + Date.now() + '.tmp';
+      fs.writeFileSync(tmp, matn);
+      fs.renameSync(tmp, p);
+    }
+    function anbarKhan() {
+      var a = jsonKhan(anbarMasir());
+      a.sarasari = shey(a.sarasari); a.poshe = shey(a.poshe); a.chat = shey(a.chat);
+      return a;
+    }
+    function anbarNevis(a) { atomi(anbarMasir(), JSON.stringify(a, null, 1) + '\n'); }
+    // The old effort row's file comes along once, then steps aside.
+    function vaghtEffortGhadimi() {
+      var f = path.join(HOME, 'effort_chat.json'), d;
+      try { d = JSON.parse(fs.readFileSync(f, 'utf8')); } catch (e) { return; }
+      try {
+        var a = anbarKhan(), t = fs.statSync(f).mtimeMs;
+        Object.keys(shey(d)).forEach(function (sid) {
+          if (!SID_RE.test(sid) || EFFORTS.indexOf(d[sid]) === -1) return;
+          var c = a.chat[sid] = shey(a.chat[sid]);
+          if (!c.effortLevel) c.effortLevel = { v: d[sid], t: t };
+        });
+        anbarNevis(a);
+        fs.renameSync(f, f + '.crtl-amad');
+      } catch (e) {}
+    }
+    function ast(r) { return r && typeof r === 'object' && Object.prototype.hasOwnProperty.call(r, 'v'); }
+    function barande(a, sid, cwd, k) {
+      var best = null;
+      [['sarasari', a.sarasari[k]], ['poshe', cwd && shey(a.poshe[cwd])[k]], ['chat', sid && shey(a.chat[sid])[k]]].forEach(function (r) {
+        if (!ast(r[1])) return;
+        var t = Number(r[1].t) || 0;
+        if (!best || t >= best.t) best = { v: r[1].v, t: t, sath: r[0] };
+      });
+      return best;
+    }
+    function kelidha(a, sid, cwd) {
+      var s = {};
+      [a.sarasari, cwd && a.poshe[cwd], sid && a.chat[sid]].forEach(function (o) { Object.keys(shey(o)).forEach(function (k) { s[k] = 1; }); });
+      return Object.keys(s);
+    }
+    // What the flag layer of one chat should hold: the winners, except that an object or a list from a file level stays in
+    // the file alone (the engine merges lists and hooks across layers, so a copy on the flag layer would run a hook twice).
+    function parchamha(a, sid, cwd) {
+      var out = {};
+      kelidha(a, sid, cwd).forEach(function (k) {
+        var w = barande(a, sid, cwd, k);
+        if (!w || k === 'remoteControlAtStartup') return;
+        if (w.sath !== 'chat' && w.v && typeof w.v === 'object') return;
+        out[k] = w.v;
+      });
+      return out;
+    }
+    // called at every launch by the patch in extension.js (fix-rtl-claude.sh)
+    // effort goes as --effort: a file refuses max, and so does --settings (measured 5 Nov: flag max ⇒ the per-model value)
+    globalThis.__crtl_baz_shodan = function (resume, cwd) {
+      try {
+        var a = anbarKhan(), p = parchamha(a, SID_RE.test(String(resume || '')) ? resume : '', cwd ? path.resolve(cwd) : ''), out = {};
+        if (EFFORTS.indexOf(p.effortLevel) !== -1) out.effort = p.effortLevel;
+        delete p.effortLevel;
+        if (typeof p.model === 'string' && p.model) out.model = p.model;
+        delete p.model;
+        if (Object.keys(p).length) out.settings = p;
+        return out;
+      } catch (e) { return null; }
+    };
+
+    function hameSaheb(f) {
+      SAHEB.forEach(function (o) {
+        try { o.channels.forEach(function (ch, id) { f(o, id, ch); }); } catch (e) {}
+      });
+    }
+    var SAHEB = new Set(), SAFHE = new Set();   // the bundle's chat managers; the chat pages of this window
+    function ferestBeSafhe(m) {
+      SAFHE.forEach(function (w) {
+        try { var r = w.postMessage(m); if (r && r.then) r.then(null, function () {}); } catch (e) { SAFHE.delete(w); }
+      });
+    }
+    function logKhat(matn) {
+      try {
+        var f = path.join(HOME, 'crtl_tanzimat.log');
+        try { if (fs.statSync(f).size > 262144) fs.truncateSync(f, 0); } catch (e) {}
+        fs.appendFileSync(f, new Date().toISOString() + ' pid=' + process.pid + ' ' + matn + '\n');
+      } catch (e) {}
+    }
+    function barayeLog(k, v) { return BALA[k] ? k + '=' + JSON.stringify(v) : k; }
+    function kanalBaraye(sid, id) {
+      var yaft = null;
+      hameSaheb(function (o, i, ch) {
+        if (yaft) return;
+        if ((id && i === id) || (sid && ch.sessionId === sid)) yaft = { owner: o, id: i, ch: ch };
+      });
+      return yaft;
+    }
+    function zamandar(p, ms) {
+      return Promise.race([p, new Promise(function (ok) { setTimeout(function () { ok(undefined); }, ms); })]).catch(function () { return undefined; });
+    }
+    var REMOTE_ON_SABR = 4000;
+    function remoteVaziat(ch) { return ch.remoteControlState && ch.remoteControlState.status; }
+    function remoteBezan(o, id, ch, on) {
+      var st = remoteVaziat(ch);
+      if (on ? (st !== 'disconnected' && st !== 'error') : st === 'disconnected') return Promise.resolve(false);
+      return Promise.resolve(o.toggleRemoteControl(id, on)).then(function () { return true; });
+    }
+    // Push what changed for one chat. The engine loses ultracode when effort changes, unless effort goes with it (measured),
+    // and takes a model's own effort when the model changes: so model first, then effort again.
+    function pushChat(o, id, ch, a, taghir) {
+      var sid = ch.sessionId || '', cwd = ch.cwd || '';
+      var now = parchamha(a, sid, cwd), old = shey(ch.__crtlZende), keys = {}, kar = [];
+      Object.keys(now).concat(Object.keys(old)).forEach(function (k) { keys[k] = 1; });
+      ch.__crtlZende = now;
+      var f = {}, hast = false;
+      Object.keys(keys).forEach(function (k) {
+        if (JSON.stringify(now[k]) === JSON.stringify(old[k])) return;
+        taghir[k] = (taghir[k] || 0) + 1;
+        if (k === 'autoCompactWindow') return;   // the running engine ignores it (measured): after a reload
+        f[k] = Object.prototype.hasOwnProperty.call(now, k) ? now[k] : null;
+        hast = true;
+      });
+      var wRemote = barande(a, sid, cwd, 'remoteControlAtStartup');
+      var rNow = wRemote ? JSON.stringify(wRemote.v) : '', rOld = typeof ch.__crtlRemote === 'string' ? ch.__crtlRemote : '';
+      ch.__crtlRemote = rNow;
+      if (rNow !== rOld) {
+        taghir.remoteControlAtStartup = (taghir.remoteControlAtStartup || 0) + 1;
+        if (wRemote) kar.push(function () { return remoteBezan(o, id, ch, wRemote.v === true); });
+      }
+      if (hast) {
+        var q = ch.query;
+        kar.push(function () {
+          var moded = 'model' in f ? { model: f.model } : null, rest = {};
+          Object.keys(f).forEach(function (k) { if (k !== 'model') rest[k] = f[k]; });
+          if (moded && !('effortLevel' in rest) && Object.prototype.hasOwnProperty.call(now, 'effortLevel')) rest.effortLevel = now.effortLevel;
+          return (moded ? Promise.resolve(q.applyFlagSettings(moded)) : Promise.resolve()).then(function () {
+            if (!('effortLevel' in rest) || 'ultracode' in rest) return undefined;
+            return Promise.resolve(q.getSettings()).then(function (g) {
+              if (g && g.applied && g.applied.ultracodeRequested) rest.ultracode = true;
+            });
+          }).then(function () {
+            if (Object.keys(rest).length) return q.applyFlagSettings(rest);
+          });
+        });
+      }
+      if (!kar.length) return Promise.resolve();
+      return kar.reduce(function (p, fn) { return p.then(fn); }, Promise.resolve()).then(function () {
+        logKhat('push ' + (sid || id) + ' ' + Object.keys(f).map(function (k) { return barayeLog(k, f[k]); }).join(' ') + (rNow !== rOld ? ' remote=' + rNow : '') + ' ok');
+        ferestBeSafhe({ type: 'crtl-tanzimat-taze', channelId: id });
+      }, function (e) {
+        var pk = String(e && e.message || e);
+        logKhat('push ' + (sid || id) + ' ' + Object.keys(f).join(' ') + ' error ' + pk);
+        taghir.__khata = pk;
+        taghir.__khataTedad = (taghir.__khataTedad || 0) + 1;
+        ferestBeSafhe({ type: 'crtl-tanzimat-taze', channelId: id });
+      });
+    }
+    // Returns how many chats of this window each key changed on.
+    function pushHame() {
+      var a = anbarKhan(), taghir = {}, kar = [];
+      hameSaheb(function (o, id, ch) { try { kar.push(pushChat(o, id, ch, a, taghir)); } catch (e) { logKhat('push ' + id + ' error ' + (e && e.message || e)); } });
+      return Promise.all(kar).then(function () { return taghir; }, function () { return taghir; });
+    }
+    var chashm = false;
+    function chashmBeAnbar() {
+      if (chashm) return;
+      chashm = true;
+      // other windows save too; their chats follow within a second
+      fs.watchFile(anbarMasir(), { interval: 1000, persistent: false }, function () { pushHame(); });
+    }
+    // called by the patch in extension.js when a chat's channel is born
+    globalThis.__crtl_kanal_taze = function (o, id, ch) {
+      try {
+        SAHEB.add(o);
+        var a = anbarKhan(), sid = ch.sessionId || '', cwd = ch.cwd || '';
+        ch.__crtlZende = parchamha(a, sid, cwd);
+        var w = barande(a, sid, cwd, 'remoteControlAtStartup');
+        ch.__crtlRemote = w ? JSON.stringify(w.v) : '';
+        if (w) {
+          // the engine turns it on by itself a moment later, unless a toggle has already decided; so off goes first, and
+          // on waits and only knocks if it stayed off (Habib, 4 Nov: «محکمش کن که ریموت کنترلش همیشه روشن باشه»)
+          setTimeout(function () {
+            try {
+              if (o.channels.get(id) !== ch) return;
+              if (w.v === false) { var p = o.toggleRemoteControl(id, false); if (p && p.then) p.then(null, function () {}); }
+              else remoteBezan(o, id, ch, true).then(null, function () {});
+            } catch (e) {}
+          }, w.v === false ? 0 : REMOTE_ON_SABR);
+        }
+        chashmBeAnbar();
+      } catch (e) {}
+    };
+    // Claude's own effort and model menu changes this chat only (Habib's «بله»: the file holds one value for every chat, and
+    // a click in one chat must not move the others). It's a chat-level save, so it also survives a reload.
+    var MENU_KELID = { effortLevel: 1, model: 1, ultracode: 1 };
+    function menuSabt(sid, cwd, k, v) {
+      var a = anbarKhan();
+      if (v === null || v === undefined) {
+        var c0 = shey(a.chat[sid]);
+        if (!ast(c0[k])) return;
+        delete c0[k];
+        a.chat[sid] = c0;
+      } else {
+        var w = barande(a, sid, cwd, k);
+        if (w && JSON.stringify(w.v) === JSON.stringify(v)) return;
+        var c = a.chat[sid] = shey(a.chat[sid]);
+        c[k] = { v: v, t: Date.now() };
+      }
+      anbarNevis(a);
+    }
+    globalThis.__crtl_menu_chat = function (o, id, t) {
+      var keys = t && typeof t === 'object' ? Object.keys(t) : [];
+      if (!keys.length || !keys.every(function (k) { return MENU_KELID[k]; }) || !('effortLevel' in t || 'model' in t)) return false;
+      try {
+        SAHEB.add(o);
+        var ch = o.channels.get(id);
+        if (!ch) return true;
+        function sabt(sid) {
+          ['effortLevel', 'model'].forEach(function (k) { if (k in t) menuSabt(sid, ch.cwd || '', k, t[k]); });
+          ch.__crtlZende = parchamha(anbarKhan(), sid, ch.cwd || '');
+        }
+        if (SID_RE.test(String(ch.sessionId || ''))) { sabt(ch.sessionId); return true; }
+        // a new chat has no id until its first message: the click waits for it
+        var n = 0, tick = setInterval(function () {
+          try {
+            if (SID_RE.test(String(ch.sessionId || ''))) { clearInterval(tick); sabt(ch.sessionId); }
+            else if (++n > 1800 || o.channels.get(id) !== ch) clearInterval(tick);
+          } catch (e) { clearInterval(tick); }
+        }, 2000);
+        if (tick.unref) tick.unref();
+      } catch (e) {}
+      return true;
+    };
+
+    /* the rows of the tab, from the app's own schema */
+    var RADIF = null;
+    function shemaMasir() {
+      return process.env.CRTL_SCHEMA || path.join(typeof __dirname === 'string' ? __dirname : '', 'claude-code-settings.schema.json');
+    }
+    function shemaKhan() { return JSON.parse(fs.readFileSync(shemaMasir(), 'utf8')).properties || {}; }
+    function noeRadif(p) {
+      if (p.type === 'boolean') return { no: 'onoff' };
+      if (p.type === 'string' && p.enum) return { no: 'choice', enum: p.enum };
+      if (p.type === 'number' || p.type === 'integer') return { no: 'number', min: p.minimum, max: p.maximum };
+      if (p.type === 'string') return { no: 'text' };
+      if (p.anyOf && p.anyOf.every(function (x) { return x.type === 'string'; })) {
+        var pish = [];
+        p.anyOf.forEach(function (x) { if (x.enum) pish = pish.concat(x.enum); });
+        return { no: 'text', pish: pish };
+      }
+      return { no: 'json' };
+    }
+    function radifha() {
+      if (RADIF) return RADIF;
+      var s = shemaKhan();
+      RADIF = Object.keys(s).filter(function (k) { return !MAMNU[k]; }).map(function (k) {
+        var r = noeRadif(s[k]);
+        r.k = k;
+        r.desc = String(s[k].description || '').slice(0, 300);
+        return r;
+      });
+      return RADIF;
+    }
+    // The features the app's schema uses, and no more (checked 5 Nov: no $ref, oneOf or allOf).
+    function sanjesh(s, v) {
+      if (s === true || s === undefined) return true;
+      if (s === false) return false;
+      if (s.anyOf && !s.anyOf.some(function (x) { return sanjesh(x, v); })) return false;
+      if (s.not && sanjesh(s.not, v)) return false;
+      if ('const' in s && JSON.stringify(s.const) !== JSON.stringify(v)) return false;
+      if (s.enum && !s.enum.some(function (e) { return JSON.stringify(e) === JSON.stringify(v); })) return false;
+      if (s.type) {
+        var ok = [].concat(s.type).some(function (t) {
+          if (t === 'integer') return Number.isInteger(v);
+          if (t === 'array') return Array.isArray(v);
+          if (t === 'null') return v === null;
+          if (t === 'object') return !!v && typeof v === 'object' && !Array.isArray(v);
+          return typeof v === t;
+        });
+        if (!ok) return false;
+      }
+      if (typeof v === 'number') {
+        if (typeof s.minimum === 'number' && v < s.minimum) return false;
+        if (typeof s.maximum === 'number' && v > s.maximum) return false;
+        if (typeof s.exclusiveMinimum === 'number' && v <= s.exclusiveMinimum) return false;
+      }
+      if (typeof v === 'string') {
+        if (typeof s.minLength === 'number' && v.length < s.minLength) return false;
+        if (typeof s.maxLength === 'number' && v.length > s.maxLength) return false;
+        if (s.pattern) { try { if (!new RegExp(s.pattern).test(v)) return false; } catch (e) {} }
+      }
+      if (Array.isArray(v)) {
+        if (typeof s.minItems === 'number' && v.length < s.minItems) return false;
+        if (s.items !== undefined && !v.every(function (x) { return sanjesh(s.items, x); })) return false;
+      } else if (v && typeof v === 'object') {
+        if (s.required && !s.required.every(function (r) { return Object.prototype.hasOwnProperty.call(v, r); })) return false;
+        var pr = s.properties || {};
+        var bad = Object.keys(v).some(function (k) {
+          if (s.propertyNames && !sanjesh(s.propertyNames, k)) return true;
+          if (Object.prototype.hasOwnProperty.call(pr, k)) return !sanjesh(pr[k], v[k]);
+          return s.additionalProperties !== undefined && !sanjesh(s.additionalProperties, v[k]);
+        });
+        if (bad) return false;
+      }
+      return true;
+    }
+    function adadLatin(t) {
+      return String(t).replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); }).replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }).replace(/[,،٬\s]/g, '');
+    }
+    function hezar(n) { return adadFa(Math.round(n / 1000)) + ' هزار'; }
+    function adadFa(n) { return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
+    // Turns what the page typed into the value to save. {hazf:true} = an empty box: this level lets go of the setting.
+    function khamBeMaghdar(k, kham) {
+      var t = kham === null || kham === undefined ? '' : String(kham).trim();
+      if (!t) return { hazf: true };
+      if (k === 'effortLevel') return EFFORTS.indexOf(t) !== -1 ? { v: t } : { khata: 'افورت فقط low، medium، high، xhigh یا max' };
+      if (k === 'model') return /\s/.test(t) ? { khata: 'اسم مدل فاصله ندارد' } : { v: t };
+      if (k === 'autoCompactWindow') {
+        var ad = Number(adadLatin(t));
+        if (!Number.isFinite(ad)) return { khata: 'فقط عدد؛ مثلاً 300000' };
+        if (ad > 0 && ad < 2000) ad *= 1000;   // «300» means 300 thousand; the smallest real value is 67 thousand
+        ad = Math.round(ad);
+        if (ad < 100000 - FASELE_COMPACT) return { khata: 'کمتر از ۶۷ هزار را کلود قبول نمی‌کند' };
+        var w = ad + FASELE_COMPACT;
+        if (w > 1000000) return { v: 1000000, sagf: true };
+        return { v: w };
+      }
+      var r = radifha().filter(function (x) { return x.k === k; })[0], s = shemaKhan()[k], v;
+      if (r.no === 'onoff') {
+        if (t !== 'true' && t !== 'false') return { khata: 'فقط روشن یا خاموش' };
+        v = t === 'true';
+      } else if (r.no === 'number') {
+        v = Number(adadLatin(t));
+        if (!Number.isFinite(v)) return { khata: 'فقط عدد' };
+      } else if (r.no === 'json') {
+        try { v = JSON.parse(t); }
+        catch (e) {
+          if (!sanjesh(s, t)) return { khata: 'متن JSON درست نیست' };
+          v = t;
+        }
+      } else v = t;
+      if (!sanjesh(s, v)) return { khata: 'این مقدار با قالب این تنظیم نمی‌خورد' };
+      return { v: v };
+    }
+    // Files: a broken one is never overwritten; the file as it was stays beside it as .crtl-bak.
+    function nevisFile(p, fn) {
+      var d = {}, kham = null;
+      try { kham = fs.readFileSync(p, 'utf8'); } catch (e) {}
+      if (kham !== null && kham.trim()) d = shey(JSON.parse(kham));
+      if (kham !== null) fs.writeFileSync(p + '.crtl-bak', kham);
+      fn(d);
+      fs.mkdirSync(path.dirname(p), { recursive: true });
+      atomi(p, JSON.stringify(d, null, 2) + '\n');
+    }
+    // max lives only on the launch and in the running engine: a file with max falls back to medium (measured)
+    function barayeFile(k, v) { return k === 'effortLevel' && v === 'max' ? 'xhigh' : v; }
+    function nevisSarasari(k, v, hazf, modelAlan) {
+      nevisFile(userMasir(), function (d) {
+        var ms = d.modelSettings = shey(d.modelSettings);
+        if (k === 'effortLevel') {
+          // the engine reads effort by model and ignores a top-level one (measured 5 Nov)
+          var names = Object.keys(ms);
+          if (modelAlan && names.indexOf(modelAlan) === -1) names.push(modelAlan);
+          names.forEach(function (n) {
+            var e = ms[n] = shey(ms[n]);
+            if (hazf) delete e.effortLevel; else e.effortLevel = barayeFile(k, v);
+          });
+          return;
+        }
+        if (k === 'autoCompactWindow') {
+          // a per-model number beats the top-level one in the same file (measured): otherwise 300K stays 1M on Opus 5.5
+          Object.keys(ms).forEach(function (n) { var e = shey(ms[n]); delete e.autoCompactWindow; ms[n] = e; });
+        }
+        if (hazf) delete d[k]; else d[k] = v;
+      });
+    }
+    function nevisPoshe(cwd, k, v, hazf) {
+      if (hazf && !fs.existsSync(mahalliMasir(cwd))) return;   // a folder that's gone is not brought back
+      nevisFile(mahalliMasir(cwd), function (d) { if (hazf) delete d[k]; else d[k] = barayeFile(k, v); });
+    }
+    // Save one setting at one level. Returns {ok, matn}.
+    function sabtTanzim(m) {
+      var sath = m.sath, k = String(m.key || ''), sid = SID_RE.test(String(m.sid || '')) ? m.sid : '';
+      if (['sarasari', 'poshe', 'chat'].indexOf(sath) === -1) return Promise.resolve({ ok: false, matn: 'اول یکی از سه تیک را بزن' });
+      if (MAMNU[k] || !radifha().some(function (r) { return r.k === k; })) return Promise.resolve({ ok: false, matn: 'این تنظیم از اینجا نوشته نمی‌شود' });
+      var yaft = kanalBaraye(sid, m.channel), ch = yaft && yaft.ch;
+      var cwd = ch && ch.cwd || sessionRecord(sid).cwd || (typeof m.cwd === 'string' ? m.cwd : '');
+      if (sath === 'chat' && !sid) return Promise.resolve({ ok: false, matn: 'کد این چت هنوز معلوم نیست؛ اول یک پیام بفرست' });
+      if (sath === 'poshe' && !cwd) return Promise.resolve({ ok: false, matn: 'پوشهٔ این چت معلوم نیست' });
+      if (cwd) cwd = path.resolve(cwd);
+      var p = khamBeMaghdar(k, m.value);
+      if (p.khata) return Promise.resolve({ ok: false, matn: p.khata });
+      var hazf = !!p.hazf, v = p.v, a = anbarKhan();
+      var darSath = sath === 'sarasari' ? a.sarasari[k] : sath === 'poshe' ? shey(a.poshe[cwd])[k] : shey(a.chat[sid])[k];
+      var darFile = sath === 'sarasari' ? (function () {
+        var d = jsonKhan(userMasir());
+        return Object.prototype.hasOwnProperty.call(d, k) || ((k === 'effortLevel' || k === 'autoCompactWindow') && Object.keys(shey(d.modelSettings)).some(function (n) { return shey(d.modelSettings[n])[k] !== undefined; }));
+      })() : sath === 'poshe' ? Object.prototype.hasOwnProperty.call(jsonKhan(mahalliMasir(cwd)), k) : false;
+      if (hazf && !ast(darSath) && !darFile) return Promise.resolve({ ok: false, matn: 'این سطح مقداری نداشت؛ اگر می‌خواهی ثبت کنی مقدار را بنویس' });
+      var modelGet = ch && k === 'effortLevel' && sath === 'sarasari'
+        ? zamandar(Promise.resolve(ch.query.getSettings()), 2000).then(function (g) { return g && g.applied && g.applied.model; })
+        : Promise.resolve('');
+      return modelGet.then(function (modelAlan) {
+        try {
+          if (sath === 'sarasari') nevisSarasari(k, v, hazf, modelAlan);
+          if (sath === 'poshe') nevisPoshe(cwd, k, v, hazf);
+        } catch (e) {
+          return { ok: false, matn: 'فایل نوشته نشد: ' + (e && e.message || e) };
+        }
+        a = anbarKhan();
+        var t = Date.now();
+        if (sath === 'sarasari') {
+          if (hazf) delete a.sarasari[k]; else a.sarasari[k] = { v: v, t: t };
+          // nothing older stays behind: a project's value in a file would still beat the global one in a terminal
+          if (!hazf) {
+            Object.keys(a.poshe).forEach(function (pp) {
+              if (!ast(shey(a.poshe[pp])[k])) return;
+              delete a.poshe[pp][k];
+              try { nevisPoshe(pp, k, null, true); } catch (e) {}
+            });
+            Object.keys(a.chat).forEach(function (s) { if (ast(shey(a.chat[s])[k])) delete a.chat[s][k]; });
+          }
+        } else if (sath === 'poshe') {
+          var e0 = a.poshe[cwd] = shey(a.poshe[cwd]);
+          if (hazf) delete e0[k]; else e0[k] = { v: v, t: t };
+        } else {
+          var e1 = a.chat[sid] = shey(a.chat[sid]);
+          if (hazf) delete e1[k]; else e1[k] = { v: v, t: t };
+        }
+        try { anbarNevis(a); } catch (e) { return { ok: false, matn: 'ثبت نشد: ' + (e && e.message || e) }; }
+        logKhat('sabt ' + sath + ' ' + (hazf ? k + ' (hazf)' : barayeLog(k, v)) + (sath === 'poshe' ? ' ' + cwd : sath === 'chat' ? ' ' + sid : ''));
+        chashmBeAnbar();
+        return zamandar(pushHame(), 5000).then(function (taghir) {
+          var tg = shey(taghir), mt = matnSabt(k, v, hazf, tg[k] || 0, sath, p.sagf);
+          if (tg.__khata) mt += '؛ ولی روی ' + adadFa(tg.__khataTedad) + ' چت ننشست: ' + tg.__khata;
+          return { ok: true, matn: mt };
+        });
+      });
+    }
+    var ESM_SATH = { sarasari: 'سراسری', poshe: 'پروژه', chat: 'چت' };
+    function matnSabt(k, v, hazf, n, sath, sagf) {
+      if (k === 'autoCompactWindow') {
+        if (hazf) return 'از سطح ' + ESM_SATH[sath] + ' پاک شد؛ بعد از ریلود اعمال می‌شود';
+        var noghte = v - FASELE_COMPACT;
+        return 'ثبت شد؛ کامپکت سر ' + hezar(noghte) + ' و رممبر سر ' + hezar(noghte - 20000) + '؛ بعد از ریلود اعمال می‌شود' +
+          (sagf ? ' (بالاتر از ۹۶۷ هزار را کلود قبول نمی‌کند)' : '');
+      }
+      var chand = n ? 'همین الان روی ' + adadFa(n) + ' چت این پنجره' + (sath === 'chat' ? '' : ' و چت‌های پنجره‌های دیگر')
+        : 'در این پنجره چتی عوض نشد؛ یا چتی باز نیست یا همین مقدار را داشتند';
+      if (hazf) return 'از سطح ' + ESM_SATH[sath] + ' پاک شد؛ برای اطمینان ریلود کن';
+      if (k === 'ultracode') return 'ثبت شد؛ ' + chand + '؛ ایجنت و ورک‌فلو بعد از ریلود ' + (v ? 'باز' : 'بسته') + ' می‌شوند';
+      if (k === 'effortLevel' || k === 'model' || k === 'remoteControlAtStartup') {
+        return 'ثبت شد؛ ' + chand + (k === 'effortLevel' && v === 'max' && sath !== 'chat' ? ' (در فایل xhigh می‌ماند، چون max در فایل نمی‌ماند)' : '');
+      }
+      return 'ثبت شد؛ برای اطمینان ریلود کن';
+    }
+    // Everything the tab shows. The chat's numbers come from the engine itself, so «الان» is what is really in force.
+    function fehrestTanzim(m) {
+      var sid = SID_RE.test(String(m.sid || '')) ? m.sid : '';
+      var yaft = kanalBaraye(sid, m.channel), ch = yaft && yaft.ch;
+      var cwd = ch && ch.cwd || sessionRecord(sid).cwd || (typeof m.cwd === 'string' ? m.cwd : '');
+      if (cwd) cwd = path.resolve(cwd);
+      var a = anbarKhan(), bar = {};
+      radifha().forEach(function (r) { var w = barande(a, sid, cwd, r.k); if (w) bar[r.k] = w; });
+      var out = { type: 'crtl-tanzimat-list', reqId: m.reqId, sid: sid, cwd: cwd, rows: radifha(), barande: bar,
+        sath: { sarasari: a.sarasari, poshe: shey(a.poshe[cwd]), chat: shey(a.chat[sid]) },
+        karbar: jsonKhan(userMasir()), mahalli: cwd ? jsonKhan(mahalliMasir(cwd)) : {}, alan: null, models: [] };
+      if (!ch) return Promise.resolve(out);
+      var q = ch.query;
+      return Promise.all([
+        zamandar(Promise.resolve().then(function () { return q.getSettings(); }), 3000),
+        zamandar(Promise.resolve().then(function () { return q.getContextUsage(); }), 3000),
+        zamandar(Promise.resolve().then(function () { return q.supportedModels(); }), 3000)
+      ]).then(function (r) {
+        var g = shey(r[0]), c = shey(r[1]);
+        out.alan = { applied: shey(g.applied), effective: shey(g.effective), sources: Array.isArray(g.sources) ? g.sources : [],
+          thr: c.autoCompactThreshold, remote: remoteVaziat(ch) };
+        out.models = Array.isArray(r[2]) ? r[2].map(function (x) { return { value: x.value, name: x.displayName }; }) : [];
+        return out;
+      });
+    }
+
+    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { ref: ref, card: card, sessionRecord: sessionRecord, vaghtEffortGhadimi: vaghtEffortGhadimi, anbarKhan: anbarKhan, barande: barande, parchamha: parchamha, radifha: radifha, sanjesh: sanjesh, khamBeMaghdar: khamBeMaghdar, sabtTanzim: sabtTanzim, fehrestTanzim: fehrestTanzim, pushHame: pushHame, SAHEB: SAHEB, SAFHE: SAFHE, tanzimRemoteSabr: function (ms) { REMOTE_ON_SABR = ms; } }; return; }
+    try { vaghtEffortGhadimi(); } catch (e) {}
     var vscode = require('vscode');
+    function poshePishfarz() {
+      try { var f = vscode.workspace.workspaceFolders; return f && f[0] ? f[0].uri.fsPath : ''; } catch (e) { return ''; }
+    }
 
     // A rename is a whole line {"type":"custom-title",...}; the last one wins.
     // Only such lines count — the words can also sit inside chat text.
@@ -127,7 +627,22 @@
     function wire(webview) {
       if (!webview || webview.__crtlHost) return;
       webview.__crtlHost = true;
+      SAFHE.add(webview);
       webview.onDidReceiveMessage(function (m) {
+        if (m && m.type === 'crtl-tanzimat-list') {
+          Promise.resolve().then(function () { return fehrestTanzim(Object.assign({}, m, { cwd: poshePishfarz() })); }).then(function (r) { webview.postMessage(r); }, function (e) {
+            webview.postMessage({ type: 'crtl-tanzimat-list', reqId: m.reqId, khata: String(e && e.message || e) });
+          });
+          return;
+        }
+        if (m && m.type === 'crtl-tanzimat-sabt') {
+          Promise.resolve().then(function () { return sabtTanzim(Object.assign({}, m, { cwd: poshePishfarz() })); }).then(function (r) {
+            webview.postMessage({ type: 'crtl-tanzimat-sabt', reqId: m.reqId, ok: r.ok, matn: r.matn });
+          }, function (e) {
+            webview.postMessage({ type: 'crtl-tanzimat-sabt', reqId: m.reqId, ok: false, matn: String(e && e.message || e) });
+          });
+          return;
+        }
         if (m && m.type === 'crtl-tarjome') {
           // the «ترجمه» of the hads mod: the page can't read ~/.claude. Sent only when the file changed.
           if (!/^[0-9a-f-]{36}$/.test(String(m.sid || ''))) return;

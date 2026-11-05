@@ -17,7 +17,7 @@ o=$(node mods/hads/test_hads.mjs 2>/dev/null)
 [[ $o == *'"yekFork":{"forks":1,"all":true,"tools":[],"rules":true,"sonnet":0'* && $o == *'"khodkarOff":{"asked":false,"shown":false,"file":"on -khodkar -cron"}'* && $o == *'"khodkarFerestade":{"first":true,"tick":["✓ فرستاده شد","✓ فرستاده شد"],"second":true,"rule":true'* && $o == *'"third":2'* && $o == *'"bahane":{"told":true,"nakardeRule":true,"newWay":true,"header":true}'* && $o == *'"barSevom":{"third":true,"fourth":0}'* ]] && ok "۱۵ خودکار، کرون‌جاب، یک fork" || no "۱۵ خودکار، کرون‌جاب، یک fork" "آزمون جوابِ درست نداد"
 [[ $o == *'"promptHa":{"labels":["✓ جواب در جدول، با …","خیلی کوتاه بگو"],"short":true,"asked":true'* ]] && ok "۱۸ پرومپت‌های پرسش" || no "۱۸ پرومپت‌های پرسش" "آزمون جوابِ درست نداد"
 [[ $o == *'"amar":{"saat":[1,1,1,0],"ruz":[2,1],"hame":[3,2,1],"hameUsd":0.029'* && $o == *'"amarLine":true'* ]] && ok "۱۹ جدولِ تماس‌ها" || no "۱۹ جدولِ تماس‌ها" "آزمون جوابِ درست نداد"
-[[ $o == *'"tarjome":{"offForks":0'* ]] && ok "۲۲ ترجمه" || no "۲۲ ترجمه" "node mods/hads/test_hads.mjs را ببین"
+[[ $o == *'"tarjome":{"offCalls":0'* ]] && ok "۲۲ ترجمه" || no "۲۲ ترجمه" "node mods/hads/test_hads.mjs را ببین"
 [[ $o == *'"ravandYekFork":{"fork":1,"sonnet":0'* && $o == *'"sakhtegi":0'* ]] && ok "۲۳ روند" || no "۲۳ روند" "node mods/hads/test_hads.mjs را ببین"
 python3 Doc/abzar/chek_motaghayer.py >/dev/null 2>&1 && ok "۲۰ شناسنامه و اسمِ متغیر (استانداردِ ۹۱)" || no "۲۰ شناسنامه و اسمِ متغیر" "python3 Doc/abzar/chek_motaghayer.py را ببین"
 t=$(mktemp -d); echo 2.1.310 > $t/d; KHABAR_KHOSHK=1 KHABAR_DONE_FILE=$t/d KHABAR_GOZARESH_DIR=$t/g KHABAR_LOG_FILE=$t/l KHABAR_EXT_DIR=$t/e bash -c 'mkdir -p $KHABAR_EXT_DIR/anthropic.claude-code-2.1.311-darwin-arm64; ./khabar_noskhe.sh bidar' >/dev/null 2>&1; ./khabar_noskhe.sh bresh 2.0.999 2.1.311 >/dev/null 2>&1; kod=$?; [[ $(cat $t/d) == 2.1.311 && -s $t/g/2.1.311.md && $kod == 2 ]] && ok "۲۱ خبرِ نسخهٔ تازه" || no "۲۱ خبرِ نسخهٔ تازه" "گزارش ساخته نشد یا نسخهٔ ناموجود خطا نداد"; rm -rf $t
@@ -44,6 +44,9 @@ fi
 # the newest Codex of each editor only; older folders stay on disk unused
 bf=""; for i in ~/.vscode ~/.windsurf ~/.cursor ~/.devin; do e=$(ls -d "$i"/extensions/openai.chatgpt-* 2>/dev/null | sort -V | tail -1); [[ -n $e && ! -f $e/webview/.chatgpt-folder-filter.json ]] && bf="$bf ${e##*/}"; done
 [[ -z $bf ]] && ok "۲۱ Codex: فیلتر روی هر برنامه نصب است" || no "۲۱ Codex: فیلترِ همین پوشه نصب نیست" "$bf"
+if [[ -n $NO_CHROME ]]; then skip "۲۴ تبِ تنظیمات"; else
+NODE_PATH=node_modules node test_claude_tanzimat.cjs >/dev/null 2>&1 && ok "۲۴ تبِ تنظیمات (موتورِ واقعی و شبیه‌سازیِ افزونه در کروم)" || no "۲۴ تبِ تنظیمات" "NODE_PATH=node_modules node test_claude_tanzimat.cjs را ببین"
+fi
 z=0; for f in ~/.*/extensions/anthropic.claude-code-*; do [ "$(grep -c crtl-panel "$f/extension.js" 2>/dev/null)" -gt 0 ] || z=$((z+1)); done
 l=$(launchctl list | grep -c com.habib.fix-rtl-claude)
 [[ $z -eq 0 && $l -ge 1 ]] && ok "۰۴ پچِ RTL" || no "۰۴ پچِ RTL" "بی‌پچ: $z · launchd: $l"

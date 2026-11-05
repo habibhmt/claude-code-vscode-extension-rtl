@@ -4,7 +4,7 @@
 
 | # | متغیر | نوع | معنی | فایل:خط | تابع‌ها | تعریف | در ارتباط با | تأیید |
 |---|---|---|---|---|---|---|---|---|
-| 1 | `model_do_jomle_va_hads` | sabet | کجا: مودِ حدس · چیه: مدلی که «دو جمله» و حدسِ پشتیبان (وقتی fork نمی‌شود) با آن ساخته می‌شود · مثال: ⟦model_do_jomle_va_hads⟧ | mods/hads/hooks/register.js:5 | begu_do_jomle | 12 | `had_fork_context_token` | ✓ |
+| 1 | `model_do_jomle_va_hads` | sabet | کجا: مودِ حدس · چیه: مدلی که «دو جمله» و حدسِ پشتیبان (وقتی fork نمی‌شود) با آن ساخته می‌شود · مثال: ⟦model_do_jomle_va_hads⟧ | mods/hads/hooks/register.js:5 | begu_do_jomle, tarjome_ba_sonnet | 12 | `had_fork_context_token` | ✓ |
 | 2 | `hads_har_chand_javab` | sabet | کجا: آخرِ هر جواب · چیه: حدس و روند و نکرده و خودکار و کرون هر چند جواب یک بار ساخته شوند · مثال: هر ⟦hads_har_chand_javab⟧ جواب یک fork | mods/hads/hooks/register.js:7 | akhar_javab, chat_kuchak | 01 | `tedad_javab_har_chat` | ✓ |
 | 3 | `tedad_javab_har_chat` | vaziat | چند جواب در هر چت دیده شده، از بالا آمدنِ همین پروسه؛ برای «هر چند جواب یک بار» | mods/hads/hooks/register.js:9 | akhar_javab | 01 | `hads_har_chand_javab` | ✓ |
 | 4 | `hads_akhar` | vaziat | آخرین حدس‌هایی که کادر نشان می‌دهد | mods/hads/hooks/register.js:12 | akhar_javab, bargardandan_akharin, hads_ba_fork, register, tasvir_akharin, tik_zadan | 01 | `hads_baraye_chat` | ✓ |
@@ -40,7 +40,7 @@
 | 34 | `prompt_ha` | vaziat | پرومپت‌های ذخیره‌شدهٔ «پرسش» (همهٔ چت‌ها یکی، در فایل) | mods/hads/hooks/register.js:76 | khandan_prompt_ha, register, zakhire_prompt_ha, zakhire_prompt_virayesh | 18 | `prompt_entekhab_har_chat`, `had_harf_dokme_prompt` | ؟ |
 | 35 | `prompt_entekhab_har_chat` | vaziat | کدام پرومپت در هر چت روشن است | mods/hads/hooks/register.js:77 | prompt_entekhab_shode, register | 18 | `prompt_ha` | ؟ |
 | 36 | `prompt_virayesh` | vaziat | پرومپتی که الان با ✎ در حالِ ویرایش است | mods/hads/hooks/register.js:78 | register, zakhire_prompt_virayesh | 18 | `prompt_ha` | ؟ |
-| 37 | `system_reminder_regex` | sabet | الگوی بخش‌های system-reminder که از متنِ پیام‌ها کنار گذاشته می‌شوند | mods/hads/hooks/register.js:93 | cut, khandan_hads, payam_ha_ye_akhar, payam_ha_ye_habib | 14 | — | ✓ |
+| 37 | `system_reminder_regex` | sabet | الگوی بخش‌های system-reminder که از متنِ پیام‌ها کنار گذاشته می‌شوند | mods/hads/hooks/register.js:93 | cut, khandan, khandan_hads, payam_ha_ye_akhar, payam_ha_ye_habib | 14 | — | ✓ |
 | 38 | `matn_bi_harfe_habib` | sabet | وقتی نوبت با پیامِ خودِ حبیب شروع نشده (کار، چتِ دیگر، Continue)، به‌جای «خواستهٔ حبیب» این می‌آید | mods/hads/hooks/register.js:98 | az_agent_digar, harf_habib, register | 14 | — | ✓ |
 | 39 | `prompt_fork_do_jomle` | sabet | تکهٔ دستورِ fork برای «دو جمله»؛ فقط بخش‌های روشن خواسته می‌شوند | mods/hads/hooks/register.js:133 | cut, prompt_fork_bakhsh_ha | 12 | — | ✓ |
 | 40 | `prompt_fork_hads` | sabet | تکهٔ دستورِ fork برای حدس | mods/hads/hooks/register.js:134 | cut, prompt_fork_bakhsh_ha | 01 | — | ✓ |
@@ -69,81 +69,88 @@
 | 63 | `hads_zade_shode` | vaziat | حدس‌هایی که در کادرِ نوشتن گذاشته شدند، تا با Enter معلوم شود کدام رفت | mods/hads/hooks/register.js:507 | register, w | 01 | — | ✓ |
 | 64 | `do_jomle_ha_ye_nobat` | vaziat | همهٔ «دو جمله»‌های نوبتِ در جریان، برای جمع‌بندیِ آخرِ جواب | mods/hads/hooks/register.js:510 | amade_jambandi, benevis_do_jomle, register, w | 12 | `had_kamtarin_do_jomle_jambandi` | ✓ |
 | 65 | `mah_miladi` | sabet | اسمِ کوتاهِ ماه‌های میلادی، مثلِ تاریخ‌نویسیِ حبیب («۲۴ اکت ۱۸:۵۷») | mods/hads/hooks/register.js:522 | benevis_do_jomle, two | 12 | `mah_shamsi` | ✓ |
-| 66 | `mah_shamsi` | sabet | اسمِ ماه‌های شمسی برای تاریخِ خطِ هوک‌ها (در مود و در وصلهٔ میزبان، دو جا) | mods/hads/hooks/register.js:534, claude-host-hook.js:194 | two, zaman_shamsi | 11 | `mah_miladi` | ✓ |
+| 66 | `mah_shamsi` | sabet | اسمِ ماه‌های شمسی برای تاریخِ خطِ هوک‌ها (در مود و در وصلهٔ میزبان، دو جا) | mods/hads/hooks/register.js:534, claude-host-hook.js:709 | two, zaman_shamsi | 11 | `mah_miladi` | ✓ |
 | 67 | `had_do_jomle_harf` | sabet | کجا: «دو جمله» · چیه: بیشترین حرف · مثال: بلندتر از ⟦had_do_jomle_harf⟧ حرف با … کوتاه می‌شود | mods/hads/hooks/register.js:554 | kutah_be_do_jomle, two, zaman_shamsi | 12 | — | ✓ |
 | 68 | `gheymat_tamas_usd` | sabet | کجا: جدولِ «تماس‌ها» · چیه: دلار برای هر میلیون توکن: ورودی، خروجی، نوشتنِ کش، خواندنِ کش؛ برای Sonnet و fork (Opus) · از جدولِ ۲۰۳ (ertebat_claude.py) | mods/hads/hooks/register.js:576 | sefr, vazhe_name | 19 | `had_tamas_riz` | ؟ |
 | 69 | `had_tamas_riz` | sabet | کجا: حالتِ بزرگِ جدولِ «تماس‌ها» · چیه: چند تماسِ آخر ریز به ریز · مثال: ⟦had_tamas_riz⟧ تای آخر | mods/hads/hooks/register.js:577 | sefr, vazhe_name | 19 | `gheymat_tamas_usd` | ؟ |
-| 70 | `neshane_amar` | sabet | نشانهٔ اولِ خطِ پنهانی که دادهٔ جدولِ «تماس‌ها» را به صفحه می‌برد | mods/hads/hooks/register.js:578 | matn_amar, vazhe_name | 19 | `NESHANE_AMAR` | ؟ |
+| 70 | `neshane_amar` | sabet | نشانهٔ اولِ خطِ پنهانی که دادهٔ جدولِ «تماس‌ها» را به صفحه می‌برد | mods/hads/hooks/register.js:578 | khat_amar_terminal, matn_amar, vazhe_name | 19 | `NESHANE_AMAR` | ؟ |
 | 71 | `amar_cache` | vaziat | دادهٔ جدولِ «تماس‌ها» که چند ثانیه نگه داشته می‌شود تا هر رسمِ کادر فایل را دوباره نخواند | mods/hads/hooks/register.js:579 | benevis_kharj, matn_amar, vazhe_name | 19 | `neshane_amar` | ؟ |
-| 72 | `had_tedad_kamtarin_zaban_harf` | sabet | کجا: آخرِ جواب، بخشِ «زبان» · چیه: جوابِ کوتاه‌تر از این تعداد حرف (فارسی + لاتین، بی کد و لینک) سنجیده نمی‌شود · مثال: ⟦had_tedad_kamtarin_zaban_harf⟧ | mods/hads/hooks/register.js:666 | begu_do_jomle, englisi_ast | 01 | `matn_yadavari_zaban` | ✓ |
-| 73 | `matn_yadavari_zaban` | sabet | متنی که «زبان» بعد از جوابِ انگلیسی به چت می‌فرستد تا مدل فارسی حرف بزند | mods/hads/hooks/register.js:667 | begu_do_jomle, chek_zaban | 01 | `had_tedad_kamtarin_zaban_harf`, `zaban_yadavari_shod` | ✓ |
-| 74 | `prompt_az_hads` | sabet | سرِ هر پرومپتِ ترجمه: این پیام از مود است نه از حبیب، و ابزاری صدا نزن | mods/hads/hooks/register.js:683 | englisi_ast, prompt_tarjome_kadr | 22 | — | ؟ |
-| 75 | `ghaede_tarjome` | sabet | قاعدهٔ ترجمهٔ جواب: قالب‌بندی و کد و فرمان دست‌نخورده، چیزی کم یا زیاد نشود | mods/hads/hooks/register.js:685 | englisi_ast | 22 | — | ؟ |
-| 77 | `prompt_tarjome_javab` | sabet | پرومپتِ Sonnet برای ترجمهٔ آخرین جواب | mods/hads/hooks/register.js:687 | englisi_ast, tarjome_ba_fork_khodash | 22 | — | ؟ |
-| 78 | `had_tedad_tarjome_radif` | sabet | چند ترجمهٔ آخر در فایلِ tarjome.jsonl هر چت می‌ماند: ⟦had_tedad_tarjome_radif⟧ | mods/hads/hooks/register.js:689 | prompt_tarjome_kadr, sabt_tarjome | 22 | — | ؟ |
-| 79 | `tarjome_kadr_dar_kar` | motaghayer | دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند | mods/hads/hooks/register.js:729 | begu, khandan, register, tarjome_ba_fork_khodash | 22 | — | ؟ |
-| 80 | `zaban_yadavari_shod` | vaziat | برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود) | mods/hads/hooks/register.js:756 | chek_zaban, khandan | 01 | `matn_yadavari_zaban` | ✓ |
-| 81 | `had_kamtarin_do_jomle_jambandi` | sabet | کجا: آخرِ جواب · چیه: با کمتر از این «دو جمله» در نوبت جمع‌بندی ساخته نمی‌شود · مثال: ⟦had_kamtarin_do_jomle_jambandi⟧ | mods/hads/hooks/register.js:813 | akhar_javab, amade_jambandi | 12 | `do_jomle_ha_ye_nobat` | ✓ |
-| 82 | `abzar_ha_ye_nobat` | vaziat | ابزارهایی که در نوبتِ در جریان صدا زده شدند | mods/hads/hooks/register.js:815 | akhar_javab, amade_jambandi, register | 12 | — | ✓ |
-| 83 | `khaste_habib_nobat` | vaziat | پیامِ خودِ حبیب که نوبت را شروع کرد | mods/hads/hooks/register.js:817 | akhar_javab, amade_jambandi, register | 14 | — | ✓ |
-| 84 | `khodkar_ferestade_har_chat` | vaziat | «خودکار»ها و «نکرده»‌هایی که به چت فرستاده شدند، با شمارِ هر کار | mods/hads/hooks/register.js:895 | khandan_khodkar_ferestade, masir_khodkar_ferestade | 15 | `had_ferestadan_kar` | ؟ |
-| 85 | `baraye_ferestadan_har_chat` | vaziat | «خودکار»هایی که در صفِ فرستادن به چت‌اند | mods/hads/hooks/register.js:896 | baraye_ferestadan, ferestadan_khodkar, masir_khodkar_ferestade | 15 | `khodkar_ferestade_har_chat` | ؟ |
-| 86 | `had_ferestadan_kar` | sabet | کجا: «خودکار» · چیه: یک کار چند بار به چت برود؛ بارِ آخر با درخواستِ کمک از حبیب، بعدش دیگر نه · مثال: ⟦had_ferestadan_kar⟧ بار | mods/hads/hooks/register.js:913 | dar_list, ferestadan_khodkar, shomar | 15 | `matn_bar_sevom` | ؟ |
-| 87 | `matn_bar_sevom` | sabet | متنی که بارِ آخرِ فرستادنِ یک کار اضافه می‌شود: «اول به زبانِ ساده به حبیب توضیح بده و کمک بخواه» | mods/hads/hooks/register.js:914 | dar_list, matn_ferestadan_khodkar | 15 | `had_ferestadan_kar` | ؟ |
-| 88 | `had_kelid_ravand_kamtarin_harf` | sabet | نقلِ کوتاه‌تر از ⟦had_kelid_ravand_kamtarin_harf⟧ حرف به‌تنهایی روندِ تازه را نمی‌بندد؛ این مرز را ایجنت انتخاب کرده و از داده نیامده | mods/hads/hooks/register.js:926 | boland_ast_naghl, matn_ravand_dar_chat | تعریف ۲۳، بخشِ v4 | — | ✓ |
-| 89 | `matn_porsesh_montazer` | sabet | پیامِ کادر وقتی «پرسش» باید تا جوابِ بعدی صبر کند | mods/hads/hooks/register.js:1089 | hads_ba_fork, porsesh_kon | 12 | `porsesh_montazer` | ✓ |
-| 90 | `matn_dalil_bi_javab` | sabet | دلیلِ ساده‌ای که کادر وقتی fork جواب نداد نشان می‌دهد | mods/hads/hooks/register.js:1090 | hads_ba_fork, porsesh_kon | 12 | — | ✓ |
-| 91 | `had_harf_dokme_prompt` | sabet | کجا: دکمه‌های پرومپتِ «پرسش» · چیه: بیشترین حرفِ روی دکمه · مثال: بلندتر از ⟦had_harf_dokme_prompt⟧ حرف با … | mods/hads/hooks/register.js:1108 | register, zakhire_prompt_ha | 18 | `prompt_ha` | ؟ |
-| 92 | `bakhsh_ha` | sabet | بخش‌های کادرِ حدس و اسمِ فارسیِ هر کدام (تیک‌ها) | mods/hads/hooks/register.js:1197 | bargardandan_akharin, khandan_file_chat, khandan_tartib, masir_file_chat, register | 16 | `esm_bakhsh`, `kalame_khamush` | ✓ |
-| 93 | `esm_bakhsh` | sabet | همان، به شکلِ جدولِ اسم ⇐ واژه | mods/hads/hooks/register.js:1200 | masir_file_chat, register | 16 | `bakhsh_ha` | ؟ |
-| 94 | `dayere_ha` | sabet | دایره‌های سرچِ حافظه: همین چت، همین پروژه، همهٔ پروژه‌ها | mods/hads/hooks/register.js:1205 | hafeze_dayere, masir_file_chat, register, taghir_dayere | 17 | `esm_dayere`, `dayere_har_chat` | ؟ |
-| 95 | `esm_dayere` | sabet | اسمِ فارسیِ هر دایره | mods/hads/hooks/register.js:1206 | masir_file_chat, register | 17 | `dayere_ha` | ؟ |
-| 96 | `dayere_har_chat` | vaziat | دایرهٔ سرچِ حافظه برای هر چت | mods/hads/hooks/register.js:1209 | khandan_dayere, masir_hafeze_dayere, register, taghir_dayere | 17 | `dayere_ha` | ؟ |
-| 97 | `akharin_zakhire` | vaziat | آخرین وضعی که برای هر چت در فایل نوشته شد (حدس‌ها، نکرده‌ها …)، برای برگرداندن بعد از ریلود | mods/hads/hooks/register.js:1248 | tasvir_akharin, zakhire_akharin | 16 | `akharin_bargashte` | ؟ |
-| 98 | `akharin_bargashte` | vaziat | چت‌هایی که وضعشان بعد از ریلود یک بار برگردانده شد | mods/hads/hooks/register.js:1255 | bargardandan_akharin, zakhire_akharin | 16 | `akharin_zakhire` | ؟ |
-| 99 | `kalame_khamush` | sabet | کلمهٔ هر بخشِ خاموش در فایلِ چت (مثلِ -hads)؛ کامل نوشته شده تا با grep پیدا شود | mods/hads/hooks/register.js:1292 | kalame_ha_ye_file, khandan_file_chat, taghir_tartib | 10 | `bakhsh_ha`, `kalame_tanzim` | ✓ |
-| 100 | `kalame_tanzim` | sabet | کلمه‌های دیگرِ فایلِ چت: حالتِ کادر و تنظیم‌ها | mods/hads/hooks/register.js:1293 | kalame_ha_ye_file, khandan_file_chat, taghir_tartib | 13 | `kalame_khamush` | ✓ |
-| 101 | `ghablia_baz` | vaziat | «قبلی‌ها» باز است | mods/hads/hooks/register.js:1318 | jam_kardan, register | 12 | `had_ghablia_tedad` | ✓ |
-| 102 | `had_hook_transcript_khat` | sabet | کجا: «هوک‌ها» · چیه: چند خطِ آخرِ فایلِ چت برای پیدا کردنِ هوک‌ها خوانده شود · مثال: ⟦had_hook_transcript_khat⟧ خط | mods/hads/hooks/register.js:1326 | jam_kardan, khandan_hook_az_transcript | 11 | `had_hook_transcript_byte` | ✓ |
-| 103 | `had_hook_transcript_byte` | sabet | همان، به بایت: بیش از این از تهِ فایل خوانده نمی‌شود | mods/hads/hooks/register.js:1327 | jam_kardan, khandan_hook_az_transcript | 11 | `had_hook_transcript_khat` | ✓ |
-| 104 | `hook_transcript_grep` | sabet | الگوی خط‌های هوک در فایلِ چت | mods/hads/hooks/register.js:1328 | jam_kardan, khandan_hook_az_transcript | 11 | — | ✓ |
-| 105 | `had_hook_kuchak_harf` | sabet | کجا: «هوک‌ها» · چیه: بیشترین حرفِ هر خطِ کوچک · مثال: ⟦had_hook_kuchak_harf⟧ حرف | mods/hads/hooks/register.js:1330 | jam_kardan, register | 11 | `had_hook_kuchak_radif` | ✓ |
-| 106 | `masir_transcript` | vaziat | مسیرِ فایلِ چتِ همین چت | mods/hads/hooks/register.js:1331 | jam_kardan, masir_file_transcript, register | 11 | — | ✓ |
-| 107 | `hook_ha` | vaziat | هوک‌هایی که برای کادر خوانده شد، و چتش | mods/hads/hooks/register.js:1332 | jam_kardan, khandan_hook_az_transcript, register | 11 | — | ✓ |
-| 108 | `zaman_khandan_hook` | vaziat | ساعتِ آخرین خواندنِ هوک‌ها | mods/hads/hooks/register.js:1333 | jam_kardan, khandan_hook_az_transcript, register | 11 | — | ✓ |
-| 109 | `had_hook_kuchak_radif` | sabet | کجا: «هوک‌ها» · چیه: چند هوکِ آخر در حالتِ کوچک · مثال: ⟦had_hook_kuchak_radif⟧ ردیف | mods/hads/hooks/register.js:1370 | khandan_hook_ha, register | 11 | `had_hook_bozorg_radif` | ✓ |
-| 110 | `had_hook_bozorg_radif` | sabet | همان در حالتِ بزرگ | mods/hads/hooks/register.js:1371 | khandan_hook_ha, register | 11 | `had_hook_bozorg_harf` | ✓ |
-| 111 | `had_hook_bozorg_harf` | sabet | بیشترین حرفِ هر هوک در حالتِ بزرگ | mods/hads/hooks/register.js:1372 | khandan_hook_ha, register | 11 | `had_hook_bozorg_radif` | ✓ |
-| 112 | `ERRORS` | sabet | خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل | claude-ui-buttons.js:22 | negahban_khata, neshan_shenase_chat, tashkhis_khata, vazhe_name_ru_kalame | 04 | — | ✓ |
-| 113 | `SESSION` | sabet | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | claude-ui-buttons.js:37 | neshan_shenase_chat, neshan_tarjome, porsidan_shenase_chat, sakht_panel_aa | 02 | — | ✓ |
-| 114 | `DEFAULT_COMMANDS` | sabet | دکمه‌های پیش‌فرضِ نوارِ بالا | claude-ui-buttons.js:94 | dokme_ha, gozashtan_dokme_pishfarz_bala, khandan_tanzim, negahban_khata | 02 | `DEF` | ✓ |
-| 115 | `KEY` | sabet | کلیدِ localStorage ِ تنظیم‌های پنل | claude-ui-buttons.js:127 | khandan_tanzim, negahban_khata, zakhire_tanzim | 04 | `DEF` | ✓ |
-| 116 | `DEF` | sabet | تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها) | claude-ui-buttons.js:128 | esm_profile_moshtarak, khandan_tanzim, negahban_khata, radif_andaze, tanzim_pishfarz | 04 | `LIMITS`, `PRESETS`, `KEY` | ✓ |
-| 117 | `LIMITS` | sabet | کمترین و بیشترینِ هر اندازه در پنل | claude-ui-buttons.js:153 | khandan_tanzim, negahban_khata, radif_andaze, sakht_panel_aa | 04 | `DEF` | ✓ |
-| 118 | `PRESETS` | sabet | حالت‌های آمادهٔ اندازه‌ها | claude-ui-buttons.js:154 | negahban_khata, sakht_panel_aa | 04 | `DEF` | ✓ |
-| 119 | `esm_ghadim_tanzim` | sabet | اسمِ قدیمِ دو تنظیم ⇐ اسمِ تازه؛ مقدارِ ذخیره‌شده با اسمِ قدیم خوانده می‌شود | claude-ui-buttons.js:176 | khandan_tanzim, tanzim_pishfarz | 10 | `DEF` | ✓ |
-| 120 | `CSS` | sabet | همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند | claude-ui-buttons.js:243 | dokme_ha, sakht_hame, vazhe_name_ru_kalame | 04 | — | ✓ |
-| 121 | `HOVER_DELAY` | sabet | کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: ⟦HOVER_DELAY⟧ | claude-ui-buttons.js:638 | baz_shodan_ba_hover, radif_andaze | 04 | — | ✓ |
-| 122 | `GLOSS_DELAY` | sabet | کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: ⟦GLOSS_DELAY⟧ | claude-ui-buttons.js:784 | bastan_panel, vazhe_name_ru_kalame | 06 | — | ✓ |
-| 123 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1140 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
-| 124 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1140 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 125 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1140 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 126 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1327 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
-| 127 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1420 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
-| 128 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1507 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
-| 129 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1560 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
-| 130 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1561 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
-| 131 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:2319 | jadval_tamas, neshan_hook_va_hads | 19 | `neshane_amar` | ؟ |
-| 132 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:2319 | jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
-| 133 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:2320 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `radif_amar` | ؟ |
-| 134 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:2322 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `sotun_amar` | ؟ |
-| 135 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:2323 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | — | ؟ |
-| 136 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:2323 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
-| 137 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:2323 | amar_bozorgi, neshan_hook_va_hads | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
-| 138 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:2437 | jadval_tamas | 19 | — | ؟ |
-| 139 | `tarjome_ha` | motaghayer | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | claude-ui-buttons.js:2449 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 140 | `tarjome_mt` | motaghayer | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | claude-ui-buttons.js:2449 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 141 | `tarjome_sid` | motaghayer | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | claude-ui-buttons.js:2449 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 142 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:2542 | baz_shodan_ba_hover, menu_naghl, neshan_tarjome, vazhe_name_ru_kalame | 04 | — | ✓ |
-| 143 | `gorooh_hook` | sabet | نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند | claude-host-hook.js:263 | khat_ha_ye_hook_dar_file, sakht_khat_hook | 11 | `neshane_hook` | ✓ |
-| 144 | `neshane_hook` | sabet | بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا | claude-host-hook.js:276 | khat_ha_ye_hook_dar_file, masir_transcript | 11 | `gorooh_hook` | ✓ |
+| 72 | `had_tedad_kamtarin_zaban_harf` | sabet | کجا: آخرِ جواب، بخشِ «زبان» · چیه: جوابِ کوتاه‌تر از این تعداد حرف (فارسی + لاتین، بی کد و لینک) سنجیده نمی‌شود · مثال: ⟦had_tedad_kamtarin_zaban_harf⟧ | mods/hads/hooks/register.js:673 | begu_do_jomle, englisi_ast | 01 | `matn_yadavari_zaban` | ✓ |
+| 73 | `matn_yadavari_zaban` | sabet | متنی که «زبان» بعد از جوابِ انگلیسی به چت می‌فرستد تا مدل فارسی حرف بزند | mods/hads/hooks/register.js:674 | begu_do_jomle, chek_zaban | 01 | `had_tedad_kamtarin_zaban_harf`, `zaban_yadavari_shod` | ✓ |
+| 74 | `prompt_az_hads` | sabet | سرِ هر پرومپتِ ترجمه: این پیام از مود است نه از حبیب، و ابزاری صدا نزن | mods/hads/hooks/register.js:690 | englisi_ast, prompt_tarjome_javab, prompt_tarjome_kadr | 22 | — | ؟ |
+| 75 | `ghaede_tarjome` | sabet | قاعدهٔ ترجمهٔ جواب: قالب‌بندی و کد و فرمان دست‌نخورده، چیزی کم یا زیاد نشود | mods/hads/hooks/register.js:692 | englisi_ast, prompt_tarjome_javab | 22 | — | ؟ |
+| 76 | `had_tedad_tarjome_radif` | sabet | چند ترجمهٔ آخر در فایلِ tarjome.jsonl هر چت می‌ماند: ⟦had_tedad_tarjome_radif⟧ | mods/hads/hooks/register.js:697 | sabt_tarjome, tarjome_ba_sonnet | 22 | — | ؟ |
+| 77 | `tarjome_kadr_dar_kar` | motaghayer | دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند | mods/hads/hooks/register.js:729 | begu, khandan, register, tarjome_javab | 22 | — | ؟ |
+| 78 | `zaban_yadavari_shod` | vaziat | برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود) | mods/hads/hooks/register.js:757 | chek_zaban, khandan | 01 | `matn_yadavari_zaban` | ✓ |
+| 79 | `had_kamtarin_do_jomle_jambandi` | sabet | کجا: آخرِ جواب · چیه: با کمتر از این «دو جمله» در نوبت جمع‌بندی ساخته نمی‌شود · مثال: ⟦had_kamtarin_do_jomle_jambandi⟧ | mods/hads/hooks/register.js:814 | akhar_javab, amade_jambandi | 12 | `do_jomle_ha_ye_nobat` | ✓ |
+| 80 | `abzar_ha_ye_nobat` | vaziat | ابزارهایی که در نوبتِ در جریان صدا زده شدند | mods/hads/hooks/register.js:816 | akhar_javab, amade_jambandi, register | 12 | — | ✓ |
+| 81 | `khaste_habib_nobat` | vaziat | پیامِ خودِ حبیب که نوبت را شروع کرد | mods/hads/hooks/register.js:818 | akhar_javab, amade_jambandi, register | 14 | — | ✓ |
+| 82 | `khodkar_ferestade_har_chat` | vaziat | «خودکار»ها و «نکرده»‌هایی که به چت فرستاده شدند، با شمارِ هر کار | mods/hads/hooks/register.js:895 | khandan_khodkar_ferestade, masir_khodkar_ferestade | 15 | `had_ferestadan_kar` | ؟ |
+| 83 | `baraye_ferestadan_har_chat` | vaziat | «خودکار»هایی که در صفِ فرستادن به چت‌اند | mods/hads/hooks/register.js:896 | baraye_ferestadan, ferestadan_khodkar, masir_khodkar_ferestade | 15 | `khodkar_ferestade_har_chat` | ؟ |
+| 84 | `had_ferestadan_kar` | sabet | کجا: «خودکار» · چیه: یک کار چند بار به چت برود؛ بارِ آخر با درخواستِ کمک از حبیب، بعدش دیگر نه · مثال: ⟦had_ferestadan_kar⟧ بار | mods/hads/hooks/register.js:913 | dar_list, ferestadan_khodkar, shomar | 15 | `matn_bar_sevom` | ؟ |
+| 85 | `matn_bar_sevom` | sabet | متنی که بارِ آخرِ فرستادنِ یک کار اضافه می‌شود: «اول به زبانِ ساده به حبیب توضیح بده و کمک بخواه» | mods/hads/hooks/register.js:914 | dar_list, matn_ferestadan_khodkar | 15 | `had_ferestadan_kar` | ؟ |
+| 86 | `had_kelid_ravand_kamtarin_harf` | sabet | نقلِ کوتاه‌تر از ⟦had_kelid_ravand_kamtarin_harf⟧ حرف به‌تنهایی روندِ تازه را نمی‌بندد؛ این مرز را ایجنت انتخاب کرده و از داده نیامده | mods/hads/hooks/register.js:926 | boland_ast_naghl, matn_ravand_dar_chat | تعریف ۲۳، بخشِ v4 | — | ✓ |
+| 87 | `matn_porsesh_montazer` | sabet | پیامِ کادر وقتی «پرسش» باید تا جوابِ بعدی صبر کند | mods/hads/hooks/register.js:1088 | hads_ba_fork, porsesh_kon | 12 | `porsesh_montazer` | ✓ |
+| 88 | `matn_dalil_bi_javab` | sabet | دلیلِ ساده‌ای که کادر وقتی fork جواب نداد نشان می‌دهد | mods/hads/hooks/register.js:1089 | hads_ba_fork, porsesh_kon | 12 | — | ✓ |
+| 89 | `had_harf_dokme_prompt` | sabet | کجا: دکمه‌های پرومپتِ «پرسش» · چیه: بیشترین حرفِ روی دکمه · مثال: بلندتر از ⟦had_harf_dokme_prompt⟧ حرف با … | mods/hads/hooks/register.js:1107 | register, zakhire_prompt_ha | 18 | `prompt_ha` | ؟ |
+| 90 | `bakhsh_ha` | sabet | بخش‌های کادرِ حدس و اسمِ فارسیِ هر کدام (تیک‌ها) | mods/hads/hooks/register.js:1196 | bargardandan_akharin, khandan_file_chat, khandan_tartib, masir_file_chat, register | 16 | `esm_bakhsh`, `kalame_khamush` | ✓ |
+| 91 | `esm_bakhsh` | sabet | همان، به شکلِ جدولِ اسم ⇐ واژه | mods/hads/hooks/register.js:1199 | masir_file_chat, register | 16 | `bakhsh_ha` | ؟ |
+| 92 | `dayere_ha` | sabet | دایره‌های سرچِ حافظه: همین چت، همین پروژه، همهٔ پروژه‌ها | mods/hads/hooks/register.js:1204 | hafeze_dayere, masir_file_chat, register, taghir_dayere | 17 | `esm_dayere`, `dayere_har_chat` | ؟ |
+| 93 | `esm_dayere` | sabet | اسمِ فارسیِ هر دایره | mods/hads/hooks/register.js:1205 | masir_file_chat, register | 17 | `dayere_ha` | ؟ |
+| 94 | `dayere_har_chat` | vaziat | دایرهٔ سرچِ حافظه برای هر چت | mods/hads/hooks/register.js:1208 | khandan_dayere, masir_hafeze_dayere, register, taghir_dayere | 17 | `dayere_ha` | ؟ |
+| 95 | `akharin_zakhire` | vaziat | آخرین وضعی که برای هر چت در فایل نوشته شد (حدس‌ها، نکرده‌ها …)، برای برگرداندن بعد از ریلود | mods/hads/hooks/register.js:1247 | tasvir_akharin, zakhire_akharin | 16 | `akharin_bargashte` | ؟ |
+| 96 | `akharin_bargashte` | vaziat | چت‌هایی که وضعشان بعد از ریلود یک بار برگردانده شد | mods/hads/hooks/register.js:1254 | bargardandan_akharin, zakhire_akharin | 16 | `akharin_zakhire` | ؟ |
+| 97 | `kalame_khamush` | sabet | کلمهٔ هر بخشِ خاموش در فایلِ چت (مثلِ -hads)؛ کامل نوشته شده تا با grep پیدا شود | mods/hads/hooks/register.js:1291 | kalame_ha_ye_file, khandan_file_chat, taghir_tartib | 10 | `bakhsh_ha`, `kalame_tanzim` | ✓ |
+| 98 | `kalame_tanzim` | sabet | کلمه‌های دیگرِ فایلِ چت: حالتِ کادر و تنظیم‌ها | mods/hads/hooks/register.js:1292 | kalame_ha_ye_file, khandan_file_chat, taghir_tartib | 13 | `kalame_khamush` | ✓ |
+| 99 | `ghablia_baz` | vaziat | «قبلی‌ها» باز است | mods/hads/hooks/register.js:1317 | jam_kardan, register | 12 | `had_ghablia_tedad` | ✓ |
+| 100 | `had_hook_transcript_khat` | sabet | کجا: «هوک‌ها» · چیه: چند خطِ آخرِ فایلِ چت برای پیدا کردنِ هوک‌ها خوانده شود · مثال: ⟦had_hook_transcript_khat⟧ خط | mods/hads/hooks/register.js:1325 | jam_kardan, khandan_hook_az_transcript | 11 | `had_hook_transcript_byte` | ✓ |
+| 101 | `had_hook_transcript_byte` | sabet | همان، به بایت: بیش از این از تهِ فایل خوانده نمی‌شود | mods/hads/hooks/register.js:1326 | jam_kardan, khandan_hook_az_transcript | 11 | `had_hook_transcript_khat` | ✓ |
+| 102 | `hook_transcript_grep` | sabet | الگوی خط‌های هوک در فایلِ چت | mods/hads/hooks/register.js:1327 | jam_kardan, khandan_hook_az_transcript | 11 | — | ✓ |
+| 103 | `had_hook_kuchak_harf` | sabet | کجا: «هوک‌ها» · چیه: بیشترین حرفِ هر خطِ کوچک · مثال: ⟦had_hook_kuchak_harf⟧ حرف | mods/hads/hooks/register.js:1329 | jam_kardan, register | 11 | `had_hook_kuchak_radif` | ✓ |
+| 104 | `masir_transcript` | vaziat | مسیرِ فایلِ چتِ همین چت | mods/hads/hooks/register.js:1330 | jam_kardan, masir_file_transcript, register | 11 | — | ✓ |
+| 105 | `hook_ha` | vaziat | هوک‌هایی که برای کادر خوانده شد، و چتش | mods/hads/hooks/register.js:1331 | jam_kardan, khandan_hook_az_transcript, register | 11 | — | ✓ |
+| 106 | `zaman_khandan_hook` | vaziat | ساعتِ آخرین خواندنِ هوک‌ها | mods/hads/hooks/register.js:1332 | jam_kardan, khandan_hook_az_transcript, register | 11 | — | ✓ |
+| 107 | `had_hook_kuchak_radif` | sabet | کجا: «هوک‌ها» · چیه: چند هوکِ آخر در حالتِ کوچک · مثال: ⟦had_hook_kuchak_radif⟧ ردیف | mods/hads/hooks/register.js:1369 | khandan_hook_ha, register | 11 | `had_hook_bozorg_radif` | ✓ |
+| 108 | `had_hook_bozorg_radif` | sabet | همان در حالتِ بزرگ | mods/hads/hooks/register.js:1370 | khandan_hook_ha, register | 11 | `had_hook_bozorg_harf` | ✓ |
+| 109 | `had_hook_bozorg_harf` | sabet | بیشترین حرفِ هر هوک در حالتِ بزرگ | mods/hads/hooks/register.js:1371 | khandan_hook_ha, register | 11 | `had_hook_bozorg_radif` | ✓ |
+| 110 | `ERRORS` | sabet | خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل | claude-ui-buttons.js:22 | negahban_khata, neshan_shenase_chat, tashkhis_khata, vazhe_name_ru_kalame | 04 | — | ✓ |
+| 111 | `SESSION` | sabet | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | claude-ui-buttons.js:37 | neshan_shenase_chat, neshan_tarjome, porsidan_shenase_chat, sakht_panel_aa, tz_porsidan, tz_sakht_radif | 02 | — | ✓ |
+| 112 | `TZ` | vaziat | کجا: تبِ تنظیمات کلود · چیه: وضعیتِ تب بیرون از پنل، تا با ساختنِ دوبارهٔ پنل گم نشود: کدام تب باز است، آخرین جوابِ میزبان، ردیف‌ها | claude-ui-buttons.js:39 | sakht_dokme_charkhdande, sakht_tab_ha, tz_maghdar_sath, tz_matn_alan, tz_porsidan, tz_resid …+3 | 24 | — | ؟ |
+| 113 | `DEFAULT_COMMANDS` | sabet | دکمه‌های پیش‌فرضِ نوارِ بالا | claude-ui-buttons.js:105 | dokme_ha, gozashtan_dokme_pishfarz_bala, khandan_tanzim, negahban_khata | 02 | `DEF` | ✓ |
+| 114 | `KEY` | sabet | کلیدِ localStorage ِ تنظیم‌های پنل | claude-ui-buttons.js:138 | khandan_tanzim, negahban_khata, zakhire_tanzim | 04 | `DEF` | ✓ |
+| 115 | `DEF` | sabet | تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها) | claude-ui-buttons.js:139 | esm_profile_moshtarak, khandan_tanzim, negahban_khata, radif_andaze, tanzim_pishfarz | 04 | `LIMITS`, `PRESETS`, `KEY` | ✓ |
+| 116 | `LIMITS` | sabet | کمترین و بیشترینِ هر اندازه در پنل | claude-ui-buttons.js:164 | khandan_tanzim, negahban_khata, radif_andaze, sakht_panel_aa | 04 | `DEF` | ✓ |
+| 117 | `PRESETS` | sabet | حالت‌های آمادهٔ اندازه‌ها | claude-ui-buttons.js:165 | negahban_khata, sakht_panel_aa | 04 | `DEF` | ✓ |
+| 118 | `esm_ghadim_tanzim` | sabet | اسمِ قدیمِ دو تنظیم ⇐ اسمِ تازه؛ مقدارِ ذخیره‌شده با اسمِ قدیم خوانده می‌شود | claude-ui-buttons.js:187 | khandan_tanzim, tanzim_pishfarz | 10 | `DEF` | ✓ |
+| 119 | `CSS` | sabet | همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند | claude-ui-buttons.js:254 | dokme_ha, sakht_hame, vazhe_name_ru_kalame | 04 | — | ✓ |
+| 120 | `HOVER_DELAY` | sabet | کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: ⟦HOVER_DELAY⟧ | claude-ui-buttons.js:693 | baz_shodan_ba_hover, radif_andaze | 04 | — | ✓ |
+| 121 | `GLOSS_DELAY` | sabet | کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: ⟦GLOSS_DELAY⟧ | claude-ui-buttons.js:839 | bastan_panel, vazhe_name_ru_kalame | 06 | — | ✓ |
+| 122 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1197 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
+| 123 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1197 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 124 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1197 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 125 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1384 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
+| 126 | `SOAL_SABR_MS` | sabet | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: ⟦SOAL_SABR_MS⟧ میلی‌ثانیه | claude-ui-buttons.js:1492 | bordan_be_other, entekhab_matn_soal | 24 | — | ؟ |
+| 127 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1543 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
+| 128 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1630 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
+| 129 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1683 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
+| 130 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1684 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
+| 131 | `TZ_BALA` | sabet | کجا: تبِ تنظیمات کلود · چیه: پنج تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | claude-ui-buttons.js:2179 | sakht_panel_aa, tz_resid | 24 | — | ؟ |
+| 132 | `TZ_SATH` | sabet | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | claude-ui-buttons.js:2180 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
+| 133 | `TZ_ESM_SATH` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | claude-ui-buttons.js:2181 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
+| 134 | `TZ_ESM_MANBA` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | claude-ui-buttons.js:2182 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
+| 135 | `TZ_FASELE_TOKEN` | sabet | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | claude-ui-buttons.js:2183 | sakht_panel_aa, tz_matn_alan, tz_sakht_kontrol | 24 | — | ؟ |
+| 136 | `TZ_REMEMBER_TOKEN` | sabet | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | claude-ui-buttons.js:2184 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
+| 137 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:2823 | jadval_tamas, neshan_hook_va_hads | 19 | `neshane_amar` | ؟ |
+| 138 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:2823 | jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
+| 139 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:2824 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `radif_amar` | ؟ |
+| 140 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:2826 | jadval_bozorg, jadval_kuchak, neshan_hook_va_hads | 19 | `sotun_amar` | ؟ |
+| 141 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:2827 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | — | ؟ |
+| 142 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:2827 | amar_bozorgi, jadval_tamas, neshan_hook_va_hads | 19 | `ja_kuchak_amar` | ؟ |
+| 143 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:2827 | amar_bozorgi, neshan_hook_va_hads | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
+| 144 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:2941 | jadval_tamas | 19 | — | ؟ |
+| 145 | `tarjome_ha` | motaghayer | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | claude-ui-buttons.js:2953 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 146 | `tarjome_mt` | motaghayer | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | claude-ui-buttons.js:2953 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 147 | `tarjome_sid` | motaghayer | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | claude-ui-buttons.js:2953 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 148 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:3046 | baz_shodan_ba_hover, menu_naghl, neshan_tarjome, tz_sakht_radif, vazhe_name_ru_kalame | 04 | — | ✓ |
+| 149 | `gorooh_hook` | sabet | نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند | claude-host-hook.js:778 | khat_ha_ye_hook_dar_file, sakht_khat_hook | 11 | `neshane_hook` | ✓ |
+| 150 | `neshane_hook` | sabet | بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا | claude-host-hook.js:791 | khat_ha_ye_hook_dar_file, masir_transcript | 11 | `gorooh_hook` | ✓ |

@@ -20,6 +20,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUTTONS_JS="$REPO_DIR/claude-ui-buttons.js"
 # the top-row buttons, taken from the iMac (Habib 30 Oct: «رفرنس ایمک باشه چون به روزه»)
 DOKME_FILE="$REPO_DIR/dokme_ha.json"
+TANZIMAT_FA_FILE="$REPO_DIR/claude-tanzimat-fa.json"
 HOST_HOOK_JS="$REPO_DIR/claude-host-hook.js"
 
 # Scratch space for the CSS handed to python. A private directory keeps the
@@ -315,7 +316,7 @@ else
 fi
 
 stamp="$(printf '%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
-    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)" \
+    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)$(cat "$TANZIMAT_FA_FILE" 2>/dev/null)" \
     "$(cat "$GLOSSARY_FILE" 2>/dev/null)" | hash_stdin)"
 
 # The buttons live inline in extension.js; older runs also appended them to
@@ -365,7 +366,7 @@ patch_ide() {
                 # `|| py_ok=false` keeps `set -e` from killing the run mid-patch:
                 # a python failure must fall through to the rollback below.
                 py_ok=true
-                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_DOKME_FILE="$DOKME_FILE" CRTL_GLOSSARY_FILE="$GLOSSARY_FILE" python3 - <<'PYEOF' || py_ok=false
+                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_DOKME_FILE="$DOKME_FILE" CRTL_TANZIMAT_FA_FILE="$TANZIMAT_FA_FILE" CRTL_GLOSSARY_FILE="$GLOSSARY_FILE" python3 - <<'PYEOF' || py_ok=false
 import os, re
 css = open(os.environ['CRTL_CSS_FILE'], encoding='utf-8').read()
 path = os.environ['CRTL_EXT_JS']
@@ -416,6 +417,13 @@ if m:
             scheme = d['urlProtocol']
             break
     seed += 'window.__CRTL_URL_SCHEME=' + _j.dumps(scheme) + ';'
+    fa_file = os.environ.get('CRTL_TANZIMAT_FA_FILE', '')
+    if fa_file and os.path.exists(fa_file):
+        try:
+            import json
+            seed += 'window.__CRTL_TANZIMAT_FA=' + json.dumps(json.load(open(fa_file, encoding='utf-8')), ensure_ascii=False) + ';'
+        except Exception:
+            pass
     gloss_file = os.environ.get('CRTL_GLOSSARY_FILE', '')
     if gloss_file and os.path.exists(gloss_file):
         try:
@@ -452,6 +460,21 @@ if m:
         out = re.sub(r'(readTrailingHookNotices\(([\w$]+),[\w$]+\)[\s\S]{0,600}?return\{type:"get_session_response",messages:this\.stampReplayedFrames\()\[\.\.\.([\w$]+),\.\.\.([\w$]+)\]\)',
                      r'\1(globalThis.__crtl_hook_tarikhche?globalThis.__crtl_hook_tarikhche([...\3,...\4],\2):[...\3,...\4]))',
                      out, count=1)
+    # Remote Control at startup: the extension skips it for a chat that once came over from the
+    # web (its file holds "teleported-from"), and no setting opens this; the manual click works on
+    # such a chat. Habib, 4 Nov: «تو تنظیمات محکمش کن که ریموت کنترلش همیشه روشن باشه».
+    out = re.sub(r'!\([\w$]+&&await\(await [\w$]+\.load\(this\.cwd,this\.logger\)\)\.isTeleportedSession\([\w$]+\)\)',
+                 '!0', out, count=1)
+    # The «تنظیمات کلود» tab (Habib, 5 Nov 02:34). Three places in the bundle, each one left alone when a new build moves it:
+    #  · the launch takes the winning values: effort as --effort, model as --model, the rest as --settings
+    #  · a new channel is announced, so the host can follow it when a save changes something
+    #  · Claude's own effort and model menu changes this chat only, and never writes ~/.claude/settings.json
+    out = re.sub(r'(let [\w$]+="[\d.]+";if\(this\.output\.info\(`Spawning Claude with SDK query function - cwd: \$\{([\w$]+)\.cwd\}[^`]*?resume: \$\{([\w$]+)\}`\))',
+                 lambda m: '{let crtlC=globalThis.__crtl_baz_shodan&&globalThis.__crtl_baz_shodan(' + m.group(3) + ',' + m.group(2) + '.cwd);if(crtlC){if(crtlC.effort)' + m.group(2) + '.effort=crtlC.effort;if(crtlC.model)' + m.group(2) + '.model=crtlC.model;if(crtlC.settings)' + m.group(2) + '.extraArgs={...' + m.group(2) + '.extraArgs,settings:JSON.stringify(crtlC.settings)}}}' + m.group(1), out, count=1)
+    out = re.sub(r'this\.channels\.set\(([\w$]+),([\w$]+)\),this\.pendingChannels\.delete\(\1\)',
+                 lambda m: 'this.channels.set(' + m.group(1) + ',' + m.group(2) + '),globalThis.__crtl_kanal_taze&&globalThis.__crtl_kanal_taze(this,' + m.group(1) + ',' + m.group(2) + '),this.pendingChannels.delete(' + m.group(1) + ')', out, count=1)
+    out = re.sub(r'async writeUserSettingsAndPush\(([\w$]+),([\w$]+),([\w$]+),([\w$]+)\)\{',
+                 lambda m: m.group(0) + 'if(!' + m.group(3) + '&&' + m.group(4) + '!=="localSettings"&&globalThis.__crtl_menu_chat&&globalThis.__crtl_menu_chat(this,' + m.group(1) + ',' + m.group(2) + '))' + m.group(3) + '=!0;', out, count=1)
     open(path, 'w', encoding='utf-8').write(out)
 PYEOF
                 rm -f "$css_tmp"
@@ -488,6 +511,14 @@ s = open(path, encoding='utf-8').read()
 s = re.sub(r'([\w$]+=([\w$]+)\.type==="user"\?[\w$]+\(\2\):[\w$]+\(\2\)\|\|)(\2\.type==="assistant"&&\(\2\.isSynthetic\?)',
            r'\1\2.type==="assistant"&&\2.content.some(function(c){return c.content.type==="tool_use"&&c.content.name==="AskUserQuestion"})||\3',
            s, count=1)
+# The question window's preview: the build draws it as markdown only when it holds a ``` line, so a
+# table came out as raw text with | marks (Habib's picture, 4 Nov 22:40). Always markdown now.
+s = re.sub(r'if\([\w$]+\.test\(([\w$]+)\)\)return \1;(let [\w$]+=Math\.max\(2,\.\.\.\(\1\.match\(/`\+/g\))',
+           r'return \1;\2', s, count=1)
+# A save in the «تنظیمات کلود» tab changes the running engine from the host: the page re-reads its own effort, model and
+# ultracode labels through this list of its session objects. A new build without this anchor: labels catch up at the next change.
+s = re.sub(r'(\}\),)(xn\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.config\.value,[\w$]+=[\w$]+\?\.claudeSettings\?\.applied)',
+           r'\1(globalThis.__crtl_sessions||(globalThis.__crtl_sessions=new Set)).add(this),\2', s, count=1)
 open(path, 'w', encoding='utf-8').write(s)
 PYEOF
             fi

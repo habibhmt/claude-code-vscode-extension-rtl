@@ -35,6 +35,8 @@
   // session (it changes after /clear or a resume, hence "latest"). The host
   // hook (claude-host-hook.js) turns it into the short name and the title.
   var SESSION = { sid: '', name: '', title: '', remote: '', card: '', pending: false };
+  // the «تنظیمات کلود» tab; outside the panel so its state survives a rebuild of the panel
+  var TZ = { tab: 'font', data: null, req: 0, lastList: 0, waiting: {}, rows: null, taze: 0 };
   window.addEventListener('message', function (e) {
     var d = e.data;
     if (!d) return;
@@ -42,12 +44,21 @@
       if (d.sid === SESSION.sid && window.__crtl_tarjome_resid) window.__crtl_tarjome_resid(d);
       return;
     }
+    if (d.type === 'crtl-tanzimat-list') { if (d.reqId === TZ.lastList) tz_resid(d); return; }
+    if (d.type === 'crtl-tanzimat-sabt') {
+      var tzCb = TZ.waiting[d.reqId];
+      if (tzCb) { delete TZ.waiting[d.reqId]; tzCb(d); }
+      return;
+    }
+    if (d.type === 'crtl-tanzimat-taze') { tz_taze_shod(d.channelId); return; }
     if (d.type === 'crtl-session-info') {
       if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; neshan_shenase_chat(); }
       return;
     }
     var m = d.type === 'from-extension' && d.message;
     var io = m && m.type === 'io_message' && m.message;
+    // the channel the chat's own requests go on: the host finds this chat's engine by it
+    if (m && m.type === 'io_message' && m.channelId) SESSION.channel = m.channelId;
     var sid = io && (io.session_id || io.sessionId);
     if (typeof sid === 'string' && /^[0-9a-f-]{36}$/.test(sid)) SESSION.sid = sid;
   });
@@ -337,6 +348,50 @@
        two layers stay aligned. */
     'html.crtl-panel-right [class*="messagesContainer_"],html.crtl-panel-right [class*="messageInputContainer_"]{padding-right:244px!important}',
     'html.crtl-panel-left [class*="messagesContainer_"],html.crtl-panel-left [class*="messageInputContainer_"]{padding-left:244px!important}',
+    /* the question window fills the chat's width and gets taller; the bottom box's 680px limit stays for typing.
+       The count table sits on that corner, so it hides while a question is open
+       (Habib, 4 Nov 20:10: «پنجره سوال ... عرض صفحه رو کامل پر بکنه که ... بزرگتر باشه») */
+    '[class*="inputContainer_"]:has([class*="questionsContainer_"]){max-width:none!important;left:8px!important;right:8px!important;margin:0!important}',
+    '[class*="permissionsContainer_"]:has([class*="questionsContainer_"]){max-width:none!important}',
+    '[class*="permissionRequestContainer_"]:has([class*="questionsContainer_"]){max-height:85vh!important}',
+    '[class*="questionsContainer_"]{max-height:60vh!important}',
+    '[class*="withPreview_"]>[class*="previewPane_"]{max-height:60vh!important}',
+    'html:has([class*="questionsContainer_"]) #crtl-amar{display:none!important}',
+    /* the question window's words can be selected and copied; the app makes everything unselectable
+       (Habib, 5 Nov 02:34: «سوال و قسمت های جواب و جدول اون سوال باز شده قابل انتحاب و کپی کردن باششه متنشون») */
+    '[class*="questionsContainer_"],[class*="questionsContainer_"] *,[class*="previewPane_"],[class*="previewPane_"] *{-webkit-user-select:text!important;user-select:text!important}',
+    '[class*="questionsContainer_"] [class*="optionLabel_"],[class*="questionsContainer_"] [class*="optionDescription_"]{cursor:text}',
+    '[class*="questionsContainer_"] [tabindex="-1"]{outline:none}',
+    /* the two tabs of the aA panel */
+    '.crtl-tabs{display:flex;gap:4px;flex-shrink:0;position:sticky;top:-8px;z-index:2;margin:-8px -8px 4px;padding:8px 8px 4px;background:var(--app-input-background,rgba(30,30,30,.97))}',
+    '.crtl-tabs button{flex:1;padding:2px 6px;background:rgba(127,127,127,.12);border:1px solid rgba(127,127,127,.3);border-radius:4px;color:inherit;font:inherit;cursor:pointer}',
+    '.crtl-tabs button[aria-selected="true"]{background:var(--vscode-button-background,#0a84ff);color:var(--vscode-button-foreground,#fff);border-color:transparent}',
+    '.crtl-panel.crtl-panel-pahn{width:min(520px,calc(100vw - 70px));box-sizing:border-box}',
+    '@media(min-width:900px){html.crtl-tab-claude.crtl-panel-right [class*="messagesContainer_"]{padding-right:530px!important}',
+    'html.crtl-tab-claude.crtl-panel-left [class*="messagesContainer_"]{padding-left:530px!important}',
+    /* the typing box is a centered 680px box: padding inside it would squeeze the typing area to nothing, so the box itself steps aside */
+    'html.crtl-tab-claude [class*="messageInputContainer_"]{padding-left:0!important;padding-right:0!important}',
+    'html.crtl-tab-claude.crtl-panel-left [class*="chatContainer_"]>[class*="inputContainer_"]{margin-left:580px!important;margin-right:8px!important}',
+    'html.crtl-tab-claude.crtl-panel-right [class*="chatContainer_"]>[class*="inputContainer_"]{margin-right:580px!important;margin-left:8px!important}}',
+    '#crtl-page-claude{flex-direction:column;gap:4px;min-width:0}',
+    '.crtl-tz-search{width:100%;box-sizing:border-box;background:rgba(127,127,127,.15);border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:3px 6px;font:inherit}',
+    '.crtl-tz-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid rgba(127,127,127,.2);min-width:0;flex-shrink:0}',
+    '.crtl-tz-head{display:flex;gap:6px;justify-content:space-between;align-items:baseline;min-width:0}',
+    '.crtl-tz-fa{flex:1;min-width:0}',
+    '.crtl-tz-en{flex:none;max-width:45%;direction:ltr;opacity:.5;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.crtl-tz-note{opacity:.65;font-size:10px;min-height:1.4em;overflow-wrap:anywhere}',
+    '.crtl-tz-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}',
+    '.crtl-tz-ticks{display:flex;gap:6px;flex:none}',
+    '.crtl-tz-ticks label{display:flex;align-items:center;gap:2px;cursor:pointer;white-space:nowrap}',
+    '.crtl-tz-ticks input{margin:0}',
+    '.crtl-tz-kontrol{flex:1;min-width:110px;box-sizing:border-box;background:rgba(127,127,127,.15);border:1px solid rgba(127,127,127,.35);border-radius:4px;color:inherit;padding:1px 4px;font:inherit}',
+    '.crtl-panel textarea.crtl-tz-kontrol{flex:1 1 100%;width:100%;height:64px;font:10px/1.4 monospace}',
+    '.crtl-tz-sabt{flex:none}',
+    '.crtl-tz-sabt:disabled{opacity:.4;cursor:default}',
+    '.crtl-tz-hint{opacity:.75;font-size:10px}',
+    '.crtl-tz-popup{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4)}',
+    '.crtl-tz-box{max-width:min(420px,calc(100vw - 40px));display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:8px;border:1px solid rgba(127,127,127,.5);background:var(--app-input-background,rgba(30,30,30,.98));font:12px/1.7 system-ui,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.6)}',
+    '.crtl-tz-box .crtl-actions{justify-content:flex-start}',
     '.crtl-row{display:flex;align-items:center;gap:6px;justify-content:space-between;flex-shrink:0}',
     '.crtl-row label{flex:0 0 auto;opacity:.75}',
     '.crtl-row input[type=range]{flex:1;min-width:0;direction:ltr}',
@@ -973,6 +1028,8 @@
     document.__crtlFindEscWired = true;
     document.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape' && e.key !== 'Esc') return;
+      var popup = document.querySelector('#crtl-panel .crtl-tz-popup');
+      if (popup) { popup.remove(); e.preventDefault(); e.stopPropagation(); return; }
       if (bastan_jostojo() || bastan_panel()) { e.preventDefault(); e.stopPropagation(); }
     }, true);
   }
@@ -1405,8 +1462,74 @@
     return any;
   }
 
+  // With a question window open, a top button's text goes into that question's Other box: the box exists only
+  // once Other is ticked, so Other is ticked first (Habib, 5 Nov 02:34: «وقتی که صفحه سوال باز میشه اون دکمه های بالا
+  // رو میزنم توی قسمت other نمیاد متنشون یه کاری کن که متنشون بیاد»). What he already wrote there stays, the text comes after it.
+  function bordan_be_other(c, line) {
+    var box = document.querySelector('[class*="questionsContainer_"]');
+    if (!box) return false;
+    var ops = box.querySelectorAll('[class*="optionsContainer_"] [role="radio"],[class*="optionsContainer_"] [role="checkbox"]');
+    var other = ops[ops.length - 1];
+    if (!other) return false;
+    function bezan(el) {
+      if (line) gozashtan_khat_dar_kadr(el, c.text || ''); else neveshtan_dar_kadr(el, c.text);
+    }
+    var ready = other.querySelector('[contenteditable]');
+    if (ready) { bezan(ready); return true; }
+    if (other.getAttribute('aria-checked') !== 'true') other.click();
+    var t0 = Date.now();
+    (function sabr() {
+      var el = other.isConnected && other.querySelector('[contenteditable]');
+      if (el) return bezan(el);
+      if (Date.now() - t0 < 1000) setTimeout(sabr, 30);
+    })();
+    return true;
+  }
+
+  // Selecting an answer's words doesn't pick that answer; a plain click still does (Habib's «بله»). The app acts on every
+  // click inside an option, so a click after a drag is stopped, and one on the words waits a moment for a possible second
+  // click (a double click selects a word). The circle answers at once.
+  var SOAL_SABR_MS = 250;
+  function entekhab_matn_soal() {
+    if (document.__crtlSoalSel) return;
+    document.__crtlSoalSel = true;
+    var pain = null, montazer = null;
+    function dakhel_option(t) {
+      return t && t.closest ? t.closest('[class*="questionsContainer_"] [role="radio"],[class*="questionsContainer_"] [role="checkbox"]') : null;
+    }
+    document.addEventListener('mousedown', function (e) {
+      pain = { x: e.clientX, y: e.clientY };
+      // A press on the question's words would focus the window itself, whose focus handler moves focus on to a button at
+      // once, and the browser then drops the press: no selection. So the words take the focus themselves.
+      var t = e.target;
+      if (t && t.closest && t.closest('[class*="questionsContainer_"]') && !dakhel_option(t) && !t.closest('button,[contenteditable]') && !t.hasAttribute('tabindex')) {
+        t.setAttribute('tabindex', '-1');
+      }
+    }, true);
+    document.addEventListener('click', function (e) {
+      if (!e.isTrusted) return;           // the delayed click below, and the top buttons' own click on Other
+      var op = dakhel_option(e.target);
+      if (!op) return;
+      if (e.target.closest('[contenteditable]') || e.target.closest('[class*="optionCheckbox_"]')) return;
+      var keshid = pain && Math.abs(e.clientX - pain.x) + Math.abs(e.clientY - pain.y) > 4;
+      var sel = window.getSelection();
+      var entekhab = sel && !sel.isCollapsed && String(sel).trim();
+      e.stopPropagation();
+      e.preventDefault();
+      if (montazer) { clearTimeout(montazer); montazer = null; }
+      if (keshid || entekhab || e.detail > 1) return;
+      montazer = setTimeout(function () {
+        montazer = null;
+        var s2 = window.getSelection();
+        if (s2 && !s2.isCollapsed && String(s2).trim()) return;
+        if (op.isConnected) op.click();
+      }, SOAL_SABR_MS);
+    }, true);
+  }
+
   function ejraye_dokme(c, line) {
     if (c.menu) { click_menu(c.menu); return; }
+    if (bordan_be_other(c, line)) return;
     var el = kadr_tayp();
     if (!el) return;
     // a draft already in the box is never sent along with the button's text
@@ -2043,8 +2166,388 @@
     }));
     panel.appendChild(acts2);
 
+    sakht_tab_ha(panel);
     document.body.appendChild(panel);
     return panel;
+  }
+
+  /* ---------------- the «تنظیمات کلود» tab ---------------- */
+  // Habib, 5 Nov 02:34: «کلا یه تب جدا برای این تنظیمات بزار که از این ثفحه جدا باشه و توی تب تنظیمات کلود رو بتونم
+  // تعیین کنم هر چی تنظیم ک ه هست به صورت سراسری پروژه چت ضمن اینکه برای سراسری یه پاپ اپ بیاد که مطمینی میخوای
+  // یرایری باشه و اگه اکی دادم اونوقت بزاره بزنم». Every row: three ticks of which one lands, a value, ثبت, a popup.
+  // The rows come from the host (the app's own schema); the Persian line of each from claude-tanzimat-fa.json.
+  var TZ_BALA = ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow'];
+  var TZ_SATH = [['sarasari', 'سراسری'], ['poshe', 'پروژه'], ['chat', 'چت']];
+  var TZ_ESM_SATH = { sarasari: 'سراسری', poshe: 'پروژه', chat: 'چت' };
+  var TZ_ESM_MANBA = { userSettings: 'سراسری', projectSettings: 'پروژه', localSettings: 'پروژه', flagSettings: 'همین چت', policySettings: 'سازمان' };
+  var TZ_FASELE_TOKEN = 33000;      // the engine compacts 33 thousand before its window
+  var TZ_REMEMBER_TOKEN = 20000;    // remember comes 20 thousand before the compaction
+
+  function api_safhe() {
+    return window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+  }
+  function tz_adad_fa(n) { return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
+  function tz_hezar(n) { return tz_adad_fa(Math.round(n / 1000)) + ' هزار'; }
+  function tz_adad_latin(t) {
+    return String(t).replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); }).replace(/[,،٬\s]/g, '');
+  }
+
+  function sakht_tab_ha(panel) {
+    var fontPage = document.createElement('div');
+    fontPage.id = 'crtl-page-font';
+    fontPage.style.cssText = 'display:flex;flex-direction:column;gap:4px;min-width:0';
+    while (panel.firstChild) fontPage.appendChild(panel.firstChild);
+    var claudePage = document.createElement('div');
+    claudePage.id = 'crtl-page-claude';
+    var strip = document.createElement('div');
+    strip.className = 'crtl-tabs';
+    strip.setAttribute('role', 'tablist');
+    var dokme = {};
+    [['font', 'فونت'], ['claude', 'تنظیمات کلود']].forEach(function (f) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = f[1];
+      b.setAttribute('role', 'tab');
+      b.dataset.tab = f[0];
+      b.addEventListener('click', function () { TZ.tab = f[0]; neshan(); });
+      dokme[f[0]] = b;
+      strip.appendChild(b);
+    });
+    function neshan() {
+      var ro = TZ.tab === 'claude';
+      fontPage.style.display = ro ? 'none' : 'flex';
+      claudePage.style.display = ro ? 'flex' : 'none';
+      dokme.font.setAttribute('aria-selected', ro ? 'false' : 'true');
+      dokme.claude.setAttribute('aria-selected', ro ? 'true' : 'false');
+      panel.classList.toggle('crtl-panel-pahn', ro);
+      document.documentElement.classList.toggle('crtl-tab-claude', ro);
+      if (ro) tz_porsidan();
+    }
+    panel.appendChild(strip);
+    panel.appendChild(fontPage);
+    panel.appendChild(claudePage);
+    TZ.rows = null;
+    tz_sakht_safhe(claudePage);
+    neshan();
+  }
+
+  function tz_sakht_safhe(page) {
+    var q = document.createElement('input');
+    q.type = 'text';
+    q.className = 'crtl-tz-search';
+    q.placeholder = 'جست‌وجو در تنظیم‌ها…';
+    q.addEventListener('input', function () {
+      var t = q.value.trim().toLowerCase();
+      page.querySelectorAll('.crtl-tz-row').forEach(function (r) {
+        r.style.display = !t || r.dataset.jost.indexOf(t) !== -1 ? '' : 'none';
+      });
+    });
+    page.appendChild(q);
+    var list = document.createElement('div');
+    list.id = 'crtl-tz-list';
+    list.style.cssText = 'display:flex;flex-direction:column;min-width:0';
+    list.textContent = 'در حال خواندن تنظیم‌ها…';
+    page.appendChild(list);
+  }
+
+  function tz_porsidan() {
+    var api = api_safhe();
+    if (!api) return;
+    if (!SESSION.sid) SESSION.sid = khandan_shenase_chat_az_state();
+    TZ.lastList = ++TZ.req;
+    api.postMessage({ type: 'crtl-tanzimat-list', reqId: TZ.lastList, sid: SESSION.sid, channel: SESSION.channel || '' });
+  }
+
+  // A save changed the running engine from the host: the extension's own effort, model and ultracode labels read it again.
+  function tz_taze_shod(channelId) {
+    var ss = window.__crtl_sessions;
+    if (ss) ss.forEach(function (s) {
+      try {
+        if (channelId && s.claudeChannelId && s.claudeChannelId !== channelId) return;
+        if (s.rereadAppliedSettings) s.rereadAppliedSettings();
+      } catch (e) {}
+    });
+    var p = document.getElementById('crtl-panel');
+    if (TZ.tab !== 'claude' || !p || !p.classList.contains('crtl-open')) return;
+    clearTimeout(TZ.taze);
+    TZ.taze = setTimeout(tz_porsidan, 300);
+  }
+
+  function tz_resid(d) {
+    var list = document.getElementById('crtl-tz-list');
+    if (!list) return;
+    if (d.khata) { if (!TZ.rows) list.textContent = 'خوانده نشد: ' + d.khata; return; }
+    TZ.data = d;
+    if (!TZ.rows) {
+      TZ.rows = {};
+      list.textContent = '';
+      var by = {};
+      (d.rows || []).forEach(function (r) { by[r.k] = r; });
+      var hame = TZ_BALA.filter(function (k) { return by[k]; }).concat((d.rows || []).map(function (r) { return r.k; }).filter(function (k) { return TZ_BALA.indexOf(k) === -1; }));
+      hame.forEach(function (k, i) {
+        if (i === TZ_BALA.length) {
+          var h = document.createElement('div');
+          h.className = 'crtl-note';
+          h.style.cssText = 'margin-top:6px';
+          h.textContent = 'همهٔ تنظیم‌های دیگر';
+          list.appendChild(h);
+        }
+        var row = tz_sakht_radif(by[k]);
+        TZ.rows[k] = row;
+        list.appendChild(row.el);
+      });
+    }
+    Object.keys(TZ.rows).forEach(function (k) { TZ.rows[k].neshan(); });
+  }
+
+  // the value this level holds now: what fills the box when its tick lands
+  function tz_maghdar_sath(k, sath) {
+    var d = TZ.data || {}, s = (d.sath || {})[sath] || {};
+    if (s[k] && Object.prototype.hasOwnProperty.call(s[k], 'v')) return s[k].v;
+    var f = sath === 'sarasari' ? d.karbar : sath === 'poshe' ? d.mahalli : null;
+    if (!f) return undefined;
+    if (sath === 'sarasari' && (k === 'effortLevel' || k === 'autoCompactWindow')) {
+      var m = d.alan && d.alan.applied && d.alan.applied.model, per = (f.modelSettings || {})[m];
+      if (per && per[k] !== undefined) return per[k];
+    }
+    return f[k];
+  }
+
+  function tz_neveshte(v) {
+    if (v === undefined || v === null) return '—';
+    if (v === true) return 'روشن';
+    if (v === false) return 'خاموش';
+    if (typeof v === 'object') { var j = JSON.stringify(v); return j.length > 70 ? j.slice(0, 70) + '…' : j; }
+    return String(v);
+  }
+
+  // «الان: X از Y», from the engine of this chat, so it says what is really in force
+  function tz_matn_alan(k) {
+    var d = TZ.data || {}, a = d.alan, w = (d.barande || {})[k];
+    var az = w ? TZ_ESM_SATH[w.sath] : '';
+    if (!a) {
+      if (!w) return 'این چت هنوز شروع نشده';
+      return 'ثبت‌شده: ' + (k === 'autoCompactWindow' ? tz_hezar(w.v - TZ_FASELE_TOKEN) : tz_neveshte(w.v)) + ' از ' + az;
+    }
+    var v;
+    if (k === 'effortLevel') v = a.applied.effort;
+    else if (k === 'model') v = a.applied.model;
+    else if (k === 'ultracode') v = !!(a.applied.ultracodeRequested || a.applied.ultracode);
+    else if (k === 'remoteControlAtStartup') v = a.remote === 'connecting' ? 'در حال وصل' : a.remote === 'disconnected' || a.remote === 'error' ? false : a.remote ? true : undefined;
+    else if (k === 'autoCompactWindow') v = a.thr;
+    else v = (a.effective || {})[k];
+    if (!az) {
+      for (var i = (a.sources || []).length - 1; i >= 0; i--) {
+        var src = a.sources[i], st = src.settings || {};
+        var darModel = (k === 'effortLevel' || k === 'autoCompactWindow') && st.modelSettings && a.applied.model && st.modelSettings[a.applied.model] && st.modelSettings[a.applied.model][k] !== undefined;
+        if (Object.prototype.hasOwnProperty.call(st, k) || darModel) { az = TZ_ESM_MANBA[src.source] || src.source; break; }
+      }
+    }
+    if (!az) az = 'پیش‌فرض کلود';
+    var matn = k === 'autoCompactWindow'
+      ? (typeof v === 'number' ? 'الان: کامپکت سر ' + tz_hezar(v) + ' از ' + az : 'الان: معلوم نیست')
+      : 'الان: ' + tz_neveshte(v) + ' از ' + az;
+    if (k === 'autoCompactWindow' && w && typeof v === 'number' && w.v - TZ_FASELE_TOKEN !== v) matn += ' · ثبت‌شده: ' + tz_hezar(w.v - TZ_FASELE_TOKEN) + '؛ بعد از ریلود';
+    return matn;
+  }
+
+  function tz_gozine_ha(sel, list) {
+    var cur = sel.value;
+    sel.textContent = '';
+    list.forEach(function (o) {
+      var op = document.createElement('option');
+      op.value = o[0];
+      op.textContent = o[1];
+      sel.appendChild(op);
+    });
+    sel.value = cur;
+    if (sel.value !== cur) sel.value = '';
+  }
+
+  // one value control: {el, get, set, taze}
+  function tz_sakht_kontrol(r, dast) {
+    var k = r.k, el;
+    function select(list) {
+      el = document.createElement('select');
+      tz_gozine_ha(el, [['', '—']].concat(list));
+      el.addEventListener('change', dast);
+    }
+    function matn(tag) {
+      el = document.createElement(tag);
+      if (tag === 'input') el.type = 'text';
+      el.dir = 'ltr';
+      el.spellcheck = false;
+      el.addEventListener('input', dast);
+    }
+    var no = BALA_NO(k) || r.no;
+    if (no === 'effort') select(['low', 'medium', 'high', 'xhigh', 'max'].map(function (x) { return [x, x]; }));
+    else if (no === 'model') select([]);
+    else if (no === 'onoff') select([['true', 'روشن'], ['false', 'خاموش']]);
+    else if (no === 'choice') select((r.enum || []).map(function (x) { return [x, x]; }));
+    else if (no === 'json') { matn('textarea'); el.placeholder = 'JSON'; }
+    else {
+      matn('input');
+      if (k === 'autoCompactWindow') el.placeholder = 'مثلاً 300000';
+      else if (r.pish && r.pish.length) el.placeholder = r.pish.join(' · ');
+    }
+    el.classList.add('crtl-tz-kontrol');
+    return {
+      el: el,
+      get: function () { return el.value; },
+      set: function (v) {
+        if (v === undefined || v === null) { el.value = ''; return; }
+        if (k === 'autoCompactWindow') { el.value = typeof v === 'number' ? String(v - TZ_FASELE_TOKEN) : ''; return; }
+        if (no === 'model' && v && !Array.prototype.some.call(el.options, function (o) { return o.value === v; })) {
+          var op = document.createElement('option');
+          op.value = v; op.textContent = v;
+          el.appendChild(op);
+        }
+        el.value = typeof v === 'object' ? JSON.stringify(v, null, 1) : String(v);
+      },
+      taze: function () {
+        if (no !== 'model') return;
+        var d = TZ.data || {}, seen = {}, list = [];
+        function add(v, name) { if (v && v !== 'default' && !seen[v]) { seen[v] = 1; list.push([v, name || v]); } }
+        (d.models || []).forEach(function (m) { add(m.value, m.name); });
+        Object.keys((d.karbar || {}).modelSettings || {}).forEach(function (m) { add(m); });
+        if (d.alan && d.alan.applied) add(d.alan.applied.model);
+        tz_gozine_ha(el, [['', '—']].concat(list));
+      }
+    };
+  }
+  function BALA_NO(k) { return k === 'effortLevel' ? 'effort' : k === 'model' ? 'model' : ''; }
+
+  function tz_sakht_radif(r) {
+    var k = r.k, fa = (window.__CRTL_TANZIMAT_FA || {})[k] || r.desc || k;
+    var wrap = document.createElement('div');
+    wrap.className = 'crtl-tz-row';
+    wrap.dataset.k = k;
+    wrap.dataset.jost = (k + ' ' + fa).toLowerCase();
+    var head = document.createElement('div');
+    head.className = 'crtl-tz-head';
+    var faEl = document.createElement('span');
+    faEl.className = 'crtl-tz-fa';
+    faEl.textContent = fa;
+    var enEl = document.createElement('span');
+    enEl.className = 'crtl-tz-en';
+    enEl.textContent = k;
+    enEl.title = r.desc || k;
+    head.appendChild(faEl);
+    head.appendChild(enEl);
+    wrap.appendChild(head);
+    var note = document.createElement('div');
+    note.className = 'crtl-tz-note';
+    wrap.appendChild(note);
+
+    var tick = null, dirty = false, boxes = {};
+    var hint = null;
+    if (k === 'autoCompactWindow') {
+      hint = document.createElement('div');
+      hint.className = 'crtl-tz-hint';
+    }
+    function dast() {
+      dirty = true;
+      if (hint) {
+        var n = Number(tz_adad_latin(kon.get()));
+        if (n > 0 && n < 2000) n *= 1000;
+        hint.textContent = n >= 67000 ? 'کامپکت سر ' + tz_hezar(Math.min(n, 967000)) + ' و رممبر سر ' + tz_hezar(Math.min(n, 967000) - TZ_REMEMBER_TOKEN) : '';
+      }
+    }
+    var kon = tz_sakht_kontrol(r, dast);
+    var sabt = document.createElement('button');
+    sabt.type = 'button';
+    sabt.className = 'crtl-btn crtl-tz-sabt';
+    sabt.textContent = 'ثبت';
+    sabt.disabled = true;
+    function bezan_tick(s) {
+      tick = s;
+      Object.keys(boxes).forEach(function (x) { boxes[x].checked = x === s; });
+      sabt.disabled = !s;
+      if (s && !dirty) kon.set(tz_maghdar_sath(k, s));
+    }
+    var ticks = document.createElement('div');
+    ticks.className = 'crtl-tz-ticks';
+    TZ_SATH.forEach(function (f) {
+      var lab = document.createElement('label');
+      var box = document.createElement('input');
+      box.type = 'checkbox';
+      box.dataset.sath = f[0];
+      boxes[f[0]] = box;
+      box.addEventListener('change', function () {
+        if (!box.checked) { bezan_tick(null); return; }
+        if (f[0] !== 'sarasari') { bezan_tick(f[0]); return; }
+        // «و اگه اکی دادم اونوقت بزاره بزنم»: no OK, no tick
+        box.checked = false;
+        tz_popup('مطمئنی می‌خواهی «' + k + '» سراسری باشد؟ با ثبت آن، همهٔ چت‌ها با هر مدلی این مقدار را می‌گیرند، حتی چتی که مقدار خودش را داشت.',
+          [['مطمئنم، سراسری', function () { bezan_tick('sarasari'); }], ['نه', null]]);
+      });
+      lab.appendChild(box);
+      lab.appendChild(document.createTextNode(f[1]));
+      ticks.appendChild(lab);
+    });
+    sabt.addEventListener('click', function () {
+      var api = api_safhe();
+      if (!api || !tick) return;
+      if (!SESSION.sid) SESSION.sid = khandan_shenase_chat_az_state();
+      var id = ++TZ.req;
+      sabt.disabled = true;
+      var timer = setTimeout(function () {
+        if (!TZ.waiting[id]) return;
+        delete TZ.waiting[id];
+        sabt.disabled = !tick;
+        tz_popup('جوابی نیامد؛ ثبت معلوم نیست. دوباره تب را باز کن و «الان» را ببین.', [['باشه', null]]);
+      }, 15000);
+      TZ.waiting[id] = function (res) {
+        clearTimeout(timer);
+        tz_popup((res.ok ? '✓ ' : '✗ ') + (res.matn || ''), [['باشه', null]]);
+        if (res.ok) {
+          dirty = false;
+          kon.set(undefined);
+          bezan_tick(null);
+          if (hint) hint.textContent = '';
+          tz_porsidan();
+        } else sabt.disabled = !tick;
+      };
+      api.postMessage({ type: 'crtl-tanzimat-sabt', reqId: id, sath: tick, key: k, value: kon.get(), sid: SESSION.sid, channel: SESSION.channel || '' });
+    });
+    var line = document.createElement('div');
+    line.className = 'crtl-tz-line';
+    line.appendChild(ticks);
+    line.appendChild(kon.el);
+    line.appendChild(sabt);
+    wrap.appendChild(line);
+    if (hint) wrap.appendChild(hint);
+    return {
+      el: wrap,
+      neshan: function () { kon.taze(); note.textContent = tz_matn_alan(k); }
+    };
+  }
+
+  // inside the panel, so a click on it doesn't count as a click outside and close the panel; never confirm(): the webview blocks it
+  function tz_popup(matn, dokmeha) {
+    var panel = document.getElementById('crtl-panel');
+    if (!panel) return;
+    var old = panel.querySelector('.crtl-tz-popup');
+    if (old) old.remove();
+    var back = document.createElement('div');
+    back.className = 'crtl-tz-popup';
+    var box = document.createElement('div');
+    box.className = 'crtl-tz-box';
+    box.setAttribute('role', 'dialog');
+    var t = document.createElement('div');
+    t.textContent = matn;
+    box.appendChild(t);
+    var bar = document.createElement('div');
+    bar.className = 'crtl-actions';
+    dokmeha.forEach(function (d) {
+      bar.appendChild(sakht_dokme(d[0], d[0], function () {
+        back.remove();
+        if (d[1]) d[1]();
+      }));
+    });
+    box.appendChild(bar);
+    back.appendChild(box);
+    panel.appendChild(back);
   }
 
   function sakht_dokme_charkhdande(s) {
@@ -2061,7 +2564,7 @@
       var p = document.getElementById('crtl-panel');
       if (!p) return;
       p.classList.toggle('crtl-open');
-      if (p.classList.contains('crtl-open')) porsidan_shenase_chat(); else neshan_shenase_chat();
+      if (p.classList.contains('crtl-open')) { porsidan_shenase_chat(); if (TZ.tab === 'claude') tz_porsidan(); } else neshan_shenase_chat();
       ja_baz_kardan_baraye_panel(p);
     }));
     document.body.appendChild(wrap);
@@ -2094,6 +2597,7 @@
     style.textContent = CSS;
     document.head.appendChild(style);
     baz_kardan_payam();
+    entekhab_matn_soal();
     baz_shodan_ba_hover();
     jam_kardan_fekr_va_abzar();
     menu_naghl();

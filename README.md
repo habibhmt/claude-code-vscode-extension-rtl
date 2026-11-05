@@ -156,6 +156,30 @@ can be tuned live without touching any file. Click **`aA`** at the bottom edge.
 
 A folded `Thinking` or tool-call block opens on hover, and a click pins it open.
 
+### The Claude settings tab
+
+The panel has two tabs: **فونت** (everything above) and **تنظیمات کلود**, with every
+setting of the app's own schema: effort, model, Remote Control, ultracode and
+auto-compact on top, then the rest, searchable, each with a line in Persian
+([`claude-tanzimat-fa.json`](claude-tanzimat-fa.json)).
+
+| Part of a row | What it does |
+|---|---|
+| سراسری / پروژه / چت | where this save goes; one tick only. سراسری asks first, and without OK it doesn't tick |
+| value | a menu or a box; an empty box lets go of the setting at that level |
+| ثبت | saves this row only, and a popup says what happened and whether it needs a reload |
+| الان | what the running engine really has, and from which level |
+
+The newest save among the three levels wins for a chat. Effort and model also
+change live on the open chats (every window follows within a second);
+auto-compact takes a reload, because the running engine ignores it. The number
+you type for auto-compact is the real compaction point. Claude's own effort and
+model menu now changes only its own chat and no longer writes `settings.json`.
+
+With a question window open, a top button's text goes into that question's
+**Other** box, and the question, its answers and its table can be selected and
+copied; selecting an answer's words doesn't pick it.
+
 ## Quoting a message
 
 Select any text in the conversation and right-click it:

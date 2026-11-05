@@ -3,7 +3,7 @@
 [model_do_jomle_va_hads]
 yani = "کجا: مودِ حدس · چیه: مدلی که «دو جمله» و حدسِ پشتیبان (وقتی fork نمی‌شود) با آن ساخته می‌شود · مثال: claude-sonnet-5-5"
 meghdar = "claude-sonnet-5-5"
-khanandeha = ["begu_do_jomle"]
+khanandeha = ["begu_do_jomle", "tarjome_ba_sonnet"]
 jaye = ["mods/hads/hooks/register.js:5"]
 
 [hads_har_chand_javab]
@@ -189,7 +189,7 @@ jaye = ["mods/hads/hooks/register.js:78"]
 [system_reminder_regex]
 yani = "الگوی بخش‌های system-reminder که از متنِ پیام‌ها کنار گذاشته می‌شوند"
 meghdar = ""
-khanandeha = ["cut", "khandan_hads", "payam_ha_ye_akhar", "payam_ha_ye_habib"]
+khanandeha = ["cut", "khandan", "khandan_hads", "payam_ha_ye_akhar", "payam_ha_ye_habib"]
 jaye = ["mods/hads/hooks/register.js:93"]
 
 [matn_bi_harfe_habib]
@@ -286,7 +286,7 @@ jaye = ["mods/hads/hooks/register.js:522"]
 yani = "اسمِ ماه‌های شمسی برای تاریخِ خطِ هوک‌ها (در مود و در وصلهٔ میزبان، دو جا)"
 meghdar = ""
 khanandeha = ["two", "zaman_shamsi"]
-jaye = ["mods/hads/hooks/register.js:534", "claude-host-hook.js:194"]
+jaye = ["mods/hads/hooks/register.js:534", "claude-host-hook.js:709"]
 
 [had_do_jomle_harf]
 yani = "کجا: «دو جمله» · چیه: بیشترین حرف · مثال: بلندتر از 300 حرف با … کوتاه می‌شود"
@@ -309,7 +309,7 @@ jaye = ["mods/hads/hooks/register.js:577"]
 [neshane_amar]
 yani = "نشانهٔ اولِ خطِ پنهانی که دادهٔ جدولِ «تماس‌ها» را به صفحه می‌برد"
 meghdar = ""
-khanandeha = ["matn_amar", "vazhe_name"]
+khanandeha = ["khat_amar_terminal", "matn_amar", "vazhe_name"]
 jaye = ["mods/hads/hooks/register.js:578"]
 
 [amar_cache]
@@ -322,19 +322,19 @@ jaye = ["mods/hads/hooks/register.js:579"]
 yani = "کجا: آخرِ جواب · چیه: با کمتر از این «دو جمله» در نوبت جمع‌بندی ساخته نمی‌شود · مثال: 1"
 meghdar = "1"
 khanandeha = ["akhar_javab", "amade_jambandi"]
-jaye = ["mods/hads/hooks/register.js:813"]
+jaye = ["mods/hads/hooks/register.js:814"]
 
 [abzar_ha_ye_nobat]
 yani = "ابزارهایی که در نوبتِ در جریان صدا زده شدند"
 meghdar = ""
 khanandeha = ["akhar_javab", "amade_jambandi", "register"]
-jaye = ["mods/hads/hooks/register.js:815"]
+jaye = ["mods/hads/hooks/register.js:816"]
 
 [khaste_habib_nobat]
 yani = "پیامِ خودِ حبیب که نوبت را شروع کرد"
 meghdar = ""
 khanandeha = ["akhar_javab", "amade_jambandi", "register"]
-jaye = ["mods/hads/hooks/register.js:817"]
+jaye = ["mods/hads/hooks/register.js:818"]
 
 [khodkar_ferestade_har_chat]
 yani = "«خودکار»ها و «نکرده»‌هایی که به چت فرستاده شدند، با شمارِ هر کار"
@@ -364,139 +364,139 @@ jaye = ["mods/hads/hooks/register.js:914"]
 yani = "پیامِ کادر وقتی «پرسش» باید تا جوابِ بعدی صبر کند"
 meghdar = ""
 khanandeha = ["hads_ba_fork", "porsesh_kon"]
-jaye = ["mods/hads/hooks/register.js:1089"]
+jaye = ["mods/hads/hooks/register.js:1088"]
 
 [matn_dalil_bi_javab]
 yani = "دلیلِ ساده‌ای که کادر وقتی fork جواب نداد نشان می‌دهد"
 meghdar = ""
 khanandeha = ["hads_ba_fork", "porsesh_kon"]
-jaye = ["mods/hads/hooks/register.js:1090"]
+jaye = ["mods/hads/hooks/register.js:1089"]
 
 [had_harf_dokme_prompt]
 yani = "کجا: دکمه‌های پرومپتِ «پرسش» · چیه: بیشترین حرفِ روی دکمه · مثال: بلندتر از 18 حرف با …"
 meghdar = "18"
 khanandeha = ["register", "zakhire_prompt_ha"]
-jaye = ["mods/hads/hooks/register.js:1108"]
+jaye = ["mods/hads/hooks/register.js:1107"]
 
 [bakhsh_ha]
 yani = "بخش‌های کادرِ حدس و اسمِ فارسیِ هر کدام (تیک‌ها)"
 meghdar = ""
 khanandeha = ["bargardandan_akharin", "khandan_file_chat", "khandan_tartib", "masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:1197"]
+jaye = ["mods/hads/hooks/register.js:1196"]
 
 [esm_bakhsh]
 yani = "همان، به شکلِ جدولِ اسم ⇐ واژه"
 meghdar = ""
 khanandeha = ["masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:1200"]
+jaye = ["mods/hads/hooks/register.js:1199"]
 
 [dayere_ha]
 yani = "دایره‌های سرچِ حافظه: همین چت، همین پروژه، همهٔ پروژه‌ها"
 meghdar = ""
 khanandeha = ["hafeze_dayere", "masir_file_chat", "register", "taghir_dayere"]
-jaye = ["mods/hads/hooks/register.js:1205"]
+jaye = ["mods/hads/hooks/register.js:1204"]
 
 [esm_dayere]
 yani = "اسمِ فارسیِ هر دایره"
 meghdar = ""
 khanandeha = ["masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:1206"]
+jaye = ["mods/hads/hooks/register.js:1205"]
 
 [dayere_har_chat]
 yani = "دایرهٔ سرچِ حافظه برای هر چت"
 meghdar = ""
 khanandeha = ["khandan_dayere", "masir_hafeze_dayere", "register", "taghir_dayere"]
-jaye = ["mods/hads/hooks/register.js:1209"]
+jaye = ["mods/hads/hooks/register.js:1208"]
 
 [akharin_zakhire]
 yani = "آخرین وضعی که برای هر چت در فایل نوشته شد (حدس‌ها، نکرده‌ها …)، برای برگرداندن بعد از ریلود"
 meghdar = ""
 khanandeha = ["tasvir_akharin", "zakhire_akharin"]
-jaye = ["mods/hads/hooks/register.js:1248"]
+jaye = ["mods/hads/hooks/register.js:1247"]
 
 [akharin_bargashte]
 yani = "چت‌هایی که وضعشان بعد از ریلود یک بار برگردانده شد"
 meghdar = ""
 khanandeha = ["bargardandan_akharin", "zakhire_akharin"]
-jaye = ["mods/hads/hooks/register.js:1255"]
+jaye = ["mods/hads/hooks/register.js:1254"]
 
 [kalame_khamush]
 yani = "کلمهٔ هر بخشِ خاموش در فایلِ چت (مثلِ -hads)؛ کامل نوشته شده تا با grep پیدا شود"
 meghdar = ""
 khanandeha = ["kalame_ha_ye_file", "khandan_file_chat", "taghir_tartib"]
-jaye = ["mods/hads/hooks/register.js:1292"]
+jaye = ["mods/hads/hooks/register.js:1291"]
 
 [kalame_tanzim]
 yani = "کلمه‌های دیگرِ فایلِ چت: حالتِ کادر و تنظیم‌ها"
 meghdar = ""
 khanandeha = ["kalame_ha_ye_file", "khandan_file_chat", "taghir_tartib"]
-jaye = ["mods/hads/hooks/register.js:1293"]
+jaye = ["mods/hads/hooks/register.js:1292"]
 
 [ghablia_baz]
 yani = "«قبلی‌ها» باز است"
 meghdar = ""
 khanandeha = ["jam_kardan", "register"]
-jaye = ["mods/hads/hooks/register.js:1318"]
+jaye = ["mods/hads/hooks/register.js:1317"]
 
 [had_hook_transcript_khat]
 yani = "کجا: «هوک‌ها» · چیه: چند خطِ آخرِ فایلِ چت برای پیدا کردنِ هوک‌ها خوانده شود · مثال: 400 خط"
 meghdar = "400"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1326"]
+jaye = ["mods/hads/hooks/register.js:1325"]
 
 [had_hook_transcript_byte]
 yani = "همان، به بایت: بیش از این از تهِ فایل خوانده نمی‌شود"
 meghdar = "4000000"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1327"]
+jaye = ["mods/hads/hooks/register.js:1326"]
 
 [hook_transcript_grep]
 yani = "الگوی خط‌های هوک در فایلِ چت"
 meghdar = ""
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1328"]
+jaye = ["mods/hads/hooks/register.js:1327"]
 
 [had_hook_kuchak_harf]
 yani = "کجا: «هوک‌ها» · چیه: بیشترین حرفِ هر خطِ کوچک · مثال: 100 حرف"
 meghdar = "100"
 khanandeha = ["jam_kardan", "register"]
-jaye = ["mods/hads/hooks/register.js:1330"]
+jaye = ["mods/hads/hooks/register.js:1329"]
 
 [masir_transcript]
 yani = "مسیرِ فایلِ چتِ همین چت"
 meghdar = ""
 khanandeha = ["jam_kardan", "masir_file_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1331"]
+jaye = ["mods/hads/hooks/register.js:1330"]
 
 [hook_ha]
 yani = "هوک‌هایی که برای کادر خوانده شد، و چتش"
 meghdar = ""
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1332"]
+jaye = ["mods/hads/hooks/register.js:1331"]
 
 [zaman_khandan_hook]
 yani = "ساعتِ آخرین خواندنِ هوک‌ها"
 meghdar = "0"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1333"]
+jaye = ["mods/hads/hooks/register.js:1332"]
 
 [had_hook_kuchak_radif]
 yani = "کجا: «هوک‌ها» · چیه: چند هوکِ آخر در حالتِ کوچک · مثال: 6 ردیف"
 meghdar = "6"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1370"]
+jaye = ["mods/hads/hooks/register.js:1369"]
 
 [had_hook_bozorg_radif]
 yani = "همان در حالتِ بزرگ"
 meghdar = "3"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1371"]
+jaye = ["mods/hads/hooks/register.js:1370"]
 
 [had_hook_bozorg_harf]
 yani = "بیشترین حرفِ هر هوک در حالتِ بزرگ"
 meghdar = "600"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1372"]
+jaye = ["mods/hads/hooks/register.js:1371"]
 
 [ERRORS]
 yani = "خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل"
@@ -507,194 +507,194 @@ jaye = ["claude-ui-buttons.js:22"]
 [SESSION]
 yani = "چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود)"
 meghdar = ""
-khanandeha = ["neshan_shenase_chat", "neshan_tarjome", "porsidan_shenase_chat", "sakht_panel_aa"]
+khanandeha = ["neshan_shenase_chat", "neshan_tarjome", "porsidan_shenase_chat", "sakht_panel_aa", "tz_porsidan", "tz_sakht_radif"]
 jaye = ["claude-ui-buttons.js:37"]
 
 [DEFAULT_COMMANDS]
 yani = "دکمه‌های پیش‌فرضِ نوارِ بالا"
 meghdar = ""
 khanandeha = ["dokme_ha", "gozashtan_dokme_pishfarz_bala", "khandan_tanzim", "negahban_khata"]
-jaye = ["claude-ui-buttons.js:94"]
+jaye = ["claude-ui-buttons.js:105"]
 
 [KEY]
 yani = "کلیدِ localStorage ِ تنظیم‌های پنل"
 meghdar = "crtl-sizes"
 khanandeha = ["khandan_tanzim", "negahban_khata", "zakhire_tanzim"]
-jaye = ["claude-ui-buttons.js:127"]
+jaye = ["claude-ui-buttons.js:138"]
 
 [DEF]
 yani = "تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها)"
 meghdar = ""
 khanandeha = ["esm_profile_moshtarak", "khandan_tanzim", "negahban_khata", "radif_andaze", "tanzim_pishfarz"]
-jaye = ["claude-ui-buttons.js:128"]
+jaye = ["claude-ui-buttons.js:139"]
 
 [LIMITS]
 yani = "کمترین و بیشترینِ هر اندازه در پنل"
 meghdar = ""
 khanandeha = ["khandan_tanzim", "negahban_khata", "radif_andaze", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:153"]
+jaye = ["claude-ui-buttons.js:164"]
 
 [PRESETS]
 yani = "حالت‌های آمادهٔ اندازه‌ها"
 meghdar = ""
 khanandeha = ["negahban_khata", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:154"]
+jaye = ["claude-ui-buttons.js:165"]
 
 [esm_ghadim_tanzim]
 yani = "اسمِ قدیمِ دو تنظیم ⇐ اسمِ تازه؛ مقدارِ ذخیره‌شده با اسمِ قدیم خوانده می‌شود"
 meghdar = ""
 khanandeha = ["khandan_tanzim", "tanzim_pishfarz"]
-jaye = ["claude-ui-buttons.js:176"]
+jaye = ["claude-ui-buttons.js:187"]
 
 [CSS]
 yani = "همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند"
 meghdar = ""
 khanandeha = ["dokme_ha", "sakht_hame", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:243"]
+jaye = ["claude-ui-buttons.js:254"]
 
 [HOVER_DELAY]
 yani = "کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: 700"
 meghdar = "700"
 khanandeha = ["baz_shodan_ba_hover", "radif_andaze"]
-jaye = ["claude-ui-buttons.js:638"]
+jaye = ["claude-ui-buttons.js:693"]
 
 [GLOSS_DELAY]
 yani = "کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: 600"
 meghdar = "600"
 khanandeha = ["bastan_panel", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:784"]
+jaye = ["claude-ui-buttons.js:839"]
 
 [counterTimer]
 yani = "زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است"
 meghdar = ""
 khanandeha = ["menu_naghl", "shomarande_nevise"]
-jaye = ["claude-ui-buttons.js:1140"]
+jaye = ["claude-ui-buttons.js:1197"]
 
 [usageCache]
 yani = "آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید"
 meghdar = ""
 khanandeha = ["menu_naghl", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1140"]
+jaye = ["claude-ui-buttons.js:1197"]
 
 [usageTick]
 yani = "شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار)"
 meghdar = ""
 khanandeha = ["menu_naghl", "shomarande_nevise", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1140"]
+jaye = ["claude-ui-buttons.js:1197"]
 
 [FILE_NAME]
 yani = "اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند"
 meghdar = "claude-rtl-settings.json"
 khanandeha = ["emal_tanzim_vared_shode", "neveshtan_yaddasht_panel"]
-jaye = ["claude-ui-buttons.js:1327"]
+jaye = ["claude-ui-buttons.js:1384"]
 
 [DRAG_PX]
 yani = "کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل"
 meghdar = "5"
 khanandeha = ["ejraye_dokme", "keshidan_navar_bala", "keshidan_tik_hads", "sakht_hame"]
-jaye = ["claude-ui-buttons.js:1420"]
+jaye = ["claude-ui-buttons.js:1543"]
 
 [topWatch]
 yani = "نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش"
 meghdar = ""
 khanandeha = ["bardashtan_jaygozin", "payesh_navar_bala"]
-jaye = ["claude-ui-buttons.js:1507"]
+jaye = ["claude-ui-buttons.js:1630"]
 
 [draftCommands]
 yani = "متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها"
 meghdar = ""
 khanandeha = ["emal_tanzim_vared_shode", "keshidan_navar_bala", "sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1560"]
+jaye = ["claude-ui-buttons.js:1683"]
 
 [draftProfileName]
 yani = "اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده"
 meghdar = ""
 khanandeha = ["sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1561"]
+jaye = ["claude-ui-buttons.js:1684"]
 
 [NESHANE_AMAR]
 yani = "همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2319"]
+jaye = ["claude-ui-buttons.js:2823"]
 
 [KELID_JA_AMAR]
 yani = "کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2319"]
+jaye = ["claude-ui-buttons.js:2823"]
 
 [sotun_amar]
 yani = "ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام"
 meghdar = ""
 khanandeha = ["jadval_bozorg", "jadval_kuchak", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2320"]
+jaye = ["claude-ui-buttons.js:2824"]
 
 [radif_amar]
 yani = "ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل"
 meghdar = ""
 khanandeha = ["jadval_bozorg", "jadval_kuchak", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2322"]
+jaye = ["claude-ui-buttons.js:2826"]
 
 [amar_matn_akhar]
 yani = "آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود"
 meghdar = ""
 khanandeha = ["amar_bozorgi", "jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2323"]
+jaye = ["claude-ui-buttons.js:2827"]
 
 [amar_bozorg]
 yani = "جدولِ «تماس‌ها» در حالتِ بزرگ است"
 meghdar = ""
 khanandeha = ["amar_bozorgi", "jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2323"]
+jaye = ["claude-ui-buttons.js:2827"]
 
 [ja_kuchak_amar]
 yani = "جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند"
 meghdar = ""
 khanandeha = ["amar_bozorgi", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2323"]
+jaye = ["claude-ui-buttons.js:2827"]
 
 [amar_dar_rah]
 yani = "یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه)"
 meghdar = ""
 khanandeha = ["jadval_tamas"]
-jaye = ["claude-ui-buttons.js:2437"]
+jaye = ["claude-ui-buttons.js:2941"]
 
 [timer]
 yani = "زمان‌سنجِ همان گشتن"
 meghdar = ""
-khanandeha = ["baz_shodan_ba_hover", "menu_naghl", "neshan_tarjome", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:2542"]
+khanandeha = ["baz_shodan_ba_hover", "menu_naghl", "neshan_tarjome", "tz_sakht_radif", "vazhe_name_ru_kalame"]
+jaye = ["claude-ui-buttons.js:3046"]
 
 [gorooh_hook]
 yani = "نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند"
 meghdar = ""
 khanandeha = ["khat_ha_ye_hook_dar_file", "sakht_khat_hook"]
-jaye = ["claude-host-hook.js:263"]
+jaye = ["claude-host-hook.js:778"]
 
 [neshane_hook]
 yani = "بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا"
 meghdar = ""
 khanandeha = ["khat_ha_ye_hook_dar_file", "masir_transcript"]
-jaye = ["claude-host-hook.js:276"]
+jaye = ["claude-host-hook.js:791"]
 
 [had_tedad_kamtarin_zaban_harf]
 yani = "کجا: آخرِ جواب، بخشِ «زبان» · چیه: جوابِ کوتاه‌تر از این تعداد حرف (فارسی + لاتین، بی کد و لینک) سنجیده نمی‌شود · مثال: 40"
 meghdar = "40"
 khanandeha = ["begu_do_jomle", "englisi_ast"]
-jaye = ["mods/hads/hooks/register.js:666"]
+jaye = ["mods/hads/hooks/register.js:673"]
 
 [matn_yadavari_zaban]
 yani = "متنی که «زبان» بعد از جوابِ انگلیسی به چت می‌فرستد تا مدل فارسی حرف بزند"
 meghdar = ""
 khanandeha = ["begu_do_jomle", "chek_zaban"]
-jaye = ["mods/hads/hooks/register.js:667"]
+jaye = ["mods/hads/hooks/register.js:674"]
 
 [zaban_yadavari_shod]
 yani = "برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود)"
 meghdar = ""
 khanandeha = ["chek_zaban", "khandan"]
-jaye = ["mods/hads/hooks/register.js:756"]
+jaye = ["mods/hads/hooks/register.js:757"]
 
 [matn_se_daste]
 yani = "تکهٔ پرامپتِ «خودکار»: هر «منتظرِ شما / خودت وارد شو / کد را بفرست» ِ ایجنت در سه دسته سنجیده می‌شود: (الف) خودش، (ب) راه از ۲۰۳، (ج) فقط کارِ حبیب"
@@ -705,26 +705,20 @@ jaye = ["mods/hads/hooks/register.js:220"]
 [prompt_az_hads]
 yani = "سرِ هر پرومپتِ ترجمه: این پیام از مود است نه از حبیب، و ابزاری صدا نزن"
 meghdar = ""
-khanandeha = ["englisi_ast", "prompt_tarjome_kadr"]
-jaye = ["mods/hads/hooks/register.js:683"]
+khanandeha = ["englisi_ast", "prompt_tarjome_javab", "prompt_tarjome_kadr"]
+jaye = ["mods/hads/hooks/register.js:690"]
 
 [ghaede_tarjome]
 yani = "قاعدهٔ ترجمهٔ جواب: قالب‌بندی و کد و فرمان دست‌نخورده، چیزی کم یا زیاد نشود"
 meghdar = ""
-khanandeha = ["englisi_ast"]
-jaye = ["mods/hads/hooks/register.js:685"]
-
-[prompt_tarjome_javab]
-yani = "پرومپتِ Sonnet برای ترجمهٔ آخرین جواب"
-meghdar = ""
-khanandeha = ["englisi_ast", "tarjome_javab"]
-jaye = ["mods/hads/hooks/register.js:687"]
+khanandeha = ["englisi_ast", "prompt_tarjome_javab"]
+jaye = ["mods/hads/hooks/register.js:692"]
 
 [had_tedad_tarjome_radif]
 yani = "چند ترجمهٔ آخر در فایلِ tarjome.jsonl هر چت می‌ماند: 200"
 meghdar = "200"
-khanandeha = ["prompt_tarjome_kadr", "sabt_tarjome"]
-jaye = ["mods/hads/hooks/register.js:689"]
+khanandeha = ["sabt_tarjome", "tarjome_ba_sonnet"]
+jaye = ["mods/hads/hooks/register.js:697"]
 
 [tarjome_kadr_dar_kar]
 yani = "دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند"
@@ -736,19 +730,19 @@ jaye = ["mods/hads/hooks/register.js:729"]
 yani = "ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:2449"]
+jaye = ["claude-ui-buttons.js:2953"]
 
 [tarjome_mt]
 yani = "زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:2449"]
+jaye = ["claude-ui-buttons.js:2953"]
 
 [tarjome_sid]
 yani = "ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند"
 meghdar = ""
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:2449"]
+jaye = ["claude-ui-buttons.js:2953"]
 
 [ravand_akhar]
 yani = "روندهایی که الان در کادر نشان داده می‌شوند؛ هر کدام با حرف‌های عینیِ حبیب"
@@ -857,3 +851,51 @@ yani = "کجا: پرامپتِ «خودکار» · چیه: کلمه‌هایی �
 meghdar = ""
 khanandeha = ["ghaede_khodkar"]
 jaye = ["mods/hads/hooks/register.js:216"]
+
+[TZ]
+yani = "کجا: تبِ تنظیمات کلود · چیه: وضعیتِ تب بیرون از پنل، تا با ساختنِ دوبارهٔ پنل گم نشود: کدام تب باز است، آخرین جوابِ میزبان، ردیف‌ها"
+meghdar = ""
+khanandeha = ["sakht_dokme_charkhdande", "sakht_tab_ha", "tz_maghdar_sath", "tz_matn_alan", "tz_porsidan", "tz_resid", "tz_sakht_kontrol", "tz_sakht_radif", "tz_taze_shod"]
+jaye = ["claude-ui-buttons.js:39"]
+
+[SOAL_SABR_MS]
+yani = "کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: 250 میلی‌ثانیه"
+meghdar = "250"
+khanandeha = ["bordan_be_other", "entekhab_matn_soal"]
+jaye = ["claude-ui-buttons.js:1492"]
+
+[TZ_BALA]
+yani = "کجا: تبِ تنظیمات کلود · چیه: پنج تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت"
+meghdar = ""
+khanandeha = ["sakht_panel_aa", "tz_resid"]
+jaye = ["claude-ui-buttons.js:2179"]
+
+[TZ_SATH]
+yani = "کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت"
+meghdar = ""
+khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
+jaye = ["claude-ui-buttons.js:2180"]
+
+[TZ_ESM_SATH]
+yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح"
+meghdar = ""
+khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
+jaye = ["claude-ui-buttons.js:2181"]
+
+[TZ_ESM_MANBA]
+yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند"
+meghdar = ""
+khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
+jaye = ["claude-ui-buttons.js:2182"]
+
+[TZ_FASELE_TOKEN]
+yani = "کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318"
+meghdar = ""
+khanandeha = ["sakht_panel_aa", "tz_matn_alan", "tz_sakht_kontrol"]
+jaye = ["claude-ui-buttons.js:2183"]
+
+[TZ_REMEMBER_TOKEN]
+yani = "کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن"
+meghdar = ""
+khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
+jaye = ["claude-ui-buttons.js:2184"]

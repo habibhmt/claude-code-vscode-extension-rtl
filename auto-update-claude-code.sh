@@ -94,6 +94,10 @@ newer_than() {   # newer_than A B -> true when A is strictly newer than B
     [ "$1" != "$2" ] && [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1)" = "$1" ]
 }
 
+# launchd's PATH starts with /usr/bin, whose python3 is Apple's stub: after a macOS update it refuses
+# to run until the Xcode licence is accepted, and every check then read as "offline" (MacBook, 6-7 Nov).
+[ -d /opt/homebrew/bin ] && PATH="/opt/homebrew/bin:$PATH" && export PATH
+
 # ---------------------------------------------------------------- latest
 LATEST="$(curl -fsS --max-time 30 https://open-vsx.org/api/anthropic/claude-code 2>/dev/null \
           | python3 -c 'import sys,json; print(json.load(sys.stdin).get("version",""))' 2>/dev/null || true)"

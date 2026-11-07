@@ -1,0 +1,394 @@
+{
+ "project_esm_kerkere": "۱۳۶ راست‌به‌چپ",
+ "khaneha": [
+  {
+   "id": "patch_rtl",
+   "onvan": "پچ راست‌به‌چپ کلود در IDE",
+   "khane_vaziat": "done",
+   "radif": [
+    "فارسی در چت کلود درست نشان داده می‌شود"
+   ],
+   "madrak": "کامیت 31f3ce0"
+  },
+  {
+   "id": "chand_ide",
+   "onvan": "همهٔ IDEها و ویندوز",
+   "khane_vaziat": "done",
+   "radif": [
+    "روی ۲۶ کپی نصب می‌شود"
+   ],
+   "madrak": "کامیت 80b81c2"
+  },
+  {
+   "id": "dokme",
+   "onvan": "دکمه‌های بالا و پنل aA",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 2445fcb"
+  },
+  {
+   "id": "jostoju",
+   "onvan": "جست‌وجو، کپی گفتگو و تم",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت d82f229"
+  },
+  {
+   "id": "autoupdate",
+   "onvan": "آپدیت خودکار افزونه",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 7b9aa89"
+  },
+  {
+   "id": "preview",
+   "onvan": "پیش‌نمایش مارک‌داون راست‌به‌چپ",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت b7c94e3"
+  },
+  {
+   "id": "esm_rc",
+   "onvan": "اسم چت و کپی همه با ریموت",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت b3e8edc"
+  },
+  {
+   "id": "chatgpt",
+   "onvan": "پچ ChatGPT و Codex",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 17a8f18"
+  },
+  {
+   "id": "hads",
+   "onvan": "مود حدس",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 86faf40"
+  },
+  {
+   "id": "hads_fork",
+   "onvan": "دو جمله با کپی کل چت",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 383fea0"
+  },
+  {
+   "id": "hook_chat",
+   "onvan": "هوک‌ها داخل چت",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 2ba9358"
+  },
+  {
+   "id": "nakarde",
+   "onvan": "نکرده‌ها با شمارهٔ ک",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 49c83bd"
+  },
+  {
+   "id": "khodkar",
+   "onvan": "«خودکار» خودش به چت می‌رود",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 0dabe5b"
+  },
+  {
+   "id": "soal_focus",
+   "onvan": "پنجرهٔ سؤال در نمای فوکوس",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 05ec4e6"
+  },
+  {
+   "id": "khabar",
+   "onvan": "خبر نسخهٔ تازهٔ کلود",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 8148ac6"
+  },
+  {
+   "id": "codex_zaher",
+   "onvan": "ظاهر Codex مثل Claude",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت e972f07"
+  },
+  {
+   "id": "tarjome",
+   "onvan": "ترجمه در مود حدس",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 3d5125c"
+  },
+  {
+   "id": "ravand",
+   "onvan": "«روند» بالای پیام",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 62afcc4"
+  },
+  {
+   "id": "tamas",
+   "onvan": "لاگ تماس‌ها و رصد گیت‌هاب",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 0b23d94"
+  },
+  {
+   "id": "wezterm",
+   "onvan": "راست‌به‌چپ ترمینال WezTerm",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت cd187af"
+  },
+  {
+   "id": "tab_tanzim",
+   "onvan": "تب «تنظیمات کلود» با سه سطح",
+   "khane_vaziat": "done",
+   "radif": [
+    "۱۷۴ تنظیم"
+   ],
+   "madrak": "کامیت 54e6999 v2.45.0 (آخرین)"
+  },
+  {
+   "id": "mani_radif",
+   "onvan": "مقدار و معنی زیر هر ردیف تنظیمات",
+   "khane_vaziat": "done",
+   "radif": [
+    "۶۱ ردیف با پیش‌فرض، ۱۱۳ خالی با معنی"
+   ],
+   "madrak": "کامیت a70c517"
+  },
+  {
+   "id": "dokme_soal",
+   "onvan": "متن دکمه‌ها در پنجرهٔ سؤال",
+   "khane_vaziat": "stop",
+   "radif": [
+    "با «اسک» کار کرد؛ حالت خراب هنوز معلوم نیست"
+   ],
+   "madrak": "حبیب ۵ نوامبر ۱۶:۴۴: «وقتی که قسمت به دکمه های بالا رو میزنم توی توی پنجره سوال نمیاد اون متن ها»"
+  },
+  {
+   "id": "kamit_taze",
+   "shekl": "lozi",
+   "onvan": "کار تازهٔ تب کامیت شود؟",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 54e6999"
+  },
+  {
+   "id": "push_lozi",
+   "shekl": "lozi",
+   "onvan": "push و تگ v2.43.0 بشود؟",
+   "khane_vaziat": "you",
+   "radif": [
+    "moalagh.md م۱"
+   ]
+  },
+  {
+   "id": "push_kar",
+   "onvan": "push و تگ",
+   "khane_vaziat": "todo",
+   "radif": []
+  },
+  {
+   "id": "ac_lozi",
+   "shekl": "lozi",
+   "onvan": "اتوکامپکت سراسری سر ۳۰۰ هزار؟",
+   "khane_vaziat": "done",
+   "radif": [
+    "moalagh.md م۲"
+   ],
+   "madrak": "حبیب ۶ نوامبر: «همه رو بکن ۲۰۰ هزار»"
+  },
+  {
+   "id": "ac_kar",
+   "onvan": "ثبت اتوکامپکت: سراسری و پروژه‌ها، انبار افزونه، تایمر ۲۰۳ با معافی ۵۰۰ هزار، هوک remember و handoff",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "سراسری و opus-5-5 = 200000؛ بات ۹۱ = ۱ میلیون؛ ۹ خانهٔ ac_ در این یکی ادغام شد (حبیب ۷ نوامبر «بله، یکی کن»)"
+  },
+  {
+   "id": "noobati",
+   "onvan": "معلق‌های نوبتی",
+   "khane_vaziat": "todo",
+   "radif": [
+    "moalagh.md م۴ و م۵"
+   ]
+  },
+  {
+   "id": "jadval_javab",
+   "shekl": "mostatil",
+   "khane_vaziat": "now",
+   "onvan": "جدول گزینه‌ها بعد از جواب سؤال بماند",
+   "radif": [],
+   "madrak": "پچ روی 2.1.319 زده شد؛ روی صفحه هنوز دیده نشده"
+  }
+ ],
+ "khatha": [
+  [
+   "patch_rtl",
+   "chand_ide",
+   ""
+  ],
+  [
+   "chand_ide",
+   "dokme",
+   ""
+  ],
+  [
+   "dokme",
+   "jostoju",
+   ""
+  ],
+  [
+   "jostoju",
+   "autoupdate",
+   ""
+  ],
+  [
+   "autoupdate",
+   "preview",
+   ""
+  ],
+  [
+   "preview",
+   "esm_rc",
+   ""
+  ],
+  [
+   "esm_rc",
+   "chatgpt",
+   ""
+  ],
+  [
+   "chatgpt",
+   "hads",
+   ""
+  ],
+  [
+   "hads",
+   "hads_fork",
+   ""
+  ],
+  [
+   "hads_fork",
+   "hook_chat",
+   ""
+  ],
+  [
+   "hook_chat",
+   "nakarde",
+   ""
+  ],
+  [
+   "nakarde",
+   "khodkar",
+   ""
+  ],
+  [
+   "khodkar",
+   "soal_focus",
+   ""
+  ],
+  [
+   "soal_focus",
+   "khabar",
+   ""
+  ],
+  [
+   "khabar",
+   "codex_zaher",
+   ""
+  ],
+  [
+   "codex_zaher",
+   "tarjome",
+   ""
+  ],
+  [
+   "tarjome",
+   "ravand",
+   ""
+  ],
+  [
+   "ravand",
+   "tamas",
+   ""
+  ],
+  [
+   "tamas",
+   "wezterm",
+   ""
+  ],
+  [
+   "wezterm",
+   "tab_tanzim",
+   ""
+  ],
+  [
+   "tab_tanzim",
+   "mani_radif",
+   ""
+  ],
+  [
+   "mani_radif",
+   "dokme_soal",
+   ""
+  ],
+  [
+   "dokme_soal",
+   "kamit_taze",
+   ""
+  ],
+  [
+   "kamit_taze",
+   "push_lozi",
+   "بله"
+  ],
+  [
+   "kamit_taze",
+   "mani_radif",
+   "خیر"
+  ],
+  [
+   "push_lozi",
+   "push_kar",
+   "بله"
+  ],
+  [
+   "push_lozi",
+   "ac_lozi",
+   "خیر"
+  ],
+  [
+   "push_kar",
+   "ac_lozi",
+   ""
+  ],
+  [
+   "ac_lozi",
+   "ac_kar",
+   "بله"
+  ],
+  [
+   "ac_lozi",
+   "noobati",
+   "خیر"
+  ],
+  [
+   "ac_kar",
+   "noobati",
+   ""
+  ],
+  [
+   "tab_tanzim",
+   "jadval_javab",
+   ""
+  ]
+ ]
+}

@@ -527,6 +527,22 @@ s = re.sub(r'if\([\w$]+\.test\(([\w$]+)\)\)return \1;(let [\w$]+=Math\.max\(2,\.
 # ultracode labels through this list of its session objects. A new build without this anchor: labels catch up at the next change.
 s = re.sub(r'(\}\),)(xn\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.config\.value,[\w$]+=[\w$]+\?\.claudeSettings\?\.applied)',
            r'\1(globalThis.__crtl_sessions||(globalThis.__crtl_sessions=new Set)).add(this),\2', s, count=1)
+# After an answer, every option of the question window keeps its preview table, folded; the picked one open
+# (Habib, 7 Nov 03:12 «اون جدول هم کنارشون بمونه بعد از سوال» ⇒ «جدولِ همهٔ گزینه‌ها»). All three anchors or none.
+_t = s
+_mm = re.search(r'm\(([\w$]+),\{content:([\w$]+)\(([\w$]+)\),context:e,links:"text"\}\)', _t)
+if _mm:
+    _md, _norm = _mm.group(1), _mm.group(2)
+    _t, _n1 = re.subn(r'(u=s\.length===0\?null:m\()([\w$]+),\{answered:', r'\1\2,{crtlCtx:e,answered:', _t, count=1)
+    _t, _n2 = re.subn(r'function ([\w$]+)\(\{answered:e\}\)\{return m\("div",\{className:([\w$]+)\.reviewBody',
+                      r'function \1({answered:e,crtlCtx:__cx}){return m("div",{className:\2.reviewBody', _t, count=1)
+    _t, _n3 = re.subn(r'description:a\.description,\.\.\.([\w$]+)\(t,a\.label\)\},l\)',
+        lambda g: ('description:a.description,...%s(t,a.label),children:typeof a.preview==="string"&&a.preview.trim()!==""&&'
+                   'm("details",{className:"crtl-ans-preview",open:%s(t,a.label).selected,onClick:(ev)=>ev.stopPropagation(),'
+                   'children:[m("summary",{children:"جدول"}),m("div",{children:m(%s,{content:%s(a.preview),context:__cx,links:"text"})})]})},l)'
+                   % (g.group(1), g.group(1), _md, _norm)), _t, count=1)
+    if _n1 and _n2 and _n3:
+        s = _t
 open(path, 'w', encoding='utf-8').write(s)
 PYEOF
             fi

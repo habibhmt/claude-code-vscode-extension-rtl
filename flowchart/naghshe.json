@@ -1,0 +1,483 @@
+[
+ {
+  "id": "h_patch",
+  "onvan": "پچ کلود",
+  "shakhe": [
+   {
+    "shakhe_esm": "نصب پچ",
+    "masir": "fix-rtl-claude.sh",
+    "kar": [
+     "patch_rtl",
+     "chand_ide"
+    ],
+    "madrak": "fix-rtl-claude.sh"
+   },
+   {
+    "shakhe_esm": "نصب ویندوز",
+    "masir": "fix-rtl-claude.ps1",
+    "kar": [
+     "chand_ide"
+    ],
+    "madrak": "کامیت 106d8d8"
+   },
+   {
+    "shakhe_esm": "دکمه‌ها و پنل",
+    "masir": "claude-ui-buttons.js",
+    "kar": [
+     "dokme",
+     "tab_tanzim",
+     "mani_radif",
+     "dokme_soal"
+    ],
+    "madrak": "claude-ui-buttons.js"
+   },
+   {
+    "shakhe_esm": "کد میزبان",
+    "masir": "claude-host-hook.js",
+    "kar": [
+     "tab_tanzim",
+     "esm_rc",
+     "mani_radif"
+    ],
+    "madrak": "claude-host-hook.js"
+   },
+   {
+    "shakhe_esm": "فهرست دکمه‌ها",
+    "masir": "dokme_ha.json",
+    "kar": [
+     "dokme"
+    ],
+    "madrak": "کامیت b8d160a"
+   },
+   {
+    "shakhe_esm": "تنظیم اسکرول",
+    "masir": "ensure-scroll-setting.py",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "نمونهٔ اندازه‌ها",
+    "masir": "sizes.example.json",
+    "kar": [
+     "dokme"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h_tanzim",
+  "onvan": "متن تنظیمات",
+  "shakhe": [
+   {
+    "shakhe_esm": "خط فارسی",
+    "masir": "claude-tanzimat-fa.json",
+    "kar": [
+     "tab_tanzim"
+    ],
+    "madrak": "کامیت 330dbfa"
+   },
+   {
+    "shakhe_esm": "شرح و معنی",
+    "masir": "claude-tanzimat-tozih.json",
+    "kar": [
+     "mani_radif"
+    ],
+    "madrak": "Doc/tarif/24_tarif_tab_tanzimat_claude_v1.md"
+   }
+  ]
+ },
+ {
+  "id": "h_chatgpt",
+  "onvan": "ChatGPT و Codex",
+  "shakhe": [
+   {
+    "shakhe_esm": "chatgpt-adapter.py",
+    "masir": "chatgpt-adapter.py",
+    "kar": [
+     "chatgpt"
+    ]
+   },
+   {
+    "shakhe_esm": "chatgpt-folder-filter.js",
+    "masir": "chatgpt-folder-filter.js",
+    "kar": [
+     "chatgpt"
+    ]
+   },
+   {
+    "shakhe_esm": "chatgpt-folder-patch.py",
+    "masir": "chatgpt-folder-patch.py",
+    "kar": [
+     "chatgpt"
+    ]
+   },
+   {
+    "shakhe_esm": "chatgpt-panel-state.js",
+    "masir": "chatgpt-panel-state.js",
+    "kar": [
+     "chatgpt"
+    ]
+   },
+   {
+    "shakhe_esm": "chatgpt-rtl.css",
+    "masir": "chatgpt-rtl.css",
+    "kar": [
+     "chatgpt",
+     "codex_zaher"
+    ]
+   },
+   {
+    "shakhe_esm": "chatgpt-tabs.js",
+    "masir": "chatgpt-tabs.js",
+    "kar": [
+     "chatgpt",
+     "codex_zaher"
+    ]
+   },
+   {
+    "shakhe_esm": "fix-rtl-chatgpt.py",
+    "masir": "fix-rtl-chatgpt.py",
+    "kar": [
+     "chatgpt"
+    ]
+   },
+   {
+    "shakhe_esm": "fix-rtl-chatgpt.sh",
+    "masir": "fix-rtl-chatgpt.sh",
+    "kar": [
+     "chatgpt"
+    ]
+   },
+   {
+    "shakhe_esm": "install-chatgpt-autofix.py",
+    "masir": "install-chatgpt-autofix.py",
+    "kar": [
+     "chatgpt"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h_preview",
+  "onvan": "پیش‌نمایش",
+  "shakhe": [
+   {
+    "shakhe_esm": "افزونه",
+    "masir": "md-rtl-ext/",
+    "kar": [
+     "preview"
+    ],
+    "madrak": "کامیت b7c94e3"
+   },
+   {
+    "shakhe_esm": "نصب",
+    "masir": "fix-rtl-md-preview.sh",
+    "kar": [
+     "preview"
+    ]
+   },
+   {
+    "shakhe_esm": "استایل",
+    "masir": "mpe-rtl.less",
+    "kar": [
+     "preview"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "h_mod",
+  "onvan": "مودها",
+  "shakhe": [
+   {
+    "shakhe_esm": "حدس",
+    "masir": "mods/hads/",
+    "kar": [
+     "hads",
+     "hads_fork",
+     "nakarde",
+     "khodkar",
+     "tarjome",
+     "ravand"
+    ],
+    "madrak": "Doc/tarif/01_tarif_hads_v1.md"
+   },
+   {
+    "shakhe_esm": "WezTerm",
+    "masir": "mods/rtl-wezterm/",
+    "kar": [
+     "wezterm"
+    ],
+    "madrak": "کامیت cd187af"
+   }
+  ]
+ },
+ {
+  "id": "h_khodkar",
+  "onvan": "کارهای خودکار",
+  "shakhe": [
+   {
+    "shakhe_esm": "آپدیت افزونه",
+    "masir": "auto-update-claude-code.sh",
+    "kar": [
+     "autoupdate"
+    ],
+    "madrak": "کامیت 7b9aa89"
+   },
+   {
+    "shakhe_esm": "خبر نسخه",
+    "masir": "khabar_noskhe.sh",
+    "kar": [
+     "khabar"
+    ],
+    "madrak": "کامیت 8148ac6"
+   },
+   {
+    "shakhe_esm": "بستن چت‌های مرده",
+    "masir": "kill-claude-zombies.sh",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "com.habib.claude-code-autoupdate.plist",
+    "masir": "com.habib.claude-code-autoupdate.plist",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "com.habib.fix-rtl-claude.plist",
+    "masir": "com.habib.fix-rtl-claude.plist",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "com.habib.khabar-noskhe.plist",
+    "masir": "com.habib.khabar-noskhe.plist",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "com.habib.kill-claude-zombies.plist",
+    "masir": "com.habib.kill-claude-zombies.plist",
+    "kar": []
+   }
+  ]
+ },
+ {
+  "id": "h_test",
+  "onvan": "آزمون‌ها",
+  "shakhe": [
+   {
+    "shakhe_esm": "test_chatgpt_folder_filter.cjs",
+    "masir": "test_chatgpt_folder_filter.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_folder_native.cjs",
+    "masir": "test_chatgpt_folder_native.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_folder_patch.py",
+    "masir": "test_chatgpt_folder_patch.py",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_folder_query.cjs",
+    "masir": "test_chatgpt_folder_query.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_folder_recent.cjs",
+    "masir": "test_chatgpt_folder_recent.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_font_spacing.cjs",
+    "masir": "test_chatgpt_font_spacing.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_header.cjs",
+    "masir": "test_chatgpt_header.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_history_click.cjs",
+    "masir": "test_chatgpt_history_click.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_home_order.cjs",
+    "masir": "test_chatgpt_home_order.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_layout.cjs",
+    "masir": "test_chatgpt_layout.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_panel_state.cjs",
+    "masir": "test_chatgpt_panel_state.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_patch.py",
+    "masir": "test_chatgpt_patch.py",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_chatgpt_tabs.cjs",
+    "masir": "test_chatgpt_tabs.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_amar.cjs",
+    "masir": "test_claude_amar.cjs",
+    "kar": [
+     "tamas"
+    ]
+   },
+   {
+    "shakhe_esm": "test_claude_ask_visible.cjs",
+    "masir": "test_claude_ask_visible.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_ask_width.cjs",
+    "masir": "test_claude_ask_width.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_code_ink.cjs",
+    "masir": "test_claude_code_ink.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_code_rangi.cjs",
+    "masir": "test_claude_code_rangi.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_hads_tartib.cjs",
+    "masir": "test_claude_hads_tartib.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_hooks_in_chat.cjs",
+    "masir": "test_claude_hooks_in_chat.cjs",
+    "kar": [
+     "hook_chat"
+    ]
+   },
+   {
+    "shakhe_esm": "test_claude_hover_baz.cjs",
+    "masir": "test_claude_hover_baz.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_plugin_prompt.cjs",
+    "masir": "test_claude_plugin_prompt.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_stamp.cjs",
+    "masir": "test_claude_stamp.cjs",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "test_claude_tanzimat.cjs",
+    "masir": "test_claude_tanzimat.cjs",
+    "kar": [
+     "tab_tanzim",
+     "mani_radif"
+    ]
+   },
+   {
+    "shakhe_esm": "test_claude_tarjome.cjs",
+    "masir": "test_claude_tarjome.cjs",
+    "kar": [
+     "tarjome"
+    ]
+   },
+   {
+    "shakhe_esm": "test_claude_top_buttons.cjs",
+    "masir": "test_claude_top_buttons.cjs",
+    "kar": [
+     "dokme",
+     "dokme_soal"
+    ]
+   },
+   {
+    "shakhe_esm": "test_claude_top_wait.cjs",
+    "masir": "test_claude_top_wait.cjs",
+    "kar": []
+   }
+  ]
+ },
+ {
+  "id": "h_doc",
+  "onvan": "مدارک",
+  "shakhe": [
+   {
+    "shakhe_esm": "مدارک",
+    "masir": "Doc/",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "راهنما",
+    "masir": "README.md",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "راهنمای ایجنت",
+    "masir": "AGENTS.md",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "دستور پروژه",
+    "masir": "CLAUDE.md",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "معلق‌ها",
+    "masir": "moalagh.md",
+    "kar": [
+     "push_lozi",
+     "ac_lozi",
+     "noobati"
+    ],
+    "madrak": "moalagh.md"
+   },
+   {
+    "shakhe_esm": "واژه‌نامه",
+    "masir": "build-glossary.py",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "مجوز",
+    "masir": "LICENSE",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "بسته‌ها",
+    "masir": "package.json",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "قفل بسته‌ها",
+    "masir": "package-lock.json",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "رها از گیت",
+    "masir": ".gitignore",
+    "kar": []
+   },
+   {
+    "shakhe_esm": "رصد گیت‌هاب کلود",
+    "masir": "claude-code-github/",
+    "kar": [
+     "tamas"
+    ],
+    "madrak": "کامیت 0b23d94"
+   }
+  ]
+ }
+]

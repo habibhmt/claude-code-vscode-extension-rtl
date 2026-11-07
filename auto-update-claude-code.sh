@@ -163,6 +163,37 @@ while IFS='|' read -r name dir by_id; do
         fi
     fi
 
+    # Devin's own installer can hang or install nothing (7 Nov: FAILED, still on 2.1.318), and the
+    # Open VSX download can drop. VS Code's copy of the same version is the same build, so it is
+    # copied in as is, with the RTL patch taken off again (the patch step below puts it back).
+    # Only while Devin is closed (Habib, 7 Nov: «بله»), so nothing changes under an open window.
+    if [ "$ok" != true ] && [ "$name" = "Devin" ] && ! pgrep -x Devin >/dev/null 2>&1; then
+        src="$(ls -d "$HOME"/.vscode/extensions/anthropic.claude-code-"$LATEST"-* 2>/dev/null | head -1)"
+        dst="$dir/extensions/anthropic.claude-code-$LATEST"
+        if [ -n "$src" ] && [ ! -e "$dst" ] && ditto "$src" "$dst"; then
+            for f in webview/index.css webview/index.js extension.js; do
+                [ -f "$dst/$f.backup" ] && mv -f "$dst/$f.backup" "$dst/$f"
+            done
+            python3 - "$dir/extensions/extensions.json" "$LATEST" <<'PYEOF' && ok=true
+import json, sys
+path, ver = sys.argv[1], sys.argv[2]
+data = json.load(open(path))
+base = path.rsplit('/', 1)[0] + '/anthropic.claude-code-' + ver
+hit = False
+for e in data:
+    if e.get('identifier', {}).get('id', '').lower() == 'anthropic.claude-code':
+        e['version'] = ver
+        e['relativeLocation'] = base.rsplit('/', 1)[1]
+        e.setdefault('location', {}).update(fsPath=base, path=base, external='file://' + base, scheme='file')
+        hit = True
+if not hit:
+    sys.exit(1)
+json.dump(data, open(path, 'w'))
+PYEOF
+            [ "$ok" = true ] && say "$name: copied $LATEST from VS Code"
+        fi
+    fi
+
     # Trust the folder, not the installer's exit code: Devin's marketplace
     # reports success while installing an older build.
     now="$(installed_version "$dir")"

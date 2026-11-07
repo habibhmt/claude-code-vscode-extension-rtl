@@ -15,6 +15,10 @@ function activate(context) {
   try { watcher = fs.watch(DIR, (_e, name) => { if (name === 'trigger') check(); }); }
   catch (_) { return; }
   context.subscriptions.push({ dispose: () => watcher.close() });
+  // میانبُر: Cmd+Shift+P ⇐ «Reload All Windows» ⇐ همهٔ پنجره‌ها، خودِ این پنجره هم
+  context.subscriptions.push(vscode.commands.registerCommand("habibReload.all", () => {
+    fs.writeFileSync(FILE, Date.now() + " all");
+  }));
 
   function check() {
     let txt;

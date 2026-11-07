@@ -4,8 +4,22 @@
   "description": "Reload this window when ~/.vscode-reload/trigger names it (or 'all')",
   "version": "1.0.0",
   "publisher": "habib",
-  "engines": { "vscode": "^1.60.0" },
-  "categories": ["Other"],
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "main": "./extension.js",
-  "activationEvents": ["onStartupFinished"]
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "habibReload.all",
+        "title": "Reload All Windows (همهٔ پنجره‌ها)"
+      }
+    ]
+  }
 }

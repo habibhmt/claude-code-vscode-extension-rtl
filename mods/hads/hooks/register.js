@@ -865,6 +865,11 @@ export function adghame_fasele(sarasari = {}, proje = {}, chat = {}, pishfarz = 
     const [d, v] = [['chat', chat[k]], ['proje', proje[k]], ['sarasari', sarasari[k]]].find(([, x]) => Number.isInteger(x) && x >= -1) || ['pishfarz', pishfarz[k] ?? 0]
     val[k] = Math.min(had_fasele, v); az[k] = d
   }
+  // which parts float, in the floater's order (Habib, 8 Nov 21:18: «توی تنظیم باشه که میخوایم توی فلوت شناور بیاد
+  // یانه … بشه بالا و پایین ترتیبش رو چید»; all in one box, the order inside it)
+  const sh = [chat.shenavar, proje.shenavar, sarasari.shenavar].find((x) => Array.isArray(x))
+  val.shenavar = (sh || pishfarz.shenavar || ['thinking']).filter((k, i, a) => bakhsh_fasele.includes(k) && a.indexOf(k) === i)
+  az.shenavar = sh === chat.shenavar && sh ? 'chat' : sh === proje.shenavar && sh ? 'proje' : sh ? 'sarasari' : 'pishfarz'
   return { val, az }
 }
 // how many model calls a turn of n tools makes with these numbers (parts due together count once) — for the ⚙ window
@@ -894,6 +899,7 @@ async function fasele_ha($) {
 }
 async function sabt_fasele($, dayere, val) {
   const o = Object.fromEntries(bakhsh_fasele.filter((k) => Number.isInteger(val[k])).map((k) => [k, Math.max(-1, Math.min(had_fasele, val[k]))]))
+  if (Array.isArray(val.shenavar)) o.shenavar = val.shenavar.filter((k) => bakhsh_fasele.includes(k))
   try { await $.process.run(['mkdir', '-p', await dir_fasele($)]) } catch {}
   await $.fs.write(await masir_fasele($, dayere), JSON.stringify(o) + '\n')
   fasele_cache = { for: '', t: -1e15, v: null }
@@ -1520,12 +1526,20 @@ async function tik_zadan($, key) {
   $.ui.invalidate('ui.render')
 }
 
+// the floater's data: one hidden line the page reads (like «تماس‌ها»), the floating parts in their order with their lines
+export const neshane_shenavar = '\u2063SHENAVAR'
+export function khat_shenavar(list, dade) {
+  const esm = Object.fromEntries(bakhsh_ha)
+  const parts = list.map((k) => ({ k, esm: esm[k] || k, lines: (dade[k] || []).filter((x) => typeof x === 'string' && x.trim()) })).filter((x) => x.lines.length)
+  // the list goes even when empty: «nothing floats» must reach the page too
+  return neshane_shenavar + JSON.stringify({ list, parts })
+}
 // the ⚙ window: per part «every N tools» with − +, one «همه» row, and three saves
 // −1 = the part is off (Habib, 8 Nov 21:17: «اگه تو مرحله اول یک بار علامت منفی زده بشه اون گزینه کلا اف بشه»)
 const matn_fasele = (v) => v > 0 ? 'هر ' + adad_farsi(v) + ' ابزار' : v === 0 ? 'فقط آخرِ نوبت' : 'خاموش'
 async function panjare_fasele($, id, Box, Text, Button) {
   const f = await fasele_ha($)
-  const pn = fasele_pishnevis.get(id) || { ...f.val }
+  const pn = fasele_pishnevis.get(id) || { ...f.val, shenavar: [...f.val.shenavar] }
   const taghir = (k, d) => { const x = { ...(fasele_pishnevis.get(id) || f.val) }, paye = x.hads | 0; for (const j of k === 'hame' ? bakhsh_fasele : [k]) x[j] = Math.max(-1, Math.min(had_fasele, (k === 'hame' ? paye : (x[j] | 0)) + d)); fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
   const esm = Object.fromEntries(bakhsh_ha)
   const radif = (k, label, v, az) => Box({ key: 'hads-fs-r-' + k, flexDirection: 'row', columnGap: 1, children: [
@@ -1534,13 +1548,25 @@ async function panjare_fasele($, id, Box, Text, Button) {
     Text({ key: 'hads-fs-v-' + k, children: [k === 'do_jomle' && az === 'pishfarz' && v === f.val[k] ? 'هر ابزار، دقیقه‌ای یک بار' : matn_fasele(v)] }),
     Button({ key: 'hads-fs-ziad-' + k, label: '+', onPress: () => taghir(k, 1) }),
     ...(az ? [Text({ dimColor: true, children: ['(' + esm_dayere_fasele[az] + ')'] })] : []),
+    ...(k === 'hame' ? [] : [
+      Button({ key: 'hads-fs-sh-' + k, label: (pn.shenavar.includes(k) ? '✓' : '✗') + ' شناور', onPress: () => jabeja(k, 0) }),
+      ...(pn.shenavar.includes(k) ? [Button({ key: 'hads-fs-bala-' + k, label: '▲', onPress: () => jabeja(k, -1) }), Button({ key: 'hads-fs-paein-' + k, label: '▼', onPress: () => jabeja(k, 1) })] : []),
+    ]),
   ] })
+  // 0 = in or out of the floater; −1/+1 = up/down inside it
+  const jabeja = (k, d) => {
+    const x = { ...(fasele_pishnevis.get(id) || f.val) }, l = [...x.shenavar], i = l.indexOf(k)
+    if (d === 0) { if (i < 0) l.push(k); else l.splice(i, 1) }
+    else if (i >= 0 && i + d >= 0 && i + d < l.length) { l.splice(i, 1); l.splice(i + d, 0, k) }
+    x.shenavar = l; fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render')
+  }
   const sabt = (d) => async () => { await sabt_fasele($, d, fasele_pishnevis.get(id) || f.val); fasele_pishnevis.delete(id); $.ui.invalidate('ui.render') }
   const c = tedad_fork_nobat(pn)
   return [Box({ key: 'hads-fs', flexDirection: 'column', children: [
     Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت، یک − دیگر = خاموش). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
     radif('hame', 'همه:', pn.hads, null),
     ...bakhsh_fasele.map((k) => radif(k, (esm[k] || k) + ':', pn[k], f.az[k])),
+    Text({ key: 'hads-fs-tartib', dimColor: true, children: ['ترتیب در شناور: ' + (pn.shenavar.length ? pn.shenavar.map((k) => esm[k] || k).join(' ← ') : 'هیچ') + ' (' + esm_dayere_fasele[f.az.shenavar] + ')'] }),
     Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),
     Box({ flexDirection: 'row', columnGap: 1, children: [
       Button({ key: 'hads-fs-sabt-sarasari', label: 'ثبتِ سراسری', onPress: sabt('sarasari') }),
@@ -1718,6 +1744,15 @@ export function register(on) {
     // the hidden line is drawn only by the page; a terminal printed it raw over half the screen (Habib, 4 Nov 01:45)
     const amar_khat = e.surface === 'terminal' ? khat_amar_terminal(amar_matn) : amar_matn
     const amar = amar_khat ? [Text({ key: 'hads-amar', dimColor: true, children: [amar_khat] })] : []
+    // the floater's hidden line (the page only; a terminal has no floater)
+    if (e.surface !== 'terminal') {
+      const th = p.thinking && do_jomle_akhar.for === id ? do_jomle_akhar.summary?.thinking : null
+      const dade = { thinking: th ? [th.fekr, th.kard, th.bad] : [], do_jomle: n ? [n, ...(sm ? [...(sm.anjam_shod.length ? ['✓ ' + sm.anjam_shod.join(' · ')] : []), ...(sm.anjam_nashod.length ? ['✗ ' + sm.anjam_nashod.join(' · ')] : [])] : [])] : [],
+        hads: g.map((x) => x.text), ravand: rv.map((x) => x.ravand), nakarde: nk.map((x) => x.harf), khodkar: kh.map((x) => x.kar + ' ⇐ ' + x.abzar),
+        cron: cr.map((x) => x.kar + ' ⇐ ' + x.zaman), porsesh: a ? [a.text] : [] }
+      const list = (await fasele_ha($)).val.shenavar.filter((k) => p[k])
+      amar.push(Text({ key: 'hads-shenavar', dimColor: true, children: [khat_shenavar(list, dade)] }))
+    }
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line
     // two states now: the folded line is gone, the button opens the whole box and × goes straight back to it

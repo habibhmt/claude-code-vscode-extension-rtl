@@ -1164,7 +1164,7 @@ function hads_due_reset() {}
   await find(r, 'hads-fs-sabt-chat').onPress()
   const saved = JSON.parse(flags['/h/.claude/hads-fasele/chat-FS.json'])
   out.fasele_sabt = [saved.hads, saved.cron, saved.thinking]; assert.deepEqual(out.fasele_sabt, [2, 2, 2])
-  r = await render(); out.fasele_az = find(r, 'hads-fs-r-hads').children.at(-1).children[0]; assert.equal(out.fasele_az, '(همین چت)')
+  r = await render(); out.fasele_az = find(r, 'hads-fs-r-hads').children.find((c) => c.t === 'Text' && /^\(/.test(c.children?.[0]))?.children[0]; assert.equal(out.fasele_az, '(همین چت)')
   // the project save lands in its own file
   await find(r, 'hads-fs-sabt-proje').onPress(); assert.ok(flags['/h/.claude/hads-fasele/proje--proj.json'])
   // every 2nd tool one fork for all due parts, none on the odd ones
@@ -1188,5 +1188,20 @@ function hads_due_reset() {}
   await find(r, 'hads-tick-hads').onPress(); $.t += 10000; r = await render()
   out.off_bargasht = [find(r, 'hads-tick-hads').label, JSON.parse(flags['/h/.claude/hads-fasele/chat-OF.json']).hads, saved.hads]
   assert.deepEqual([out.off_aval, out.off_matn, out.off_tik, ...out.off_bargasht], ['فقط آخرِ نوبت', 'خاموش', '✗ حدس', '✓ حدس', 0, -1])
+}
+// which parts float, and their order inside the one floater (Habib, 8 Nov 21:18)
+{
+  $.sid = 'SH'; await H['command.run']($, { args: 'on' })
+  let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
+  const khat = (t) => { const x = find(t, 'hads-shenavar')?.children[0] || ''; return x ? JSON.parse(x.slice(mod.neshane_shenavar.length)) : null }
+  out.sh_pishfarz = khat(r).list; assert.deepEqual(out.sh_pishfarz, ['thinking'])
+  await find(r, 'hads-fs-sh-hads').onPress(); r = await render(); await find(r, 'hads-fs-sh-cron').onPress(); r = await render()
+  await find(r, 'hads-fs-bala-cron').onPress(); r = await render()
+  out.sh_tartib = find(r, 'hads-fs-tartib').children[0]
+  await find(r, 'hads-fs-sabt-chat').onPress(); $.t += 10000; r = await render()
+  out.sh_list = khat(r).list; assert.deepEqual(out.sh_list, ['thinking', 'cron', 'hads'], 'list ' + out.sh_list + ' ' + out.sh_tartib)
+  // the floater's line goes with the box closed too
+  await find(r, 'hads-x').onPress(); r = await render(); assert.deepEqual(khat(r)?.list, ['thinking', 'cron', 'hads'])
+  assert.deepEqual(mod.khat_shenavar(['hads', 'cron'], { hads: ['یک'], cron: [] }), mod.neshane_shenavar + JSON.stringify({ list: ['hads', 'cron'], parts: [{ k: 'hads', esm: 'حدس', lines: ['یک'] }] }))
 }
 console.log('fasele ok')

@@ -292,6 +292,7 @@
     '#crtl-fekr-shenavar{position:fixed;right:14px;width:38%;min-width:140px;min-height:40px;max-height:80vh;z-index:50;resize:both;overflow:auto;box-sizing:border-box;padding:4px 10px 6px;border-radius:10px;border:.5px solid rgba(128,128,128,.28);box-shadow:0 6px 20px rgba(0,0,0,.3);background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-fekr-pori-darsad,75%),transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:-apple-system,BlinkMacSystemFont,Vazirmatn,system-ui,sans-serif;font-size:10.5px;line-height:1.5;color:var(--vscode-descriptionForeground,#aaa);text-shadow:0 1px 3px rgba(0,0,0,.55)}',
     '.crtl-hads.crtl-hads-tak-dokme .crtl-fekr-radif{display:none!important}',
     '#crtl-fekr-shenavar .crtl-fekr-dastgire{cursor:move;user-select:none;text-align:center;opacity:.5;font-size:10px;line-height:12px;margin:-2px 0 2px}',
+    '#crtl-fekr-shenavar .crtl-fekr-onvan{font-weight:600;opacity:.7;font-size:10px;margin-top:4px}',
     '#crtl-fekr-shenavar .crtl-fekr-dokme{cursor:pointer;padding:0 6px;font-size:13px}#crtl-fekr-shenavar .crtl-fekr-dokme:hover{opacity:1;color:var(--vscode-foreground,#fff)}#crtl-fekr-shenavar .crtl-fekr-shomare{font-variant-numeric:tabular-nums}',
     '#crtl-fekr-shenavar .crtl-fekr-kalame{opacity:0;display:inline-block;white-space:pre;animation:crtl-fekr-biya .5s ease-out forwards}',
     '@keyframes crtl-fekr-biya{from{opacity:0;transform:translateY(4px);filter:blur(3px)}to{opacity:.85;transform:none;filter:none}}',
@@ -2908,6 +2909,19 @@
      فلوت ویندو باشه که حتی ویندوش قابل دیدن نباشه فقط کلمه ها بیان»). The mod's three rows are found by their
      labels, hidden in the card, and their sentences drawn in a fixed, see-through, click-through layer. */
   var BARCHASB_THINKING = ['به چه فکر کرد:', 'چه کرد:', 'بعدش:'], thinking_akhar = '';
+  // the mod's hidden line (v2.56+): which parts float, in Habib's order, and their lines (Habib, 8 Nov 21:18: «توی تنظیم
+  // باشه که میخوایم توی فلوت شناور بیاد یانه … همه خصوصیات اون ثینکینگ رو بگیره … بالا و پایین ترتیبش رو چید»)
+  var NESHANE_SHENAVAR = '\u2063SHENAVAR';
+  function khandan_khat_shenavar(card) {
+    var sps = card.querySelectorAll('span'), o = null;
+    for (var i = 0; i < sps.length; i++) {
+      var tx = sps[i].textContent || '';
+      if (tx.indexOf(NESHANE_SHENAVAR) !== 0 || sps[i].querySelector('span')) continue;
+      sps[i].style.display = 'none';
+      try { o = JSON.parse(tx.slice(NESHANE_SHENAVAR.length)); } catch (e) {}
+    }
+    return o && Array.isArray(o.list) && Array.isArray(o.parts) ? o : null;
+  }
   function shenavar_thinking(card) {
     var ls = card.querySelectorAll('span[class*="text_"]'), jomle_ha = [];
     for (var i = 0; i < ls.length; i++) {
@@ -2917,13 +2931,22 @@
       var s = ls[i].nextElementSibling; if (s) jomle_ha.push((s.textContent || '').trim());
     }
     var lay = document.getElementById('crtl-fekr-shenavar');
-    // the «حدس» box closed or its rows gone: the last words stay, above the prompt box (Habib, 8 Nov 17:25:
-    // «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
-    if (!jomle_ha.length) { if (lay) ja_thinking(lay, null); return; }
+    var sh = khandan_khat_shenavar(card), matn;
+    if (sh) {
+      // nothing chosen to float: no floater at all
+      if (!sh.list.length) { if (lay) lay.remove(); thinking_akhar = ''; return; }
+      if (!sh.parts.length) { if (lay) ja_thinking(lay, null); return; }
+      matn = JSON.stringify(sh.parts);
+    } else {
+      // an older mod: the thinking rows by their labels
+      // the «حدس» box closed or its rows gone: the last words stay, above the prompt box (Habib, 8 Nov 17:25:
+      // «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
+      if (!jomle_ha.length) { if (lay) ja_thinking(lay, null); return; }
+      matn = jomle_ha.join('\n');
+    }
     if (!lay) { lay = sakhtan_shenavar(); thinking_akhar = ''; }
     if (lay.dataset.sid !== shenase_fekr()) { lay.dataset.sid = shenase_fekr(); thinking_akhar = ''; }
     ja_thinking(lay, card);
-    var matn = jomle_ha.join('\n');
     if (matn === thinking_akhar) return;
     thinking_akhar = matn;
     // every new thinking gets a number; ‹ › next to ⠿ walk back and forth (Habib, 8 Nov 20:04: «قبلی ها هم
@@ -2951,8 +2974,14 @@
     i = Math.max(0, Math.min(ta.length - 1, i)); lay.dataset.shomare = i;
     var sh = lay.querySelector('.crtl-fekr-shomare'); if (sh) sh.textContent = (i + 1) + '/' + ta.length;
     var jaye = lay.querySelector('.crtl-fekr-matn'); jaye.textContent = '';
-    var jomle_ha = ta[i].split('\n'), n = 0;
+    // one entry: the parts (title + lines), or an older entry's plain lines
+    var parts = null; if (ta[i].charAt(0) === '[') { try { parts = JSON.parse(ta[i]); } catch (e) {} }
+    var jomle_ha = [], onvan_ha = {};
+    if (parts) parts.forEach(function (x) { if (parts.length > 1 || x.k !== 'thinking') onvan_ha[jomle_ha.length] = x.esm; jomle_ha.push.apply(jomle_ha, x.lines); });
+    else jomle_ha = ta[i].split('\n');
+    var n = 0;
     for (var j = 0; j < jomle_ha.length; j++) {
+      if (onvan_ha[j]) { var ov = document.createElement('div'); ov.className = 'crtl-fekr-onvan'; ov.textContent = onvan_ha[j]; jaye.appendChild(ov); }
       var p = document.createElement('div'); p.className = 'crtl-fekr-jomle';
       var ws = jomle_ha[j].split(/\s+/);
       for (var w = 0; w < ws.length; w++) {

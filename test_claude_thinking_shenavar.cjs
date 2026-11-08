@@ -68,6 +68,13 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   await p.evaluate(()=>document.querySelector('#hc span').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:20,clientY:20})));
   const menu2=await p.evaluate(()=>{const m=document.getElementById('crtl-ctx');return getComputedStyle(m).display!=='none'?[...m.querySelectorAll('button')].map(b=>b.textContent):[]});
   assert.ok(menu2.some(t=>t.includes('نقل‌قول در چت')),'hads menu '+menu2);
+  // the mod's hidden line: the chosen parts, in order, each with its title; an empty list ⇒ no floater (Habib, 8 Nov 21:18)
+  const sh=await p.evaluate(()=>{const N='\u2063SHENAVAR';const c=document.createElement('div');document.body.appendChild(c);
+   const put=o=>{c.innerHTML='<span class="text_x">'+N+JSON.stringify(o)+'</span>';window.__crtl_shenavar_thinking(c)};
+   put({list:['cron','hads'],parts:[{k:'cron',esm:'کرون‌جاب',lines:['هر شب ⇐ ۲۳:۰۰']},{k:'hads',esm:'حدس',lines:['آزمون بزن']}]});
+   const L=document.getElementById('crtl-fekr-shenavar');const o=[[...L.querySelectorAll('.crtl-fekr-onvan')].map(x=>x.textContent),L.querySelector('.crtl-fekr-matn').textContent.replace(/\s+/g,' ').trim(),getComputedStyle(c.firstChild).display];
+   put({list:[],parts:[]});o.push(!!document.getElementById('crtl-fekr-shenavar'));c.remove();return o});
+  assert.deepEqual(sh,[['کرون‌جاب','حدس'],'کرون‌جابهر شب ⇐ ۲۳:۰۰ حدسآزمون بزن','none',false],'sh '+JSON.stringify(sh));
   console.log('PASS',JSON.stringify(r));
  }finally{await b.close()}
 })().catch(e=>{console.error('FAIL',e.message);process.exit(1)});

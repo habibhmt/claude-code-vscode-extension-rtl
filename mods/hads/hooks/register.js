@@ -856,8 +856,8 @@ export function khandan_jambandi(raw) {
 export const bakhsh_fasele = ['do_jomle', 'thinking', 'hads', 'ravand', 'nakarde', 'khodkar', 'cron', 'porsesh']
 export const bakhsh_fork_vasat = ['hads', 'ravand', 'nakarde', 'khodkar', 'cron']
 export const had_fasele = 50
-// a priced guess for one fork of a big chat, from a real usage line (8 Nov: 233k cache read, 9k in, 1.6k out ≈ $0.2)
-export const kharj_hads_yek_fork_dolar = 0.2
+// a priced guess for one fork of a big chat, from a real usage line (8 Nov: 233k cache read, 9k in, 1.6k out; claude.com/pricing Opus 5.5: in $4, out $20, cache read $0.20, write $5 per M ⇒ $0.12)
+export const kharj_hads_yek_fork_dolar = 0.12
 export const esm_dayere_fasele = { chat: 'همین چت', proje: 'همین پروژه', sarasari: 'سراسری', pishfarz: 'پیش‌فرض' }
 // ⚙ «شرطِ صدا زدن» (Habib, 8 Nov 23:14: «شرط صدا زدن رو بگو چهه چیزهایی میشه گذاشت و اینکه چند شرطی یا این یا اون
 // یا هردو یا هر سه هم بشه تعیین کرد»; 23:21 «همین ۸ تا» · «جفت حالت ها باشن»). A part runs when any group holds (یا);

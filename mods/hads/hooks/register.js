@@ -862,7 +862,7 @@ export const esm_dayere_fasele = { chat: 'همین چت', proje: 'همین پر�
 export function adghame_fasele(sarasari = {}, proje = {}, chat = {}, pishfarz = {}) {
   const val = {}, az = {}
   for (const k of bakhsh_fasele) {
-    const [d, v] = [['chat', chat[k]], ['proje', proje[k]], ['sarasari', sarasari[k]]].find(([, x]) => Number.isInteger(x) && x >= 0) || ['pishfarz', pishfarz[k] ?? 0]
+    const [d, v] = [['chat', chat[k]], ['proje', proje[k]], ['sarasari', sarasari[k]]].find(([, x]) => Number.isInteger(x) && x >= -1) || ['pishfarz', pishfarz[k] ?? 0]
     val[k] = Math.min(had_fasele, v); az[k] = d
   }
   return { val, az }
@@ -893,7 +893,7 @@ async function fasele_ha($) {
   return v
 }
 async function sabt_fasele($, dayere, val) {
-  const o = Object.fromEntries(bakhsh_fasele.map((k) => [k, Math.max(0, Math.min(had_fasele, val[k] | 0))]))
+  const o = Object.fromEntries(bakhsh_fasele.filter((k) => Number.isInteger(val[k])).map((k) => [k, Math.max(-1, Math.min(had_fasele, val[k]))]))
   try { await $.process.run(['mkdir', '-p', await dir_fasele($)]) } catch {}
   await $.fs.write(await masir_fasele($, dayere), JSON.stringify(o) + '\n')
   fasele_cache = { for: '', t: -1e15, v: null }
@@ -1392,7 +1392,14 @@ async function taghir_tartib($, v) {
 }
 export const kalame_khamush = { hads: '-hads', ravand: '-ravand', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook', zaban: '-zaban', thinking: '-thinking' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg', tarjome: '+tarjome' }
+// a part set to −1 in ⚙ (chat, project or global) is off, whatever the chat's tick says
 async function khandan_file_chat($) {
+  const p = await khandan_file_chat_kham($)
+  if (!p) return p
+  try { const f = await fasele_ha($); for (const k of bakhsh_fasele) if (f.val[k] < 0) p[k] = false } catch {}
+  return p
+}
+async function khandan_file_chat_kham($) {
   try {
     const w = String(await $.fs.read(await masir_file_chat($))).trim().split(/\s+/)
     if (w[0] !== 'on') return null
@@ -1409,7 +1416,7 @@ const kalame_ha_ye_file = (p) => ['on', ...bakhsh_ha.filter(([k]) => !p[k]).map(
 // بشه اصلا یه دکمه»): open (baz) · folded to one line (yek_khat) · just one small button (tak_dokme).
 // The button opens the folded line; the line opens the box. Kept in the chat's file over reloads.
 async function taghir_halat($, mode) {
-  const p = await khandan_file_chat($)
+  const p = await khandan_file_chat_kham($)
   if (!p) return
   p.yek_khat = mode === 'yek_khat'; p.tak_dokme = mode === 'tak_dokme'
   await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
@@ -1496,9 +1503,12 @@ const khat_hook = (h) => bi_emoji((h.t ? zaman_shamsi(h.t) + ' · ' : '') + h.na
 // a hook's message beside the text it injected: only the injected text («فقط اون دومی رو نشون بده … اولی نیاد»)
 export const bi_payam_tekrari = (list) => list.filter((h) => !(h.kind === 'hook_system_message' && list.some((x) => x.kind === 'hook_additional_context' && x.name === h.name && Math.abs((x.t || 0) - (h.t || 0)) <= 10000)))
 async function tik_zadan($, key) {
-  const p = await khandan_file_chat($)
+  const p = await khandan_file_chat_kham($)
   if (!p) return
-  p[key] = !p[key]
+  // ✓ pressed on a part ⚙ turned off: ⚙ lets go of it for this chat (back to «only the turn's end»)
+  const f = bakhsh_fasele.includes(key) ? await fasele_ha($) : null
+  if (f && f.val[key] < 0) { const ch = await khandan_yek_fasele($, 'chat'); await sabt_fasele($, 'chat', { ...ch, [key]: 0 }); p[key] = true }
+  else p[key] = !(await khandan_file_chat($))[key]
   await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
   if (!p.hads) hads_akhar = []
   if (!p.ravand) ravand_akhar = []
@@ -1511,11 +1521,12 @@ async function tik_zadan($, key) {
 }
 
 // the ⚙ window: per part «every N tools» with − +, one «همه» row, and three saves
-const matn_fasele = (v) => v > 0 ? 'هر ' + adad_farsi(v) + ' ابزار' : 'فقط آخرِ نوبت'
+// −1 = the part is off (Habib, 8 Nov 21:17: «اگه تو مرحله اول یک بار علامت منفی زده بشه اون گزینه کلا اف بشه»)
+const matn_fasele = (v) => v > 0 ? 'هر ' + adad_farsi(v) + ' ابزار' : v === 0 ? 'فقط آخرِ نوبت' : 'خاموش'
 async function panjare_fasele($, id, Box, Text, Button) {
   const f = await fasele_ha($)
   const pn = fasele_pishnevis.get(id) || { ...f.val }
-  const taghir = (k, d) => { const x = { ...(fasele_pishnevis.get(id) || f.val) }, paye = x.hads | 0; for (const j of k === 'hame' ? bakhsh_fasele : [k]) x[j] = Math.max(0, Math.min(had_fasele, (k === 'hame' ? paye : (x[j] | 0)) + d)); fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
+  const taghir = (k, d) => { const x = { ...(fasele_pishnevis.get(id) || f.val) }, paye = x.hads | 0; for (const j of k === 'hame' ? bakhsh_fasele : [k]) x[j] = Math.max(-1, Math.min(had_fasele, (k === 'hame' ? paye : (x[j] | 0)) + d)); fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
   const esm = Object.fromEntries(bakhsh_ha)
   const radif = (k, label, v, az) => Box({ key: 'hads-fs-r-' + k, flexDirection: 'row', columnGap: 1, children: [
     Text({ dimColor: true, children: [label] }),
@@ -1527,7 +1538,7 @@ async function panjare_fasele($, id, Box, Text, Button) {
   const sabt = (d) => async () => { await sabt_fasele($, d, fasele_pishnevis.get(id) || f.val); fasele_pishnevis.delete(id); $.ui.invalidate('ui.render') }
   const c = tedad_fork_nobat(pn)
   return [Box({ key: 'hads-fs', flexDirection: 'column', children: [
-    Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
+    Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت، یک − دیگر = خاموش). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
     radif('hame', 'همه:', pn.hads, null),
     ...bakhsh_fasele.map((k) => radif(k, (esm[k] || k) + ':', pn[k], f.az[k])),
     Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),

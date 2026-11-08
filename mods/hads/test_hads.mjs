@@ -1175,4 +1175,18 @@ function hads_due_reset() {}
   const n0 = mod.shomar_abzar_chat_baraye_test?.('FS')
   assert.deepEqual(out.fasele_fork, [0, 1], 'forks ' + out.fasele_fork + ' n ' + n0)
 }
+// one − below «only the turn's end» turns the part off; ✓ brings it back (Habib, 8 Nov 21:17)
+{
+  delete flags['/h/.claude/hads-fasele/proje--proj.json']; $.sid = 'OF'; await H['command.run']($, { args: 'on' })
+  let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
+  out.off_aval = find(r, 'hads-fs-v-hads').children[0]
+  await find(r, 'hads-fs-kam-hads').onPress(); r = await render()
+  out.off_matn = find(r, 'hads-fs-v-hads').children[0]
+  await find(r, 'hads-fs-sabt-chat').onPress(); $.t += 10000; r = await render()
+  out.off_tik = find(r, 'hads-tick-hads').label
+  const saved = JSON.parse(flags['/h/.claude/hads-fasele/chat-OF.json'])
+  await find(r, 'hads-tick-hads').onPress(); $.t += 10000; r = await render()
+  out.off_bargasht = [find(r, 'hads-tick-hads').label, JSON.parse(flags['/h/.claude/hads-fasele/chat-OF.json']).hads, saved.hads]
+  assert.deepEqual([out.off_aval, out.off_matn, out.off_tik, ...out.off_bargasht], ['فقط آخرِ نوبت', 'خاموش', '✗ حدس', '✓ حدس', 0, -1])
+}
 console.log('fasele ok')

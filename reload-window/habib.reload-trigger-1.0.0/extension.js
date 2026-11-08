@@ -16,6 +16,15 @@ function activate(context) {
   catch (_) { return; }
   context.subscriptions.push({ dispose: () => watcher.close() });
   // میانبُر: Cmd+Shift+P ⇐ «Reload All Windows» ⇐ همهٔ پنجره‌ها، خودِ این پنجره هم
+  // vscode://habib.reload-trigger/open?session=<id> ⇐ چت در تبِ معمولی (با سابقه و رنگِ درست).
+  // لینکِ خودِ کلود (anthropic.claude-code/open) آن را «تمام‌صفحه» باز می‌کند: بی دکمه‌های سابقه و تیره‌تر.
+  context.subscriptions.push(vscode.window.registerUriHandler({ handleUri(uri) {
+    if (uri.path !== "/open") return;
+    const q = new URLSearchParams(uri.query);
+    const sid = q.get("session") || undefined;
+    if (sid && !/^[0-9a-f-]{36}$/i.test(sid)) return;
+    vscode.commands.executeCommand("claude-vscode.editor.open", sid, q.get("prompt") || undefined, undefined, undefined, false, { programmatic: true });
+  }}));
   context.subscriptions.push(vscode.commands.registerCommand("habibReload.all", () => {
     fs.writeFileSync(FILE, Date.now() + " all");
   }));

@@ -1142,7 +1142,8 @@
       var node = sel.anchorNode;
       var inside = false;
       while (node) {
-        if (node === root || (node.id === 'crtl-fekr-shenavar')) { inside = true; break; }
+        // the «حدس» card's text too (Habib, 8 Nov 20:07: «توی پنجرهٔ حدس هم بشه این کلیک راست رو کرد»)
+      if (node === root || node.id === 'crtl-fekr-shenavar' || (node.classList && node.classList.contains('crtl-hads'))) { inside = true; break; }
         node = node.parentNode;
       }
       if (!inside) return;

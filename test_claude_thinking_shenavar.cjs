@@ -63,6 +63,11 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   await p.click('#crtl-fekr-shenavar .crtl-fekr-kalame',{button:'right'});
   const menu=await p.evaluate(()=>{const m=document.getElementById('crtl-ctx');return m&&getComputedStyle(m).display!=='none'?[...m.querySelectorAll('button')].map(b=>b.textContent):[]});
   assert.ok(menu.some(t=>t.includes('نقل‌قول در چت'))&&menu.some(t=>t.includes('بدون علامت')),'menu '+menu);
+  // right-click inside the «حدس» card: the same menu
+  await p.evaluate(()=>{document.getElementById('crtl-ctx').style.display='none';const c=document.createElement('div');c.className='crtl-hads';c.id='hc';c.innerHTML='<span>حدسِ یک</span>';document.body.appendChild(c);const r=document.createRange();r.selectNodeContents(c.firstChild);getSelection().removeAllRanges();getSelection().addRange(r)});
+  await p.evaluate(()=>document.querySelector('#hc span').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:20,clientY:20})));
+  const menu2=await p.evaluate(()=>{const m=document.getElementById('crtl-ctx');return getComputedStyle(m).display!=='none'?[...m.querySelectorAll('button')].map(b=>b.textContent):[]});
+  assert.ok(menu2.some(t=>t.includes('نقل‌قول در چت')),'hads menu '+menu2);
   console.log('PASS',JSON.stringify(r));
  }finally{await b.close()}
 })().catch(e=>{console.error('FAIL',e.message);process.exit(1)});

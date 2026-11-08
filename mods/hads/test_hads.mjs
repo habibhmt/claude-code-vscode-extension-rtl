@@ -1207,4 +1207,30 @@ function hads_due_reset() {}
   const am = JSON.parse(find(r, 'hads-amar').children[0].slice(mod.neshane_amar.length)); assert.ok(Object.keys(am).length > 1, 'amar ' + Object.keys(am))
   assert.equal(find(r, 'hads-shenavar'), null)
 }
+// «ثبتِ سراسری»: «مطمئنی؟» first, then it takes every project and chat save (Habib, 8 Nov 23:06: «سراسری همه را بگیرد»)
+{
+  const D = '/h/.claude/hads-fasele/'
+  $.sid = 'GL'; await H['command.run']($, { args: 'on' })
+  flags[D + 'chat-GL.json'] = JSON.stringify({ hads: 5, proje: '-proj' }); flags[D + 'chat-ZZ.json'] = JSON.stringify({ hads: 7, proje: '-other' })
+  flags[D + 'proje--proj.json'] = JSON.stringify({ hads: 4 })
+  const keepTail = $.tail; $.tail = 'sarasari.json\nchat-GL.json\nchat-ZZ.json\nproje--proj.json\n'
+  $.t += 10000; let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
+  for (let i = 0; i < 4; i++) { await find(r, 'hads-fs-kam-hads').onPress(); r = await render() }
+  await find(r, 'hads-fs-sabt-sarasari').onPress(); r = await render()
+  out.gl_popup = [!!find(r, 'hads-fs-tayid'), flags[D + 'sarasari.json'] || null]
+  assert.deepEqual(out.gl_popup, [true, null], 'popup ' + out.gl_popup)
+  // «نه»: nothing written
+  await find(r, 'hads-fs-tayid-na').onPress(); r = await render(); assert.equal(find(r, 'hads-fs-tayid'), null); assert.equal(flags[D + 'sarasari.json'], undefined)
+  await find(r, 'hads-fs-sabt-sarasari').onPress(); r = await render(); await find(r, 'hads-fs-tayid-are').onPress(); $.t += 10000; r = await render()
+  out.gl_sabt = [JSON.parse(flags[D + 'sarasari.json']).hads, flags[D + 'chat-GL.json'].trim(), flags[D + 'chat-ZZ.json'].trim(), flags[D + 'proje--proj.json'].trim(), find(r, 'hads-fs-v-hads').children[0], find(r, 'hads-fs-payam')?.children[0]]
+  assert.deepEqual(out.gl_sabt, [1, '{}', '{}', '{}', 'هر ۱ ابزار', '✓ ثبت شد: سراسری (ثبت‌های پروژه و چت پاک شد)'])
+  // a project save empties only its own chats'
+  flags[D + 'chat-GL.json'] = JSON.stringify({ hads: 5, proje: '-proj' }); flags[D + 'chat-ZZ.json'] = JSON.stringify({ hads: 7, proje: '-other' })
+  await find(r, 'hads-fs-sabt-proje').onPress()
+  out.pr_sabt = [flags[D + 'chat-GL.json'].trim(), JSON.parse(flags[D + 'chat-ZZ.json']).hads]
+  assert.deepEqual(out.pr_sabt, ['{}', 7])
+  // a chat save says its project
+  await find(await render(), 'hads-fs-sabt-chat').onPress(); assert.equal(JSON.parse(flags[D + 'chat-GL.json']).proje, '-proj')
+  $.tail = keepTail
+}
 console.log('fasele ok')

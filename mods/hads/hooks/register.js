@@ -900,8 +900,25 @@ async function fasele_ha($) {
 async function sabt_fasele($, dayere, val) {
   const o = Object.fromEntries(bakhsh_fasele.filter((k) => Number.isInteger(val[k])).map((k) => [k, Math.max(-1, Math.min(had_fasele, val[k]))]))
   if (Array.isArray(val.shenavar)) o.shenavar = val.shenavar.filter((k) => bakhsh_fasele.includes(k))
-  try { await $.process.run(['mkdir', '-p', await dir_fasele($)]) } catch {}
+  const d = await dir_fasele($), slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
+  // a chat's file says its project, so a project save can find the chats it covers
+  if (dayere === 'chat') o.proje = slug
+  try { await $.process.run(['mkdir', '-p', d]) } catch {}
   await $.fs.write(await masir_fasele($, dayere), JSON.stringify(o) + '\n')
+  // a wider save takes everything under it (Habib, 8 Nov 23:06: «سراسری همه را بگیرد»): global empties every
+  // project and chat save, a project save empties its chats'
+  if (dayere !== 'chat') {
+    let names = []
+    try { const r = await $.process.run(['sh', '-c', 'ls "$1"', 'sh', d]); names = String(r.stdout || '').split('\n').filter((x) => /^(proje|chat)-.*\.json$/.test(x)) } catch {}
+    for (const n of names) {
+      if (dayere === 'proje') {
+        if (!n.startsWith('chat-')) continue
+        let c = {}; try { c = JSON.parse(String(await $.fs.read(d + '/' + n))) } catch {}
+        if (c.proje !== slug) continue
+      }
+      try { await $.fs.write(d + '/' + n, '{}\n') } catch {}
+    }
+  }
   fasele_cache = { for: '', t: -1e15, v: null }
 }
 // tools run in this chat so far (all turns): the one counter every part's N is taken against
@@ -910,6 +927,9 @@ let fork_vasat_dar_kar = false
 // the ⚙ window: open per chat, and its unsaved numbers
 const fasele_baz_har_chat = new Set()
 const fasele_pishnevis = new Map()
+// «ثبتِ سراسری» asks first (like the «تنظیمات کلود» tab: «برای سراسری یه پاپ اپ بیاد که مطمینی»); then a line says what was saved
+const tayid_sarasari_har_chat = new Set()
+const payam_sabt_har_chat = new Map()
 
 // «thinking» in the middle of a turn: every had_thinking_vasat tools, and before a question window; only the
 // three sentences, from the chat itself (warm cache). One at a time; the turn's own summary still comes at its end.
@@ -1561,7 +1581,13 @@ async function panjare_fasele($, id, Box, Text, Button) {
     else if (i >= 0 && i + d >= 0 && i + d < l.length) { l.splice(i, 1); l.splice(i + d, 0, k) }
     x.shenavar = l; fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render')
   }
-  const sabt = (d) => async () => { await sabt_fasele($, d, fasele_pishnevis.get(id) || f.val); fasele_pishnevis.delete(id); $.ui.invalidate('ui.render') }
+  const sabt = (d) => async () => {
+    if (d === 'sarasari' && !tayid_sarasari_har_chat.has(id)) { tayid_sarasari_har_chat.add(id); $.ui.invalidate('ui.render'); return }
+    tayid_sarasari_har_chat.delete(id)
+    await sabt_fasele($, d, fasele_pishnevis.get(id) || f.val); fasele_pishnevis.delete(id)
+    payam_sabt_har_chat.set(id, '✓ ثبت شد: ' + esm_dayere_fasele[d] + (d === 'sarasari' ? ' (ثبت‌های پروژه و چت پاک شد)' : d === 'proje' ? ' (ثبت‌های چت‌های این پروژه پاک شد)' : ''))
+    $.ui.invalidate('ui.render')
+  }
   const c = tedad_fork_nobat(pn)
   return [Box({ key: 'hads-fs', flexDirection: 'column', children: [
     Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت، یک − دیگر = خاموش). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
@@ -1569,6 +1595,14 @@ async function panjare_fasele($, id, Box, Text, Button) {
     ...bakhsh_fasele.map((k) => radif(k, (esm[k] || k) + ':', pn[k], f.az[k])),
     Text({ key: 'hads-fs-tartib', dimColor: true, children: ['ترتیب در شناور: ' + (pn.shenavar.length ? pn.shenavar.map((k) => esm[k] || k).join(' ← ') : 'هیچ') + ' (' + esm_dayere_fasele[f.az.shenavar] + ')'] }),
     Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),
+    ...(tayid_sarasari_har_chat.has(id) ? [Box({ key: 'hads-fs-tayid', flexDirection: 'column', children: [
+      Text({ key: 'hads-fs-tayid-matn', children: ['مطمئنی می‌خواهی سراسری باشد؟ با ثبتِ آن، همهٔ چت‌ها و همهٔ پروژه‌ها این عددها را می‌گیرند، حتی آنهایی که عددِ خودشان را داشتند (ثبت‌هایشان پاک می‌شود).'] }),
+      Box({ flexDirection: 'row', columnGap: 1, children: [
+        Button({ key: 'hads-fs-tayid-are', label: 'مطمئنم، سراسری', onPress: sabt('sarasari') }),
+        Button({ key: 'hads-fs-tayid-na', label: 'نه', onPress: () => { tayid_sarasari_har_chat.delete(id); $.ui.invalidate('ui.render') } }),
+      ] }),
+    ] })] : []),
+    ...(payam_sabt_har_chat.get(id) ? [Text({ key: 'hads-fs-payam', children: [payam_sabt_har_chat.get(id)] })] : []),
     Box({ flexDirection: 'row', columnGap: 1, children: [
       Button({ key: 'hads-fs-sabt-sarasari', label: 'ثبتِ سراسری', onPress: sabt('sarasari') }),
       Button({ key: 'hads-fs-sabt-proje', label: 'ثبت برای همین پروژه', onPress: sabt('proje') }),
@@ -1779,7 +1813,7 @@ export function register(on) {
     // The box never closes all the way: × leaves the one button (25 Oct 00:13: «ضربدر … تک دکمه ای
     // شدن یعنی کلا هیچوقت بسته نشه … همین سه تا نباشه»)
     const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
-      Button({ key: 'hads-fasele', label: '⚙', onPress: () => { fasele_baz_har_chat.has(id) ? fasele_baz_har_chat.delete(id) : fasele_baz_har_chat.add(id); fasele_pishnevis.delete(id); $.ui.invalidate('ui.render') } }),
+      Button({ key: 'hads-fasele', label: '⚙', onPress: () => { fasele_baz_har_chat.has(id) ? fasele_baz_har_chat.delete(id) : fasele_baz_har_chat.add(id); fasele_pishnevis.delete(id); payam_sabt_har_chat.delete(id); tayid_sarasari_har_chat.delete(id); $.ui.invalidate('ui.render') } }),
       Button({ key: 'hads-x', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
     ] })]
     if (fasele_baz_har_chat.has(id)) rows.push(...await panjare_fasele($, id, Box, Text, Button))

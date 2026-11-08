@@ -1746,10 +1746,6 @@ async function panjare_fasele($, id, Box, Text, Button) {
   const c = tedad_fork_shart(Object.fromEntries(bakhsh_fasele.map((k) => [k, goruh_pn(k)])))
   return [Box({ key: 'hads-fs', flexDirection: 'column', children: [
     Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت، یک − دیگر = خاموش). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
-    radif('hame', 'همه:', pn.hads, null),
-    ...bakhsh_fasele.flatMap((k) => [radif(k, (esm[k] || k) + ':', pn[k], f.az[k]), ...(shart_baz_har_chat.get(id) === k ? virayeshgar(k) : [])]),
-    Text({ key: 'hads-fs-tartib', dimColor: true, children: ['ترتیب در شناور: ' + (pn.shenavar.length ? pn.shenavar.map((k) => esm[k] || k).join(' ← ') : 'هیچ') + ' (' + esm_dayere_fasele[f.az.shenavar] + ')'] }),
-    Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),
     ...(tayid_sarasari_har_chat.has(id) ? [Box({ key: 'hads-fs-tayid', flexDirection: 'column', children: [
       Text({ key: 'hads-fs-tayid-matn', children: ['مطمئنی می‌خواهی سراسری باشد؟ با ثبتِ آن، همهٔ چت‌ها و همهٔ پروژه‌ها این عددها را می‌گیرند، حتی آنهایی که عددِ خودشان را داشتند (ثبت‌هایشان پاک می‌شود).'] }),
       Box({ flexDirection: 'row', columnGap: 1, children: [
@@ -1763,6 +1759,10 @@ async function panjare_fasele($, id, Box, Text, Button) {
       Button({ key: 'hads-fs-sabt-proje', label: 'ثبت برای همین پروژه', onPress: sabt('proje') }),
       Button({ key: 'hads-fs-sabt-chat', label: 'ثبت برای همین چت', onPress: sabt('chat') }),
     ] }),
+    radif('hame', 'همه:', pn.hads, null),
+    ...bakhsh_fasele.flatMap((k) => [radif(k, (esm[k] || k) + ':', pn[k], f.az[k]), ...(shart_baz_har_chat.get(id) === k ? virayeshgar(k) : [])]),
+    Text({ key: 'hads-fs-tartib', dimColor: true, children: ['ترتیب در شناور: ' + (pn.shenavar.length ? pn.shenavar.map((k) => esm[k] || k).join(' ← ') : 'هیچ') + ' (' + esm_dayere_fasele[f.az.shenavar] + ')'] }),
+    Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),
   ] })]
 }
 

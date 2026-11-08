@@ -631,11 +631,11 @@ export function payam_ha_ye_akhar(msgs) {
   return msgs.filter((m) => last.includes(m) || his.includes(m))
 }
 
-async function begu_do_jomle($, tool, force, viaFork = false) {
+async function begu_do_jomle($, tool, force, viaFork = false, bi_fasele_zaman = false) {
   // an answer's end while a mid-work line is on its way: told right after it, never dropped
   if (do_jomle_dar_kar) { if (force) do_jomle_dobare = true; return }
   const t = await $.clock.now()
-  if (!force && t - zaman_do_jomle_akhar < do_jomle_fasele_ms) return
+  if (!force && !bi_fasele_zaman && t - zaman_do_jomle_akhar < do_jomle_fasele_ms) return
   do_jomle_dar_kar = true; zaman_do_jomle_akhar = t
   try {
     let done = false
@@ -850,10 +850,64 @@ export function khandan_jambandi(raw) {
     return null
   }
 }
+// ⚙ «every N tools», per part (Habib, 8 Nov 20:07: «تریگرشون … قابل تنظیم باشه … یه گزینه ثبت سراسری … ثبت برای همین
+// پروژه … ثبت برای همین چت»; 21:09 «بزن»). 0 = only at the turn's end. Parts due at the same tool share ONE fork
+// (25 Oct 16:52: «همشون … با یه مدل با یه دفعه»). Read chat > project > global > default, per part.
+export const bakhsh_fasele = ['do_jomle', 'thinking', 'hads', 'ravand', 'nakarde', 'khodkar', 'cron', 'porsesh']
+export const bakhsh_fork_vasat = ['hads', 'ravand', 'nakarde', 'khodkar', 'cron']
+export const had_fasele = 50
+// a priced guess for one fork of a big chat, from a real usage line (8 Nov: 233k cache read, 9k in, 1.6k out ≈ $0.2)
+export const kharj_hads_yek_fork_dolar = 0.2
+export const esm_dayere_fasele = { chat: 'همین چت', proje: 'همین پروژه', sarasari: 'سراسری', pishfarz: 'پیش‌فرض' }
+export function adghame_fasele(sarasari = {}, proje = {}, chat = {}, pishfarz = {}) {
+  const val = {}, az = {}
+  for (const k of bakhsh_fasele) {
+    const [d, v] = [['chat', chat[k]], ['proje', proje[k]], ['sarasari', sarasari[k]]].find(([, x]) => Number.isInteger(x) && x >= 0) || ['pishfarz', pishfarz[k] ?? 0]
+    val[k] = Math.min(had_fasele, v); az[k] = d
+  }
+  return { val, az }
+}
+// how many model calls a turn of n tools makes with these numbers (parts due together count once) — for the ⚙ window
+export function tedad_fork_nobat(val, n = 12) {
+  let c = 1  // the turn's end
+  for (let i = 1; i <= n; i++) if (bakhsh_fork_vasat.some((k) => val[k] > 0 && i % val[k] === 0)) c++
+  return c
+}
+const dir_fasele = async ($) => (await $.env.get('HOME')) + '/.claude/hads-fasele'
+async function masir_fasele($, dayere) {
+  const d = await dir_fasele($)
+  if (dayere === 'sarasari') return d + '/sarasari.json'
+  if (dayere === 'proje') return d + '/proje-' + String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-') + '.json'
+  return d + '/chat-' + (await $.session.id()) + '.json'
+}
+async function khandan_yek_fasele($, dayere) {
+  try { const o = JSON.parse(String(await $.fs.read(await masir_fasele($, dayere)))); return o && typeof o === 'object' ? o : {} } catch { return {} }
+}
+let fasele_cache = { for: '', t: -1e15, v: null }
+async function fasele_ha($) {
+  const id = await $.session.id(), t = await $.clock.now()
+  if (fasele_cache.for === id && fasele_cache.v && t - fasele_cache.t < 3000) return fasele_cache.v
+  const [sa, pr, ch] = [await khandan_yek_fasele($, 'sarasari'), await khandan_yek_fasele($, 'proje'), await khandan_yek_fasele($, 'chat')]
+  const v = adghame_fasele(sa, pr, ch, { thinking: had_thinking_vasat })
+  fasele_cache = { for: id, t, v }
+  return v
+}
+async function sabt_fasele($, dayere, val) {
+  const o = Object.fromEntries(bakhsh_fasele.map((k) => [k, Math.max(0, Math.min(had_fasele, val[k] | 0))]))
+  try { await $.process.run(['mkdir', '-p', await dir_fasele($)]) } catch {}
+  await $.fs.write(await masir_fasele($, dayere), JSON.stringify(o) + '\n')
+  fasele_cache = { for: '', t: -1e15, v: null }
+}
+// tools run in this chat so far (all turns): the one counter every part's N is taken against
+const shomar_abzar_chat = new Map()
+let fork_vasat_dar_kar = false
+// the ⚙ window: open per chat, and its unsaved numbers
+const fasele_baz_har_chat = new Set()
+const fasele_pishnevis = new Map()
+
 // «thinking» in the middle of a turn: every had_thinking_vasat tools, and before a question window; only the
 // three sentences, from the chat itself (warm cache). One at a time; the turn's own summary still comes at its end.
 export const had_thinking_vasat = 3
-const shomar_thinking_vasat = new Map()
 let thinking_vasat_dar_kar = false
 const prompt_thinking_vasat = '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
   'همین الان، وسطِ کار، در سه جملهٔ کوتاهِ فارسیِ ساده و اول‌شخص بگو. Reply ONLY with JSON: ' +
@@ -861,9 +915,8 @@ const prompt_thinking_vasat = '(این پیام از مودِ «حدس» است�
 async function thinking_vasat($, foori) {
   const id = await $.session.id()
   if (!foori) {
-    const n = (shomar_thinking_vasat.get(id) || 0) + 1
-    shomar_thinking_vasat.set(id, n)
-    if (n % had_thinking_vasat !== 0) return false
+    const N = (await fasele_ha($)).val.thinking, n = shomar_abzar_chat.get(id) || 0
+    if (!N || n % N !== 0) return false
   }
   if (thinking_vasat_dar_kar || akhar_javab_dar_kar) return false
   const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
@@ -1457,6 +1510,35 @@ async function tik_zadan($, key) {
   $.ui.invalidate('ui.render')
 }
 
+// the ⚙ window: per part «every N tools» with − +, one «همه» row, and three saves
+const matn_fasele = (v) => v > 0 ? 'هر ' + adad_farsi(v) + ' ابزار' : 'فقط آخرِ نوبت'
+async function panjare_fasele($, id, Box, Text, Button) {
+  const f = await fasele_ha($)
+  const pn = fasele_pishnevis.get(id) || { ...f.val }
+  const taghir = (k, d) => { const x = { ...(fasele_pishnevis.get(id) || f.val) }, paye = x.hads | 0; for (const j of k === 'hame' ? bakhsh_fasele : [k]) x[j] = Math.max(0, Math.min(had_fasele, (k === 'hame' ? paye : (x[j] | 0)) + d)); fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
+  const esm = Object.fromEntries(bakhsh_ha)
+  const radif = (k, label, v, az) => Box({ key: 'hads-fs-r-' + k, flexDirection: 'row', columnGap: 1, children: [
+    Text({ dimColor: true, children: [label] }),
+    Button({ key: 'hads-fs-kam-' + k, label: '−', onPress: () => taghir(k, -1) }),
+    Text({ key: 'hads-fs-v-' + k, children: [k === 'do_jomle' && az === 'pishfarz' && v === f.val[k] ? 'هر ابزار، دقیقه‌ای یک بار' : matn_fasele(v)] }),
+    Button({ key: 'hads-fs-ziad-' + k, label: '+', onPress: () => taghir(k, 1) }),
+    ...(az ? [Text({ dimColor: true, children: ['(' + esm_dayere_fasele[az] + ')'] })] : []),
+  ] })
+  const sabt = (d) => async () => { await sabt_fasele($, d, fasele_pishnevis.get(id) || f.val); fasele_pishnevis.delete(id); $.ui.invalidate('ui.render') }
+  const c = tedad_fork_nobat(pn)
+  return [Box({ key: 'hads-fs', flexDirection: 'column', children: [
+    Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
+    radif('hame', 'همه:', pn.hads, null),
+    ...bakhsh_fasele.map((k) => radif(k, (esm[k] || k) + ':', pn[k], f.az[k])),
+    Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),
+    Box({ flexDirection: 'row', columnGap: 1, children: [
+      Button({ key: 'hads-fs-sabt-sarasari', label: 'ثبتِ سراسری', onPress: sabt('sarasari') }),
+      Button({ key: 'hads-fs-sabt-proje', label: 'ثبت برای همین پروژه', onPress: sabt('proje') }),
+      Button({ key: 'hads-fs-sabt-chat', label: 'ثبت برای همین چت', onPress: sabt('chat') }),
+    ] }),
+  ] })]
+}
+
 export function register(on) {
   on('session.start', async ($, e, next) => {
     try {
@@ -1580,7 +1662,20 @@ export function register(on) {
             zaman_akharin_kar = await $.clock.now(); cache_sard_shod = false
             const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
             if (p?.hook) await khandan_hook_az_transcript($)
-            if (p?.do_jomle) await begu_do_jomle($, what, false, p.do_jomle_fork && (await chat_kuchak($)))
+            const sid = await $.session.id(), n = (shomar_abzar_chat.get(sid) || 0) + 1
+            shomar_abzar_chat.set(sid, n)
+            const f = p ? await fasele_ha($) : null
+            // «دو جمله»: as before (once a minute) until a number is saved; then every N tools, 0 = only the turn's end
+            if (p?.do_jomle && (f.az.do_jomle === 'pishfarz' || (f.val.do_jomle > 0 && n % f.val.do_jomle === 0)))
+              await begu_do_jomle($, what, false, p.do_jomle_fork && (await chat_kuchak($)), f.az.do_jomle !== 'pishfarz')
+            // the turn's-end parts in the middle of work: those due at this tool go in ONE fork
+            const vasat = p ? Object.fromEntries(bakhsh_fork_vasat.filter((k) => p[k] && f.val[k] > 0 && n % f.val[k] === 0).map((k) => [k, true])) : {}
+            if (Object.keys(vasat).length && !fork_vasat_dar_kar && !akhar_javab_dar_kar) {
+              fork_vasat_dar_kar = true
+              try { await hads_ba_fork($, vasat, null); await benevis_daftar($, 'fork_vasat', { bakhsh: Object.keys(vasat), abzar: n }) } finally { fork_vasat_dar_kar = false }
+            }
+            // a «پرسش» waiting for the answer goes after N tools instead
+            if (p?.porsesh && porsesh_montazer && f.val.porsesh > 0 && n % f.val.porsesh === 0) { const q = porsesh_montazer; porsesh_montazer = null; await porsesh_kon($, q) }
             // more often than once a turn (Habib, 8 Nov 19:47: «خیلی دیر به دیر میاد … با تعداد بیشتری بیاد»)
             if (p?.thinking && e.tool !== 'AskUserQuestion') await thinking_vasat($, false)
           } catch {}
@@ -1636,8 +1731,10 @@ export function register(on) {
     // The box never closes all the way: × leaves the one button (25 Oct 00:13: «ضربدر … تک دکمه ای
     // شدن یعنی کلا هیچوقت بسته نشه … همین سه تا نباشه»)
     const rows = [Box({ key: 'hads-top', flexDirection: 'row', columnGap: 1, justifyContent: 'flex-end', children: [
+      Button({ key: 'hads-fasele', label: '⚙', onPress: () => { fasele_baz_har_chat.has(id) ? fasele_baz_har_chat.delete(id) : fasele_baz_har_chat.add(id); fasele_pishnevis.delete(id); $.ui.invalidate('ui.render') } }),
       Button({ key: 'hads-x', label: '×', onPress: () => taghir_halat($, 'tak_dokme') }),
     ] })]
+    if (fasele_baz_har_chat.has(id)) rows.push(...await panjare_fasele($, id, Box, Text, Button))
     // each part's rows, laid out below in Habib's order (the ticks' order): ▾ × stay on top, the ticks last
     const goruh = Object.fromEntries(bakhsh_ha.map(([k]) => [k, []]))
     const ferestade = kh.length || nk.length ? await khandan_khodkar_ferestade($) : { khodkar: [], nakarde: [] }

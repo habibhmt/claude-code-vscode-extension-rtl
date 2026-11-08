@@ -438,7 +438,7 @@ out.hookBigCut = Math.max(...hookTexts(rK).map((x) => x.length)); assert.ok(out.
 // the ticks stay last, next to the prompt, whatever is above them
 const lastRow = rK.children.at(-1); out.ticksLast = (lastRow.children || []).some((x) => x && /^hads-tick-/.test(String(x.key))); assert.equal(out.ticksLast, true)
 // × on top, always in sight (24 Oct 22:41); only it since ▾ went (26 Oct 19:18)
-const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && topRow.children.map((x) => x.label).join(' ') === '×'; assert.equal(out.closeOnTop, true)
+const topRow = rK.children.find((c) => c && c.t === 'Box'); out.closeOnTop = topRow?.key === 'hads-top' && topRow.children.map((x) => x.label).join(' ') === '⚙ ×'; assert.equal(out.closeOnTop, true)
 $.tail = keepTail
 // ticked off: the transcript is not read at all
 await find(rK, 'hads-tick-hook').onPress({}); calls.run = 0
@@ -471,7 +471,7 @@ await find(await render(), 'hads-tick-hads').onPress()
 // another chat keeps its own ticks
 $.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
 // «حدس», «نکرده‌ها» and «دو جمله» all off: no model call at an answer's end or during work
-await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
+await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress(); await find(await render(), 'hads-tick-thinking')?.onPress()
 const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); const z1 = cnt()
 out.bothOff = [z1[0] - z0[0], z1[1] - z0[1], z1[2] - z0[2]]; assert.deepEqual(out.bothOff, [0, 0, 0])
 // «پرسش» off: no box; the ticks stay so it can come back
@@ -479,7 +479,7 @@ await find(await render(), 'hads-tick-porsesh').onPress()
 const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ticks(t9) }
 assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
 for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
-await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress()
+await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress(); await find(await render(), 'hads-tick-thinking')?.onPress()
 out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
 $.ui.resolve = realResolve
 // «دفترِ حدس» (with چتِ ۲۰۵): one line per event, appended, with sid and Tehran iso; «دو جمله» not twice
@@ -1147,3 +1147,32 @@ function hads_due_reset() {}
   $.model.fork = fk
   assert.deepEqual(out.thinking_mostaghel, { fekr: 'دنبالِ علت بودم', now: 'hidden' })
 }
+// ⚙ «every N tools», per part, saved globally / for the project / for the chat (Habib, 8 Nov 20:07, 21:09)
+{
+  // chat > project > global > default, part by part
+  const m = mod.adghame_fasele({ hads: 4, cron: 2 }, { hads: 3 }, { cron: 5 }, { thinking: 3 })
+  out.fasele_adghame = [m.val.hads, m.az.hads, m.val.cron, m.az.cron, m.val.thinking, m.az.thinking, m.val.nakarde]
+  assert.deepEqual(out.fasele_adghame, [3, 'proje', 5, 'chat', 3, 'pishfarz', 0])
+  // parts due at the same tool are ONE call: all at 3 ⇒ 4 mid-work + the end = 5 in 12 tools
+  assert.equal(mod.tedad_fork_nobat({ hads: 3, ravand: 3, nakarde: 3, khodkar: 3, cron: 3 }), 5)
+  assert.equal(mod.tedad_fork_nobat({}), 1)
+  $.sid = 'FS'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/FS'] = 'on -do_jomle -thinking -porsesh -hook -zaban'
+  // the window: ⚙ opens it, + raises «حدس», «ثبت برای همین چت» writes the chat's file
+  let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
+  assert.ok(find(r, 'hads-fs'), 'window open')
+  await find(r, 'hads-fs-ziad-hame').onPress(); r = await render(); await find(r, 'hads-fs-ziad-hame').onPress(); r = await render()
+  await find(r, 'hads-fs-sabt-chat').onPress()
+  const saved = JSON.parse(flags['/h/.claude/hads-fasele/chat-FS.json'])
+  out.fasele_sabt = [saved.hads, saved.cron, saved.thinking]; assert.deepEqual(out.fasele_sabt, [2, 2, 2])
+  r = await render(); out.fasele_az = find(r, 'hads-fs-r-hads').children.at(-1).children[0]; assert.equal(out.fasele_az, '(همین چت)')
+  // the project save lands in its own file
+  await find(r, 'hads-fs-sabt-proje').onPress(); assert.ok(flags['/h/.claude/hads-fasele/proje--proj.json'])
+  // every 2nd tool one fork for all due parts, none on the odd ones
+  $.t += 10000; const f0 = calls.fork.length
+  await tool(); await flush(); const f1 = calls.fork.length
+  await tool(); await flush(); const f2 = calls.fork.length
+  out.fasele_fork = [f1 - f0, f2 - f1]
+  const n0 = mod.shomar_abzar_chat_baraye_test?.('FS')
+  assert.deepEqual(out.fasele_fork, [0, 1], 'forks ' + out.fasele_fork + ' n ' + n0)
+}
+console.log('fasele ok')

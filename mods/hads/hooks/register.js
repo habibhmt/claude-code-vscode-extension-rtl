@@ -779,7 +779,7 @@ async function chat_kuchak($) {
 async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false) {
   // the scope may have been changed elsewhere (a terminal, the file): the label is read again each answer
   khandan_dayere($).catch(() => {})
-  if (!p.hads && !p.ravand && !p.do_jomle && !p.nakarde && !p.khodkar && !p.cron && !p.tarjome) return
+  if (!p.hads && !p.ravand && !p.do_jomle && !p.thinking && !p.nakarde && !p.khodkar && !p.cron && !p.tarjome) return
   if (akhar_javab_dar_kar) { akhar_javab_dobare = true; return }
   akhar_javab_dar_kar = true; zaman_akhar_javab = await $.clock.now()
   try {
@@ -789,7 +789,8 @@ async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false)
     // also due when this chat shows none (first answer, /clear, an empty or broken reply)
     // «نکرده‌ها» and «خودکار» come with the guesses, on the same answers
     const due = (p.hads || p.ravand || p.nakarde || p.khodkar || p.cron) && (force || seen % hads_har_chand_javab === 0 || ((shekast_fork_har_chat.get(id) || 0) < had_tedad_shekast_fork_bar && (hads_baraye_chat !== id || (p.hads && !hads_akhar.length))))
-    const pj = p.do_jomle ? await amade_jambandi($) : null
+    // «thinking» stands on its own (Habib, 8 Nov 13:07: «مستقل … نباید باهم ربط داشته باشیم»): either one makes the summary
+    const pj = p.do_jomle || p.thinking ? await amade_jambandi($) : null
     const tj = p.tarjome ? await javab_baraye_tarjome($) : null
     const jambandi_shod = due ? await hads_ba_fork($, p, pj) : await jambandi($, pj)
     await tarjome_javab($, tj)
@@ -831,7 +832,10 @@ const prompt_jambandi_nobat = (lines, tools, ezafe = null, anjam = []) => '(ای
   '۴) عدد، ساعت، اسمِ فایل و commit فقط اگر عیناً در خروجیِ یک ابزارِ همین نوبت آمده. ' +
   '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ anjam_nashod. ' +
   '۶) مدرک فقط همان چیزی را ثابت می‌کند که خودش نشان می‌دهد: ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»؛ رفتار فقط با آزمونی که همان رفتار را دید ⇒ وگرنه anjam_nashod «رفتارش آزموده نشد». فارسیِ ساده، با واژه‌های حبیب. ' +
-  'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "anjam_shod": ["<short> ⇐ <evidence>", …], "anjam_nashod": ["<short>", …]' +
+  'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "anjam_shod": ["<short> ⇐ <evidence>", …], "anjam_nashod": ["<short>", …], ' +
+  // «thinking» (Habib, 8 Nov 13:01: «یه قسمت تازه درست کن به اسم thinking … مدل از خودش میاد میگه که داره به چی فکر میکنه به چی کرده؟ چیکار کرده؟»):
+  // the raw thinking is not kept in the transcript (337 blocks, 1 with text), so the chat itself, warm cache, tells it
+  '"thinking": {"fekr": "<یک جمله، اول‌شخص: در این نوبت به چه فکر می‌کردم و دنبالِ چه بودم>", "kard": "<یک جمله، اول‌شخص: چه کردم، با اسمِ ابزار یا فایلِ اصلی>", "bad": "<یک جمله، اول‌شخص: فکرِ بعدی‌ام یا قدمِ بعدی>"}' +
   (ezafe ? ', ' + prompt_fork_bakhsh_ha(ezafe, anjam).join(', ') + '}' + ghaede_bakhsh_ha(ezafe, anjam) : '}')
 export function khandan_jambandi(raw) {
   try {
@@ -839,7 +843,9 @@ export function khandan_jambandi(raw) {
     const o = JSON.parse(m ? m[0] : raw)
     const list = (x) => (Array.isArray(x) ? x : []).filter((y) => typeof y === 'string' && y.trim()).map((y) => y.trim()).slice(0, 8)
     const text = typeof o?.text === 'string' ? kutah_be_do_jomle(o.text) : ''
-    return text ? { text, anjam_shod: list(o.anjam_shod), anjam_nashod: list(o.anjam_nashod) } : null
+    const jomle = (x) => (typeof x === 'string' && x.trim() ? kutah_be_do_jomle(x) : '')
+    const th = o?.thinking && typeof o.thinking === 'object' ? { fekr: jomle(o.thinking.fekr), kard: jomle(o.thinking.kard), bad: jomle(o.thinking.bad) } : null
+    return text ? { text, anjam_shod: list(o.anjam_shod), anjam_nashod: list(o.anjam_nashod), ...(th && (th.fekr || th.kard || th.bad) ? { thinking: th } : {}) } : null
   } catch {
     return null
   }
@@ -878,7 +884,7 @@ async function sabt_jambandi($, pj, raw) {
     await benevis_do_jomle($, got.text, 'jambandi_nobat')
     do_jomle_akhar.summary = got
     // what Habib asked in this turn, word for word from his own message (not the model's retelling)
-    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', context_token: tokens })
+    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, ...(got.thinking ? { thinking: got.thinking } : {}), tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', context_token: tokens })
     return true
   } catch {
     return false
@@ -1193,7 +1199,7 @@ async function gozashtan_dar_kadr($, text) {
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
 const masir_file_chat = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 // The file holds `on`, then the parts ticked off: `on -hads -porsesh`. h-on turns all of them on.
-export const bakhsh_ha = [['hads', 'حدس'], ['ravand', 'روند'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها'], ['zaban', 'زبان']]
+export const bakhsh_ha = [['hads', 'حدس'], ['ravand', 'روند'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها'], ['zaban', 'زبان'], ['thinking', 'thinking']]
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
 // name glued from pieces): a part ticked off, and the other settings
 export const esm_bakhsh = Object.fromEntries(bakhsh_ha)
@@ -1288,7 +1294,7 @@ async function taghir_tartib($, v) {
   try { await $.fs.write(await masir_tartib($), tazeh.join(' ') + '\n') } catch {}
   $.ui.invalidate('ui.render')
 }
-export const kalame_khamush = { hads: '-hads', ravand: '-ravand', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook', zaban: '-zaban' }
+export const kalame_khamush = { hads: '-hads', ravand: '-ravand', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook', zaban: '-zaban', thinking: '-thinking' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg', tarjome: '+tarjome' }
 async function khandan_file_chat($) {
   try {
@@ -1403,7 +1409,7 @@ async function tik_zadan($, key) {
   if (!p.nakarde) { nakarde_akhar = []; nakarde_ba_sanad_akhar = [] }
   if (!p.khodkar) khodkar_akhar = []
   if (!p.cron) cron_akhar = []
-  if (!p.do_jomle) do_jomle_akhar = { text: '', for: '' }
+  if (!p.do_jomle && !p.thinking) do_jomle_akhar = { text: '', for: '' }
   if (!p.porsesh) { javab_porsesh = null; porsesh_montazer = null }
   $.ui.invalidate('ui.render')
 }
@@ -1595,6 +1601,11 @@ export function register(on) {
     // the turn's summary: what was done ✓ and what was not ✗, one plain line each
     if (sm) for (const [k, mark, list] of [['anjam_shod', '✓', sm.anjam_shod], ['anjam_nashod', '✗', sm.anjam_nashod]]) {
       if (list.length) goruh.do_jomle.push(Text({ key: 'hads-sum-' + k, children: [mark + ' ' + list.join(' · ')] }))
+    }
+    // «thinking»: what the chat's own model thought, did, and thinks next, from the turn's summary
+    const sm_th = do_jomle_akhar.for === id ? do_jomle_akhar.summary : null
+    if (p.thinking && sm_th?.thinking) for (const [k, esm] of [['fekr', 'به چه فکر کرد:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']]) {
+      if (sm_th.thinking[k]) goruh.thinking.push(Box({ flexDirection: 'row', columnGap: 1, children: [Text({ dimColor: true, children: [esm] }), Text({ key: 'hads-th-' + k, children: [sm_th.thinking[k]] })] }))
     }
     // the guesses (1-2): whole sentences, plain text like «دو جمله» (Habib selects and copies
     // them); a small ⤵ puts one in the prompt box, never sends it

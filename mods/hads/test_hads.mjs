@@ -642,16 +642,16 @@ flags['/h/.claude/hads-tartib'] = 'cron do_jomle hads\n'
 const rT = await render(), kT = tartib_kelid(rT)
 out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.slice(10)),
   rows: ['hads-cr-0', 'hads-now', 'hads-g-0', 'hads-kh-0'].map((k) => kT.indexOf(k)).every((x, i, a) => x > 0 && (!i || x > a[i - 1])),
-  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-zaban hads-hafeze', field: !!find(rT, 'hads-tartib'),
+  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-thinking hads-hafeze', field: !!find(rT, 'hads-tartib'),
   // one box per part that has rows, in the same order (the page script keeps each from shrinking)
   bakhsh: kT.filter((k) => k.startsWith('hads-bakhsh-')).map((k) => k.slice(12)) }
-assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'ravand', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
+assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'ravand', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban', 'thinking'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
 // VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
 const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
 const rV = await render({ surface: 'vscode' }); const fld = find(rV, 'hads-tartib')
 await fld.onInput('khodkar hads hads chizi')
 out.tartibField = { value: fld.value, file: flags['/h/.claude/hads-tartib'], notMobile: !find(await render({ surface: 'mobile' }), 'hads-tartib') }
-assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads ravand nakarde khodkar porsesh hook zaban', file: 'khodkar hads ravand nakarde cron do_jomle porsesh hook zaban\n', notMobile: true })
+assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads ravand nakarde khodkar porsesh hook zaban thinking', file: 'khodkar hads ravand nakarde cron do_jomle porsesh hook zaban thinking\n', notMobile: true })
 $.ui.resolve = keepResolve; delete flags['/h/.claude/hads-tartib']
 // «🔎 حافظه» (Habib to ۲۰۵, 25 Oct 18:30: «بله، بسازید»): the label is what ۲۰۵'s `get` says; a press moves
 // this chat one on (همین چت ⇐ همین پروژه ⇐ همهٔ پروژه‌ها ⇐ همین چت) and no other chat; /hads hafeze works with the box off
@@ -1128,3 +1128,22 @@ console.log(JSON.stringify(out))
   console.log(JSON.stringify({ tarjome: out.tarjome }))
 }
 function hads_due_reset() {}
+// «thinking» (Habib, 8 Nov 13:01): the turn's summary carries what the model thought, did, and does next
+{
+  const { khandan_jambandi: kj } = await import(process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href)
+  const g = kj('{"text":"x","anjam_shod":[],"anjam_nashod":[],"thinking":{"fekr":"دنبالِ علتِ تبِ تیره بودم","kard":"extension.js را خواندم","bad":"به ۲۰۳ پیام می‌دهم"}}')
+  assert.deepEqual(g.thinking, { fekr: 'دنبالِ علتِ تبِ تیره بودم', kard: 'extension.js را خواندم', bad: 'به ۲۰۳ پیام می‌دهم' })
+  assert.equal(kj('{"text":"x"}').thinking, undefined)
+}
+// «thinking» stands on its own (Habib, 8 Nov 13:07: «مستقل … نباید باهم ربط داشته باشیم»): «دو جمله» off, thinking still comes
+{
+  $.sid = 'TH'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/TH'] = 'on -hads -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
+  await H['prompt.submit']($, { text: 'کار کن' }, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
+  const fk = $.model.fork
+  $.model.fork = async (o) => { calls.fork.push(o); return { isAnswered: true, usage: {}, text: '{"text": "x.", "anjam_shod": [], "anjam_nashod": [], "thinking": {"fekr": "دنبالِ علت بودم", "kard": "فایل را خواندم", "bad": "تست می‌زنم"}}' } }
+  $.t += 1; await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
+  const rTh = await render()
+  out.thinking_mostaghel = { fekr: find(rTh, 'hads-th-fekr')?.children[0], now: find(rTh, 'hads-now') ? 'shown' : 'hidden' }
+  $.model.fork = fk
+  assert.deepEqual(out.thinking_mostaghel, { fekr: 'دنبالِ علت بودم', now: 'hidden' })
+}

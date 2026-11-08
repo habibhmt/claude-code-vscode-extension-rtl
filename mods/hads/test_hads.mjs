@@ -1233,4 +1233,61 @@ function hads_due_reset() {}
   await find(await render(), 'hads-fs-sabt-chat').onPress(); assert.equal(JSON.parse(flags[D + 'chat-GL.json']).proje, '-proj')
   $.tail = keepTail
 }
+// ⚙ conditions (Habib, 8 Nov 23:14, 23:21): 8 conditions, «یا / و», simple and grouped
+{
+  const ev = (o) => ({ t: 0, akharin: 0, ...o })
+  const g = [[{ n: 'abzar', v: 3 }, { n: 'abzar_khas', v: 'Edit' }], [{ n: 'akhar' }]]
+  out.sh_dar = [mod.dar_shart(g, ev({ no: 'abzar', n: 3, tool: 'Bash' })), mod.dar_shart(g, ev({ no: 'abzar', n: 3, tool: 'Edit' })), mod.dar_shart(g, ev({ no: 'abzar', n: 4, tool: 'Edit' })), mod.dar_shart(g, ev({ no: 'akhar' }))]
+  assert.deepEqual(out.sh_dar, [false, true, false, true])
+  assert.equal(mod.matn_shart(g), '(هر ۳ ابزار و بعد از Edit) یا آخرِ نوبت')
+  // each of the 8 on its own
+  const one = (c, o) => mod.dar_shart([[c]], ev(o))
+  out.sh_8 = [one({ n: 'pish_porsesh' }, { no: 'pish_porsesh' }), one({ n: 'payam' }, { no: 'payam' }), one({ n: 'payam' }, { no: 'abzar', n: 1 }),
+    one({ n: 'daghighe', v: 2 }, { no: 'abzar', n: 1, t: 120000 }), one({ n: 'daghighe', v: 2 }, { no: 'abzar', n: 1, t: 60000 }),
+    one({ n: 'chat_bozorg', v: 500000 }, { no: 'abzar', n: 1, tokens: 600000 }), one({ n: 'chat_bozorg', v: 500000 }, { no: 'abzar', n: 1, tokens: 100 }),
+    one({ n: 'khata' }, { no: 'abzar', n: 1, khata: true }), one({ n: 'khata' }, { no: 'abzar', n: 1, khata: false })]
+  assert.deepEqual(out.sh_8, [true, true, false, true, false, true, false, true, false])
+  // the simple form: one list, all «یا» or all «و»
+  assert.deepEqual(mod.goruh_az_shart({ halat: 'sade', ba: 'ya', list: [{ n: 'akhar' }, { n: 'khata' }] }), [[{ n: 'akhar' }], [{ n: 'khata' }]])
+  assert.deepEqual(mod.goruh_az_shart({ halat: 'sade', ba: 'va', list: [{ n: 'akhar' }, { n: 'khata' }] }), [[{ n: 'akhar' }, { n: 'khata' }]])
+  // the defaults are what ran before
+  assert.equal(mod.matn_shart(mod.shart_pishfarz('thinking')), 'هر ۳ ابزار یا آخرِ نوبت یا پیش از پنجرهٔ سؤال')
+  // conditions beat the number in the same save; a narrower save wins
+  const m = mod.adghame_fasele({ hads: 4 }, { shart: { hads: { halat: 'sade', ba: 'ya', list: [{ n: 'khata' }] } } }, {})
+  assert.deepEqual([m.val.goruh.hads, m.az.hads], [[[{ n: 'khata' }]], 'proje'])
+
+  // the editor: ▸ شرط, «گروهی», add «ابزارِ خاص» to group 1, save for the chat
+  const D = '/h/.claude/hads-fasele/'
+  for (const k of Object.keys(flags)) if (k.startsWith(D)) delete flags[k]
+  $.sid = 'SR'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/SR'] = 'on -do_jomle -thinking -porsesh -hook -zaban'
+  let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
+  await find(r, 'hads-fs-ziad-hads').onPress(); r = await render(); await find(r, 'hads-fs-ziad-hads').onPress(); r = await render()
+  await find(r, 'hads-fs-shart-hads').onPress(); r = await render()
+  out.sr_aval = find(r, 'hads-fs-shart-matn-hads').children[0]
+  await find(r, 'hads-fs-g-hads-0-add-abzar_khas').onPress(); r = await render()
+  out.sr_ba_khas = find(r, 'hads-fs-shart-matn-hads').children[0]
+  // «ساده» and back keeps the conditions
+  await find(r, 'hads-fs-halat-sade-hads').onPress(); r = await render()
+  out.sr_sade = [find(r, 'hads-fs-ba-hads').label, find(r, 'hads-fs-c-hads-khata').label]
+  await find(r, 'hads-fs-halat-goruh-hads').onPress(); r = await render()
+  out.sr_bargasht = find(r, 'hads-fs-shart-matn-hads').children[0]
+  assert.deepEqual([out.sr_aval, out.sr_ba_khas, ...out.sr_sade, out.sr_bargasht], ['  یعنی: هر ۲ ابزار یا آخرِ نوبت', '  یعنی: (هر ۲ ابزار و بعد از Edit) یا آخرِ نوبت', 'همه با: یا (هر کدام زودتر)', '✗ ابزار خطا داد', '  یعنی: هر ۲ ابزار یا بعد از Edit یا آخرِ نوبت'])
+  // back to the grouped «(هر ۲ و Edit) یا آخر» to test the run: remove the 2 single groups and rebuild
+  await find(r, 'hads-fs-g-hads-1-x').onPress(); r = await render()
+  await find(r, 'hads-fs-g-hads-0-add-abzar_khas').onPress(); r = await render()
+  out.sr_akhar = find(r, 'hads-fs-shart-matn-hads').children[0]
+  assert.equal(out.sr_akhar, '  یعنی: (هر ۲ ابزار و بعد از Edit) یا آخرِ نوبت')
+  await find(r, 'hads-fs-sabt-chat').onPress()
+  const saved = JSON.parse(flags[D + 'chat-SR.json'])
+  assert.equal(saved.shart.hads.halat, 'goruh')
+  // the run: tools Bash, Edit(2nd), Bash, Bash(4th) ⇒ one fork, at the Edit
+  $.t += 10000; const sidN = 0, f0 = calls.fork.length, per = []
+  for (const tl of ['Bash', 'Edit', 'Bash', 'Bash']) { const a = calls.fork.length; await tool({ tool: tl }); await flush(); per.push(calls.fork.length - a) }
+  out.sr_ejra = per; assert.deepEqual(out.sr_ejra, [0, 1, 0, 0], 'run ' + per)
+  // «ابزار خطا داد» from the tool's real result
+  flags[D + 'chat-SR.json'] = JSON.stringify({ shart: { hads: { halat: 'sade', ba: 'ya', list: [{ n: 'khata' }] } } }); $.t += 10000
+  const kh = []
+  for (const isError of [false, true]) { const a = calls.fork.length; await H['tool.call']($, { tool: 'Bash', command: 'x' }, async () => ({ result: 'x', isError })); await flush(); kh.push(calls.fork.length - a) }
+  out.sr_khata = kh; assert.deepEqual(out.sr_khata, [0, 1], 'khata ' + kh)
+}
 console.log('fasele ok')

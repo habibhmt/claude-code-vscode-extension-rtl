@@ -859,6 +859,60 @@ export const had_fasele = 50
 // a priced guess for one fork of a big chat, from a real usage line (8 Nov: 233k cache read, 9k in, 1.6k out ≈ $0.2)
 export const kharj_hads_yek_fork_dolar = 0.2
 export const esm_dayere_fasele = { chat: 'همین چت', proje: 'همین پروژه', sarasari: 'سراسری', pishfarz: 'پیش‌فرض' }
+// ⚙ «شرطِ صدا زدن» (Habib, 8 Nov 23:14: «شرط صدا زدن رو بگو چهه چیزهایی میشه گذاشت و اینکه چند شرطی یا این یا اون
+// یا هردو یا هر سه هم بشه تعیین کرد»; 23:21 «همین ۸ تا» · «جفت حالت ها باشن»). A part runs when any group holds (یا);
+// a group holds when all its conditions hold at that moment (و). Simple form: one list and one «یا / و» for all.
+export const shart_ha = [
+  ['abzar', 'هر N ابزار', 3], ['akhar', 'آخرِ نوبت'], ['pish_porsesh', 'پیش از پنجرهٔ سؤال'], ['abzar_khas', 'ابزارِ خاص', 'Edit'],
+  ['daghighe', 'هر N دقیقه', 2], ['payam', 'وقتی پیام فرستادید'], ['chat_bozorg', 'چت بزرگ شد', 500000], ['khata', 'ابزار خطا داد']]
+export const abzar_khas_ha = ['Edit', 'Write', 'Bash', 'Read', 'Grep', 'Agent', 'WebSearch', 'AskUserQuestion']
+const esm_shart = Object.fromEntries(shart_ha.map(([n, e]) => [n, e]))
+export function goruh_az_adad(k, v) {
+  if (!Number.isInteger(v) || v < 0) return []
+  const akhar = [[{ n: 'akhar' }]]
+  if (v === 0) return akhar
+  return [[{ n: 'abzar', v }], ...akhar, ...(k === 'thinking' ? [[{ n: 'pish_porsesh' }]] : [])]
+}
+// the defaults are what ran before: thinking every 3 tools, before a question and at the end; «دو جمله» after a tool at most
+// once a minute, and at the end; the rest at the end
+export const shart_pishfarz = (k) => k === 'do_jomle' ? [[{ n: 'abzar', v: 1 }, { n: 'daghighe', v: 1 }], [{ n: 'akhar' }]] : goruh_az_adad(k, k === 'thinking' ? had_thinking_vasat : 0)
+const shart_dorost = (c) => c && typeof c === 'object' && shart_ha.some(([n]) => n === c.n)
+export function goruh_az_shart(sh) {
+  if (!sh || typeof sh !== 'object') return null
+  if (sh.halat === 'sade') { const l = (Array.isArray(sh.list) ? sh.list : []).filter(shart_dorost); return sh.ba === 'va' ? (l.length ? [l] : []) : l.map((c) => [c]) }
+  return Array.isArray(sh.goruh) ? sh.goruh.map((g) => (Array.isArray(g) ? g : []).filter(shart_dorost)).filter((g) => g.length) : null
+}
+// ev: { no: 'abzar' | 'akhar' | 'pish_porsesh' | 'payam', tool, khata, n, tokens, t, akharin (this part's last run) }
+export function dar_shart(goruh, ev) {
+  const yek = (c) => {
+    if (c.n === 'abzar') return ev.no === 'abzar' && c.v > 0 && ev.n % c.v === 0
+    if (c.n === 'akhar') return ev.no === 'akhar'
+    if (c.n === 'pish_porsesh') return ev.no === 'pish_porsesh'
+    if (c.n === 'abzar_khas') return (ev.no === 'abzar' || ev.no === 'pish_porsesh') && ev.tool === c.v
+    if (c.n === 'daghighe') return (ev.t || 0) - (ev.akharin || 0) >= (c.v || 1) * 60000
+    if (c.n === 'payam') return ev.no === 'payam'
+    if (c.n === 'chat_bozorg') return (ev.tokens || 0) >= (c.v || 0)
+    if (c.n === 'khata') return ev.no === 'abzar' && !!ev.khata
+    return false
+  }
+  return (goruh || []).some((g) => g.length && g.every(yek))
+}
+export const matn_yek_shart = (c) => c.n === 'abzar' ? 'هر ' + adad_farsi(c.v) + ' ابزار' : c.n === 'daghighe' ? 'هر ' + adad_farsi(c.v) + ' دقیقه' : c.n === 'abzar_khas' ? 'بعد از ' + c.v
+  : c.n === 'chat_bozorg' ? 'چت بالای ' + adad_farsi(Math.round(c.v / 1000)) + ' هزار' : esm_shart[c.n]
+export function matn_shart(goruh) {
+  if (!goruh || !goruh.length) return 'خاموش'
+  const c1 = (c) => c.n === 'abzar' ? 'هر ' + adad_farsi(c.v) + ' ابزار' : c.n === 'daghighe' ? 'هر ' + adad_farsi(c.v) + ' دقیقه' : c.n === 'abzar_khas' ? 'بعد از ' + c.v
+    : c.n === 'chat_bozorg' ? 'چت بالای ' + adad_farsi(Math.round(c.v / 1000)) + ' هزار' : esm_shart[c.n]
+  return goruh.map((g) => (g.length > 1 && goruh.length > 1 ? '(' : '') + g.map(c1).join(' و ') + (g.length > 1 && goruh.length > 1 ? ')' : '')).join(' یا ')
+}
+// calls in a 12-tool turn with every 3rd tool an Edit, one call per moment however many parts are due — for the ⚙ window
+export function tedad_fork_shart(goruh_ha, n = 12) {
+  let c = 0
+  const g = bakhsh_fork_vasat.map((k) => goruh_ha[k] || [])
+  for (let i = 1; i <= n; i++) if (g.some((x) => dar_shart(x, { no: 'abzar', n: i, tool: i % 3 === 0 ? 'Edit' : 'Bash', t: 0, akharin: 0 }))) c++
+  if (g.some((x) => dar_shart(x, { no: 'akhar', t: 0 }))) c++
+  return c
+}
 export function adghame_fasele(sarasari = {}, proje = {}, chat = {}, pishfarz = {}) {
   const val = {}, az = {}
   for (const k of bakhsh_fasele) {
@@ -870,6 +924,14 @@ export function adghame_fasele(sarasari = {}, proje = {}, chat = {}, pishfarz = 
   const sh = [chat.shenavar, proje.shenavar, sarasari.shenavar].find((x) => Array.isArray(x))
   val.shenavar = (sh || pishfarz.shenavar || ['thinking']).filter((k, i, a) => bakhsh_fasele.includes(k) && a.indexOf(k) === i)
   az.shenavar = sh === chat.shenavar && sh ? 'chat' : sh === proje.shenavar && sh ? 'proje' : sh ? 'sarasari' : 'pishfarz'
+  // each part's conditions: the narrowest save that has a word on it, its conditions before its number
+  val.goruh = {}; val.shart = {}
+  for (const k of bakhsh_fasele) {
+    const sc = [['chat', chat], ['proje', proje], ['sarasari', sarasari]].find(([, o]) => (o.shart && o.shart[k]) || (Number.isInteger(o[k]) && o[k] >= -1))
+    if (!sc) { val.goruh[k] = shart_pishfarz(k); val.shart[k] = null; continue }
+    const o = sc[1], g = o.shart && o.shart[k] ? goruh_az_shart(o.shart[k]) : null
+    val.goruh[k] = g ?? goruh_az_adad(k, o[k]); val.shart[k] = (o.shart && o.shart[k]) || null; az[k] = sc[0]
+  }
   return { val, az }
 }
 // how many model calls a turn of n tools makes with these numbers (parts due together count once) — for the ⚙ window
@@ -900,6 +962,7 @@ async function fasele_ha($) {
 async function sabt_fasele($, dayere, val) {
   const o = Object.fromEntries(bakhsh_fasele.filter((k) => Number.isInteger(val[k])).map((k) => [k, Math.max(-1, Math.min(had_fasele, val[k]))]))
   if (Array.isArray(val.shenavar)) o.shenavar = val.shenavar.filter((k) => bakhsh_fasele.includes(k))
+  if (val.shart && typeof val.shart === 'object') { const sh = Object.fromEntries(bakhsh_fasele.filter((k) => val.shart[k]).map((k) => [k, val.shart[k]])); if (Object.keys(sh).length) o.shart = sh }
   const d = await dir_fasele($), slug = String(await $.session.cwd()).replace(/[^a-zA-Z0-9]/g, '-')
   // a chat's file says its project, so a project save can find the chats it covers
   if (dayere === 'chat') o.proje = slug
@@ -930,6 +993,8 @@ const fasele_pishnevis = new Map()
 // «ثبتِ سراسری» asks first (like the «تنظیمات کلود» tab: «برای سراسری یه پاپ اپ بیاد که مطمینی»); then a line says what was saved
 const tayid_sarasari_har_chat = new Set()
 const payam_sabt_har_chat = new Map()
+// the part whose conditions are open in the ⚙ window, per chat
+const shart_baz_har_chat = new Map()
 
 // «thinking» in the middle of a turn: every had_thinking_vasat tools, and before a question window; only the
 // three sentences, from the chat itself (warm cache). One at a time; the turn's own summary still comes at its end.
@@ -1422,7 +1487,7 @@ export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_k
 async function khandan_file_chat($) {
   const p = await khandan_file_chat_kham($)
   if (!p) return p
-  try { const f = await fasele_ha($); for (const k of bakhsh_fasele) if (f.val[k] < 0) p[k] = false } catch {}
+  try { const f = await fasele_ha($); for (const k of bakhsh_fasele) if (!f.val.goruh[k].length) p[k] = false } catch {}
   return p
 }
 async function khandan_file_chat_kham($) {
@@ -1533,7 +1598,7 @@ async function tik_zadan($, key) {
   if (!p) return
   // ✓ pressed on a part ⚙ turned off: ⚙ lets go of it for this chat (back to «only the turn's end»)
   const f = bakhsh_fasele.includes(key) ? await fasele_ha($) : null
-  if (f && f.val[key] < 0) { const ch = await khandan_yek_fasele($, 'chat'); await sabt_fasele($, 'chat', { ...ch, [key]: 0 }); p[key] = true }
+  if (f && !f.val.goruh[key].length) { const ch = await khandan_yek_fasele($, 'chat'); const sh = { ...(ch.shart || {}) }; delete sh[key]; await sabt_fasele($, 'chat', { ...ch, [key]: 0, shart: sh }); p[key] = true }
   else p[key] = !(await khandan_file_chat($))[key]
   await $.fs.write(await masir_file_chat($), kalame_ha_ye_file(p))
   if (!p.hads) hads_akhar = []
@@ -1555,28 +1620,118 @@ export function dade_shenavar(list, dade) {
   // the list goes even when empty: «nothing floats» must reach the page too
   return { list, parts }
 }
+// one moment (a tool ended, a question window is coming, Habib sent a message): every part whose conditions hold runs;
+// the turn's-end parts due together share ONE fork. The turn's end itself goes through akhar_javab (filtered there).
+const akharin_har_bakhsh = new Map()
+async function ejra_ba_shart($, ev, p) {
+  if (!p) return
+  const sid = await $.session.id(), f = await fasele_ha($)
+  const ak = akharin_har_bakhsh.get(sid) || {}; akharin_har_bakhsh.set(sid, ak)
+  if (JSON.stringify(f.val.goruh).includes('chat_bozorg')) try { ev.tokens = (await $.session.usage()).context.tokens || 0 } catch {}
+  const bayad = (k) => !!p[k] && dar_shart(f.val.goruh[k], { ...ev, akharin: ak[k] || 0 })
+  const zadam = (k) => { ak[k] = ev.t }
+  if (bayad('do_jomle')) { zadam('do_jomle'); await begu_do_jomle($, ev.what || '', false, p.do_jomle_fork && (await chat_kuchak($)), f.az.do_jomle !== 'pishfarz') }
+  const vasat = bakhsh_fork_vasat.filter(bayad)
+  if (vasat.length && !fork_vasat_dar_kar && !akhar_javab_dar_kar) {
+    vasat.forEach(zadam); fork_vasat_dar_kar = true
+    try { await hads_ba_fork($, Object.fromEntries(vasat.map((k) => [k, true])), null); await benevis_daftar($, 'fork_vasat', { bakhsh: vasat, lahze: ev.no, abzar: ev.n || 0 }) } finally { fork_vasat_dar_kar = false }
+  }
+  if (porsesh_montazer && bayad('porsesh')) { zadam('porsesh'); const q = porsesh_montazer; porsesh_montazer = null; await porsesh_kon($, q) }
+  if (bayad('thinking')) { zadam('thinking'); await thinking_vasat($, true) }
+}
+// at the turn's end: only the parts whose conditions hold now
+async function p_akhar_nobat($, p) {
+  try {
+    const f = await fasele_ha($), t = await $.clock.now(), q = { ...p }
+    let tokens = 0
+    if (JSON.stringify(f.val.goruh).includes('chat_bozorg')) try { tokens = (await $.session.usage()).context.tokens || 0 } catch {}
+    for (const k of bakhsh_fasele) if (q[k] && !dar_shart(f.val.goruh[k], { no: 'akhar', t, tokens })) q[k] = false
+    return q
+  } catch { return p }
+}
+
 // the ⚙ window: per part «every N tools» with − +, one «همه» row, and three saves
 // −1 = the part is off (Habib, 8 Nov 21:17: «اگه تو مرحله اول یک بار علامت منفی زده بشه اون گزینه کلا اف بشه»)
 const matn_fasele = (v) => v > 0 ? 'هر ' + adad_farsi(v) + ' ابزار' : v === 0 ? 'فقط آخرِ نوبت' : 'خاموش'
+const kelid = (...a) => a.join('-')
 async function panjare_fasele($, id, Box, Text, Button) {
   const f = await fasele_ha($)
-  const pn = fasele_pishnevis.get(id) || { ...f.val, shenavar: [...f.val.shenavar] }
-  const taghir = (k, d) => { const x = { ...(fasele_pishnevis.get(id) || f.val) }, paye = x.hads | 0; for (const j of k === 'hame' ? bakhsh_fasele : [k]) x[j] = Math.max(-1, Math.min(had_fasele, (k === 'hame' ? paye : (x[j] | 0)) + d)); fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
+  const pn = fasele_pishnevis.get(id) || { ...f.val, shenavar: [...f.val.shenavar], shart: { ...f.val.shart } }
+  const nuskhe_pishnevis = () => { const x = fasele_pishnevis.get(id) || f.val; return { ...x, shenavar: [...x.shenavar], shart: { ...(x.shart || {}) } } }
+  // − + is the number again: it drops that part's conditions (the «همه» row: every part's)
+  const taghir = (k, d) => { const x = nuskhe_pishnevis(), paye = x.hads | 0; for (const j of k === 'hame' ? bakhsh_fasele : [k]) { x[j] = Math.max(-1, Math.min(had_fasele, (k === 'hame' ? paye : (x[j] | 0)) + d)); delete x.shart[j] } fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
+  const goruh_pn = (k) => pn.shart[k] ? goruh_az_shart(pn.shart[k]) || [] : pn[k] === f.val[k] && !f.val.shart[k] ? f.val.goruh[k] : goruh_az_adad(k, pn[k])
+  const klon = (x) => JSON.parse(JSON.stringify(x))
+  const sabt_shart = (k, sh) => { const x = nuskhe_pishnevis(); x.shart[k] = sh; fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render') }
+  const gam = (c, d) => {
+    if (c.n === 'abzar') c.v = Math.max(1, Math.min(had_fasele, (c.v | 0) + d))
+    else if (c.n === 'daghighe') c.v = Math.max(1, Math.min(60, (c.v | 0) + d))
+    else if (c.n === 'chat_bozorg') c.v = Math.max(100000, Math.min(1000000, (c.v | 0) + d * 100000))
+    else if (c.n === 'abzar_khas') c.v = abzar_khas_ha[(abzar_khas_ha.indexOf(c.v) + 1) % abzar_khas_ha.length]
+  }
+  const pishfarz_shart = (n) => { const d = shart_ha.find((x) => x[0] === n)?.[2]; return d === undefined ? { n } : { n, v: d } }
+  // a condition's own value: − + for numbers, one button that cycles for «ابزارِ خاص»
+  const meghdar = (k, pishvand, c, avaz) => c.n === 'abzar_khas' ? [Button({ key: kelid(pishvand, 'khas'), label: c.v + ' ⟳', onPress: () => avaz((x) => gam(x, 1)) })]
+    : ['abzar', 'daghighe', 'chat_bozorg'].includes(c.n) ? [Button({ key: kelid(pishvand, 'kam'), label: '−', onPress: () => avaz((x) => gam(x, -1)) }), Button({ key: kelid(pishvand, 'ziad'), label: '+', onPress: () => avaz((x) => gam(x, 1)) })] : []
+  function virayeshgar(k) {
+    const sh = klon(pn.shart[k] || { halat: 'goruh', goruh: goruh_pn(k) })
+    const sade = sh.halat === 'sade'
+    const be_sade = () => { const l = []; for (const g of sh.goruh || []) for (const c of g) if (!l.some((x) => x.n === c.n)) l.push(c); sabt_shart(k, { halat: 'sade', ba: (sh.goruh || []).length === 1 && sh.goruh[0].length > 1 ? 'va' : 'ya', list: l }) }
+    const be_goruh = () => sabt_shart(k, { halat: 'goruh', goruh: goruh_az_shart(sh) || [] })
+    const out = [Box({ key: 'hads-fs-halat-' + k, flexDirection: 'row', columnGap: 1, children: [
+      Text({ dimColor: true, children: ['  شرطِ ' + (esm[k] || k) + ':'] }),
+      Button({ key: 'hads-fs-halat-sade-' + k, label: (sade ? '● ' : '○ ') + 'ساده', onPress: sade ? () => {} : be_sade }),
+      Button({ key: 'hads-fs-halat-goruh-' + k, label: (!sade ? '● ' : '○ ') + 'گروهی', onPress: sade ? be_goruh : () => {} }),
+    ] })]
+    if (sade) {
+      out.push(Button({ key: 'hads-fs-ba-' + k, label: 'همه با: ' + (sh.ba === 'va' ? 'و (همه با هم)' : 'یا (هر کدام زودتر)'), onPress: () => sabt_shart(k, { ...sh, ba: sh.ba === 'va' ? 'ya' : 'va' }) }))
+      for (const [n, esm_c] of shart_ha) {
+        const i = sh.list.findIndex((c) => c.n === n), c = sh.list[i]
+        out.push(Box({ key: kelid('hads-fs-c-r', k, n), flexDirection: 'row', columnGap: 1, children: [
+          Button({ key: kelid('hads-fs-c', k, n), label: (c ? '✓ ' : '✗ ') + esm_c, onPress: () => { const l = [...sh.list]; if (c) l.splice(i, 1); else l.push(pishfarz_shart(n)); sabt_shart(k, { ...sh, list: l }) } }),
+          ...(c ? [Text({ children: [matn_yek_shart(c)] }), ...meghdar(k, kelid('hads-fs-c', k, n), c, (fn) => { const l = klon(sh.list); fn(l[i]); sabt_shart(k, { ...sh, list: l }) })] : []),
+        ] }))
+      }
+    } else {
+      const gs = sh.goruh || []
+      gs.forEach((g, gi) => {
+        if (gi) out.push(Text({ key: kelid('hads-fs-g-ya', k, gi), dimColor: true, children: ['  یا'] }))
+        out.push(Box({ key: kelid('hads-fs-g', k, gi), flexDirection: 'row', columnGap: 1, children: [
+          Text({ dimColor: true, children: ['گروهِ ' + adad_farsi(gi + 1) + ':'] }),
+          ...g.flatMap((c, ci) => [
+            ...(ci ? [Text({ dimColor: true, children: ['و'] })] : []),
+            Text({ key: kelid('hads-fs-g', k, gi, ci), children: [matn_yek_shart(c)] }),
+            ...meghdar(k, kelid('hads-fs-g', k, gi, ci), c, (fn) => { const x = klon(gs); fn(x[gi][ci]); sabt_shart(k, { halat: 'goruh', goruh: x }) }),
+            Button({ key: kelid('hads-fs-g', k, gi, ci, 'x'), label: '×', onPress: () => { const x = klon(gs); x[gi].splice(ci, 1); sabt_shart(k, { halat: 'goruh', goruh: x }) } }),
+          ]),
+          Button({ key: kelid('hads-fs-g', k, gi, 'x'), label: '× گروه', onPress: () => { const x = klon(gs); x.splice(gi, 1); sabt_shart(k, { halat: 'goruh', goruh: x }) } }),
+        ] }))
+        out.push(Box({ key: kelid('hads-fs-g-add', k, gi), flexDirection: 'row', columnGap: 1, children: [
+          Text({ dimColor: true, children: ['  + و:'] }),
+          ...shart_ha.filter(([n]) => !g.some((c) => c.n === n)).map(([n, esm_c]) => Button({ key: kelid('hads-fs-g', k, gi, 'add', n), label: esm_c, onPress: () => { const x = klon(gs); x[gi].push(pishfarz_shart(n)); sabt_shart(k, { halat: 'goruh', goruh: x }) } })),
+        ] }))
+      })
+      out.push(Button({ key: kelid('hads-fs-g', k, 'taze'), label: '+ گروهِ تازه (یا)', onPress: () => sabt_shart(k, { halat: 'goruh', goruh: [...klon(gs), []] }) }))
+    }
+    out.push(Text({ key: 'hads-fs-shart-matn-' + k, dimColor: true, children: ['  یعنی: ' + matn_shart(goruh_az_shart(sh))] }))
+    return out
+  }
   const esm = Object.fromEntries(bakhsh_ha)
   const radif = (k, label, v, az) => Box({ key: 'hads-fs-r-' + k, flexDirection: 'row', columnGap: 1, children: [
     Text({ dimColor: true, children: [label] }),
     Button({ key: 'hads-fs-kam-' + k, label: '−', onPress: () => taghir(k, -1) }),
-    Text({ key: 'hads-fs-v-' + k, children: [k === 'do_jomle' && az === 'pishfarz' && v === f.val[k] ? 'هر ابزار، دقیقه‌ای یک بار' : matn_fasele(v)] }),
+    Text({ key: 'hads-fs-v-' + k, children: [k !== 'hame' && pn.shart[k] ? matn_shart(goruh_pn(k)) : k === 'do_jomle' && az === 'pishfarz' && v === f.val[k] ? 'هر ابزار، دقیقه‌ای یک بار' : matn_fasele(v)] }),
     Button({ key: 'hads-fs-ziad-' + k, label: '+', onPress: () => taghir(k, 1) }),
     ...(az ? [Text({ dimColor: true, children: ['(' + esm_dayere_fasele[az] + ')'] })] : []),
     ...(k === 'hame' ? [] : [
+      Button({ key: 'hads-fs-shart-' + k, label: (shart_baz_har_chat.get(id) === k ? '▾' : '▸') + ' شرط', onPress: () => { shart_baz_har_chat.get(id) === k ? shart_baz_har_chat.delete(id) : shart_baz_har_chat.set(id, k); $.ui.invalidate('ui.render') } }),
       Button({ key: 'hads-fs-sh-' + k, label: (pn.shenavar.includes(k) ? '✓' : '✗') + ' شناور', onPress: () => jabeja(k, 0) }),
       ...(pn.shenavar.includes(k) ? [Button({ key: 'hads-fs-bala-' + k, label: '▲', onPress: () => jabeja(k, -1) }), Button({ key: 'hads-fs-paein-' + k, label: '▼', onPress: () => jabeja(k, 1) })] : []),
     ]),
   ] })
   // 0 = in or out of the floater; −1/+1 = up/down inside it
   const jabeja = (k, d) => {
-    const x = { ...(fasele_pishnevis.get(id) || f.val) }, l = [...x.shenavar], i = l.indexOf(k)
+    const x = nuskhe_pishnevis(), l = [...x.shenavar], i = l.indexOf(k)
     if (d === 0) { if (i < 0) l.push(k); else l.splice(i, 1) }
     else if (i >= 0 && i + d >= 0 && i + d < l.length) { l.splice(i, 1); l.splice(i + d, 0, k) }
     x.shenavar = l; fasele_pishnevis.set(id, x); $.ui.invalidate('ui.render')
@@ -1588,11 +1743,11 @@ async function panjare_fasele($, id, Box, Text, Button) {
     payam_sabt_har_chat.set(id, '✓ ثبت شد: ' + esm_dayere_fasele[d] + (d === 'sarasari' ? ' (ثبت‌های پروژه و چت پاک شد)' : d === 'proje' ? ' (ثبت‌های چت‌های این پروژه پاک شد)' : ''))
     $.ui.invalidate('ui.render')
   }
-  const c = tedad_fork_nobat(pn)
+  const c = tedad_fork_shart(Object.fromEntries(bakhsh_fasele.map((k) => [k, goruh_pn(k)])))
   return [Box({ key: 'hads-fs', flexDirection: 'column', children: [
     Text({ dimColor: true, children: ['⚙ هر بخش بعد از چند ابزار بیاید (۰ = فقط آخرِ نوبت، یک − دیگر = خاموش). بخش‌هایی که با هم برسند یک بار صدا زده می‌شوند.'] }),
     radif('hame', 'همه:', pn.hads, null),
-    ...bakhsh_fasele.map((k) => radif(k, (esm[k] || k) + ':', pn[k], f.az[k])),
+    ...bakhsh_fasele.flatMap((k) => [radif(k, (esm[k] || k) + ':', pn[k], f.az[k]), ...(shart_baz_har_chat.get(id) === k ? virayeshgar(k) : [])]),
     Text({ key: 'hads-fs-tartib', dimColor: true, children: ['ترتیب در شناور: ' + (pn.shenavar.length ? pn.shenavar.map((k) => esm[k] || k).join(' ← ') : 'هیچ') + ' (' + esm_dayere_fasele[f.az.shenavar] + ')'] }),
     Text({ key: 'hads-fs-kharj', dimColor: true, children: ['نوبتِ ۱۲ ابزاری: ' + adad_farsi(c) + ' بار صدا زدنِ مدل، حدودِ ' + adad_farsi(Math.round(c * kharj_hads_yek_fork_dolar * 10) / 10) + ' دلار (حدسی)'] }),
     ...(tayid_sarasari_har_chat.has(id) ? [Box({ key: 'hads-fs-tayid', flexDirection: 'column', children: [
@@ -1683,6 +1838,8 @@ export function register(on) {
     } catch {}
     // only with the engine's own stamp: an unstamped text is no proof that he typed it
     if (['composer', 'bridge'].includes(e?.origin?.kind)) { const matn = String(e?.text || ''); $.clock.after(0, () => zakhire_payam($, [{ role: 'user', text: matn }])) }
+    // «وقتی پیام فرستادید»: the parts with that condition
+    $.clock.after(0, async () => { try { await ejra_ba_shart($, { no: 'payam', t: await $.clock.now() }, (await chat_ba_safhe($)) ? await khandan_file_chat($) : null) } catch {} })
     try {
       const sent = String(e?.text || '').trim()
       if (az_habib && sent && hads_zade_shode.length) {
@@ -1705,10 +1862,11 @@ export function register(on) {
   on('turn.complete', async ($, e, next) => {
     if (!e.agentId) {
       try { zaman_akharin_kar = await $.clock.now(); cache_sard_shod = false } catch {}
-      // a «پرسش» that waited for this answer goes now
-      if (porsesh_montazer && !e.isAborted) { const q = porsesh_montazer; porsesh_montazer = null; $.clock.after(0, () => porsesh_kon($, q)) }
     }
-    const p = !e.agentId && !e.isAborted && (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
+    const p0 = !e.agentId && !e.isAborted && (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
+    const p = p0 ? await p_akhar_nobat($, p0) : null
+    // a «پرسش» that waited for this answer goes now (when «پرسش»'s conditions hold at the end)
+    if (!e.agentId && porsesh_montazer && !e.isAborted && (!p0 || p?.porsesh)) { const q = porsesh_montazer; porsesh_montazer = null; $.clock.after(0, () => porsesh_kon($, q)) }
     if (p?.hook) $.clock.after(500, () => { zaman_khandan_hook = 0; return khandan_hook_az_transcript($) })
     // not awaited: the turn must not wait for the model
     if (p) $.clock.after(0, () => akhar_javab($, p))
@@ -1722,7 +1880,7 @@ export function register(on) {
   on('tool.call', async ($, e, next) => {
     // the question window waits for Habib: its thinking goes first, so it shows while he reads (Habib, 8 Nov
     // 19:47: «حتی تو اسک یوزر کوسشن هم بیاد»); never awaited, so the window is not held back
-    if (!e.agentId && e.tool === 'AskUserQuestion') $.clock.after(0, () => thinking_vasat($, true).catch(() => {}))
+    if (!e.agentId && e.tool === 'AskUserQuestion') $.clock.after(0, async () => { try { const t = await $.clock.now(); await ejra_ba_shart($, { no: 'pish_porsesh', tool: e.tool, t }, (await chat_ba_safhe($)) ? await khandan_file_chat($) : null) } catch {} })
     const r = await next(e)
     try {
       if (!e.agentId) {
@@ -1736,20 +1894,8 @@ export function register(on) {
             if (p?.hook) await khandan_hook_az_transcript($)
             const sid = await $.session.id(), n = (shomar_abzar_chat.get(sid) || 0) + 1
             shomar_abzar_chat.set(sid, n)
-            const f = p ? await fasele_ha($) : null
-            // «دو جمله»: as before (once a minute) until a number is saved; then every N tools, 0 = only the turn's end
-            if (p?.do_jomle && (f.az.do_jomle === 'pishfarz' || (f.val.do_jomle > 0 && n % f.val.do_jomle === 0)))
-              await begu_do_jomle($, what, false, p.do_jomle_fork && (await chat_kuchak($)), f.az.do_jomle !== 'pishfarz')
-            // the turn's-end parts in the middle of work: those due at this tool go in ONE fork
-            const vasat = p ? Object.fromEntries(bakhsh_fork_vasat.filter((k) => p[k] && f.val[k] > 0 && n % f.val[k] === 0).map((k) => [k, true])) : {}
-            if (Object.keys(vasat).length && !fork_vasat_dar_kar && !akhar_javab_dar_kar) {
-              fork_vasat_dar_kar = true
-              try { await hads_ba_fork($, vasat, null); await benevis_daftar($, 'fork_vasat', { bakhsh: Object.keys(vasat), abzar: n }) } finally { fork_vasat_dar_kar = false }
-            }
-            // a «پرسش» waiting for the answer goes after N tools instead
-            if (p?.porsesh && porsesh_montazer && f.val.porsesh > 0 && n % f.val.porsesh === 0) { const q = porsesh_montazer; porsesh_montazer = null; await porsesh_kon($, q) }
-            // more often than once a turn (Habib, 8 Nov 19:47: «خیلی دیر به دیر میاد … با تعداد بیشتری بیاد»)
-            if (p?.thinking && e.tool !== 'AskUserQuestion') await thinking_vasat($, false)
+            // every part by its own conditions (⚙); the question window's thinking already went before it
+            await ejra_ba_shart($, { no: 'abzar', tool: e.tool, khata: !!r?.isError, n, t: zaman_akharin_kar, what }, p && e.tool === 'AskUserQuestion' ? { ...p, thinking: false } : p)
           } catch {}
         })
       }

@@ -2920,6 +2920,7 @@
     // «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
     if (!jomle_ha.length) { if (lay) ja_thinking(lay, null); return; }
     if (!lay) { lay = sakhtan_shenavar(); thinking_akhar = ''; }
+    if (lay.dataset.sid !== shenase_fekr()) { lay.dataset.sid = shenase_fekr(); thinking_akhar = ''; }
     ja_thinking(lay, card);
     var matn = jomle_ha.join('\n');
     if (matn === thinking_akhar) return;
@@ -2927,11 +2928,23 @@
     // every new thinking gets a number; ‹ › next to ⠿ walk back and forth (Habib, 8 Nov 20:04: «قبلی ها هم
     // شمارش داشته باشن … این طرف و اون طرف بتونه بره عقب و جلو»)
     var ta = tarikhche_fekr();
-    if (ta[ta.length - 1] !== matn) { ta.push(matn); if (ta.length > HAD_TARIKHCHE_FEKR) ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); try { localStorage.setItem(KELID_TARIKHCHE_FEKR, JSON.stringify(ta)); } catch (e) {} }
+    if (ta[ta.length - 1] !== matn) { ta.push(matn); if (ta.length > HAD_TARIKHCHE_FEKR) ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); zakhire_tarikhche_fekr(ta); }
     neshan_fekr(lay, ta.length - 1, true);
   }
-  var KELID_TARIKHCHE_FEKR = 'crtl-fekr-tarikhche', HAD_TARIKHCHE_FEKR = 100;
-  function tarikhche_fekr() { try { var a = JSON.parse(localStorage.getItem(KELID_TARIKHCHE_FEKR) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  // one list per chat: localStorage is shared by every chat tab, so one key mixed all chats' thinking
+  // (Habib, 8 Nov 20:56: «فکر کردنای همهٔ چت‌ها رو پشت سر هم داره میاره … باید اینها جدا بشه»).
+  // No chat id known yet ⇒ the list lives only in this page, never in a shared key.
+  var KELID_TARIKHCHE_FEKR_PAYE = 'crtl-fekr-tarikhche', HAD_TARIKHCHE_FEKR = 100, tarikhche_bi_shenase = [];
+  try { localStorage.removeItem(KELID_TARIKHCHE_FEKR_PAYE); } catch (e) {}
+  function shenase_fekr() { return SESSION.sid || khandan_shenase_chat_az_state() || ''; }
+  function tarikhche_fekr() {
+    var sid = shenase_fekr(); if (!sid) return tarikhche_bi_shenase;
+    try { var a = JSON.parse(localStorage.getItem(KELID_TARIKHCHE_FEKR_PAYE + ':' + sid) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function zakhire_tarikhche_fekr(ta) {
+    var sid = shenase_fekr(); if (!sid) { tarikhche_bi_shenase = ta; return; }
+    try { localStorage.setItem(KELID_TARIKHCHE_FEKR_PAYE + ':' + sid, JSON.stringify(ta)); } catch (e) {}
+  }
   function neshan_fekr(lay, i, ba_harekat) {
     var ta = tarikhche_fekr(); if (!ta.length) return;
     i = Math.max(0, Math.min(ta.length - 1, i)); lay.dataset.shomare = i;
@@ -3012,6 +3025,7 @@
     if (lay && !document.querySelector('.crtl-hads .crtl-fekr-radif')) ja_thinking(lay, document.querySelector('.crtl-hads'));
   }
   window.__crtl_shenavar_thinking = shenavar_thinking;
+  window.__crtl_set_sid = function (sid) { SESSION.sid = sid; };  // tests only
   setInterval(function () { neshan_hook_va_hads(); thinking_bi_kadr(); }, 700);
   window.__crtl_neshan_hook_va_hads = neshan_hook_va_hads;
 

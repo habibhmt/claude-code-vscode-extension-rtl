@@ -52,6 +52,12 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
    const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent,w=()=>L.querySelector('.crtl-fekr-matn').textContent.trim();
    const o=[sh(),w()];L.querySelectorAll('.crtl-fekr-dokme')[0].click();o.push(sh(),w());L.querySelectorAll('.crtl-fekr-dokme')[1].click();o.push(sh());return o});
   assert.deepEqual(ta,['2/2','فکرِ تازه','1/2','فکرِ یک کلمه دو کارِ سه قدمِ چهار','2/2']);
+  // each chat its own list (Habib, 8 Nov 20:56): chat B starts empty, A's list stays A's
+  const jodā=await p.evaluate(()=>{const keys=()=>Object.keys(localStorage).filter(k=>k.startsWith('crtl-fekr-tarikhche'));
+   window.__crtl_set_sid('A');const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ آ</span></div>';document.body.appendChild(c);window.__crtl_shenavar_thinking(c);
+   window.__crtl_set_sid('B');c.querySelectorAll('span')[1].textContent='فکرِ ب';window.__crtl_shenavar_thinking(c);
+   const L=document.getElementById('crtl-fekr-shenavar');return [L.querySelector('.crtl-fekr-shomare').textContent,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:A')).length,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:B')).length,keys().includes('crtl-fekr-tarikhche')]});
+  assert.deepEqual(jodā,['1/1',1,1,false],'jodā '+jodā);
   // right-click on its words: the chat's own menu (quote, copy, search …)
   await p.evaluate(()=>{const r=document.createRange();r.selectNodeContents(document.querySelector('#crtl-fekr-shenavar .crtl-fekr-matn'));getSelection().removeAllRanges();getSelection().addRange(r)});
   await p.click('#crtl-fekr-shenavar .crtl-fekr-kalame',{button:'right'});

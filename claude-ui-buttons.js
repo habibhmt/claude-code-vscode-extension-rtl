@@ -292,6 +292,7 @@
     '#crtl-fekr-shenavar{position:fixed;right:14px;width:38%;min-width:140px;min-height:40px;max-height:80vh;z-index:50;resize:both;overflow:auto;box-sizing:border-box;padding:4px 10px 6px;border-radius:10px;border:.5px solid rgba(128,128,128,.28);box-shadow:0 6px 20px rgba(0,0,0,.3);background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-fekr-pori-darsad,75%),transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:-apple-system,BlinkMacSystemFont,Vazirmatn,system-ui,sans-serif;font-size:10.5px;line-height:1.5;color:var(--vscode-descriptionForeground,#aaa);text-shadow:0 1px 3px rgba(0,0,0,.55)}',
     '.crtl-hads.crtl-hads-tak-dokme .crtl-fekr-radif{display:none!important}',
     '#crtl-fekr-shenavar .crtl-fekr-dastgire{cursor:move;user-select:none;text-align:center;opacity:.5;font-size:10px;line-height:12px;margin:-2px 0 2px}',
+    '#crtl-fekr-shenavar .crtl-fekr-dokme{cursor:pointer;padding:0 6px;font-size:13px}#crtl-fekr-shenavar .crtl-fekr-dokme:hover{opacity:1;color:var(--vscode-foreground,#fff)}#crtl-fekr-shenavar .crtl-fekr-shomare{font-variant-numeric:tabular-nums}',
     '#crtl-fekr-shenavar .crtl-fekr-kalame{opacity:0;display:inline-block;white-space:pre;animation:crtl-fekr-biya .5s ease-out forwards}',
     '@keyframes crtl-fekr-biya{from{opacity:0;transform:translateY(4px);filter:blur(3px)}to{opacity:.85;transform:none;filter:none}}',
     '.crtl-hads span[class*="text_"]{line-height:1.45}',
@@ -1141,7 +1142,7 @@
       var node = sel.anchorNode;
       var inside = false;
       while (node) {
-        if (node === root) { inside = true; break; }
+        if (node === root || (node.id === 'crtl-fekr-shenavar')) { inside = true; break; }
         node = node.parentNode;
       }
       if (!inside) return;
@@ -2920,16 +2921,29 @@
     if (!jomle_ha.length) { if (lay) ja_thinking(lay, null); return; }
     if (!lay) { lay = sakhtan_shenavar(); thinking_akhar = ''; }
     ja_thinking(lay, card);
-    var matn = jomle_ha.join('\n'), jaye = lay.querySelector('.crtl-fekr-matn');
+    var matn = jomle_ha.join('\n');
     if (matn === thinking_akhar) return;
-    thinking_akhar = matn; jaye.textContent = '';
-    var n = 0;
+    thinking_akhar = matn;
+    // every new thinking gets a number; ‹ › next to ⠿ walk back and forth (Habib, 8 Nov 20:04: «قبلی ها هم
+    // شمارش داشته باشن … این طرف و اون طرف بتونه بره عقب و جلو»)
+    var ta = tarikhche_fekr();
+    if (ta[ta.length - 1] !== matn) { ta.push(matn); if (ta.length > HAD_TARIKHCHE_FEKR) ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); try { localStorage.setItem(KELID_TARIKHCHE_FEKR, JSON.stringify(ta)); } catch (e) {} }
+    neshan_fekr(lay, ta.length - 1, true);
+  }
+  var KELID_TARIKHCHE_FEKR = 'crtl-fekr-tarikhche', HAD_TARIKHCHE_FEKR = 100;
+  function tarikhche_fekr() { try { var a = JSON.parse(localStorage.getItem(KELID_TARIKHCHE_FEKR) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function neshan_fekr(lay, i, ba_harekat) {
+    var ta = tarikhche_fekr(); if (!ta.length) return;
+    i = Math.max(0, Math.min(ta.length - 1, i)); lay.dataset.shomare = i;
+    var sh = lay.querySelector('.crtl-fekr-shomare'); if (sh) sh.textContent = (i + 1) + '/' + ta.length;
+    var jaye = lay.querySelector('.crtl-fekr-matn'); jaye.textContent = '';
+    var jomle_ha = ta[i].split('\n'), n = 0;
     for (var j = 0; j < jomle_ha.length; j++) {
       var p = document.createElement('div'); p.className = 'crtl-fekr-jomle';
       var ws = jomle_ha[j].split(/\s+/);
       for (var w = 0; w < ws.length; w++) {
         var sp = document.createElement('span'); sp.className = 'crtl-fekr-kalame';
-        sp.textContent = ws[w] + ' '; sp.style.animationDelay = (n++ * 90) + 'ms'; p.appendChild(sp);
+        sp.textContent = ws[w] + ' '; if (ba_harekat) sp.style.animationDelay = (n++ * 90) + 'ms'; else sp.style.animation = 'none', sp.style.opacity = '.85'; p.appendChild(sp);
       }
       jaye.appendChild(p);
     }
@@ -2947,7 +2961,17 @@
   var KELID_JA_FEKR = 'crtl-fekr-ja';
   function sakhtan_shenavar() {
     var lay = document.createElement('div'); lay.id = 'crtl-fekr-shenavar'; lay.setAttribute('dir', 'rtl');
-    var dg = document.createElement('div'); dg.className = 'crtl-fekr-dastgire'; dg.textContent = '⠿'; dg.title = 'بکش تا جابه‌جا شود';
+    var dg = document.createElement('div'); dg.className = 'crtl-fekr-dastgire'; dg.title = 'بکش تا جابه‌جا شود';
+    function dokme_fekr(matn, onvan, gam) {
+      var b = document.createElement('span'); b.className = 'crtl-fekr-dokme'; b.textContent = matn; b.title = onvan;
+      b.addEventListener('mousedown', function (e) { e.stopPropagation(); e.preventDefault(); });
+      b.addEventListener('click', function (e) { e.stopPropagation(); neshan_fekr(lay, (+lay.dataset.shomare || 0) + gam, false); });
+      return b;
+    }
+    var sh = document.createElement('span'); sh.className = 'crtl-fekr-shomare';
+    var gire = document.createElement('span'); gire.textContent = ' ⠿ ';
+    // rtl: the right one goes back (older), the left one forward (newer)
+    dg.appendChild(dokme_fekr('›', 'قبلی', -1)); dg.appendChild(sh); dg.appendChild(gire); dg.appendChild(dokme_fekr('‹', 'بعدی', 1));
     var jaye = document.createElement('div'); jaye.className = 'crtl-fekr-matn';
     lay.appendChild(dg); lay.appendChild(jaye); document.body.appendChild(lay);
     var ja = null; try { ja = JSON.parse(localStorage.getItem(KELID_JA_FEKR) || 'null'); } catch (e) {}

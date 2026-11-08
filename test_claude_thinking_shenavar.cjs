@@ -47,6 +47,16 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   // the opacity setting reaches the box
   const pori=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--crtl-fekr-pori-darsad').trim());
   assert.equal(pori,'75%');
+  // numbered history, ‹ › walk it (Habib, 8 Nov 20:04)
+  const ta=await p.evaluate(()=>{window.__crtl_shenavar_thinking((()=>{const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ تازه</span></div>';document.body.appendChild(c);return c})());
+   const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent,w=()=>L.querySelector('.crtl-fekr-matn').textContent.trim();
+   const o=[sh(),w()];L.querySelectorAll('.crtl-fekr-dokme')[0].click();o.push(sh(),w());L.querySelectorAll('.crtl-fekr-dokme')[1].click();o.push(sh());return o});
+  assert.deepEqual(ta,['2/2','فکرِ تازه','1/2','فکرِ یک کلمه دو کارِ سه قدمِ چهار','2/2']);
+  // right-click on its words: the chat's own menu (quote, copy, search …)
+  await p.evaluate(()=>{const r=document.createRange();r.selectNodeContents(document.querySelector('#crtl-fekr-shenavar .crtl-fekr-matn'));getSelection().removeAllRanges();getSelection().addRange(r)});
+  await p.click('#crtl-fekr-shenavar .crtl-fekr-kalame',{button:'right'});
+  const menu=await p.evaluate(()=>{const m=document.getElementById('crtl-ctx');return m&&getComputedStyle(m).display!=='none'?[...m.querySelectorAll('button')].map(b=>b.textContent):[]});
+  assert.ok(menu.some(t=>t.includes('نقل‌قول در چت'))&&menu.some(t=>t.includes('بدون علامت')),'menu '+menu);
   console.log('PASS',JSON.stringify(r));
  }finally{await b.close()}
 })().catch(e=>{console.error('FAIL',e.message);process.exit(1)});

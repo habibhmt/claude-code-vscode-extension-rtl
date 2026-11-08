@@ -2916,7 +2916,10 @@
     var sps = card.querySelectorAll('span'), o = null;
     for (var i = 0; i < sps.length; i++) {
       var tx = sps[i].textContent || '';
-      if (tx.indexOf(NESHANE_SHENAVAR) !== 0 || sps[i].querySelector('span')) continue;
+      if (sps[i].querySelector('span')) continue;
+      // v2.56.1+: inside the «تماس‌ها» line (key shenavar); v2.56.0: a line of its own
+      if (tx.indexOf('\u2063AMAR') === 0) { try { var am = JSON.parse(tx.slice(5)); if (am && am.shenavar) o = am.shenavar; } catch (e) {} continue; }
+      if (tx.indexOf(NESHANE_SHENAVAR) !== 0) continue;
       sps[i].style.display = 'none';
       try { o = JSON.parse(tx.slice(NESHANE_SHENAVAR.length)); } catch (e) {}
     }

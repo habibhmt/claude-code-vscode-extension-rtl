@@ -75,6 +75,11 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
    const L=document.getElementById('crtl-fekr-shenavar');const o=[[...L.querySelectorAll('.crtl-fekr-onvan')].map(x=>x.textContent),L.querySelector('.crtl-fekr-matn').textContent.replace(/\s+/g,' ').trim(),getComputedStyle(c.firstChild).display];
    put({list:[],parts:[]});o.push(!!document.getElementById('crtl-fekr-shenavar'));c.remove();return o});
   assert.deepEqual(sh,[['کرون‌جاب','حدس'],'کرون‌جابهر شب ⇐ ۲۳:۰۰ حدسآزمون بزن','none',false],'sh '+JSON.stringify(sh));
+  // v2.56.1: the data rides in the «تماس‌ها» line, which old pages already hide
+  const am=await p.evaluate(()=>{const c=document.createElement('div');document.body.appendChild(c);
+   c.innerHTML='<span class="text_x">\u2063AMAR'+JSON.stringify({shenavar:{list:['hads'],parts:[{k:'hads',esm:'حدس',lines:['از تماس‌ها']}]}})+'</span>';window.__crtl_shenavar_thinking(c);
+   const L=document.getElementById('crtl-fekr-shenavar');const o=L&&L.querySelector('.crtl-fekr-matn').textContent.replace(/\s+/g,' ').trim();c.remove();return o});
+  assert.equal(am,'حدساز تماس‌ها');
   console.log('PASS',JSON.stringify(r));
  }finally{await b.close()}
 })().catch(e=>{console.error('FAIL',e.message);process.exit(1)});

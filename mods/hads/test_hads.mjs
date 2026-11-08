@@ -1193,7 +1193,7 @@ function hads_due_reset() {}
 {
   $.sid = 'SH'; await H['command.run']($, { args: 'on' })
   let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
-  const khat = (t) => { const x = find(t, 'hads-shenavar')?.children[0] || ''; return x ? JSON.parse(x.slice(mod.neshane_shenavar.length)) : null }
+  const khat = (t) => { const x = find(t, 'hads-amar')?.children[0] || ''; return x ? JSON.parse(x.slice(mod.neshane_amar.length)).shenavar : null }
   out.sh_pishfarz = khat(r).list; assert.deepEqual(out.sh_pishfarz, ['thinking'])
   await find(r, 'hads-fs-sh-hads').onPress(); r = await render(); await find(r, 'hads-fs-sh-cron').onPress(); r = await render()
   await find(r, 'hads-fs-bala-cron').onPress(); r = await render()
@@ -1202,6 +1202,9 @@ function hads_due_reset() {}
   out.sh_list = khat(r).list; assert.deepEqual(out.sh_list, ['thinking', 'cron', 'hads'], 'list ' + out.sh_list + ' ' + out.sh_tartib)
   // the floater's line goes with the box closed too
   await find(r, 'hads-x').onPress(); r = await render(); assert.deepEqual(khat(r)?.list, ['thinking', 'cron', 'hads'])
-  assert.deepEqual(mod.khat_shenavar(['hads', 'cron'], { hads: ['یک'], cron: [] }), mod.neshane_shenavar + JSON.stringify({ list: ['hads', 'cron'], parts: [{ k: 'hads', esm: 'حدس', lines: ['یک'] }] }))
+  assert.deepEqual(mod.dade_shenavar(['hads', 'cron'], { hads: ['یک'], cron: [] }), { list: ['hads', 'cron'], parts: [{ k: 'hads', esm: 'حدس', lines: ['یک'] }] })
+  // the «تماس‌ها» numbers stay in the same line next to it
+  const am = JSON.parse(find(r, 'hads-amar').children[0].slice(mod.neshane_amar.length)); assert.ok(Object.keys(am).length > 1, 'amar ' + Object.keys(am))
+  assert.equal(find(r, 'hads-shenavar'), null)
 }
 console.log('fasele ok')

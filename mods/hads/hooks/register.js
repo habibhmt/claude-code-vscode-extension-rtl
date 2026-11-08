@@ -1526,13 +1526,14 @@ async function tik_zadan($, key) {
   $.ui.invalidate('ui.render')
 }
 
-// the floater's data: one hidden line the page reads (like «تماس‌ها»), the floating parts in their order with their lines
+// the floater's data: the floating parts in their order with their lines. It rides in the «تماس‌ها» line (key
+// shenavar), which every page already hides: a page not yet reloaded showed a line of its own raw (Habib's screenshot, 8 Nov 21:50)
 export const neshane_shenavar = '\u2063SHENAVAR'
-export function khat_shenavar(list, dade) {
+export function dade_shenavar(list, dade) {
   const esm = Object.fromEntries(bakhsh_ha)
   const parts = list.map((k) => ({ k, esm: esm[k] || k, lines: (dade[k] || []).filter((x) => typeof x === 'string' && x.trim()) })).filter((x) => x.lines.length)
   // the list goes even when empty: «nothing floats» must reach the page too
-  return neshane_shenavar + JSON.stringify({ list, parts })
+  return { list, parts }
 }
 // the ⚙ window: per part «every N tools» with − +, one «همه» row, and three saves
 // −1 = the part is off (Habib, 8 Nov 21:17: «اگه تو مرحله اول یک بار علامت منفی زده بشه اون گزینه کلا اف بشه»)
@@ -1751,7 +1752,8 @@ export function register(on) {
         hads: g.map((x) => x.text), ravand: rv.map((x) => x.ravand), nakarde: nk.map((x) => x.harf), khodkar: kh.map((x) => x.kar + ' ⇐ ' + x.abzar),
         cron: cr.map((x) => x.kar + ' ⇐ ' + x.zaman), porsesh: a ? [a.text] : [] }
       const list = (await fasele_ha($)).val.shenavar.filter((k) => p[k])
-      amar.push(Text({ key: 'hads-shenavar', dimColor: true, children: [khat_shenavar(list, dade)] }))
+      let o = {}; try { o = amar_khat ? JSON.parse(amar_khat.slice(neshane_amar.length)) : {} } catch {}
+      amar.splice(0, amar.length, Text({ key: 'hads-amar', dimColor: true, children: [neshane_amar + JSON.stringify({ ...o, shenavar: dade_shenavar(list, dade) })] }))
     }
     // folded: one line, ▸ opens it again
     // one small button only: it opens the folded line

@@ -850,6 +850,42 @@ export function khandan_jambandi(raw) {
     return null
   }
 }
+// «thinking» in the middle of a turn: every had_thinking_vasat tools, and before a question window; only the
+// three sentences, from the chat itself (warm cache). One at a time; the turn's own summary still comes at its end.
+export const had_thinking_vasat = 3
+const shomar_thinking_vasat = new Map()
+let thinking_vasat_dar_kar = false
+const prompt_thinking_vasat = '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
+  'همین الان، وسطِ کار، در سه جملهٔ کوتاهِ فارسیِ ساده و اول‌شخص بگو. Reply ONLY with JSON: ' +
+  '{"text": "-", "thinking": {"fekr": "<الان به چه فکر می‌کنم و دنبالِ چه‌ام>", "kard": "<همین الان چه کردم، با اسمِ ابزار یا فایل>", "bad": "<قدمِ بعدی‌ام>"}}'
+async function thinking_vasat($, foori) {
+  const id = await $.session.id()
+  if (!foori) {
+    const n = (shomar_thinking_vasat.get(id) || 0) + 1
+    shomar_thinking_vasat.set(id, n)
+    if (n % had_thinking_vasat !== 0) return false
+  }
+  if (thinking_vasat_dar_kar || akhar_javab_dar_kar) return false
+  const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
+  if (!p?.thinking) return false
+  thinking_vasat_dar_kar = true
+  try {
+    const r = await $.model.fork({ prompt: prompt_thinking_vasat })
+    if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'thinking_vasat', 'fork', r.usage)
+    const got = r.isAnswered ? khandan_jambandi(r.text) : null
+    if (!got?.thinking) return false
+    // only the thinking changes: «دو جمله» and the turn's summary stay as they are
+    if (do_jomle_akhar.for !== id) do_jomle_akhar = { text: do_jomle_akhar.text || '', for: id }
+    do_jomle_akhar.summary = { ...(do_jomle_akhar.summary || { text: '-', anjam_shod: [], anjam_nashod: [] }), thinking: got.thinking }
+    await benevis_daftar($, 'thinking_vasat', { thinking: got.thinking, foori: !!foori })
+    $.ui.invalidate('ui.render')
+    return true
+  } catch {
+    return false
+  } finally {
+    thinking_vasat_dar_kar = false
+  }
+}
 // this turn's lines and tools, taken (and cleared) once; null when the turn has nothing to sum up
 async function amade_jambandi($) {
   const id = await $.session.id()
@@ -1276,6 +1312,13 @@ async function bargardandan_akharin($, id) {
   }
   if (o?.porsesh?.text && !javab_porsesh) javab_porsesh = { q: String(o.porsesh.q || ''), text: String(o.porsesh.text), for: id }
 }
+// «thinking»'s three rows (what the chat's own model thought, did, and thinks next, from the turn's summary)
+function radif_thinking(p, id, Box, Text) {
+  const sm_th = do_jomle_akhar.for === id ? do_jomle_akhar.summary : null
+  if (!p.thinking || !sm_th?.thinking) return []
+  return [['fekr', 'به چه فکر کرد:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']].filter(([k]) => sm_th.thinking[k]).map(([k, esm]) =>
+    Box({ flexDirection: 'row', columnGap: 1, children: [Text({ dimColor: true, children: [esm] }), Text({ key: 'hads-th-' + k, children: [sm_th.thinking[k]] })] }))
+}
 // the order of the parts, the same in every chat (Habib, 25 Oct 18:01: «این دکمه ها باید قابلیت جابجایی
 // داشته باشن و با جابجا شدن ردیفشون عوض بشه. یعنی اگه حدس اوله میشه ردیف یک»): one line of part
 // names in ~/.claude/hads-tartib; a part it lacks comes after, in bakhsh_ha's order
@@ -1523,6 +1566,9 @@ export function register(on) {
   // after every tool: the tool runs first and its result goes back untouched; the rest
   // is never awaited and never throws, so «دو جمله» can not slow or break a tool
   on('tool.call', async ($, e, next) => {
+    // the question window waits for Habib: its thinking goes first, so it shows while he reads (Habib, 8 Nov
+    // 19:47: «حتی تو اسک یوزر کوسشن هم بیاد»); never awaited, so the window is not held back
+    if (!e.agentId && e.tool === 'AskUserQuestion') $.clock.after(0, () => thinking_vasat($, true).catch(() => {}))
     const r = await next(e)
     try {
       if (!e.agentId) {
@@ -1535,6 +1581,8 @@ export function register(on) {
             const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
             if (p?.hook) await khandan_hook_az_transcript($)
             if (p?.do_jomle) await begu_do_jomle($, what, false, p.do_jomle_fork && (await chat_kuchak($)))
+            // more often than once a turn (Habib, 8 Nov 19:47: «خیلی دیر به دیر میاد … با تعداد بیشتری بیاد»)
+            if (p?.thinking && e.tool !== 'AskUserQuestion') await thinking_vasat($, false)
           } catch {}
         })
       }
@@ -1575,7 +1623,10 @@ export function register(on) {
       const tarjome = Button({ key: 'hads-tarjome-kadr', label: tarjome_kadr_dar_kar ? 'در حالِ ترجمه…' : 'ترجمه به انگلیسی', onPress: () => tarjome_kadr($) })
       // a terminal shows the count only while the box is open (Habib, 4 Nov 01:50: «دیفالت دیده نشه فقط وقتی بازه دیده بشه»); the page still needs its hidden line
       const amar_baste = e.surface === 'terminal' ? [] : amar
-      return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), ...amar_baste, Box({ flexDirection: 'row', columnGap: 1, children: [one, tarjome] })] })
+      // the thinking rows go on the page with the box closed too: the page floats them and hides them in the
+      // closed card (Habib, 8 Nov 17:25: «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
+      const th_baste = e.surface === 'terminal' ? [] : radif_thinking(p, id, Box, Text)
+      return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), ...amar_baste, ...th_baste, Box({ flexDirection: 'row', columnGap: 1, children: [one, tarjome] })] })
     }
     const hist = n || ghablia_baz ? await khandan_ghablia($) : []
     const prompt_list = p.porsesh ? await khandan_prompt_ha($) : []
@@ -1603,10 +1654,7 @@ export function register(on) {
       if (list.length) goruh.do_jomle.push(Text({ key: 'hads-sum-' + k, children: [mark + ' ' + list.join(' · ')] }))
     }
     // «thinking»: what the chat's own model thought, did, and thinks next, from the turn's summary
-    const sm_th = do_jomle_akhar.for === id ? do_jomle_akhar.summary : null
-    if (p.thinking && sm_th?.thinking) for (const [k, esm] of [['fekr', 'به چه فکر کرد:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']]) {
-      if (sm_th.thinking[k]) goruh.thinking.push(Box({ flexDirection: 'row', columnGap: 1, children: [Text({ dimColor: true, children: [esm] }), Text({ key: 'hads-th-' + k, children: [sm_th.thinking[k]] })] }))
-    }
+    goruh.thinking.push(...radif_thinking(p, id, Box, Text))
     // the guesses (1-2): whole sentences, plain text like «دو جمله» (Habib selects and copies
     // them); a small ⤵ puts one in the prompt box, never sends it
     for (let i = 0; i < g.length; i++) goruh.hads.push(Box({ flexDirection: 'row', columnGap: 1, children: [

@@ -139,6 +139,7 @@
   var DEF = {
     chat: 15, code: 12, chrome: 10, btn: 10,
     hook_font_px: 13,  // the 🪝 hook lines in the chat (Habib: «کمی خیلی ریزن یه کمی درشتتر بشن»)
+    fekr_pori_darsad: 75, // how solid the thinking floater is, % (Habib, 8 Nov 18:03: «شفافیتش کم کن … قابل تعیین بکن»)
     hads_pori_darsad: 80, // how solid the «حدس» card is, % (Habib: «میتونی براش ترانسپرنسی هم بزاری»)
     lines: 1,          // 0 = show user messages in full
     side: 'both',      // both | left | right
@@ -161,7 +162,7 @@
     extras: [],
     extraText: '', extraPos: 'end', extraOnCopyBtn: false  // v2.6.x single text, migrated into extras by khandan_tanzim()
   };
-  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook_font_px: [9, 20], hads_pori_darsad: [0, 100], lh: [11, 24] };
+  var LIMITS = { chat: [9, 22], code: [8, 18], chrome: [7, 20], btn: [7, 20], hook_font_px: [9, 20], hads_pori_darsad: [0, 100], fekr_pori_darsad: [0, 100], lh: [11, 24] };
   var PRESETS = {
     compact: { chat: 12, code: 10, chrome: 9,  btn: 9,  hook_font_px: 11, lines: 1, lh: 14 },
     normal:  { chat: 15, code: 12, chrome: 10, btn: 10, hook_font_px: 13, lines: 1, lh: 16 },
@@ -287,6 +288,12 @@
        against the band (over «پرسش») and clipped; the card must be its box (24 Oct 23:22) */
     '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important}',
     '.crtl-hads [class*="box_"]{row-gap:2px}',
+    // «thinking» floats: no box, no background, words only; clicks pass through to the chat
+    '#crtl-fekr-shenavar{position:fixed;right:14px;width:38%;min-width:140px;min-height:40px;max-height:80vh;z-index:50;resize:both;overflow:auto;box-sizing:border-box;padding:4px 10px 6px;border-radius:10px;border:.5px solid rgba(128,128,128,.28);box-shadow:0 6px 20px rgba(0,0,0,.3);background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-fekr-pori-darsad,75%),transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:-apple-system,BlinkMacSystemFont,Vazirmatn,system-ui,sans-serif;font-size:10.5px;line-height:1.5;color:var(--vscode-descriptionForeground,#aaa);text-shadow:0 1px 3px rgba(0,0,0,.55)}',
+    '.crtl-hads.crtl-hads-tak-dokme .crtl-fekr-radif{display:none!important}',
+    '#crtl-fekr-shenavar .crtl-fekr-dastgire{cursor:move;user-select:none;text-align:center;opacity:.5;font-size:10px;line-height:12px;margin:-2px 0 2px}',
+    '#crtl-fekr-shenavar .crtl-fekr-kalame{opacity:0;display:inline-block;white-space:pre;animation:crtl-fekr-biya .5s ease-out forwards}',
+    '@keyframes crtl-fekr-biya{from{opacity:0;transform:translateY(4px);filter:blur(3px)}to{opacity:.85;transform:none;filter:none}}',
     '.crtl-hads span[class*="text_"]{line-height:1.45}',
     '.crtl-hads button[class*="button"]{border-radius:6px!important;border:.5px solid rgba(128,128,128,.32)!important;background:rgba(128,128,128,.16)!important;color:inherit!important;padding:0 8px!important;font-size:11px!important;line-height:1.5!important;box-shadow:0 .5px 0 rgba(0,0,0,.25);transition:background .15s,opacity .15s}',
     '.crtl-hads button[class*="button"]:hover{background:rgba(128,128,128,.28)!important}',
@@ -433,7 +440,7 @@
     var lh = (s.lh / 10).toFixed(2);
     var msg = '[class*="messagesContainer_"]';
     var out = [
-      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-font-px:' + (s.hook_font_px || 13) + 'px;--crtl-hads-pori-darsad:' + (s.hads_pori_darsad == null ? 80 : s.hads_pori_darsad) + '%;--crtl-hads-tari-px:' + Math.round((s.hads_pori_darsad == null ? 80 : s.hads_pori_darsad) / 5) + 'px}',
+      ':root{--crtl-btn-size:' + s.btn + 'px;--crtl-btn-opacity:' + (s.opacity / 100) + ';--crtl-hook-font-px:' + (s.hook_font_px || 13) + 'px;--crtl-hads-pori-darsad:' + (s.hads_pori_darsad == null ? 80 : s.hads_pori_darsad) + '%;--crtl-fekr-pori-darsad:' + (s.fekr_pori_darsad == null ? 75 : s.fekr_pori_darsad) + '%;--crtl-hads-tari-px:' + Math.round((s.hads_pori_darsad == null ? 80 : s.hads_pori_darsad) / 5) + 'px}',
       accent ? '.crtl-btn{border-color:' + accent + '!important;color:' + accent + '!important}' : '',
       accent ? '.crtl-panel{border-color:' + accent + '!important}' : '',
       // the conversation ink follows the theme unless a colour is picked; code
@@ -1760,6 +1767,7 @@
     panel.appendChild(radif_andaze('دکمه‌ها', 'btn', s, set));
     panel.appendChild(radif_andaze('هوک‌ها', 'hook_font_px', s, set));
     panel.appendChild(radif_andaze('پُری کادرِ حدس ٪', 'hads_pori_darsad', s, set));
+    panel.appendChild(radif_andaze('پُری شناورِ thinking ٪', 'fekr_pori_darsad', s, set));
 
     var lhRange = document.createElement('input');
     lhRange.type = 'range';
@@ -2879,6 +2887,7 @@
       card.classList.add('crtl-hads');
       var bs = card.querySelectorAll('button');
       sabet_hads(card);
+      shenavar_thinking(card);
       // only the «حدس ▸» button left: the card shrinks to it
       card.classList.toggle('crtl-hads-tak-dokme', bs.length <= 2 && !!card.querySelector('button[data-press-key="hads-dot"]'));
       for (var b = 0; b < bs.length; b++) {
@@ -2893,7 +2902,93 @@
       }
     }
   }
-  setInterval(neshan_hook_va_hads, 700);
+  /* «thinking» floats: no window, only words over the chat, fading in one by one (Habib, 8 Nov 17:10: «مثل یه
+     فلوت ویندو باشه که حتی ویندوش قابل دیدن نباشه فقط کلمه ها بیان»). The mod's three rows are found by their
+     labels, hidden in the card, and their sentences drawn in a fixed, see-through, click-through layer. */
+  var BARCHASB_THINKING = ['به چه فکر کرد:', 'چه کرد:', 'بعدش:'], thinking_akhar = '';
+  function shenavar_thinking(card) {
+    var ls = card.querySelectorAll('span[class*="text_"]'), jomle_ha = [];
+    for (var i = 0; i < ls.length; i++) {
+      if (BARCHASB_THINKING.indexOf((ls[i].textContent || '').trim()) < 0) continue;
+      var row = ls[i].parentElement; if (!row) continue;
+      row.classList.add('crtl-fekr-radif');
+      var s = ls[i].nextElementSibling; if (s) jomle_ha.push((s.textContent || '').trim());
+    }
+    var lay = document.getElementById('crtl-fekr-shenavar');
+    // the «حدس» box closed or its rows gone: the last words stay, above the prompt box (Habib, 8 Nov 17:25:
+    // «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
+    if (!jomle_ha.length) { if (lay) ja_thinking(lay, null); return; }
+    if (!lay) { lay = sakhtan_shenavar(); thinking_akhar = ''; }
+    ja_thinking(lay, card);
+    var matn = jomle_ha.join('\n'), jaye = lay.querySelector('.crtl-fekr-matn');
+    if (matn === thinking_akhar) return;
+    thinking_akhar = matn; jaye.textContent = '';
+    var n = 0;
+    for (var j = 0; j < jomle_ha.length; j++) {
+      var p = document.createElement('div'); p.className = 'crtl-fekr-jomle';
+      var ws = jomle_ha[j].split(/\s+/);
+      for (var w = 0; w < ws.length; w++) {
+        var sp = document.createElement('span'); sp.className = 'crtl-fekr-kalame';
+        sp.textContent = ws[w] + ' '; sp.style.animationDelay = (n++ * 90) + 'ms'; p.appendChild(sp);
+      }
+      jaye.appendChild(p);
+    }
+  }
+  function ja_thinking(lay, card) {
+    // the top corner of the chat, small, out of the answer's and the question window's way (Habib, 8 Nov 17:43:
+    // «گوشهٔ بالای چت، کوچک»)
+    // a place Habib picked (dragged by ⠿) wins
+    if (lay.dataset.ja) return;
+    var mc = document.querySelector('[class*="messagesContainer_"]');
+    lay.style.top = Math.max(4, (mc ? mc.getBoundingClientRect().top : 0) + 6) + 'px';
+  }
+  // movable by its ⠿ handle and resizable by its corner, both kept in localStorage (Habib, 8 Nov 18:03:
+  // «کوچیک بزرگ کردن بکن و قابل جابه‌جایی تو صفحه که هر جایی که به نظرم میاد همونجا بذارم»); the text stays selectable
+  var KELID_JA_FEKR = 'crtl-fekr-ja';
+  function sakhtan_shenavar() {
+    var lay = document.createElement('div'); lay.id = 'crtl-fekr-shenavar'; lay.setAttribute('dir', 'rtl');
+    var dg = document.createElement('div'); dg.className = 'crtl-fekr-dastgire'; dg.textContent = '⠿'; dg.title = 'بکش تا جابه‌جا شود';
+    var jaye = document.createElement('div'); jaye.className = 'crtl-fekr-matn';
+    lay.appendChild(dg); lay.appendChild(jaye); document.body.appendChild(lay);
+    var ja = null; try { ja = JSON.parse(localStorage.getItem(KELID_JA_FEKR) || 'null'); } catch (e) {}
+    if (ja) {
+      if (ja.x != null) { lay.style.left = ja.x + 'px'; lay.style.top = ja.y + 'px'; lay.style.right = 'auto'; lay.dataset.ja = '1'; }
+      if (ja.w) { lay.style.width = ja.w + 'px'; lay.style.height = ja.h + 'px'; }
+    }
+    function zakhire() {
+      var r = lay.getBoundingClientRect(), o = {};
+      if (lay.dataset.ja) { o.x = Math.round(r.left); o.y = Math.round(r.top); }
+      if (lay.dataset.andaze) { o.w = Math.round(r.width); o.h = Math.round(r.height); }
+      try { localStorage.setItem(KELID_JA_FEKR, JSON.stringify(o)); } catch (e) {}
+    }
+    dg.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return; e.preventDefault();
+      var r = lay.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+      function harekat(m) {
+        lay.style.right = 'auto'; lay.dataset.ja = '1';
+        lay.style.left = Math.max(0, Math.min(window.innerWidth - 40, m.clientX - dx)) + 'px';
+        lay.style.top = Math.max(0, Math.min(window.innerHeight - 20, m.clientY - dy)) + 'px';
+      }
+      function vel() { document.removeEventListener('mousemove', harekat); document.removeEventListener('mouseup', vel); zakhire(); }
+      document.addEventListener('mousemove', harekat); document.addEventListener('mouseup', vel);
+    });
+    // the corner (CSS resize) changes the size: kept when the mouse lets go on the box
+    var andaze_ghabl = '';
+    lay.addEventListener('mouseup', function () {
+      var a = lay.offsetWidth + 'x' + lay.offsetHeight;
+      if (andaze_ghabl && a !== andaze_ghabl) { lay.dataset.andaze = '1'; zakhire(); }
+      andaze_ghabl = a;
+    });
+    lay.addEventListener('mousedown', function () { andaze_ghabl = lay.offsetWidth + 'x' + lay.offsetHeight; });
+    if (ja && ja.w) lay.dataset.andaze = '1';
+    return lay;
+  }
+  function thinking_bi_kadr() {
+    var lay = document.getElementById('crtl-fekr-shenavar');
+    if (lay && !document.querySelector('.crtl-hads .crtl-fekr-radif')) ja_thinking(lay, document.querySelector('.crtl-hads'));
+  }
+  window.__crtl_shenavar_thinking = shenavar_thinking;
+  setInterval(function () { neshan_hook_va_hads(); thinking_bi_kadr(); }, 700);
   window.__crtl_neshan_hook_va_hads = neshan_hook_va_hads;
 
   /* ---------------- «تماس‌ها»: how often «حدس» called a model ---------------- */

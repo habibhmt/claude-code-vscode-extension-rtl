@@ -525,7 +525,7 @@ s = re.sub(r'if\([\w$]+\.test\(([\w$]+)\)\)return \1;(let [\w$]+=Math\.max\(2,\.
            r'return \1;\2', s, count=1)
 # A save in the «تنظیمات کلود» tab changes the running engine from the host: the page re-reads its own effort, model and
 # ultracode labels through this list of its session objects. A new build without this anchor: labels catch up at the next change.
-s = re.sub(r'(\}\),)(xn\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.config\.value,[\w$]+=[\w$]+\?\.claudeSettings\?\.applied)',
+s = re.sub(r'(\}\),)([\w$]+\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.config\.value,[\w$]+=[\w$]+\?\.claudeSettings\?\.applied)',
            r'\1(globalThis.__crtl_sessions||(globalThis.__crtl_sessions=new Set)).add(this),\2', s, count=1)
 # After an answer, every option of the question window keeps its preview table, folded; the picked one open
 # (Habib, 7 Nov 03:12 «اون جدول هم کنارشون بمونه بعد از سوال» ⇒ «جدولِ همهٔ گزینه‌ها»). All three anchors or none.

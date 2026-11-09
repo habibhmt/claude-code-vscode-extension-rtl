@@ -48,7 +48,7 @@ assert.equal(globalThis.__crtl_baz_shodan(SID3, P1).effort, 'max', 'its chat sti
 
 // the rows
 const rows = H.radifha();
-assert.equal(rows.length, 174, '173 settings of the schema and the browser switch');
+assert.equal(rows.length, 175, '174 settings of the schema and the browser switch');
 assert.equal(rows.find((r) => r.k === 'claudeInChromeDefaultEnabled').no, 'onoff', 'the browser switch is an on-off row');
 ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow'].forEach((k) => assert.ok(rows.some((r) => r.k === k), k + ' is there'));
 ['apiKeyHelper', 'proxyAuthHelper', 'awsCredentialExport', 'awsAuthRefresh', 'gcpAuthRefresh', 'processWrapper', 'otelHeadersHelper', '$schema'].forEach((k) => assert.ok(!rows.some((r) => r.k === k), k + ' never appears'));
@@ -56,7 +56,7 @@ const count = (no) => rows.filter((r) => r.no === no).length;
 const choiceOrText = rows.filter((r) => r.pish).map((r) => r.k).sort();
 assert.deepEqual(choiceOrText, ['theme', 'timeFormat'], 'a choice-or-text setting is a one-line text box that offers its choices');
 assert.equal(count('json') + choiceOrText.length, 55, '55 complex settings get a text box');
-assert.equal(rows.length - count('json') - choiceOrText.length, 119, '119 simple settings');
+assert.equal(rows.length - count('json') - choiceOrText.length, 120, '120 simple settings');
 assert.deepEqual(rows.find((r) => r.k === 'theme').pish.slice(0, 2), ['auto', 'dark'], 'a choice-or-text setting offers its choices');
 // every row has its Persian line, and no line is left over
 const fa = J(FA);
@@ -360,7 +360,7 @@ async function hostLogic() {
 
   // ---- what the tab reads
   const f = await H.fehrestTanzim({ reqId: 7, sid: SID1, channel: 'ch1' });
-  assert.equal(f.reqId, 7); assert.equal(f.rows.length, 174); assert.equal(f.cwd, P1);
+  assert.equal(f.reqId, 7); assert.equal(f.rows.length, 175); assert.equal(f.cwd, P1);
   assert.equal(f.alan.thr, 267000, 'the engine\'s own compaction point');
   assert.equal(f.alan.remote, c1.remoteControlState.status);
   assert.deepEqual(f.models.map((m) => m.value), ['default', 'opus', 'sonnet']);
@@ -528,7 +528,7 @@ function patches() {
   const webBlock = sh.match(/# A save in the «تنظیمات کلود» tab changes[\s\S]*?(?=open\(path, 'w')/)[0];
   const webF = runPy(path.join(EXT, 'webview/index.js.backup'), webBlock + '\nout=s', 'index.js');
   const webOut = fs.readFileSync(webF, 'utf8');
-  assert.ok(/\}\),\(globalThis\.__crtl_sessions\|\|\(globalThis\.__crtl_sessions=new Set\)\)\.add\(this\),xn\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.config\.value,/.test(webOut), 'the page knows its sessions');
+  assert.ok(/\}\),\(globalThis\.__crtl_sessions\|\|\(globalThis\.__crtl_sessions=new Set\)\)\.add\(this\),[\w$]+\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.config\.value,/.test(webOut), 'the page knows its sessions');
   execFileSync(process.execPath, ['--check', webF]);
 }
 
@@ -694,7 +694,7 @@ async function panelInBrowser() {
   assert.equal(await pg.locator('#crtl-page-font').isVisible(), false, 'the tab replaces page one');
   assert.ok((await pg.locator('#crtl-panel').boundingBox()).width > pw + 100, 'and is wider');
   // rows 2 and 3
-  assert.equal(await pg.locator('.crtl-tz-row').count(), 174, 'every setting has a row');
+  assert.equal(await pg.locator('.crtl-tz-row').count(), 175, 'every setting has a row');
   assert.deepEqual(await pg.$$eval('.crtl-tz-row', (r) => r.slice(0, 5).map((x) => x.dataset.k)), ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow'], 'his five on top');
   assert.equal(await pg.locator('.crtl-tz-row[data-k="permissions"] textarea').count(), 1, 'a complex setting has a text box');
   assert.equal(await pg.locator('.crtl-tz-row[data-k="verbose"] select').count(), 1, 'on-off is a menu');
@@ -879,7 +879,7 @@ async function panelInBrowser() {
   const seen2 = await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).map((x) => x.dataset.k));
   assert.ok(seen2.includes('autoCompactWindow') && seen2.includes('autoCompactEnabled'), 'English search: ' + seen2);
   await search.fill('');
-  assert.equal(await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).length), 174);
+  assert.equal(await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).length), 175);
   // another save reaches the open tab, and the extension's own labels re-read
   await pg.evaluate(() => { window.__crtl_sessions = new Set([{ claudeChannelId: 'chP', n: 0, rereadAppliedSettings() { this.n++; } }, { claudeChannelId: 'other', n: 0, rereadAppliedSettings() { this.n++; } }]); });
   await pg.evaluate(() => window.postMessage({ type: 'crtl-tanzimat-taze', channelId: 'chP' }, '*'));
@@ -891,7 +891,7 @@ async function panelInBrowser() {
   await pg.locator('#crtl-page-font').getByRole('button', { name: 'فشرده' }).click();
   assert.equal(await pg.locator('#crtl-page-font').isVisible(), true, 'a rebuild keeps page one showing');
   await pg.getByRole('tab', { name: 'تنظیمات کلود' }).click();
-  await pg.waitForFunction(() => document.querySelectorAll('.crtl-tz-row').length === 174);
+  await pg.waitForFunction(() => document.querySelectorAll('.crtl-tz-row').length === 175);
   await b.close();
   H.SAHEB.clear();
 }

@@ -41,7 +41,7 @@ def codex_tanzimat(s):
     s = _one(s, "var TZ_BALA = ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow', TZ_CHROME];",
              "var TZ_BALA = ['model', 'model_reasoning_effort', 'approval_policy', 'sandbox_mode', 'service_tier', 'model_reasoning_summary', 'personality', 'model_auto_compact_token_limit', 'web_search'];")
     s = _one(s, "    return window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;\n  }\n  function tz_adad_fa",
-             "    return window.__crtlCodexPost ? { postMessage: window.__crtlCodexPost } : null;\n  }\n  function tz_adad_fa")
+             "    var post = window.__crtlCodexPost || window.__crtlCodexPostWrap;\n    return post ? { postMessage: post } : null;\n  }\n  function tz_adad_fa")
     # a tab can switch chats, so read the thread every time
     s = s.replace('if (!SESSION.sid) SESSION.sid = khandan_shenase_chat_az_state();', 'SESSION.sid = khandan_shenase_chat_az_state();')
     s = s.replace('پیش‌فرض کلود', 'پیش‌فرض Codex')

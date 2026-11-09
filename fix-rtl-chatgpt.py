@@ -43,6 +43,12 @@ def remove_recorded_assets(root, names, keep=()):
             (root / name).unlink(missing_ok=True)
 
 
+API_JS = (
+    "(function(){var o=window.acquireVsCodeApi;if(typeof o!=='function'||o.__crtlApi)return;var h=null;"
+    "var w=function(){return h||(h=o.apply(this,arguments));};w.__crtlApi=true;window.acquireVsCodeApi=w;"
+    "window.__crtlCodexPostWrap=function(m){(h||w()).postMessage(m);};})();\n")
+
+
 def patch(ext, ui, css, revert=False):
     root = ext / 'webview'
     html = root / 'index.html'
@@ -70,7 +76,15 @@ def patch(ext, ui, css, revert=False):
     js_name, css_name = f'chatgpt-rtl-{stamp}.js', f'chatgpt-rtl-{stamp}.css'
     block = f'<!-- CHATGPT-RTL --><link rel="stylesheet" href="./{css_name}"><script defer src="./{js_name}"></script>\n'
     output = original.replace(b'</head>', block.encode() + b'</head>')
-    if current == output and (root / js_name).exists() and (root / css_name).exists():
+    # The «تنظیمات Codex» tab (تعریف ۲۵) needs the page's one VS Code handle. This tiny script runs before the
+    # app's module and keeps it, so the tab also works where the folder filter cannot install (older Codex).
+    api_name = f'chatgpt-rtl-api-{digest(API_JS.encode())[:16]}.js'
+    mod = b'<script type="module"'
+    assets = [js_name, css_name]
+    if mod in output:
+        output = output.replace(mod, f'<script src="./{api_name}"></script>'.encode() + mod, 1)
+        assets.append(api_name)
+    if current == output and all((root / a).exists() for a in assets):
         return
     # Validate payload before touching the extension. CSP permits local external files.
     with tempfile.TemporaryDirectory() as temp:
@@ -80,21 +94,23 @@ def patch(ext, ui, css, revert=False):
     if not previous and backup.exists() and backup.read_bytes() != original:
         raise RuntimeError('Untracked backup differs from current HTML')
     # A half install leaves nothing new: no later run could name these files, as no manifest records them.
-    created = [p for p in (backup, root / js_name, root / css_name) if not p.exists()]
+    created = [p for p in [backup] + [root / a for a in assets] if not p.exists()]
     try:
         if not previous:
             atomic_write(backup, original)
         atomic_write(root / js_name, ui.encode())
         atomic_write(root / css_name, css.encode())
+        if api_name in assets:
+            atomic_write(root / api_name, API_JS.encode())
         atomic_write(html, output)
-        atomic_write(manifest, json.dumps({'html_sha256': digest(output), 'assets': [js_name, css_name]}).encode())
+        atomic_write(manifest, json.dumps({'html_sha256': digest(output), 'assets': assets}).encode())
     except Exception:
         atomic_write(html, current)
         for path in created:
             path.unlink(missing_ok=True)
         raise
     if previous:
-        remove_recorded_assets(root, previous.get('assets', []), keep=(js_name, css_name))
+        remove_recorded_assets(root, previous.get('assets', []), keep=tuple(assets))
     print(f'[PATCHED] {ext}')
 
 
@@ -145,7 +161,10 @@ def main():
             if folder_load_error:
                 raise RuntimeError(f'chatgpt-folder-patch.py: {folder_load_error}')
             folder_patch.patch_folder_filter(ext, (REPO / 'chatgpt-folder-filter.js').read_text(), atomic_write, args.revert)
-        steps = [('folder filter', folder_step),
+        sys.path.insert(0, str(REPO)); import codex_tanzimat_build as tz_host
+        steps = [('tanzimat host restore', lambda ext: tz_host.restore_host_only(ext, atomic_write)),
+                 ('folder filter', folder_step),
+                 ('tanzimat host', lambda ext: None if args.revert else tz_host.patch_host_only(ext, atomic_write)),
                  ('rtl', lambda ext: patch(ext, ui, css, args.revert)),
                  ('manifest', lambda ext: patch_manifest(ext, args.revert))]
         failed = 0

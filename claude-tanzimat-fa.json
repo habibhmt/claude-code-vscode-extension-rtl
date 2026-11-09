@@ -172,5 +172,6 @@
   "disableDeepLinkRegistration": "لینک‌های claude-cli:// در سیستم ثبت نشوند",
   "voiceEnabled": "ویس روشن باشد",
   "defaultView": "نمای پیش‌فرض: chat فقط پیام‌ها، transcript همه‌چیز",
-  "claudeInChromeDefaultEnabled": "برازر: افزونهٔ کروم (Claude in Chrome، مرورگر) خودکار به چت وصل شود"
+  "claudeInChromeDefaultEnabled": "برازر: افزونهٔ کروم (Claude in Chrome، مرورگر) خودکار به چت وصل شود",
+  "disableWindowsBashCommandSplit": "تکه نکردنِ فرمان در ویندوز: فرمانِ Bash یک‌جا برود (فقط ویندوز، فقط تنظیمِ سازمان)"
 }

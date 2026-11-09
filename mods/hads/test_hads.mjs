@@ -471,7 +471,7 @@ await find(await render(), 'hads-tick-hads').onPress()
 // another chat keeps its own ticks
 $.sid = 'B'; await H['command.run']($, { args: 'on' }); out.otherTicks = ticks(await render()); assert.deepEqual(out.otherTicks, ['✓ حدس', '✓ دو جمله', '✓ پرسش']); $.sid = 'A'
 // «حدس», «نکرده‌ها» and «دو جمله» all off: no model call at an answer's end or during work
-await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress(); await find(await render(), 'hads-tick-thinking')?.onPress()
+await find(await render(), 'hads-tick-do_jomle').onPress(); await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress(); await find(await render(), 'hads-tick-fekr')?.onPress()
 const z0 = cnt(); await H['turn.complete']($, {}, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush(); const z1 = cnt()
 out.bothOff = [z1[0] - z0[0], z1[1] - z0[1], z1[2] - z0[2]]; assert.deepEqual(out.bothOff, [0, 0, 0])
 // «پرسش» off: no box; the ticks stay so it can come back
@@ -479,7 +479,7 @@ await find(await render(), 'hads-tick-porsesh').onPress()
 const t9 = await render(); out.askOff = { box: !!find(t9, 'hads-ask'), ticks: ticks(t9) }
 assert.deepEqual(out.askOff, { box: false, ticks: ['✗ حدس', '✗ دو جمله', '✗ پرسش'] })
 for (const k of PARTS_KEYS) await find(await render(), 'hads-tick-' + k).onPress()
-await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress(); await find(await render(), 'hads-tick-thinking')?.onPress()
+await find(await render(), 'hads-tick-nakarde').onPress(); await find(await render(), 'hads-tick-khodkar').onPress(); await find(await render(), 'hads-tick-cron').onPress(); await find(await render(), 'hads-tick-fekr')?.onPress()
 out.allBack = flags['/h/.claude/hads-on/A']; assert.equal(out.allBack, 'on')
 $.ui.resolve = realResolve
 // «دفترِ حدس» (with چتِ ۲۰۵): one line per event, appended, with sid and Tehran iso; «دو جمله» not twice
@@ -642,16 +642,16 @@ flags['/h/.claude/hads-tartib'] = 'cron do_jomle hads\n'
 const rT = await render(), kT = tartib_kelid(rT)
 out.tartib = { ticks: kT.filter((k) => k.startsWith('hads-tick-')).map((k) => k.slice(10)),
   rows: ['hads-cr-0', 'hads-now', 'hads-g-0', 'hads-kh-0'].map((k) => kT.indexOf(k)).every((x, i, a) => x > 0 && (!i || x > a[i - 1])),
-  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-thinking hads-hafeze', field: !!find(rT, 'hads-tartib'),
+  top: kT[0], last: kT.slice(-2).join(' ') === 'hads-tick-fekr hads-hafeze', field: !!find(rT, 'hads-tartib'),
   // one box per part that has rows, in the same order (the page script keeps each from shrinking)
   bakhsh: kT.filter((k) => k.startsWith('hads-bakhsh-')).map((k) => k.slice(12)) }
-assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'ravand', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban', 'thinking'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
+assert.deepEqual(out.tartib, { ticks: ['cron', 'do_jomle', 'hads', 'ravand', 'nakarde', 'khodkar', 'porsesh', 'hook', 'zaban', 'fekr'], rows: true, top: 'hads-top', last: true, field: false, bakhsh: ['cron', 'do_jomle', 'hads', 'khodkar', 'hook'] })
 // VS Code: a hidden field takes the order the dragged ticks give (claude-ui-buttons.js); anything else is not an order
 const keepResolve = $.ui.resolve; $.ui.resolve = () => withInput
 const rV = await render({ surface: 'vscode' }); const fld = find(rV, 'hads-tartib')
 await fld.onInput('khodkar hads hads chizi')
 out.tartibField = { value: fld.value, file: flags['/h/.claude/hads-tartib'], notMobile: !find(await render({ surface: 'mobile' }), 'hads-tartib') }
-assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads ravand nakarde khodkar porsesh hook zaban thinking', file: 'khodkar hads ravand nakarde cron do_jomle porsesh hook zaban thinking\n', notMobile: true })
+assert.deepEqual(out.tartibField, { value: 'cron do_jomle hads ravand nakarde khodkar porsesh hook zaban fekr', file: 'khodkar hads ravand nakarde cron do_jomle porsesh hook zaban fekr\n', notMobile: true })
 $.ui.resolve = keepResolve; delete flags['/h/.claude/hads-tartib']
 // «🔎 حافظه» (Habib to ۲۰۵, 25 Oct 18:30: «بله، بسازید»): the label is what ۲۰۵'s `get` says; a press moves
 // this chat one on (همین چت ⇐ همین پروژه ⇐ همهٔ پروژه‌ها ⇐ همین چت) and no other chat; /hads hafeze works with the box off
@@ -1128,42 +1128,42 @@ console.log(JSON.stringify(out))
   console.log(JSON.stringify({ tarjome: out.tarjome }))
 }
 function hads_due_reset() {}
-// «thinking» (Habib, 8 Nov 13:01): the turn's summary carries what the model thought, did, and does next
+// «fekr» (Habib, 8 Nov 13:01): the turn's summary carries what the model thought, did, and does next
 {
   const { khandan_jambandi: kj } = await import(process.env.HADS_JS || new URL('./hooks/register.js', import.meta.url).href)
-  const g = kj('{"text":"x","anjam_shod":[],"anjam_nashod":[],"thinking":{"fekr":"دنبالِ علتِ تبِ تیره بودم","kard":"extension.js را خواندم","bad":"به ۲۰۳ پیام می‌دهم"}}')
-  assert.deepEqual(g.thinking, { fekr: 'دنبالِ علتِ تبِ تیره بودم', kard: 'extension.js را خواندم', bad: 'به ۲۰۳ پیام می‌دهم' })
-  assert.equal(kj('{"text":"x"}').thinking, undefined)
+  const g = kj('{"text":"x","anjam_shod":[],"anjam_nashod":[],"fekr":{"fekr":"دنبالِ علتِ تبِ تیره بودم","kard":"extension.js را خواندم","bad":"به ۲۰۳ پیام می‌دهم"}}')
+  assert.deepEqual(g.fekr, { fekr: 'دنبالِ علتِ تبِ تیره بودم', kard: 'extension.js را خواندم', bad: 'به ۲۰۳ پیام می‌دهم' })
+  assert.equal(kj('{"text":"x"}').fekr, undefined)
 }
-// «thinking» stands on its own (Habib, 8 Nov 13:07: «مستقل … نباید باهم ربط داشته باشیم»): «دو جمله» off, thinking still comes
+// «fekr» stands on its own (Habib, 8 Nov 13:07: «مستقل … نباید باهم ربط داشته باشیم»): «دو جمله» off, fekr still comes
 {
   $.sid = 'TH'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/TH'] = 'on -hads -ravand -nakarde -khodkar -cron -do_jomle -porsesh -hook -zaban'
   await H['prompt.submit']($, { text: 'کار کن' }, next); $.t += mod.do_jomle_fasele_ms; await tool(); await flush()
   const fk = $.model.fork
-  $.model.fork = async (o) => { calls.fork.push(o); return { isAnswered: true, usage: {}, text: '{"text": "x.", "anjam_shod": [], "anjam_nashod": [], "thinking": {"fekr": "دنبالِ علت بودم", "kard": "فایل را خواندم", "bad": "تست می‌زنم"}}' } }
+  $.model.fork = async (o) => { calls.fork.push(o); return { isAnswered: true, usage: {}, text: '{"text": "x.", "anjam_shod": [], "anjam_nashod": [], "fekr": {"fekr": "دنبالِ علت بودم", "kard": "فایل را خواندم", "bad": "تست می‌زنم"}}' } }
   $.t += 1; await H['turn.complete']($, {}, next); await flush(); await new Promise((r) => setTimeout(r, 5))
   const rTh = await render()
-  out.thinking_mostaghel = { fekr: find(rTh, 'hads-th-fekr')?.children[0], now: find(rTh, 'hads-now') ? 'shown' : 'hidden' }
+  out.fekr_mostaghel = { fekr: find(rTh, 'hads-th-fekr')?.children[0], now: find(rTh, 'hads-now') ? 'shown' : 'hidden' }
   $.model.fork = fk
-  assert.deepEqual(out.thinking_mostaghel, { fekr: 'دنبالِ علت بودم', now: 'hidden' })
+  assert.deepEqual(out.fekr_mostaghel, { fekr: 'دنبالِ علت بودم', now: 'hidden' })
 }
 // ⚙ «every N tools», per part, saved globally / for the project / for the chat (Habib, 8 Nov 20:07, 21:09)
 {
   // chat > project > global > default, part by part
-  const m = mod.adghame_fasele({ hads: 4, cron: 2 }, { hads: 3 }, { cron: 5 }, { thinking: 3 })
-  out.fasele_adghame = [m.val.hads, m.az.hads, m.val.cron, m.az.cron, m.val.thinking, m.az.thinking, m.val.nakarde]
+  const m = mod.adghame_fasele({ hads: 4, cron: 2 }, { hads: 3 }, { cron: 5 }, { fekr: 3 })
+  out.fasele_adghame = [m.val.hads, m.az.hads, m.val.cron, m.az.cron, m.val.fekr, m.az.fekr, m.val.nakarde]
   assert.deepEqual(out.fasele_adghame, [3, 'proje', 5, 'chat', 3, 'pishfarz', 0])
   // parts due at the same tool are ONE call: all at 3 ⇒ 4 mid-work + the end = 5 in 12 tools
   assert.equal(mod.tedad_fork_nobat({ hads: 3, ravand: 3, nakarde: 3, khodkar: 3, cron: 3 }), 5)
   assert.equal(mod.tedad_fork_nobat({}), 1)
-  $.sid = 'FS'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/FS'] = 'on -do_jomle -thinking -porsesh -hook -zaban'
+  $.sid = 'FS'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/FS'] = 'on -do_jomle -fekr -porsesh -hook -zaban'
   // the window: ⚙ opens it, + raises «حدس», «ثبت برای همین چت» writes the chat's file
   let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
   assert.ok(find(r, 'hads-fs'), 'window open')
   await find(r, 'hads-fs-ziad-hame').onPress(); r = await render(); await find(r, 'hads-fs-ziad-hame').onPress(); r = await render()
   await find(r, 'hads-fs-sabt-chat').onPress()
   const saved = JSON.parse(flags['/h/.claude/hads-fasele/chat-FS.json'])
-  out.fasele_sabt = [saved.hads, saved.cron, saved.thinking]; assert.deepEqual(out.fasele_sabt, [2, 2, 2])
+  out.fasele_sabt = [saved.hads, saved.cron, saved.fekr]; assert.deepEqual(out.fasele_sabt, [2, 2, 2])
   r = await render(); out.fasele_az = find(r, 'hads-fs-r-hads').children.find((c) => c.t === 'Text' && /^\(/.test(c.children?.[0]))?.children[0]; assert.equal(out.fasele_az, '(همین چت)')
   // the project save lands in its own file
   await find(r, 'hads-fs-sabt-proje').onPress(); assert.ok(flags['/h/.claude/hads-fasele/proje--proj.json'])
@@ -1194,14 +1194,14 @@ function hads_due_reset() {}
   $.sid = 'SH'; await H['command.run']($, { args: 'on' })
   let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
   const khat = (t) => { const x = find(t, 'hads-amar')?.children[0] || ''; return x ? JSON.parse(x.slice(mod.neshane_amar.length)).shenavar : null }
-  out.sh_pishfarz = khat(r).list; assert.deepEqual(out.sh_pishfarz, ['thinking'])
+  out.sh_pishfarz = khat(r).list; assert.deepEqual(out.sh_pishfarz, ['fekr'])
   await find(r, 'hads-fs-sh-hads').onPress(); r = await render(); await find(r, 'hads-fs-sh-cron').onPress(); r = await render()
   await find(r, 'hads-fs-bala-cron').onPress(); r = await render()
   out.sh_tartib = find(r, 'hads-fs-tartib').children[0]
   await find(r, 'hads-fs-sabt-chat').onPress(); $.t += 10000; r = await render()
-  out.sh_list = khat(r).list; assert.deepEqual(out.sh_list, ['thinking', 'cron', 'hads'], 'list ' + out.sh_list + ' ' + out.sh_tartib)
+  out.sh_list = khat(r).list; assert.deepEqual(out.sh_list, ['fekr', 'cron', 'hads'], 'list ' + out.sh_list + ' ' + out.sh_tartib)
   // the floater's line goes with the box closed too
-  await find(r, 'hads-x').onPress(); r = await render(); assert.deepEqual(khat(r)?.list, ['thinking', 'cron', 'hads'])
+  await find(r, 'hads-x').onPress(); r = await render(); assert.deepEqual(khat(r)?.list, ['fekr', 'cron', 'hads'])
   assert.deepEqual(mod.dade_shenavar(['hads', 'cron'], { hads: ['یک'], cron: [] }), { list: ['hads', 'cron'], parts: [{ k: 'hads', esm: 'حدس', lines: ['یک'] }] })
   // the «تماس‌ها» numbers stay in the same line next to it
   const am = JSON.parse(find(r, 'hads-amar').children[0].slice(mod.neshane_amar.length)); assert.ok(Object.keys(am).length > 1, 'amar ' + Object.keys(am))
@@ -1251,7 +1251,7 @@ function hads_due_reset() {}
   assert.deepEqual(mod.goruh_az_shart({ halat: 'sade', ba: 'ya', list: [{ n: 'akhar' }, { n: 'khata' }] }), [[{ n: 'akhar' }], [{ n: 'khata' }]])
   assert.deepEqual(mod.goruh_az_shart({ halat: 'sade', ba: 'va', list: [{ n: 'akhar' }, { n: 'khata' }] }), [[{ n: 'akhar' }, { n: 'khata' }]])
   // the defaults are what ran before
-  assert.equal(mod.matn_shart(mod.shart_pishfarz('thinking')), 'هر ۳ ابزار یا آخرِ نوبت یا پیش از پنجرهٔ سؤال')
+  assert.equal(mod.matn_shart(mod.shart_pishfarz('fekr')), 'هر ۳ ابزار یا آخرِ نوبت یا پیش از پنجرهٔ سؤال')
   // conditions beat the number in the same save; a narrower save wins
   const m = mod.adghame_fasele({ hads: 4 }, { shart: { hads: { halat: 'sade', ba: 'ya', list: [{ n: 'khata' }] } } }, {})
   assert.deepEqual([m.val.goruh.hads, m.az.hads], [[[{ n: 'khata' }]], 'proje'])
@@ -1259,7 +1259,7 @@ function hads_due_reset() {}
   // the editor: ▸ شرط, «گروهی», add «ابزارِ خاص» to group 1, save for the chat
   const D = '/h/.claude/hads-fasele/'
   for (const k of Object.keys(flags)) if (k.startsWith(D)) delete flags[k]
-  $.sid = 'SR'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/SR'] = 'on -do_jomle -thinking -porsesh -hook -zaban'
+  $.sid = 'SR'; await H['command.run']($, { args: 'on' }); flags['/h/.claude/hads-on/SR'] = 'on -do_jomle -fekr -porsesh -hook -zaban'
   let r = await render(); await find(r, 'hads-fasele').onPress(); r = await render()
   await find(r, 'hads-fs-ziad-hads').onPress(); r = await render(); await find(r, 'hads-fs-ziad-hads').onPress(); r = await render()
   await find(r, 'hads-fs-shart-hads').onPress(); r = await render()

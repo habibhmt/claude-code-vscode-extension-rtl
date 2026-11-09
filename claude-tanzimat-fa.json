@@ -103,7 +103,7 @@
   "terminalTitleFromRename": "/rename عنوان تب ترمینال را هم عوض کند (پیش‌فرض روشن)",
   "promptCacheTtl": "کش پرامپت چت اصلی ۵ دقیقه باشد یا ۱ ساعت",
   "subagentPromptCacheTtl": "کش پرامپت ساب‌ایجنت و ورک‌فلو ۵ دقیقه باشد یا ۱ ساعت",
-  "alwaysThinkingEnabled": "فکر کردن مدل (Thinking) روشن باشد؛ خاموش یعنی بی‌فکر جواب بدهد",
+  "alwaysThinkingEnabled": "فکر کردن مدل روشن باشد؛ خاموش یعنی بی‌فکر جواب بدهد",
   "maxEffortLevel": "سقف افورت: هر چه بالاتر از این باشد پایین می‌آید",
   "modelSettings": "تنظیم جدا برای هر مدل؛ کلیدش نام کامل مدل است",
   "advisorModel": "مدل مشاور برای ابزار advisor",

@@ -1,4 +1,4 @@
-// «thinking» floats: the mod's three rows hide in the card and their words show in a see-through,
+// «fekr» floats: the mod's three rows hide in the card and their words show in a see-through,
 // click-through layer above the card, fading in one by one (Habib, 8 Nov 17:10).
 const {chromium}=require('playwright');
 const fs=require('node:fs');
@@ -17,7 +17,7 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   p.on('pageerror',e=>console.log('PAGEERR',e.message));await p.goto('http://t.local/');
   await p.addScriptTag({content:script});await p.waitForTimeout(900);
   await p.waitForSelector('#crtl-panel',{state:'attached',timeout:5000});
-  console.log(await p.evaluate(()=>{window.__crtl_neshan_hook_va_hads();return [document.querySelectorAll('.crtl-fekr-radif').length,[...document.querySelectorAll('#part span')].map(s=>s.textContent+'|'+s.className).join(' ; '),document.getElementById('card').className,typeof window.__crtl_shenavar_thinking,document.querySelectorAll('span[class*="text_"]').length]}));
+  console.log(await p.evaluate(()=>{window.__crtl_neshan_hook_va_hads();return [document.querySelectorAll('.crtl-fekr-radif').length,[...document.querySelectorAll('#part span')].map(s=>s.textContent+'|'+s.className).join(' ; '),document.getElementById('card').className,typeof window.__crtl_shenavar_fekr,document.querySelectorAll('span[class*="text_"]').length]}));
   await p.waitForTimeout(1800);
   const r=await p.evaluate(()=>{const L=document.getElementById('crtl-fekr-shenavar');const cs=L&&getComputedStyle(L);
    const rows=[...document.querySelectorAll('.crtl-fekr-radif')];
@@ -48,14 +48,14 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   const pori=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--crtl-fekr-pori-darsad').trim());
   assert.equal(pori,'75%');
   // numbered history, ‹ › walk it (Habib, 8 Nov 20:04)
-  const ta=await p.evaluate(()=>{window.__crtl_shenavar_thinking((()=>{const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ تازه</span></div>';document.body.appendChild(c);return c})());
+  const ta=await p.evaluate(()=>{window.__crtl_shenavar_fekr((()=>{const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ تازه</span></div>';document.body.appendChild(c);return c})());
    const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent,w=()=>L.querySelector('.crtl-fekr-matn').textContent.trim();
    const o=[sh(),w()];L.querySelectorAll('.crtl-fekr-dokme')[0].click();o.push(sh(),w());L.querySelectorAll('.crtl-fekr-dokme')[1].click();o.push(sh());return o});
   assert.deepEqual(ta,['2/2','فکرِ تازه','1/2','فکرِ یک کلمه دو کارِ سه قدمِ چهار','2/2']);
   // each chat its own list (Habib, 8 Nov 20:56): chat B starts empty, A's list stays A's
   const jodā=await p.evaluate(()=>{const keys=()=>Object.keys(localStorage).filter(k=>k.startsWith('crtl-fekr-tarikhche'));
-   window.__crtl_set_sid('A');const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ آ</span></div>';document.body.appendChild(c);window.__crtl_shenavar_thinking(c);
-   window.__crtl_set_sid('B');c.querySelectorAll('span')[1].textContent='فکرِ ب';window.__crtl_shenavar_thinking(c);
+   window.__crtl_set_sid('A');const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ آ</span></div>';document.body.appendChild(c);window.__crtl_shenavar_fekr(c);
+   window.__crtl_set_sid('B');c.querySelectorAll('span')[1].textContent='فکرِ ب';window.__crtl_shenavar_fekr(c);
    const L=document.getElementById('crtl-fekr-shenavar');return [L.querySelector('.crtl-fekr-shomare').textContent,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:A')).length,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:B')).length,keys().includes('crtl-fekr-tarikhche')]});
   assert.deepEqual(jodā,['1/1',1,1,false],'jodā '+jodā);
   // right-click on its words: the chat's own menu (quote, copy, search …)
@@ -70,14 +70,14 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   assert.ok(menu2.some(t=>t.includes('نقل‌قول در چت')),'hads menu '+menu2);
   // the mod's hidden line: the chosen parts, in order, each with its title; an empty list ⇒ no floater (Habib, 8 Nov 21:18)
   const sh=await p.evaluate(()=>{const N='\u2063SHENAVAR';const c=document.createElement('div');document.body.appendChild(c);
-   const put=o=>{c.innerHTML='<span class="text_x">'+N+JSON.stringify(o)+'</span>';window.__crtl_shenavar_thinking(c)};
+   const put=o=>{c.innerHTML='<span class="text_x">'+N+JSON.stringify(o)+'</span>';window.__crtl_shenavar_fekr(c)};
    put({list:['cron','hads'],parts:[{k:'cron',esm:'کرون‌جاب',lines:['هر شب ⇐ ۲۳:۰۰']},{k:'hads',esm:'حدس',lines:['آزمون بزن']}]});
    const L=document.getElementById('crtl-fekr-shenavar');const o=[[...L.querySelectorAll('.crtl-fekr-onvan')].map(x=>x.textContent),L.querySelector('.crtl-fekr-matn').textContent.replace(/\s+/g,' ').trim(),getComputedStyle(c.firstChild).display];
    put({list:[],parts:[]});o.push(!!document.getElementById('crtl-fekr-shenavar'));c.remove();return o});
   assert.deepEqual(sh,[['کرون‌جاب','حدس'],'کرون‌جابهر شب ⇐ ۲۳:۰۰ حدسآزمون بزن','none',false],'sh '+JSON.stringify(sh));
   // v2.56.1: the data rides in the «تماس‌ها» line, which old pages already hide
   const am=await p.evaluate(()=>{const c=document.createElement('div');document.body.appendChild(c);
-   c.innerHTML='<span class="text_x">\u2063AMAR'+JSON.stringify({shenavar:{list:['hads'],parts:[{k:'hads',esm:'حدس',lines:['از تماس‌ها']}]}})+'</span>';window.__crtl_shenavar_thinking(c);
+   c.innerHTML='<span class="text_x">\u2063AMAR'+JSON.stringify({shenavar:{list:['hads'],parts:[{k:'hads',esm:'حدس',lines:['از تماس‌ها']}]}})+'</span>';window.__crtl_shenavar_fekr(c);
    const L=document.getElementById('crtl-fekr-shenavar');const o=L&&L.querySelector('.crtl-fekr-matn').textContent.replace(/\s+/g,' ').trim();c.remove();return o});
   assert.equal(am,'حدساز تماس‌ها');
   console.log('PASS',JSON.stringify(r));

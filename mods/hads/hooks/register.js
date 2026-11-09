@@ -779,7 +779,7 @@ async function chat_kuchak($) {
 async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false) {
   // the scope may have been changed elsewhere (a terminal, the file): the label is read again each answer
   khandan_dayere($).catch(() => {})
-  if (!p.hads && !p.ravand && !p.do_jomle && !p.thinking && !p.nakarde && !p.khodkar && !p.cron && !p.tarjome) return
+  if (!p.hads && !p.ravand && !p.do_jomle && !p.fekr && !p.nakarde && !p.khodkar && !p.cron && !p.tarjome) return
   if (akhar_javab_dar_kar) { akhar_javab_dobare = true; return }
   akhar_javab_dar_kar = true; zaman_akhar_javab = await $.clock.now()
   try {
@@ -789,8 +789,8 @@ async function akhar_javab($, p = { hads: true, do_jomle: true }, force = false)
     // also due when this chat shows none (first answer, /clear, an empty or broken reply)
     // «نکرده‌ها» and «خودکار» come with the guesses, on the same answers
     const due = (p.hads || p.ravand || p.nakarde || p.khodkar || p.cron) && (force || seen % hads_har_chand_javab === 0 || ((shekast_fork_har_chat.get(id) || 0) < had_tedad_shekast_fork_bar && (hads_baraye_chat !== id || (p.hads && !hads_akhar.length))))
-    // «thinking» stands on its own (Habib, 8 Nov 13:07: «مستقل … نباید باهم ربط داشته باشیم»): either one makes the summary
-    const pj = p.do_jomle || p.thinking ? await amade_jambandi($) : null
+    // «fekr» stands on its own (Habib, 8 Nov 13:07: «مستقل … نباید باهم ربط داشته باشیم»): either one makes the summary
+    const pj = p.do_jomle || p.fekr ? await amade_jambandi($) : null
     const tj = p.tarjome ? await javab_baraye_tarjome($) : null
     const jambandi_shod = due ? await hads_ba_fork($, p, pj) : await jambandi($, pj)
     await tarjome_javab($, tj)
@@ -833,9 +833,9 @@ const prompt_jambandi_nobat = (lines, tools, ezafe = null, anjam = []) => '(ای
   '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ anjam_nashod. ' +
   '۶) مدرک فقط همان چیزی را ثابت می‌کند که خودش نشان می‌دهد: ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»؛ رفتار فقط با آزمونی که همان رفتار را دید ⇒ وگرنه anjam_nashod «رفتارش آزموده نشد». فارسیِ ساده، با واژه‌های حبیب. ' +
   'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "anjam_shod": ["<short> ⇐ <evidence>", …], "anjam_nashod": ["<short>", …], ' +
-  // «thinking» (Habib, 8 Nov 13:01: «یه قسمت تازه درست کن به اسم thinking … مدل از خودش میاد میگه که داره به چی فکر میکنه به چی کرده؟ چیکار کرده؟»):
-  // the raw thinking is not kept in the transcript (337 blocks, 1 with text), so the chat itself, warm cache, tells it
-  '"thinking": {"fekr": "<یک جمله، اول‌شخص: در این نوبت به چه فکر می‌کردم و دنبالِ چه بودم>", "kard": "<یک جمله، اول‌شخص: چه کردم، با اسمِ ابزار یا فایلِ اصلی>", "bad": "<یک جمله، اول‌شخص: فکرِ بعدی‌ام یا قدمِ بعدی>"}' +
+  // «fekr» (Habib, 8 Nov 13:01: «یه قسمت تازه درست کن به اسم fekr … مدل از خودش میاد میگه که داره به چی فکر میکنه به چی کرده؟ چیکار کرده؟»):
+  // the raw fekr is not kept in the transcript (337 blocks, 1 with text), so the chat itself, warm cache, tells it
+  '"fekr": {"fekr": "<یک جمله، اول‌شخص: در این نوبت به چه فکر می‌کردم و دنبالِ چه بودم>", "kard": "<یک جمله، اول‌شخص: چه کردم، با اسمِ ابزار یا فایلِ اصلی>", "bad": "<یک جمله، اول‌شخص: فکرِ بعدی‌ام یا قدمِ بعدی>"}' +
   (ezafe ? ', ' + prompt_fork_bakhsh_ha(ezafe, anjam).join(', ') + '}' + ghaede_bakhsh_ha(ezafe, anjam) : '}')
 export function khandan_jambandi(raw) {
   try {
@@ -844,8 +844,20 @@ export function khandan_jambandi(raw) {
     const list = (x) => (Array.isArray(x) ? x : []).filter((y) => typeof y === 'string' && y.trim()).map((y) => y.trim()).slice(0, 8)
     const text = typeof o?.text === 'string' ? kutah_be_do_jomle(o.text) : ''
     const jomle = (x) => (typeof x === 'string' && x.trim() ? kutah_be_do_jomle(x) : '')
-    const th = o?.thinking && typeof o.thinking === 'object' ? { fekr: jomle(o.thinking.fekr), kard: jomle(o.thinking.kard), bad: jomle(o.thinking.bad) } : null
-    return text ? { text, anjam_shod: list(o.anjam_shod), anjam_nashod: list(o.anjam_nashod), ...(th && (th.fekr || th.kard || th.bad) ? { thinking: th } : {}) } : null
+    const th = o?.fekr && typeof o.fekr === 'object' ? { fekr: jomle(o.fekr.fekr), kard: jomle(o.fekr.kard), bad: jomle(o.fekr.bad) } : null
+    return text ? { text, anjam_shod: list(o.anjam_shod), anjam_nashod: list(o.anjam_nashod), ...(th && (th.fekr || th.kard || th.bad) ? { fekr: th } : {}) } : null
+  } catch {
+    return null
+  }
+}
+// only the fekr of a mid-turn fork: «text» may be missing or empty, the fekr alone is enough
+export function khandan_fekr(raw) {
+  try {
+    const m = String(raw || '').match(/\{[\s\S]*\}/)
+    const o = JSON.parse(m ? m[0] : raw), t = o?.fekr && typeof o.fekr === 'object' ? o.fekr : o
+    const jomle = (x) => (typeof x === 'string' && x.trim() ? kutah_be_do_jomle(x) : '')
+    const th = { fekr: jomle(t?.fekr), kard: jomle(t?.kard), bad: jomle(t?.bad) }
+    return th.fekr || th.kard || th.bad ? th : null
   } catch {
     return null
   }
@@ -853,7 +865,7 @@ export function khandan_jambandi(raw) {
 // ⚙ «every N tools», per part (Habib, 8 Nov 20:07: «تریگرشون … قابل تنظیم باشه … یه گزینه ثبت سراسری … ثبت برای همین
 // پروژه … ثبت برای همین چت»; 21:09 «بزن»). 0 = only at the turn's end. Parts due at the same tool share ONE fork
 // (25 Oct 16:52: «همشون … با یه مدل با یه دفعه»). Read chat > project > global > default, per part.
-export const bakhsh_fasele = ['do_jomle', 'thinking', 'hads', 'ravand', 'nakarde', 'khodkar', 'cron', 'porsesh']
+export const bakhsh_fasele = ['do_jomle', 'fekr', 'hads', 'ravand', 'nakarde', 'khodkar', 'cron', 'porsesh']
 export const bakhsh_fork_vasat = ['hads', 'ravand', 'nakarde', 'khodkar', 'cron']
 export const had_fasele = 50
 // a priced guess for one fork of a big chat, from a real usage line (8 Nov: 233k cache read, 9k in, 1.6k out; claude.com/pricing Opus 5.5: in $4, out $20, cache read $0.20, write $5 per M ⇒ $0.12)
@@ -871,11 +883,11 @@ export function goruh_az_adad(k, v) {
   if (!Number.isInteger(v) || v < 0) return []
   const akhar = [[{ n: 'akhar' }]]
   if (v === 0) return akhar
-  return [[{ n: 'abzar', v }], ...akhar, ...(k === 'thinking' ? [[{ n: 'pish_porsesh' }]] : [])]
+  return [[{ n: 'abzar', v }], ...akhar, ...(k === 'fekr' ? [[{ n: 'pish_porsesh' }]] : [])]
 }
-// the defaults are what ran before: thinking every 3 tools, before a question and at the end; «دو جمله» after a tool at most
+// the defaults are what ran before: fekr every 3 tools, before a question and at the end; «دو جمله» after a tool at most
 // once a minute, and at the end; the rest at the end
-export const shart_pishfarz = (k) => k === 'do_jomle' ? [[{ n: 'abzar', v: 1 }, { n: 'daghighe', v: 1 }], [{ n: 'akhar' }]] : goruh_az_adad(k, k === 'thinking' ? had_thinking_vasat : 0)
+export const shart_pishfarz = (k) => k === 'do_jomle' ? [[{ n: 'abzar', v: 1 }, { n: 'daghighe', v: 1 }], [{ n: 'akhar' }]] : goruh_az_adad(k, k === 'fekr' ? had_fekr_vasat : 0)
 const shart_dorost = (c) => c && typeof c === 'object' && shart_ha.some(([n]) => n === c.n)
 export function goruh_az_shart(sh) {
   if (!sh || typeof sh !== 'object') return null
@@ -922,7 +934,7 @@ export function adghame_fasele(sarasari = {}, proje = {}, chat = {}, pishfarz = 
   // which parts float, in the floater's order (Habib, 8 Nov 21:18: «توی تنظیم باشه که میخوایم توی فلوت شناور بیاد
   // یانه … بشه بالا و پایین ترتیبش رو چید»; all in one box, the order inside it)
   const sh = [chat.shenavar, proje.shenavar, sarasari.shenavar].find((x) => Array.isArray(x))
-  val.shenavar = (sh || pishfarz.shenavar || ['thinking']).filter((k, i, a) => bakhsh_fasele.includes(k) && a.indexOf(k) === i)
+  val.shenavar = (sh || pishfarz.shenavar || ['fekr']).filter((k, i, a) => bakhsh_fasele.includes(k) && a.indexOf(k) === i)
   az.shenavar = sh === chat.shenavar && sh ? 'chat' : sh === proje.shenavar && sh ? 'proje' : sh ? 'sarasari' : 'pishfarz'
   // each part's conditions: the narrowest save that has a word on it, its conditions before its number
   val.goruh = {}; val.shart = {}
@@ -955,7 +967,7 @@ async function fasele_ha($) {
   const id = await $.session.id(), t = await $.clock.now()
   if (fasele_cache.for === id && fasele_cache.v && t - fasele_cache.t < 3000) return fasele_cache.v
   const [sa, pr, ch] = [await khandan_yek_fasele($, 'sarasari'), await khandan_yek_fasele($, 'proje'), await khandan_yek_fasele($, 'chat')]
-  const v = adghame_fasele(sa, pr, ch, { thinking: had_thinking_vasat })
+  const v = adghame_fasele(sa, pr, ch, { fekr: had_fekr_vasat })
   fasele_cache = { for: id, t, v }
   return v
 }
@@ -996,38 +1008,41 @@ const payam_sabt_har_chat = new Map()
 // the part whose conditions are open in the ⚙ window, per chat
 const shart_baz_har_chat = new Map()
 
-// «thinking» in the middle of a turn: every had_thinking_vasat tools, and before a question window; only the
+// «fekr» in the middle of a turn: every had_fekr_vasat tools, and before a question window; only the
 // three sentences, from the chat itself (warm cache). One at a time; the turn's own summary still comes at its end.
-export const had_thinking_vasat = 3
-let thinking_vasat_dar_kar = false
-const prompt_thinking_vasat = '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
+export const had_fekr_vasat = 3
+let fekr_vasat_dar_kar = false
+const prompt_fekr_vasat = '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
   'همین الان، وسطِ کار، در سه جملهٔ کوتاهِ فارسیِ ساده و اول‌شخص بگو. Reply ONLY with JSON: ' +
-  '{"text": "-", "thinking": {"fekr": "<الان به چه فکر می‌کنم و دنبالِ چه‌ام>", "kard": "<همین الان چه کردم، با اسمِ ابزار یا فایل>", "bad": "<قدمِ بعدی‌ام>"}}'
-async function thinking_vasat($, foori) {
+  '{"text": "-", "fekr": {"fekr": "<الان به چه فکر می‌کنم و دنبالِ چه‌ام>", "kard": "<همین الان چه کردم، با اسمِ ابزار یا فایل>", "bad": "<قدمِ بعدی‌ام>"}}'
+async function fekr_vasat($, foori) {
   const id = await $.session.id()
   if (!foori) {
-    const N = (await fasele_ha($)).val.thinking, n = shomar_abzar_chat.get(id) || 0
+    const N = (await fasele_ha($)).val.fekr, n = shomar_abzar_chat.get(id) || 0
     if (!N || n % N !== 0) return false
   }
-  if (thinking_vasat_dar_kar || akhar_javab_dar_kar) return false
+  if (fekr_vasat_dar_kar || akhar_javab_dar_kar) return false
   const p = (await chat_ba_safhe($)) ? await khandan_file_chat($) : null
-  if (!p?.thinking) return false
-  thinking_vasat_dar_kar = true
+  if (!p?.fekr) return false
+  fekr_vasat_dar_kar = true
   try {
-    const r = await $.model.fork({ prompt: prompt_thinking_vasat })
-    if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'thinking_vasat', 'fork', r.usage)
-    const got = r.isAnswered ? khandan_jambandi(r.text) : null
-    if (!got?.thinking) return false
-    // only the thinking changes: «دو جمله» and the turn's summary stay as they are
+    const r = await $.model.fork({ prompt: prompt_fekr_vasat })
+    if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'fekr_vasat', 'fork', r.usage)
+    const got = r.isAnswered ? khandan_fekr(r.text) : null
+    // a fork that gave nothing usable is written down with its reason and its first words, never silently
+    // dropped: the old fekr stayed on screen and looked repeated (91, 10 Nov 01:48–02:03: 9 forks, 0 fekr)
+    if (!got) { await benevis_daftar($, 'fekr_vasat_shekast', { dalil: r.isAnswered ? (String(r.text || '').trim() ? 'bad_json' : 'khali') : (r.reason || '?'), aval: String(r.text || '').slice(0, 300) }); return false }
+    if (!got.fekr && !got.kard && !got.bad) return false
+    // only the fekr changes: «دو جمله» and the turn's summary stay as they are
     if (do_jomle_akhar.for !== id) do_jomle_akhar = { text: do_jomle_akhar.text || '', for: id }
-    do_jomle_akhar.summary = { ...(do_jomle_akhar.summary || { text: '-', anjam_shod: [], anjam_nashod: [] }), thinking: got.thinking }
-    await benevis_daftar($, 'thinking_vasat', { thinking: got.thinking, foori: !!foori })
+    do_jomle_akhar.summary = { ...(do_jomle_akhar.summary || { text: '-', anjam_shod: [], anjam_nashod: [] }), fekr: got }
+    await benevis_daftar($, 'fekr_vasat', { fekr: got, foori: !!foori })
     $.ui.invalidate('ui.render')
     return true
   } catch {
     return false
   } finally {
-    thinking_vasat_dar_kar = false
+    fekr_vasat_dar_kar = false
   }
 }
 // this turn's lines and tools, taken (and cleared) once; null when the turn has nothing to sum up
@@ -1064,7 +1079,7 @@ async function sabt_jambandi($, pj, raw) {
     await benevis_do_jomle($, got.text, 'jambandi_nobat')
     do_jomle_akhar.summary = got
     // what Habib asked in this turn, word for word from his own message (not the model's retelling)
-    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, ...(got.thinking ? { thinking: got.thinking } : {}), tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', context_token: tokens })
+    await benevis_daftar($, 'jambandi_nobat', { khaste_habib: asked.slice(0, 300), text: got.text, anjam_shod: got.anjam_shod, anjam_nashod: got.anjam_nashod, ...(got.fekr ? { fekr: got.fekr } : {}), tedad_do_jomle: lines.length, tedad_abzar: tools.length, rah: 'fork', context_token: tokens })
     return true
   } catch {
     return false
@@ -1379,7 +1394,7 @@ async function gozashtan_dar_kadr($, text) {
 // is one JSON file every open chat rewrites. A new id (/clear, a new chat) starts off.
 const masir_file_chat = async ($) => (await $.env.get('HOME')) + '/.claude/hads-on/' + (await $.session.id())
 // The file holds `on`, then the parts ticked off: `on -hads -porsesh`. h-on turns all of them on.
-export const bakhsh_ha = [['hads', 'حدس'], ['ravand', 'روند'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها'], ['zaban', 'زبان'], ['thinking', 'thinking']]
+export const bakhsh_ha = [['hads', 'حدس'], ['ravand', 'روند'], ['nakarde', 'نکرده‌ها'], ['khodkar', 'خودکار'], ['cron', 'کرون‌جاب'], ['do_jomle', 'دو جمله'], ['porsesh', 'پرسش'], ['hook', 'هوک‌ها'], ['zaban', 'زبان'], ['fekr', 'fekr']]
 // every word the chat's file may hold, written out whole so grep finds each one (تعریفِ ۱۰: no
 // name glued from pieces): a part ticked off, and the other settings
 export const esm_bakhsh = Object.fromEntries(bakhsh_ha)
@@ -1456,12 +1471,12 @@ async function bargardandan_akharin($, id) {
   }
   if (o?.porsesh?.text && !javab_porsesh) javab_porsesh = { q: String(o.porsesh.q || ''), text: String(o.porsesh.text), for: id }
 }
-// «thinking»'s three rows (what the chat's own model thought, did, and thinks next, from the turn's summary)
-function radif_thinking(p, id, Box, Text) {
+// «fekr»'s three rows (what the chat's own model thought, did, and thinks next, from the turn's summary)
+function radif_fekr(p, id, Box, Text) {
   const sm_th = do_jomle_akhar.for === id ? do_jomle_akhar.summary : null
-  if (!p.thinking || !sm_th?.thinking) return []
-  return [['fekr', 'به چه فکر کرد:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']].filter(([k]) => sm_th.thinking[k]).map(([k, esm]) =>
-    Box({ flexDirection: 'row', columnGap: 1, children: [Text({ dimColor: true, children: [esm] }), Text({ key: 'hads-th-' + k, children: [sm_th.thinking[k]] })] }))
+  if (!p.fekr || !sm_th?.fekr) return []
+  return [['fekr', 'به چه فکر کرد:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']].filter(([k]) => sm_th.fekr[k]).map(([k, esm]) =>
+    Box({ flexDirection: 'row', columnGap: 1, children: [Text({ dimColor: true, children: [esm] }), Text({ key: 'hads-th-' + k, children: [sm_th.fekr[k]] })] }))
 }
 // the order of the parts, the same in every chat (Habib, 25 Oct 18:01: «این دکمه ها باید قابلیت جابجایی
 // داشته باشن و با جابجا شدن ردیفشون عوض بشه. یعنی اگه حدس اوله میشه ردیف یک»): one line of part
@@ -1481,7 +1496,7 @@ async function taghir_tartib($, v) {
   try { await $.fs.write(await masir_tartib($), tazeh.join(' ') + '\n') } catch {}
   $.ui.invalidate('ui.render')
 }
-export const kalame_khamush = { hads: '-hads', ravand: '-ravand', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook', zaban: '-zaban', thinking: '-thinking' }
+export const kalame_khamush = { hads: '-hads', ravand: '-ravand', nakarde: '-nakarde', khodkar: '-khodkar', cron: '-cron', do_jomle: '-do_jomle', porsesh: '-porsesh', hook: '-hook', zaban: '-zaban', fekr: '-fekr' }
 export const kalame_tanzim = { do_jomle_fork: '+do_jomle_fork', yek_khat: 'yek_khat', tak_dokme: 'tak_dokme', hook_bozorg: 'hook_bozorg', tarjome: '+tarjome' }
 // a part set to −1 in ⚙ (chat, project or global) is off, whatever the chat's tick says
 async function khandan_file_chat($) {
@@ -1606,7 +1621,7 @@ async function tik_zadan($, key) {
   if (!p.nakarde) { nakarde_akhar = []; nakarde_ba_sanad_akhar = [] }
   if (!p.khodkar) khodkar_akhar = []
   if (!p.cron) cron_akhar = []
-  if (!p.do_jomle && !p.thinking) do_jomle_akhar = { text: '', for: '' }
+  if (!p.do_jomle && !p.fekr) do_jomle_akhar = { text: '', for: '' }
   if (!p.porsesh) { javab_porsesh = null; porsesh_montazer = null }
   $.ui.invalidate('ui.render')
 }
@@ -1637,7 +1652,7 @@ async function ejra_ba_shart($, ev, p) {
     try { await hads_ba_fork($, Object.fromEntries(vasat.map((k) => [k, true])), null); await benevis_daftar($, 'fork_vasat', { bakhsh: vasat, lahze: ev.no, abzar: ev.n || 0 }) } finally { fork_vasat_dar_kar = false }
   }
   if (porsesh_montazer && bayad('porsesh')) { zadam('porsesh'); const q = porsesh_montazer; porsesh_montazer = null; await porsesh_kon($, q) }
-  if (bayad('thinking')) { zadam('thinking'); await thinking_vasat($, true) }
+  if (bayad('fekr')) { zadam('fekr'); await fekr_vasat($, true) }
 }
 // at the turn's end: only the parts whose conditions hold now
 async function p_akhar_nobat($, p) {
@@ -1878,7 +1893,7 @@ export function register(on) {
   // after every tool: the tool runs first and its result goes back untouched; the rest
   // is never awaited and never throws, so «دو جمله» can not slow or break a tool
   on('tool.call', async ($, e, next) => {
-    // the question window waits for Habib: its thinking goes first, so it shows while he reads (Habib, 8 Nov
+    // the question window waits for Habib: its fekr goes first, so it shows while he reads (Habib, 8 Nov
     // 19:47: «حتی تو اسک یوزر کوسشن هم بیاد»); never awaited, so the window is not held back
     if (!e.agentId && e.tool === 'AskUserQuestion') $.clock.after(0, async () => { try { const t = await $.clock.now(); await ejra_ba_shart($, { no: 'pish_porsesh', tool: e.tool, t }, (await chat_ba_safhe($)) ? await khandan_file_chat($) : null) } catch {} })
     const r = await next(e)
@@ -1894,8 +1909,8 @@ export function register(on) {
             if (p?.hook) await khandan_hook_az_transcript($)
             const sid = await $.session.id(), n = (shomar_abzar_chat.get(sid) || 0) + 1
             shomar_abzar_chat.set(sid, n)
-            // every part by its own conditions (⚙); the question window's thinking already went before it
-            await ejra_ba_shart($, { no: 'abzar', tool: e.tool, khata: !!r?.isError, n, t: zaman_akharin_kar, what }, p && e.tool === 'AskUserQuestion' ? { ...p, thinking: false } : p)
+            // every part by its own conditions (⚙); the question window's fekr already went before it
+            await ejra_ba_shart($, { no: 'abzar', tool: e.tool, khata: !!r?.isError, n, t: zaman_akharin_kar, what }, p && e.tool === 'AskUserQuestion' ? { ...p, fekr: false } : p)
           } catch {}
         })
       }
@@ -1927,8 +1942,8 @@ export function register(on) {
     const amar = amar_khat ? [Text({ key: 'hads-amar', dimColor: true, children: [amar_khat] })] : []
     // the floater's hidden line (the page only; a terminal has no floater)
     if (e.surface !== 'terminal') {
-      const th = p.thinking && do_jomle_akhar.for === id ? do_jomle_akhar.summary?.thinking : null
-      const dade = { thinking: th ? [th.fekr, th.kard, th.bad] : [], do_jomle: n ? [n, ...(sm ? [...(sm.anjam_shod.length ? ['✓ ' + sm.anjam_shod.join(' · ')] : []), ...(sm.anjam_nashod.length ? ['✗ ' + sm.anjam_nashod.join(' · ')] : [])] : [])] : [],
+      const th = p.fekr && do_jomle_akhar.for === id ? do_jomle_akhar.summary?.fekr : null
+      const dade = { fekr: th ? [th.fekr, th.kard, th.bad] : [], do_jomle: n ? [n, ...(sm ? [...(sm.anjam_shod.length ? ['✓ ' + sm.anjam_shod.join(' · ')] : []), ...(sm.anjam_nashod.length ? ['✗ ' + sm.anjam_nashod.join(' · ')] : [])] : [])] : [],
         hads: g.map((x) => x.text), ravand: rv.map((x) => x.ravand), nakarde: nk.map((x) => x.harf), khodkar: kh.map((x) => x.kar + ' ⇐ ' + x.abzar),
         cron: cr.map((x) => x.kar + ' ⇐ ' + x.zaman), porsesh: a ? [a.text] : [] }
       const list = (await fasele_ha($)).val.shenavar.filter((k) => p[k])
@@ -1946,9 +1961,9 @@ export function register(on) {
       const tarjome = Button({ key: 'hads-tarjome-kadr', label: tarjome_kadr_dar_kar ? 'در حالِ ترجمه…' : 'ترجمه به انگلیسی', onPress: () => tarjome_kadr($) })
       // a terminal shows the count only while the box is open (Habib, 4 Nov 01:50: «دیفالت دیده نشه فقط وقتی بازه دیده بشه»); the page still needs its hidden line
       const amar_baste = e.surface === 'terminal' ? [] : amar
-      // the thinking rows go on the page with the box closed too: the page floats them and hides them in the
+      // the fekr rows go on the page with the box closed too: the page floats them and hides them in the
       // closed card (Habib, 8 Nov 17:25: «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
-      const th_baste = e.surface === 'terminal' ? [] : radif_thinking(p, id, Box, Text)
+      const th_baste = e.surface === 'terminal' ? [] : radif_fekr(p, id, Box, Text)
       return Box({ flexDirection: 'column', children: [...(theirs ? [theirs] : []), ...amar_baste, ...th_baste, Box({ flexDirection: 'row', columnGap: 1, children: [one, tarjome] })] })
     }
     const hist = n || ghablia_baz ? await khandan_ghablia($) : []
@@ -1978,8 +1993,8 @@ export function register(on) {
     if (sm) for (const [k, mark, list] of [['anjam_shod', '✓', sm.anjam_shod], ['anjam_nashod', '✗', sm.anjam_nashod]]) {
       if (list.length) goruh.do_jomle.push(Text({ key: 'hads-sum-' + k, children: [mark + ' ' + list.join(' · ')] }))
     }
-    // «thinking»: what the chat's own model thought, did, and thinks next, from the turn's summary
-    goruh.thinking.push(...radif_thinking(p, id, Box, Text))
+    // «fekr»: what the chat's own model thought, did, and thinks next, from the turn's summary
+    goruh.fekr.push(...radif_fekr(p, id, Box, Text))
     // the guesses (1-2): whole sentences, plain text like «دو جمله» (Habib selects and copies
     // them); a small ⤵ puts one in the prompt box, never sends it
     for (let i = 0; i < g.length; i++) goruh.hads.push(Box({ flexDirection: 'row', columnGap: 1, children: [

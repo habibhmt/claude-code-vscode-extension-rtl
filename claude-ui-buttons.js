@@ -139,7 +139,7 @@
   var DEF = {
     chat: 15, code: 12, chrome: 10, btn: 10,
     hook_font_px: 13,  // the 🪝 hook lines in the chat (Habib: «کمی خیلی ریزن یه کمی درشتتر بشن»)
-    fekr_pori_darsad: 75, // how solid the thinking floater is, % (Habib, 8 Nov 18:03: «شفافیتش کم کن … قابل تعیین بکن»)
+    fekr_pori_darsad: 75, // how solid the fekr floater is, % (Habib, 8 Nov 18:03: «شفافیتش کم کن … قابل تعیین بکن»)
     hads_pori_darsad: 80, // how solid the «حدس» card is, % (Habib: «میتونی براش ترانسپرنسی هم بزاری»)
     lines: 1,          // 0 = show user messages in full
     side: 'both',      // both | left | right
@@ -288,7 +288,7 @@
        against the band (over «پرسش») and clipped; the card must be its box (24 Oct 23:22) */
     '.crtl-hads [class*="band_"],.crtl-hads [class*="row_"]{background:transparent!important;border:none!important;padding:2px 10px 6px!important;margin:0!important}',
     '.crtl-hads [class*="box_"]{row-gap:2px}',
-    // «thinking» floats: no box, no background, words only; clicks pass through to the chat
+    // «fekr» floats: no box, no background, words only; clicks pass through to the chat
     '#crtl-fekr-shenavar{position:fixed;right:14px;width:38%;min-width:140px;min-height:40px;max-height:80vh;z-index:50;resize:both;overflow:auto;box-sizing:border-box;padding:4px 10px 6px;border-radius:10px;border:.5px solid rgba(128,128,128,.28);box-shadow:0 6px 20px rgba(0,0,0,.3);background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) var(--crtl-fekr-pori-darsad,75%),transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-family:-apple-system,BlinkMacSystemFont,Vazirmatn,system-ui,sans-serif;font-size:10.5px;line-height:1.5;color:var(--vscode-descriptionForeground,#aaa);text-shadow:0 1px 3px rgba(0,0,0,.55)}',
     '.crtl-hads.crtl-hads-tak-dokme .crtl-fekr-radif{display:none!important}',
     '#crtl-fekr-shenavar .crtl-fekr-dastgire{cursor:move;user-select:none;text-align:center;opacity:.5;font-size:10px;line-height:12px;margin:-2px 0 2px}',
@@ -1770,7 +1770,7 @@
     panel.appendChild(radif_andaze('دکمه‌ها', 'btn', s, set));
     panel.appendChild(radif_andaze('هوک‌ها', 'hook_font_px', s, set));
     panel.appendChild(radif_andaze('پُری کادرِ حدس ٪', 'hads_pori_darsad', s, set));
-    panel.appendChild(radif_andaze('پُری شناورِ thinking ٪', 'fekr_pori_darsad', s, set));
+    panel.appendChild(radif_andaze('پُری شناورِ fekr ٪', 'fekr_pori_darsad', s, set));
 
     var lhRange = document.createElement('input');
     lhRange.type = 'range';
@@ -1851,7 +1851,7 @@
     var toggles = document.createElement('div');
     toggles.className = 'crtl-actions';
     toggles.appendChild(sakht_dokme(s.collapse ? 'جمع: روشن' : 'جمع: خاموش',
-      'کوچک‌کردن بخش‌های Thinking و tool call', function () {
+      'کوچک‌کردن بخش‌های فکر و tool call', function () {
         var cur = khandan_tanzim(); cur.collapse = !cur.collapse; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }));
     toggles.appendChild(sakht_dokme(s.tableScroll ? 'جدول: اسکرول' : 'جدول: آزاد',
@@ -2890,7 +2890,7 @@
       card.classList.add('crtl-hads');
       var bs = card.querySelectorAll('button');
       sabet_hads(card);
-      shenavar_thinking(card);
+      shenavar_fekr(card);
       // only the «حدس ▸» button left: the card shrinks to it
       card.classList.toggle('crtl-hads-tak-dokme', bs.length <= 2 && !!card.querySelector('button[data-press-key="hads-dot"]'));
       for (var b = 0; b < bs.length; b++) {
@@ -2905,10 +2905,10 @@
       }
     }
   }
-  /* «thinking» floats: no window, only words over the chat, fading in one by one (Habib, 8 Nov 17:10: «مثل یه
+  /* «fekr» floats: no window, only words over the chat, fading in one by one (Habib, 8 Nov 17:10: «مثل یه
      فلوت ویندو باشه که حتی ویندوش قابل دیدن نباشه فقط کلمه ها بیان»). The mod's three rows are found by their
      labels, hidden in the card, and their sentences drawn in a fixed, see-through, click-through layer. */
-  var BARCHASB_THINKING = ['به چه فکر کرد:', 'چه کرد:', 'بعدش:'], thinking_akhar = '';
+  var BARCHASB_FEKR = ['به چه فکر کرد:', 'چه کرد:', 'بعدش:'], fekr_akhar = '';
   // the mod's hidden line (v2.56+): which parts float, in Habib's order, and their lines (Habib, 8 Nov 21:18: «توی تنظیم
   // باشه که میخوایم توی فلوت شناور بیاد یانه … همه خصوصیات اون ثینکینگ رو بگیره … بالا و پایین ترتیبش رو چید»)
   var NESHANE_SHENAVAR = '\u2063SHENAVAR';
@@ -2925,10 +2925,10 @@
     }
     return o && Array.isArray(o.list) && Array.isArray(o.parts) ? o : null;
   }
-  function shenavar_thinking(card) {
+  function shenavar_fekr(card) {
     var ls = card.querySelectorAll('span[class*="text_"]'), jomle_ha = [];
     for (var i = 0; i < ls.length; i++) {
-      if (BARCHASB_THINKING.indexOf((ls[i].textContent || '').trim()) < 0) continue;
+      if (BARCHASB_FEKR.indexOf((ls[i].textContent || '').trim()) < 0) continue;
       var row = ls[i].parentElement; if (!row) continue;
       row.classList.add('crtl-fekr-radif');
       var s = ls[i].nextElementSibling; if (s) jomle_ha.push((s.textContent || '').trim());
@@ -2937,28 +2937,32 @@
     var sh = khandan_khat_shenavar(card), matn;
     if (sh) {
       // nothing chosen to float: no floater at all
-      if (!sh.list.length) { if (lay) lay.remove(); thinking_akhar = ''; return; }
-      if (!sh.parts.length) { if (lay) ja_thinking(lay, null); return; }
+      if (!sh.list.length) { if (lay) lay.remove(); fekr_akhar = ''; return; }
+      if (!sh.parts.length) { if (lay) ja_fekr(lay, null); return; }
       matn = JSON.stringify(sh.parts);
     } else {
-      // an older mod: the thinking rows by their labels
+      // an older mod: the fekr rows by their labels
       // the «حدس» box closed or its rows gone: the last words stay, above the prompt box (Habib, 8 Nov 17:25:
       // «فقط وقتی که پنجره حدس بازه … ببندیمش نمیاد»)
-      if (!jomle_ha.length) { if (lay) ja_thinking(lay, null); return; }
+      if (!jomle_ha.length) { if (lay) ja_fekr(lay, null); return; }
       matn = jomle_ha.join('\n');
     }
-    if (!lay) { lay = sakhtan_shenavar(); thinking_akhar = ''; }
-    if (lay.dataset.sid !== shenase_fekr()) { lay.dataset.sid = shenase_fekr(); thinking_akhar = ''; }
-    ja_thinking(lay, card);
-    if (matn === thinking_akhar) return;
-    thinking_akhar = matn;
-    // every new thinking gets a number; ‹ › next to ⠿ walk back and forth (Habib, 8 Nov 20:04: «قبلی ها هم
+    if (!lay) { lay = sakhtan_shenavar(); fekr_akhar = ''; }
+    if (lay.dataset.sid !== shenase_fekr()) { lay.dataset.sid = shenase_fekr(); fekr_akhar = ''; }
+    ja_fekr(lay, card);
+    if (matn === fekr_akhar) return;
+    fekr_akhar = matn;
+    // every new fekr gets a number; ‹ › next to ⠿ walk back and forth (Habib, 8 Nov 20:04: «قبلی ها هم
     // شمارش داشته باشن … این طرف و اون طرف بتونه بره عقب و جلو»)
     var ta = tarikhche_fekr();
-    if (ta[ta.length - 1] !== matn) { ta.push(matn); if (ta.length > HAD_TARIKHCHE_FEKR) ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); zakhire_tarikhche_fekr(ta); }
-    neshan_fekr(lay, ta.length - 1, true);
+    // the same fekr with only another part changed («خودکار»): no new entry and the fekr does not fade in
+    // again; only the changed part moves (Habib, 10 Nov 02:02: «همش ثینکینگ تکراری میاره»)
+    var bi_harekat = yeksan_ba_ghabli(ta[ta.length - 1], matn);
+    if (bi_harekat.length) { ta[ta.length - 1] = matn; zakhire_tarikhche_fekr(ta); }
+    else if (ta[ta.length - 1] !== matn) { ta.push(matn); if (ta.length > HAD_TARIKHCHE_FEKR) ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); zakhire_tarikhche_fekr(ta); }
+    neshan_fekr(lay, ta.length - 1, true, bi_harekat);
   }
-  // one list per chat: localStorage is shared by every chat tab, so one key mixed all chats' thinking
+  // one list per chat: localStorage is shared by every chat tab, so one key mixed all chats' fekr
   // (Habib, 8 Nov 20:56: «فکر کردنای همهٔ چت‌ها رو پشت سر هم داره میاره … باید اینها جدا بشه»).
   // No chat id known yet ⇒ the list lives only in this page, never in a shared key.
   var KELID_TARIKHCHE_FEKR_PAYE = 'crtl-fekr-tarikhche', HAD_TARIKHCHE_FEKR = 100, tarikhche_bi_shenase = [];
@@ -2972,15 +2976,27 @@
     var sid = shenase_fekr(); if (!sid) { tarikhche_bi_shenase = ta; return; }
     try { localStorage.setItem(KELID_TARIKHCHE_FEKR_PAYE + ':' + sid, JSON.stringify(ta)); } catch (e) {}
   }
-  function neshan_fekr(lay, i, ba_harekat) {
+  // the parts (k) whose lines are the same in both entries, when at least one other part changed; [] otherwise
+  function yeksan_ba_ghabli(ghabli, taze) {
+    if (!ghabli || ghabli === taze || ghabli.charAt(0) !== '[' || taze.charAt(0) !== '[') return [];
+    try {
+      var a = JSON.parse(ghabli), b = JSON.parse(taze), m = {}, ham = [];
+      a.forEach(function (x) { m[x.k] = JSON.stringify(x.lines); });
+      b.forEach(function (x) { if (m[x.k] === JSON.stringify(x.lines)) ham.push(x.k); });
+      return ham.length && ham.length < b.length ? ham : [];
+    } catch (e) { return []; }
+  }
+  window.__crtl_yeksan_ba_ghabli = yeksan_ba_ghabli;
+  function neshan_fekr(lay, i, ba_harekat, bi_harekat) {
+    bi_harekat = bi_harekat || [];
     var ta = tarikhche_fekr(); if (!ta.length) return;
     i = Math.max(0, Math.min(ta.length - 1, i)); lay.dataset.shomare = i;
     var sh = lay.querySelector('.crtl-fekr-shomare'); if (sh) sh.textContent = (i + 1) + '/' + ta.length;
     var jaye = lay.querySelector('.crtl-fekr-matn'); jaye.textContent = '';
     // one entry: the parts (title + lines), or an older entry's plain lines
     var parts = null; if (ta[i].charAt(0) === '[') { try { parts = JSON.parse(ta[i]); } catch (e) {} }
-    var jomle_ha = [], onvan_ha = {};
-    if (parts) parts.forEach(function (x) { if (parts.length > 1 || x.k !== 'thinking') onvan_ha[jomle_ha.length] = x.esm; jomle_ha.push.apply(jomle_ha, x.lines); });
+    var jomle_ha = [], onvan_ha = {}, sabet = {};
+    if (parts) parts.forEach(function (x) { if (parts.length > 1 || x.k !== 'fekr') onvan_ha[jomle_ha.length] = x.esm; if (bi_harekat.indexOf(x.k) >= 0) for (var q = 0; q < x.lines.length; q++) sabet[jomle_ha.length + q] = 1; jomle_ha.push.apply(jomle_ha, x.lines); });
     else jomle_ha = ta[i].split('\n');
     var n = 0;
     for (var j = 0; j < jomle_ha.length; j++) {
@@ -2989,12 +3005,12 @@
       var ws = jomle_ha[j].split(/\s+/);
       for (var w = 0; w < ws.length; w++) {
         var sp = document.createElement('span'); sp.className = 'crtl-fekr-kalame';
-        sp.textContent = ws[w] + ' '; if (ba_harekat) sp.style.animationDelay = (n++ * 90) + 'ms'; else sp.style.animation = 'none', sp.style.opacity = '.85'; p.appendChild(sp);
+        sp.textContent = ws[w] + ' '; if (ba_harekat && !sabet[j]) sp.style.animationDelay = (n++ * 90) + 'ms'; else sp.style.animation = 'none', sp.style.opacity = '.85'; p.appendChild(sp);
       }
       jaye.appendChild(p);
     }
   }
-  function ja_thinking(lay, card) {
+  function ja_fekr(lay, card) {
     // the top corner of the chat, small, out of the answer's and the question window's way (Habib, 8 Nov 17:43:
     // «گوشهٔ بالای چت، کوچک»)
     // a place Habib picked (dragged by ⠿) wins
@@ -3053,13 +3069,13 @@
     if (ja && ja.w) lay.dataset.andaze = '1';
     return lay;
   }
-  function thinking_bi_kadr() {
+  function fekr_bi_kadr() {
     var lay = document.getElementById('crtl-fekr-shenavar');
-    if (lay && !document.querySelector('.crtl-hads .crtl-fekr-radif')) ja_thinking(lay, document.querySelector('.crtl-hads'));
+    if (lay && !document.querySelector('.crtl-hads .crtl-fekr-radif')) ja_fekr(lay, document.querySelector('.crtl-hads'));
   }
-  window.__crtl_shenavar_thinking = shenavar_thinking;
+  window.__crtl_shenavar_fekr = shenavar_fekr;
   window.__crtl_set_sid = function (sid) { SESSION.sid = sid; };  // tests only
-  setInterval(function () { neshan_hook_va_hads(); thinking_bi_kadr(); }, 700);
+  setInterval(function () { neshan_hook_va_hads(); fekr_bi_kadr(); }, 700);
   window.__crtl_neshan_hook_va_hads = neshan_hook_va_hads;
 
   /* ---------------- «تماس‌ها»: how often «حدس» called a model ---------------- */

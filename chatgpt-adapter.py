@@ -6,12 +6,60 @@ from pathlib import Path
 CODEX_SLASH_OK = {'/compact'}
 
 
+# The «تنظیمات Codex» tab (تعریف ۲۵). Habib, 9 Nov: «توی کدکس تنظیمات کدکس بیاد و توی کلود کد تنظیمات کلود کد که قاطی نشه».
+# Same tab code as Claude's; the host side is codex-tanzimat-ext.js inside the extension's out/extension.js.
+CODEX_HEADER = r"""  var SESSION = { sid: '' };
+  var TZ = { tab: 'font', data: null, req: 0, lastList: 0, waiting: {}, rows: null, taze: 0 };
+  function porsidan_shenase_chat() {}
+  function neshan_shenase_chat() {}
+  // this chat = the thread in the route (/local/<thread id>); a new, unsent chat has none
+  function khandan_shenase_chat_az_state() {
+    var p = window.__crtlCodexPath ? window.__crtlCodexPath() : '';
+    var m = /^\/(?:local|remote)\/([^/?#]+)/.exec(p || '');
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  window.addEventListener('message', function (e) {
+    var d = e.data;
+    if (!d) return;
+    if (d.type === 'crtl-tanzimat-list') { if (d.reqId === TZ.lastList) tz_resid(d); return; }
+    if (d.type === 'crtl-tanzimat-sabt') {
+      var tzCb = TZ.waiting[d.reqId];
+      if (tzCb) { delete TZ.waiting[d.reqId]; tzCb(d); }
+    }
+  });
+"""
+
+
+def _one(s, old, new):
+    if s.count(old) != 1:
+        raise ValueError('claude-ui-buttons.js changed: ' + old[:70])
+    return s.replace(old, new)
+
+
+def codex_tanzimat(s):
+    s = _one(s, "[['font', 'فونت'], ['claude', 'تنظیمات کلود']]", "[['font', 'فونت'], ['claude', 'تنظیمات Codex']]")
+    s = _one(s, "var TZ_BALA = ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow', TZ_CHROME];",
+             "var TZ_BALA = ['model', 'model_reasoning_effort', 'approval_policy', 'sandbox_mode', 'service_tier', 'model_reasoning_summary', 'personality', 'model_auto_compact_token_limit', 'web_search'];")
+    s = _one(s, "    return window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;\n  }\n  function tz_adad_fa",
+             "    return window.__crtlCodexPost ? { postMessage: window.__crtlCodexPost } : null;\n  }\n  function tz_adad_fa")
+    # a tab can switch chats, so read the thread every time
+    s = s.replace('if (!SESSION.sid) SESSION.sid = khandan_shenase_chat_az_state();', 'SESSION.sid = khandan_shenase_chat_az_state();')
+    s = s.replace('پیش‌فرض کلود', 'پیش‌فرض Codex')
+    s = _one(s, "function BALA_NO(k) { return k === 'effortLevel' ? 'effort'", "function BALA_NO(k) { return k === 'model_reasoning_effort' ? 'effort'")
+    s = _one(s, "select(['low', 'medium', 'high', 'xhigh', 'max'].map(", "select(['none', 'minimal', 'low', 'medium', 'high', 'xhigh'].map(")
+    # Codex takes only seven keys per chat (turn/start); the others keep the chat tick, greyed with the reason
+    s = _one(s, "      boxes[f[0]] = box;\n",
+             "      boxes[f[0]] = box;\n      if (f[0] === 'chat' && r.chatNa) { box.disabled = true; lab.style.opacity = '.45'; lab.title = 'Codex این تنظیم را برای یک چت نمی‌پذیرد؛ فقط سراسری یا پروژه'; }\n")
+    return s
+
+
 def build_ui(repo, defaults):
     s = (repo / 'claude-ui-buttons.js').read_text()
     # No Claude host protocol, VS Code API interception or session assumptions.
     start = s.index('  // acquireVsCodeApi()')
     end = s.index("  window.addEventListener('error'", start)
-    s = s[:start] + '  function porsidan_shenase_chat() {}\n  function neshan_shenase_chat() {}\n' + s[end:]
+    s = s[:start] + CODEX_HEADER + s[end:]
+    s = codex_tanzimat(s)
     start = s.index('  var DEFAULT_COMMANDS = [')
     end = s.index('\n  /* ---------------- settings', start)
     commands = [
@@ -68,4 +116,6 @@ def build_ui(repo, defaults):
             c['send'] = False
     dokme['nosakhe'] = 'codex-%s-1' % dokme['nosakhe']  # bump only the Codex copy so the change lands
     seed = 'window.__CRTL_DOKME=' + json.dumps(dokme, ensure_ascii=False) + ';\n'
+    seed += 'window.__CRTL_TANZIMAT_FA=' + (repo / 'codex-tanzimat-fa.json').read_text().strip() + ';\n'
+    seed += 'window.__CRTL_TANZIMAT_TOZIH=' + (repo / 'codex-tanzimat-tozih.json').read_text().strip() + ';\n'
     return 'window.__CRTL_DEFAULTS=' + json.dumps(defaults, ensure_ascii=False) + ';\n' + seed + s + '\n' + tabs

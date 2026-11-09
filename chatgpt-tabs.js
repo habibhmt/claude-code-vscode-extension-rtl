@@ -97,6 +97,8 @@
     return null;
   }
   function currentPath() { return router && locationPath(router.state.location); }
+  // the «تنظیمات Codex» tab needs this chat's thread id (تعریف ۲۵)
+  window.__crtlCodexPath = function () { return currentPath() || ''; };
   function sync(state) {
     var path = locationPath(state.location);
     if (threadPath(path)) {

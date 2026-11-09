@@ -47,6 +47,11 @@ bf=""; for i in ~/.vscode ~/.windsurf ~/.cursor ~/.devin; do e=$(ls -d "$i"/exte
 if [[ -n $NO_CHROME ]]; then skip "۲۴ تبِ تنظیمات"; else
 NODE_PATH=node_modules node test_claude_tanzimat.cjs >/dev/null 2>&1 && ok "۲۴ تبِ تنظیمات (موتورِ واقعی و شبیه‌سازیِ افزونه در کروم)" || no "۲۴ تبِ تنظیمات" "NODE_PATH=node_modules node test_claude_tanzimat.cjs را ببین"
 fi
+if [[ -n $NO_CHROME ]]; then skip "۲۵ تبِ تنظیمات Codex"; else
+NODE_PATH=node_modules node test_codex_tanzimat.cjs >/dev/null 2>&1 && ok "۲۵ تبِ تنظیمات Codex (موتورِ واقعیِ codex و کروم)" || no "۲۵ تبِ تنظیمات Codex" "NODE_PATH=node_modules node test_codex_tanzimat.cjs را ببین"
+fi
+cx=0; for f in ~/.*/extensions/openai.chatgpt-*/out/extension.js; do grep -q __crtlCodexTanzimat "$f" 2>/dev/null || cx=$((cx+1)); done
+[[ $cx -eq 0 ]] && ok "۲۵ میزبانِ تبِ Codex روی هر Codex نصب است" || no "۲۵ میزبانِ تبِ Codex نصب نیست" "$cx افزونه"
 z=0; for f in ~/.*/extensions/anthropic.claude-code-*; do [ "$(grep -c crtl-panel "$f/extension.js" 2>/dev/null)" -gt 0 ] || z=$((z+1)); done
 l=$(launchctl list | grep -c com.habib.fix-rtl-claude)
 [[ $z -eq 0 && $l -ge 1 ]] && ok "۰۴ پچِ RTL" || no "۰۴ پچِ RTL" "بی‌پچ: $z · launchd: $l"

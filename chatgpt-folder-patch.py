@@ -116,7 +116,19 @@ def prepare(root, originals, payload):
         raise ValueError('Native workspace-folder reader changed')
     old = 'this.codexAppServer.sendRequest(YGe,r,"thread/list",{limit:50,'
     new = 'this.codexAppServer.sendRequest(YGe,r,"thread/list",{cwd:fv().length?fv():void 0,limit:50,'
-    host_source = replace_once(host_source, old, new) + '\n' + MARKER
+    host_source = replace_once(host_source, old, new)
+    # The «تنظیمات Codex» tab (تعریف ۲۵): the panel's own messages, and this chat's saved values on its turn/start.
+    host_source = replace_once(host_source,
+        'Message(u=>{if(s.markMessageReceived(),u.type==="chunked-message-ack"){',
+        'Message(u=>{if(globalThis.__crtlCodexTanzimat&&globalThis.__crtlCodexTanzimat.handle(this,e,u))return;'
+        'if(s.markMessageReceived(),u.type==="chunked-message-ack"){')
+    host_source = replace_once(host_source,
+        'let{id:n,method:o,params:i}=r.request;this.pendingMcpRequests.set(String(n),e),',
+        'let{id:n,method:o,params:i}=r.request;if(globalThis.__crtlCodexTanzimat)i=globalThis.__crtlCodexTanzimat.turn(o,i);'
+        'this.pendingMcpRequests.set(String(n),e),')
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import codex_tanzimat_build
+    host_source += '\n' + MARKER + codex_tanzimat_build.build_host() + '\n'
     return {hooks.name: hook_source.encode(), header.name: header_source.encode(), runtime.name: runtime_source.encode(),
             host_name: host_source.encode()}, helper_name, helper
 

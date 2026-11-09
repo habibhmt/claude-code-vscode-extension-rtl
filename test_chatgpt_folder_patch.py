@@ -30,7 +30,10 @@ def fixture(root):
         'message-bus-fixture.js': '/*acquireVsCodeApi*/export{c,l as s};',
         'app-scope-fixture.js': 'export{Wa as c};', 'app-initial-fixture.js': 'export{a as rS};',
         'src-fixture.js': 'class Store{async listRecentThreads({originators:e,cursor:t,limit:n,background:r=!1}){let i={limit:n,cursor:t};return i}}',
-        '../../out/extension.js': 'function fv(){let t=iWe.workspace.workspaceFolders?.map(x=>x.uri.fsPath);return t??[]}class Provider{list(){return this.codexAppServer.sendRequest(YGe,r,"thread/list",{limit:50,cursor:null})}}',
+        '../../out/extension.js': 'function fv(){let t=iWe.workspace.workspaceFolders?.map(x=>x.uri.fsPath);return t??[]}class Provider{list(){return this.codexAppServer.sendRequest(YGe,r,"thread/list",{limit:50,cursor:null})}'
+                                    # the «تنظیمات Codex» tab's two anchors (تعریف ۲۵)
+                                    'w(e,s){e.onDidReceiveMessage(u=>{if(s.markMessageReceived(),u.type==="chunked-message-ack"){return}})}'
+                                    'm(e,r){let{id:n,method:o,params:i}=r.request;this.pendingMcpRequests.set(String(n),e),this.send(o,i)}}',
     }
     for name, text in sources.items():
         (root / name).write_text(text)

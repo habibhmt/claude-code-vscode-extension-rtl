@@ -20,3 +20,8 @@ if (typeof window !== 'undefined') {
     }
   };
 }
+
+// The «تنظیمات Codex» tab (تعریف ۲۵) posts to the host through the same, already-acquired API.
+if (typeof window !== 'undefined') {
+  window.__crtlCodexPost = function (msg) { crtlInitPanelApi(); crtlPanelApi.postMessage(msg); };
+}

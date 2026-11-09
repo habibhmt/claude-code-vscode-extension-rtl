@@ -1,0 +1,547 @@
+{
+ "agents": {
+  "sharh": "تنظیمِ ایجنت‌های فرعی، مثلاً حداکثر چند تا هم‌زمان.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "allow_login_shell": {
+  "sharh": "فرمان‌ها با تنظیماتِ کاملِ ترمینالِ تو (مثل .zprofile) اجرا شوند.",
+  "khali": "مجاز",
+  "on": "مجاز",
+  "off": "مجاز نیست"
+ },
+ "allow_symlinked_codex_home": {
+  "sharh": "قفسِ امنیتیِ مک به میان‌بُرهای (symlink) داخلِ ~/.codex اعتماد کند.",
+  "khali": "اعتماد نمی‌کند",
+  "on": "اعتماد می‌کند",
+  "off": "اعتماد نمی‌کند"
+ },
+ "analytics": {
+  "sharh": "Codex آمارِ استفاده را برای OpenAI بفرستد یا نه. مثال: {\"enabled\": false} یعنی نفرستد.",
+  "khali": "بسته به برنامه"
+ },
+ "approval_policy": {
+  "sharh": "تعیین می‌کند Codex قبل از اجرای فرمان (مثلاً پاک کردنِ فایل) از تو اجازه بگیرد یا نه. مثال: never یعنی هیچ‌وقت نپرسد.",
+  "khali": "رفتارِ پیش‌فرضِ Codex (معمولاً on-request: هر جا لازم شد می‌پرسد)",
+  "gozine": {
+   "untrusted": "جز فرمان‌های بی‌خطر، همه را می‌پرسد",
+   "on-request": "هر جا خودش لازم بداند می‌پرسد",
+   "never": "هیچ‌وقت نمی‌پرسد"
+  }
+ },
+ "approvals_reviewer": {
+  "sharh": "وقتی Codex اجازه خواست، تو جواب بدهی یا یک بازبینِ خودکار. مثال: user یعنی خودت.",
+  "khali": "خودت",
+  "gozine": {
+   "user": "خودت",
+   "auto_review": "بازبینِ خودکار",
+   "guardian_subagent": "ایجنتِ نگهبان"
+  }
+ },
+ "apps": {
+  "sharh": "تنظیمِ اپ‌های وصل به Codex (مثل Gmail یا Drive).",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "apps_mcp_product_sku": {
+  "sharh": "کدی که با درخواست‌های اپ‌ها فرستاده می‌شود. معمولاً دست نزن.",
+  "khali": "هیچ",
+  "ba": "کدِ {v}"
+ },
+ "audio": {
+  "sharh": "میکروفون و بلندگوی گفتگوی صوتی. مثال: میکروفونِ ایرپاد.",
+  "khali": "دستگاهِ پیش‌فرضِ مک"
+ },
+ "auto_review": {
+  "sharh": "متنی که به بازبینِ خودکارِ اجازه‌ها داده می‌شود. مثال: «پاک کردنِ فایل را رد کن».",
+  "khali": "هیچ"
+ },
+ "background_terminal_max_timeout": {
+  "sharh": "Codex حداکثر چقدر منتظرِ خروجیِ فرمانِ پس‌زمینه بماند. مثال: 300000 یعنی ۵ دقیقه.",
+  "khali": "۵ دقیقه",
+  "ba": "حداکثر {v} میلی‌ثانیه"
+ },
+ "browser_use": {
+  "sharh": "تنظیماتِ ابزاری که Codex با آن مرورگر را می‌گرداند.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "chatgpt_base_url": {
+  "sharh": "نشانیِ سرورِ ChatGPT (برای ورود و حساب). معمولاً دست نزن.",
+  "khali": "نشانیِ اصلیِ ChatGPT",
+  "ba": "ChatGPT از {v}"
+ },
+ "check_for_update_on_startup": {
+  "sharh": "موقعِ باز شدن نگاه کند نسخهٔ تازه آمده یا نه.",
+  "khali": "روشن",
+  "on": "چک می‌کند",
+  "off": "چک نمی‌کند"
+ },
+ "cli_auth_credentials_store": {
+  "sharh": "رمزِ ورودِ Codex کجا ذخیره شود. مثال: keyring یعنی جاکلیدیِ مک.",
+  "khali": "فایل در ~/.codex",
+  "gozine": {
+   "file": "فایل در ~/.codex",
+   "keyring": "جاکلیدیِ مک",
+   "auto": "اگر شد جاکلیدی، وگرنه فایل",
+   "ephemeral": "فقط تا بسته شدن"
+  }
+ },
+ "cloud": {
+  "sharh": "تنظیمِ قابلیت‌های ابریِ Codex (کار روی سرورِ OpenAI).",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "compact_prompt": {
+  "sharh": "متنی که موقعِ کامپکت به مدل داده می‌شود تا گفتگو را خلاصه کند. مثال: «فقط تصمیم‌ها را نگه دار».",
+  "khali": "متنِ خودِ Codex",
+  "ba": "متنِ خلاصه کردن عوض شده"
+ },
+ "computer_use": {
+  "sharh": "تنظیماتِ ابزاری که Codex با آن صفحه و موس را دست می‌گیرد.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "daybreak": {
+  "sharh": "ترجیحِ Daybreak برای چت‌های تازه. OpenAI توضیحی نداده.",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "روشن",
+  "off": "خاموش"
+ },
+ "default_permissions": {
+  "sharh": "اسمِ یکی از پروفایل‌های دسترسی. اسم‌هایی که با : شروع شوند ساختِ خودِ Codex‌اند.",
+  "khali": "دسترسیِ پیش‌فرض",
+  "ba": "دسترسی با پروفایلِ {v}"
+ },
+ "desktop": {
+  "sharh": "تنظیماتی که اپ‌های Codex این‌جا می‌گذارند (مثلاً اندازهٔ فونتِ کد).",
+  "khali": "هیچ"
+ },
+ "developer_instructions": {
+  "sharh": "متنی که هر بار با نقشِ developer به مدل داده می‌شود. مثال: «قبل از هر تغییر آزمون بنویس».",
+  "khali": "هیچ",
+  "ba": "دستورِ توسعه‌دهندهٔ دلخواه گذاشته شده"
+ },
+ "disable_paste_burst": {
+  "sharh": "نسخهٔ قدیمیِ tui.disable_paste_burst؛ فقط ترمینال.",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "خاموش شده",
+  "off": "روشن"
+ },
+ "experimental_compact_prompt_file": {
+  "sharh": "مثلِ ردیفِ بالا، ولی متن از یک فایل خوانده می‌شود. مثال: /Users/habib/compact.md",
+  "khali": "متنِ خودِ Codex",
+  "ba": "متنِ خلاصه از {v}"
+ },
+ "experimental_realtime_start_instructions": {
+  "sharh": "متنی که موقعِ شروعِ گفتگوی صوتی به مدل داده می‌شود. OpenAI: دست نزن.",
+  "khali": "متنِ خودِ Codex"
+ },
+ "experimental_realtime_webrtc_call_base_url": {
+  "sharh": "نشانیِ ساختِ تماسِ صوتی. OpenAI: دست نزن.",
+  "khali": "نشانیِ خودِ Codex"
+ },
+ "experimental_realtime_ws_backend_prompt": {
+  "sharh": "دستورِ مخصوصِ اتصالِ صوتی. OpenAI: دست نزن.",
+  "khali": "متنِ خودِ Codex"
+ },
+ "experimental_realtime_ws_base_url": {
+  "sharh": "نشانیِ اتصالِ صوتیِ زنده. OpenAI: دست نزن.",
+  "khali": "نشانیِ خودِ Codex"
+ },
+ "experimental_realtime_ws_model": {
+  "sharh": "مدلِ گفتگوی صوتی. OpenAI: دست نزن.",
+  "khali": "مدلِ خودِ Codex"
+ },
+ "experimental_realtime_ws_startup_context": {
+  "sharh": "متنی که به اولِ نشستِ صوتی اضافه می‌شود؛ خالی یعنی هیچ. OpenAI: دست نزن.",
+  "khali": "متنِ خودِ Codex"
+ },
+ "experimental_thread_store": {
+  "sharh": "روشِ نگه‌داریِ چت‌ها. OpenAI: دست نزن.",
+  "khali": "روشِ خودِ Codex"
+ },
+ "experimental_use_unified_exec_tool": {
+  "sharh": "یک ابزارِ تازه برای اجرای فرمان‌ها.",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "روشن",
+  "off": "خاموش"
+ },
+ "features": {
+  "sharh": "قابلیت‌های تازه را روشن یا خاموش می‌کند. مثال: {\"multi_agent\": true}",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "feedback": {
+  "sharh": "امکانِ فرستادنِ بازخورد. مثال: {\"enabled\": false} یعنی خاموش.",
+  "khali": "روشن"
+ },
+ "file_opener": {
+  "sharh": "وقتی مدل اسمِ فایل می‌آورد، با کلیک در کدام برنامه باز شود. مثال: vscode.",
+  "khali": "پیش‌فرضِ Codex",
+  "gozine": {
+   "vscode": "VS Code",
+   "vscode-insiders": "VS Code Insiders",
+   "windsurf": "Windsurf",
+   "cursor": "Cursor",
+   "none": "لینک نشود"
+  }
+ },
+ "forced_chatgpt_workspace_id": {
+  "sharh": "ورود فقط به این فضای کاری (workspace) مجاز باشد. برای شرکت‌هاست.",
+  "khali": "هر فضای کاری"
+ },
+ "forced_login_method": {
+  "sharh": "فقط با ChatGPT یا فقط با کلیدِ API بشود وارد شد.",
+  "khali": "هر دو مجاز",
+  "gozine": {
+   "chatgpt": "فقط حسابِ ChatGPT",
+   "api": "فقط کلیدِ API"
+  }
+ },
+ "ghost_snapshot": {
+  "sharh": "فقط برای اینکه تنظیمِ قدیمی خطا ندهد نگه داشته شده؛ کاری نمی‌کند.",
+  "khali": "هیچ"
+ },
+ "goals": {
+  "sharh": "تنظیمِ قابلیتِ هدف‌های چت.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "hide_agent_reasoning": {
+  "sharh": "فکرهای مدل در صفحه نشان داده نشود.",
+  "khali": "نشان داده می‌شود",
+  "on": "فکرها پنهان‌اند",
+  "off": "فکرها نشان داده می‌شوند"
+ },
+ "history": {
+  "sharh": "چه چیزی در ~/.codex/history.jsonl نوشته شود. مثال: {\"persistence\": \"none\"} یعنی هیچ.",
+  "khali": "همه نوشته می‌شود"
+ },
+ "hooks": {
+  "sharh": "فرمان‌هایی که در لحظه‌های خاص اجرا می‌شوند. مثال: بعد از هر جواب یک صدا پخش شود.",
+  "khali": "هیچ"
+ },
+ "include_apps_instructions": {
+  "sharh": "بلوکِ apps_instructions به مدل اضافه شود یا نه.",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "داده می‌شود",
+  "off": "داده نمی‌شود"
+ },
+ "include_collaboration_mode_instructions": {
+  "sharh": "بلوکِ collaboration_mode به مدل اضافه شود یا نه.",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "داده می‌شود",
+  "off": "داده نمی‌شود"
+ },
+ "include_environment_context": {
+  "sharh": "به مدل گفته شود در کدام پوشه و چه سیستمی است. مثال: «پوشه: 136th-day».",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "داده می‌شود",
+  "off": "داده نمی‌شود"
+ },
+ "include_environment_context_time": {
+  "sharh": "مدل امروز و منطقهٔ زمانی را بداند. مثال: «۹ نوامبر، تهران».",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "گفته می‌شود",
+  "off": "گفته نمی‌شود"
+ },
+ "include_permissions_instructions": {
+  "sharh": "به مدل گفته شود چه اجازه‌هایی دارد.",
+  "khali": "پیش‌فرضِ Codex",
+  "on": "داده می‌شود",
+  "off": "داده نمی‌شود"
+ },
+ "instructions": {
+  "sharh": "متنی که به‌عنوانِ دستورِ اصلی به مدل داده می‌شود. مثال: «همیشه فارسی جواب بده».",
+  "khali": "دستورِ خودِ Codex",
+  "ba": "دستورِ سیستمِ دلخواه گذاشته شده"
+ },
+ "log_dir": {
+  "sharh": "لاگ‌ها کجا نوشته شوند. مثال: /Users/habib/codex-log",
+  "khali": "~/.codex/log",
+  "ba": "لاگ‌ها در {v}"
+ },
+ "marketplaces": {
+  "sharh": "جاهایی که پلاگین از آن‌ها نصب می‌شود.",
+  "khali": "بازارچهٔ خودِ Codex"
+ },
+ "mcp_enterprise_managed_auth": {
+  "sharh": "ورودِ مشترکِ سازمان برای MCPها. برای شرکت‌هاست.",
+  "khali": "هیچ"
+ },
+ "mcp_oauth_callback_port": {
+  "sharh": "پورتِ ثابت برای ورود به سرورهای MCP. مثال: 8765",
+  "khali": "پورتِ تصادفی",
+  "ba": "پورتِ {v}"
+ },
+ "mcp_oauth_callback_url": {
+  "sharh": "نشانی‌ای که بعد از ورود به MCP به آن برمی‌گردد.",
+  "khali": "نشانیِ محلی",
+  "ba": "برگشت به {v}"
+ },
+ "mcp_oauth_credentials_store": {
+  "sharh": "رمزِ ورودِ سرورهای MCP کجا بماند.",
+  "khali": "خودکار",
+  "gozine": {
+   "auto": "خودکار",
+   "file": "فایل",
+   "keyring": "جاکلیدیِ مک"
+  }
+ },
+ "mcp_optional_startup_grace_ms": {
+  "sharh": "موقعِ شروع چقدر منتظرِ سرورهای MCPِ اختیاری بماند. مثال: 1000 یعنی یک ثانیه.",
+  "khali": "یک ثانیه",
+  "ba": "{v} میلی‌ثانیه"
+ },
+ "mcp_servers": {
+  "sharh": "ابزارهای بیرونی که Codex صدا می‌زند. مثال: {\"github\": {\"command\": \"npx\", \"args\": [\"github-mcp\"]}}",
+  "khali": "هیچ"
+ },
+ "memories": {
+  "sharh": "تنظیمِ حافظهٔ Codex که چیزها را بین چت‌ها نگه می‌دارد.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "model": {
+  "sharh": "اسمِ مدلی که Codex با آن کار می‌کند. مثال: gpt-5.5 یا هر اسمی که در منوی مدلِ Codex می‌بینی.",
+  "khali": "مدلی که خودِ Codex پیش‌فرض گرفته (همان که در منوی پایینِ کادر می‌بینی)",
+  "ba": "Codex با مدلِ {v} کار می‌کند"
+ },
+ "model_auto_compact_token_limit": {
+  "sharh": "وقتی گفتگو به این تعداد توکن برسد، Codex خودش خلاصه‌اش می‌کند تا جا باز شود. مثال: 300000.",
+  "khali": "نقطهٔ پیش‌فرضِ Codex برای همان مدل",
+  "ba": "سرِ {v} توکن کامپکت می‌شود"
+ },
+ "model_auto_compact_token_limit_scope": {
+  "sharh": "عددِ اتوکامپکت کلِ گفتگو را می‌شمارد یا فقط بعد از خلاصهٔ قبلی را. مثال: total یعنی همه.",
+  "khali": "شیوهٔ پیش‌فرض",
+  "gozine": {
+   "total": "کلِ گفتگو",
+   "body_after_prefix": "فقط بعد از خلاصهٔ قبلی"
+  }
+ },
+ "model_catalog_json": {
+  "sharh": "یک فایلِ JSON که فهرستِ مدل‌ها را عوض می‌کند؛ فقط موقعِ باز شدنِ Codex خوانده می‌شود.",
+  "khali": "فهرستِ خودِ Codex",
+  "ba": "فهرستِ مدل از {v}"
+ },
+ "model_context_window": {
+  "sharh": "حداکثر متنی که مدل یک‌جا در ذهن نگه می‌دارد. مثال: 400000 یعنی حدودِ ۴۰۰ هزار توکن.",
+  "khali": "اندازهٔ خودِ مدل",
+  "ba": "حافظهٔ گفتگو {v} توکن"
+ },
+ "model_instructions_file": {
+  "sharh": "دستورهای پایهٔ مدل را با یک فایل عوض می‌کند. خودِ OpenAI به‌شدت توصیه می‌کند دست نزنی.",
+  "khali": "دستورِ خودِ Codex",
+  "ba": "دستورِ پایه از {v}"
+ },
+ "model_post_turn_compact_threshold_percent": {
+  "sharh": "اگر بعد از یک جواب، حافظهٔ گفتگو از این درصد پرتر باشد، خلاصه می‌کند. مثال: 80. صفر یعنی خاموش.",
+  "khali": "خاموش",
+  "ba": "بعد از جواب، سرِ {v} درصد کامپکت"
+ },
+ "model_provider": {
+  "sharh": "از کدام شرکت یا سرور مدل گرفته شود. مثال: openai، یا اسمی که در model_providers تعریف کرده‌ای.",
+  "khali": "خودِ OpenAI",
+  "ba": "مدل از {v}"
+ },
+ "model_providers": {
+  "sharh": "سرورهای دیگری که مدل می‌دهند (مثلاً Ollama روی خودِ مک). مثال: { \"ollama\": {\"base_url\": \"http://localhost:11434/v1\"} }",
+  "khali": "فقط سرویس‌دهنده‌های خودِ Codex"
+ },
+ "model_reasoning_effort": {
+  "sharh": "هرچه بیشتر، جواب دقیق‌تر ولی کندتر و پرخرج‌تر. مثال: low برای سؤالِ ساده، high برای باگِ سخت.",
+  "khali": "افورتِ پیش‌فرضِ همان مدل",
+  "gozine": {
+   "none": "هیچ فکرِ اضافه",
+   "minimal": "کمترین فکر",
+   "low": "فکرِ کم و سریع",
+   "medium": "فکرِ متوسط",
+   "high": "فکرِ زیاد",
+   "xhigh": "بیشترین فکر"
+  }
+ },
+ "model_reasoning_summary": {
+  "sharh": "مدل بعد از فکر کردن یک خلاصه از فکرش نشان می‌دهد. مثال: detailed یعنی خلاصهٔ مفصل، none یعنی هیچ.",
+  "khali": "پیش‌فرضِ Codex (auto)",
+  "gozine": {
+   "auto": "خودش تصمیم می‌گیرد",
+   "concise": "خلاصهٔ کوتاه",
+   "detailed": "خلاصهٔ مفصل",
+   "none": "خلاصه نشان نده"
+  }
+ },
+ "model_verbosity": {
+  "sharh": "اندازهٔ جواب‌های مدل‌های GPT-5. مثال: low یعنی جوابِ کوتاه.",
+  "khali": "اندازهٔ پیش‌فرض",
+  "gozine": {
+   "low": "کوتاه",
+   "medium": "متوسط",
+   "high": "مفصل"
+  }
+ },
+ "notice": {
+  "sharh": "یادداشت‌هایی که Codex برای نشان ندادنِ دوبارهٔ اعلان‌ها نگه می‌دارد.",
+  "khali": "هیچ"
+ },
+ "notify": {
+  "sharh": "برنامه‌ای که بعد از تمام شدنِ کار اجرا می‌شود تا خبر بدهد. مثال: [\"say\", \"تمام شد\"]",
+  "khali": "هیچ"
+ },
+ "openai_base_url": {
+  "sharh": "نشانیِ دیگری به‌جای api.openai.com. مثال: یک پروکسی.",
+  "khali": "نشانیِ اصلیِ OpenAI",
+  "ba": "درخواست‌ها به {v}"
+ },
+ "orchestrator": {
+  "sharh": "تنظیمِ بخشی که چند ایجنت را با هم می‌گرداند.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "oss_provider": {
+  "sharh": "برای مدل‌های روی خودِ مک. مثال: ollama یا lmstudio.",
+  "khali": "هیچ",
+  "ba": "مدلِ محلی از {v}"
+ },
+ "otel": {
+  "sharh": "فرستادنِ لاگ و آمارِ فنی به سرورِ دلخواه. برای برنامه‌نویس‌هاست.",
+  "khali": "خاموش"
+ },
+ "permissions": {
+  "sharh": "چند دستهٔ دسترسی با اسم. مثال: یکی فقط‌خواندنی، یکی با اینترنت.",
+  "khali": "هیچ"
+ },
+ "personality": {
+  "sharh": "قبلاً لحنِ مدل را عوض می‌کرد. خودِ OpenAI نوشته friendly و pragmatic دیگر اثری ندارند.",
+  "khali": "لحنِ معمولی",
+  "gozine": {
+   "none": "بی‌لحنِ خاص",
+   "friendly": "دوستانه (بی‌اثر)",
+   "pragmatic": "کاری (بی‌اثر)"
+  }
+ },
+ "plan_mode_reasoning_effort": {
+  "sharh": "وقتی Codex فقط نقشه می‌کشد، چقدر فکر کند. مثال: high.",
+  "khali": "همان افورتِ معمولی",
+  "ba": "در نقشه با افورتِ {v}"
+ },
+ "plugins": {
+  "sharh": "هر پلاگین با اسمِ کاملش. مثال: {\"spreadsheets@openai-primary-runtime\": {\"enabled\": true}}",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "profile": {
+  "sharh": "اسمِ یکی از پروفایل‌های profiles که روشن باشد. مثال: kar",
+  "khali": "بی‌پروفایل",
+  "ba": "پروفایلِ {v} روشن است"
+ },
+ "profiles": {
+  "sharh": "چند دسته تنظیم که با یک اسم عوض می‌شوند. مثال: { \"sari\": {\"model_reasoning_effort\": \"low\"} }",
+  "khali": "هیچ پروفایلی"
+ },
+ "project_doc_fallback_filenames": {
+  "sharh": "اگر پوشه AGENTS.md نداشت، این فایل‌ها را بخوان. مثال: [\"CLAUDE.md\"]",
+  "khali": "فقط AGENTS.md"
+ },
+ "project_doc_max_bytes": {
+  "sharh": "از فایل‌های AGENTS.md حداکثر این‌قدر خوانده می‌شود. مثال: 32768 یعنی ۳۲ کیلوبایت.",
+  "khali": "۳۲ کیلوبایت",
+  "ba": "حداکثر {v} بایت"
+ },
+ "project_root_markers": {
+  "sharh": "Codex با دیدنِ این‌ها می‌فهمد ریشهٔ پروژه کجاست. مثال: [\".git\"]",
+  "khali": "فقط .git"
+ },
+ "projects": {
+  "sharh": "فهرستِ پوشه‌ها و اینکه Codex به آن‌ها اعتماد دارد یا نه. مثال: {\"/Users/habib/1-MY-WORK\": {\"trust_level\": \"trusted\"}}",
+  "khali": "هیچ"
+ },
+ "realtime": {
+  "sharh": "نسخه و نوعِ گفتگوی صوتیِ زنده. خودِ OpenAI نوشته دست نزن.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "responses_api_metadata": {
+  "sharh": "اطلاعاتِ کوچکی که به هر درخواست به OpenAI چسبانده می‌شود.",
+  "khali": "هیچ"
+ },
+ "review_model": {
+  "sharh": "وقتی /review می‌زنی، کار را این مدل بازبینی می‌کند. مثال: یک مدلِ قوی‌تر فقط برای بازبینی.",
+  "khali": "همان مدلِ اصلی",
+  "ba": "بازبینی با مدلِ {v}"
+ },
+ "sandbox_mode": {
+  "sharh": "Codex تا کجا اجازهٔ دست زدن به فایل‌ها را دارد. مثال: read-only یعنی فقط می‌خواند و چیزی را عوض نمی‌کند.",
+  "khali": "دسترسیِ پیش‌فرضِ Codex",
+  "gozine": {
+   "read-only": "فقط خواندن",
+   "workspace-write": "نوشتن فقط داخلِ پوشهٔ پروژه",
+   "danger-full-access": "دسترسیِ کامل به همهٔ کامپیوتر (خطرناک)"
+  }
+ },
+ "sandbox_workspace_write": {
+  "sharh": "وقتی sandbox روی workspace-write است: اینترنت باز باشد؟ چه پوشه‌های دیگری نوشتنی باشند؟ مثال: {\"network_access\": true}",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "service_tier": {
+  "sharh": "صفی که درخواست‌ها در آن می‌روند. مثال: priority سریع‌تر ولی گران‌تر، flex ارزان‌تر ولی کندتر، default معمولی.",
+  "khali": "صفِ معمولی",
+  "gozine": {
+   "default": "صفِ معمولی",
+   "priority": "صفِ سریع (گران‌تر)",
+   "flex": "صفِ ارزان (کندتر)",
+   "fast": "همان priority (اسمِ قدیمی)"
+  }
+ },
+ "shell_environment_policy": {
+  "sharh": "کدام متغیرهای محیط به فرمان‌هایی که Codex اجرا می‌کند برسد. مثال: {\"inherit\": \"all\"}",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "show_raw_agent_reasoning": {
+  "sharh": "متنِ خامِ فکرِ مدل (اگر بدهد) نشان داده شود.",
+  "khali": "نشان داده نمی‌شود",
+  "on": "متنِ خام نشان داده می‌شود",
+  "off": "نشان داده نمی‌شود"
+ },
+ "skills": {
+  "sharh": "تنظیمِ هر اسکیل با نشانیِ فایلِ SKILL.md آن.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "sqlite_home": {
+  "sharh": "پوشهٔ فایلِ SQLite که وضعِ Codex را نگه می‌دارد.",
+  "khali": "~/.codex",
+  "ba": "پایگاه‌داده در {v}"
+ },
+ "suppress_unstable_features_warning": {
+  "sharh": "هشدارِ «این قابلیت هنوز آزمایشی است» نشان داده نشود.",
+  "khali": "هشدار می‌آید",
+  "on": "هشدار نمی‌آید",
+  "off": "هشدار می‌آید"
+ },
+ "thread_unload_delay_secs": {
+  "sharh": "چتی که کسی بازش نکرده بعد از این‌قدر از حافظه برداشته می‌شود. مثال: 60.",
+  "khali": "یک دقیقه",
+  "ba": "بعد از {v} ثانیه"
+ },
+ "tool_output_token_limit": {
+  "sharh": "از خروجیِ هر ابزار حداکثر این‌قدر در گفتگو می‌ماند. مثال: 10000.",
+  "khali": "سقفِ پیش‌فرض",
+  "ba": "حداکثر {v} توکن"
+ },
+ "tool_suggest": {
+  "sharh": "ابزارهای دیگری که Codex می‌تواند نصبشان را پیشنهاد کند.",
+  "khali": "فهرستِ خودِ Codex"
+ },
+ "tools": {
+  "sharh": "دستهٔ ابزارهایی مثلِ جست‌وجوی وب و دیدنِ عکس. مثال: {\"web_search\": true}",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "tui": {
+  "sharh": "فقط برای Codex در ترمینال؛ در VS Code اثری ندارد.",
+  "khali": "پیش‌فرضِ Codex"
+ },
+ "web_search": {
+  "sharh": "Codex بتواند در اینترنت بگردد و چطور. مثال: live یعنی جست‌وجوی زنده.",
+  "khali": "پیش‌فرضِ Codex",
+  "gozine": {
+   "disabled": "خاموش",
+   "cached": "فقط نتیجه‌های ذخیره‌شده",
+   "indexed": "از فهرستِ آماده",
+   "live": "جست‌وجوی زنده"
+  }
+ },
+ "windows": {
+  "sharh": "فقط برای ویندوز؛ روی مک اثری ندارد.",
+  "khali": "هیچ"
+ }
+}

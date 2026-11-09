@@ -1,0 +1,593 @@
+{
+ "manba": "github.com/openai/codex main, codex-rs/core/config.schema.json, 2026-11-09",
+ "rows": [
+  {
+   "k": "agents",
+   "no": "json",
+   "desc": "Agent-related settings (thread limits, etc.)."
+  },
+  {
+   "k": "allow_login_shell",
+   "no": "onoff",
+   "desc": "Whether the model may request a login shell for shell-based tools. Default to `true`\n\nIf `true`, the model may request a login shell (`login = true`), and omitting `login` defaults to using a login shell. If `false`, the model can never use a login shell: `login = true` requests are rejected, and omitting `login` defaults to a non-login shell."
+  },
+  {
+   "k": "allow_symlinked_codex_home",
+   "no": "onoff",
+   "desc": "Allow macOS sandbox writable roots at or beneath CODEX_HOME to traverse symlinks. Read only from the host's user config at startup; defaults to false. This grants no write access by itself, but trusts symlink targets even if they change between commands or lie outside CODEX_HOME. This setting has no effect on Linux or Windows."
+  },
+  {
+   "k": "analytics",
+   "no": "json",
+   "desc": "When `enabled` is `false`, disables OpenAI analytics across Codex product surfaces on this machine. Custom OTLP metrics exporters are controlled by `otel.metrics_exporter`. When unset, the default depends on the client."
+  },
+  {
+   "k": "approval_policy",
+   "no": "json",
+   "desc": "Default approval policy for executing commands."
+  },
+  {
+   "k": "approvals_reviewer",
+   "no": "choice",
+   "desc": "Configures who approval requests are routed to for review once they have been escalated. This does not disable separate safety checks such as ARC.",
+   "enum": [
+    "user",
+    "auto_review",
+    "guardian_subagent"
+   ]
+  },
+  {
+   "k": "apps",
+   "no": "json",
+   "desc": "Settings for app-specific controls."
+  },
+  {
+   "k": "apps_mcp_product_sku",
+   "no": "matn",
+   "desc": "Optional product SKU forwarded on host-owned Codex Apps MCP requests."
+  },
+  {
+   "k": "audio",
+   "no": "json",
+   "desc": "Machine-local realtime audio device preferences used by realtime voice."
+  },
+  {
+   "k": "auto_review",
+   "no": "json",
+   "desc": "Optional policy instructions for the guardian auto-reviewer."
+  },
+  {
+   "k": "background_terminal_max_timeout",
+   "no": "adad",
+   "desc": "Maximum poll window for background terminal output (`write_stdin`), in milliseconds. Default: `300000` (5 minutes)."
+  },
+  {
+   "k": "browser_use",
+   "no": "json",
+   "desc": ""
+  },
+  {
+   "k": "chatgpt_base_url",
+   "no": "matn",
+   "desc": "Base URL for requests to ChatGPT (as opposed to the OpenAI API)."
+  },
+  {
+   "k": "check_for_update_on_startup",
+   "no": "onoff",
+   "desc": "When `true`, checks for Codex updates on startup and surfaces update prompts. Set to `false` only if your Codex updates are centrally managed. Defaults to `true`."
+  },
+  {
+   "k": "cli_auth_credentials_store",
+   "no": "choice",
+   "desc": "Preferred backend for storing CLI auth credentials. file (default): Use a file in the Codex home directory. keyring: Use an OS-specific keyring service. auto: Use the keyring if available, otherwise use a file.",
+   "enum": [
+    "file",
+    "keyring",
+    "auto",
+    "ephemeral"
+   ]
+  },
+  {
+   "k": "cloud",
+   "no": "json",
+   "desc": "Cloud-owned feature settings."
+  },
+  {
+   "k": "compact_prompt",
+   "no": "matn",
+   "desc": "Compact prompt used for history compaction."
+  },
+  {
+   "k": "computer_use",
+   "no": "json",
+   "desc": ""
+  },
+  {
+   "k": "daybreak",
+   "no": "onoff",
+   "desc": "Default Daybreak preference for new threads and non-interactive turns."
+  },
+  {
+   "k": "default_permissions",
+   "no": "matn",
+   "desc": "Default permissions profile to apply. Names starting with `:` refer to built-in profiles; other names are resolved from the `[permissions]` table."
+  },
+  {
+   "k": "desktop",
+   "no": "json",
+   "desc": "Opaque desktop settings stored alongside the rest of config.toml."
+  },
+  {
+   "k": "developer_instructions",
+   "no": "matn",
+   "desc": "Developer instructions inserted as a `developer` role message."
+  },
+  {
+   "k": "disable_paste_burst",
+   "no": "onoff",
+   "desc": "Legacy fallback for `tui.disable_paste_burst`. Prefer the setting under `[tui]`."
+  },
+  {
+   "k": "experimental_compact_prompt_file",
+   "no": "matn",
+   "desc": ""
+  },
+  {
+   "k": "experimental_realtime_start_instructions",
+   "no": "matn",
+   "desc": "Experimental / do not use. Replaces the built-in realtime start instructions inserted into developer messages when realtime becomes active."
+  },
+  {
+   "k": "experimental_realtime_webrtc_call_base_url",
+   "no": "matn",
+   "desc": "Experimental / do not use. Overrides only the WebRTC realtime call creation base URL. This is separate from `experimental_realtime_ws_base_url` because WebRTC call creation is HTTP, while sideband control is websocket."
+  },
+  {
+   "k": "experimental_realtime_ws_backend_prompt",
+   "no": "matn",
+   "desc": "Experimental / do not use. Overrides only the realtime conversation websocket transport instructions (the `Op::RealtimeConversation` `/ws` session.update instructions) without changing normal prompts."
+  },
+  {
+   "k": "experimental_realtime_ws_base_url",
+   "no": "matn",
+   "desc": "Experimental / do not use. Overrides only the realtime conversation websocket transport base URL (the `Op::RealtimeConversation` `/v1/realtime` connection) without changing normal provider HTTP requests."
+  },
+  {
+   "k": "experimental_realtime_ws_model",
+   "no": "matn",
+   "desc": "Experimental / do not use. Selects the realtime websocket model/snapshot used for the `Op::RealtimeConversation` connection."
+  },
+  {
+   "k": "experimental_realtime_ws_startup_context",
+   "no": "matn",
+   "desc": "Experimental / do not use. Replaces the synthesized realtime startup context appended to websocket session instructions. An empty string disables startup context injection entirely."
+  },
+  {
+   "k": "experimental_thread_store",
+   "no": "json",
+   "desc": "Experimental / do not use. Selects the thread store implementation."
+  },
+  {
+   "k": "experimental_use_unified_exec_tool",
+   "no": "onoff",
+   "desc": ""
+  },
+  {
+   "k": "features",
+   "no": "json",
+   "desc": "Centralized feature flags (new). Prefer this over individual toggles."
+  },
+  {
+   "k": "feedback",
+   "no": "json",
+   "desc": "When `false`, disables feedback collection across Codex product surfaces. Defaults to `true`."
+  },
+  {
+   "k": "file_opener",
+   "no": "choice",
+   "desc": "Optional URI-based file opener. If set, citations to files in the model output will be hyperlinked using the specified URI scheme.",
+   "enum": [
+    "vscode",
+    "vscode-insiders",
+    "windsurf",
+    "cursor",
+    "none"
+   ]
+  },
+  {
+   "k": "forced_chatgpt_workspace_id",
+   "no": "json",
+   "desc": "When set, restricts ChatGPT login to one or more workspace identifiers."
+  },
+  {
+   "k": "forced_login_method",
+   "no": "choice",
+   "desc": "When set, restricts the login mechanism users may use.",
+   "enum": [
+    "chatgpt",
+    "api"
+   ]
+  },
+  {
+   "k": "ghost_snapshot",
+   "no": "json",
+   "desc": "Compatibility-only settings retained so legacy `ghost_snapshot` config still loads."
+  },
+  {
+   "k": "goals",
+   "no": "json",
+   "desc": "Goal-related settings."
+  },
+  {
+   "k": "hide_agent_reasoning",
+   "no": "onoff",
+   "desc": "When set to `true`, `AgentReasoning` events will be hidden from the UI/output. Defaults to `false`.",
+   "pish": false
+  },
+  {
+   "k": "history",
+   "no": "json",
+   "desc": "Settings that govern if and what will be written to `~/.codex/history.jsonl`.",
+   "pish": {
+    "max_bytes": null,
+    "persistence": "save-all"
+   }
+  },
+  {
+   "k": "hooks",
+   "no": "json",
+   "desc": "Lifecycle hooks configured inline in TOML plus user-level overrides."
+  },
+  {
+   "k": "include_apps_instructions",
+   "no": "onoff",
+   "desc": "Whether to inject the `<apps_instructions>` developer block."
+  },
+  {
+   "k": "include_collaboration_mode_instructions",
+   "no": "onoff",
+   "desc": "Whether to inject the `<collaboration_mode>` developer block."
+  },
+  {
+   "k": "include_environment_context",
+   "no": "onoff",
+   "desc": "Whether to inject the `<environment_context>` user block."
+  },
+  {
+   "k": "include_environment_context_time",
+   "no": "onoff",
+   "desc": "Whether environment context includes the current date and timezone."
+  },
+  {
+   "k": "include_permissions_instructions",
+   "no": "onoff",
+   "desc": "Whether to inject the `<permissions instructions>` developer block."
+  },
+  {
+   "k": "instructions",
+   "no": "matn",
+   "desc": "System instructions."
+  },
+  {
+   "k": "log_dir",
+   "no": "matn",
+   "desc": "Directory for log files. Setting this value explicitly also routes the SQLite logs database here and enables the TUI text log in this directory. When unset, log files use `$CODEX_HOME/log` and SQLite logs use `sqlite_home`. Existing SQLite logs in `sqlite_home` are not migrated automatically. A managed `sqlite_home` requirement keeps SQLite logs in that required directory."
+  },
+  {
+   "k": "marketplaces",
+   "no": "json",
+   "desc": "User-level marketplace entries keyed by marketplace name."
+  },
+  {
+   "k": "mcp_enterprise_managed_auth",
+   "no": "json",
+   "desc": "Trusted enterprise IdP shared by EMA-enabled MCP servers and plugins."
+  },
+  {
+   "k": "mcp_oauth_callback_port",
+   "no": "adad",
+   "desc": "Optional fixed port for the local HTTP callback server used during MCP OAuth login. When unset, Codex will bind to an ephemeral port chosen by the OS."
+  },
+  {
+   "k": "mcp_oauth_callback_url",
+   "no": "matn",
+   "desc": "Optional redirect URI to use during MCP OAuth login. When set, this URI is used in the OAuth authorization request instead of the local listener address. The local callback listener still binds to 127.0.0.1 (using `mcp_oauth_callback_port` when provided)."
+  },
+  {
+   "k": "mcp_oauth_credentials_store",
+   "no": "choice",
+   "desc": "Preferred backend for storing MCP OAuth credentials. keyring: Use an OS-specific keyring service. https://github.com/openai/codex/blob/main/codex-rs/rmcp-client/src/oauth.rs#L2 file: Use a file in the Codex home directory. auto (default): Use the OS-specific keyring service if available, otherwise use a file.",
+   "enum": [
+    "auto",
+    "file",
+    "keyring"
+   ]
+  },
+  {
+   "k": "mcp_optional_startup_grace_ms",
+   "no": "adad",
+   "desc": "Milliseconds to wait for optional MCP servers while building the initial tool catalog.\n\nDefaults to 1000. Set to 0 to disable the shared grace and wait for each server's configured `startup_timeout_sec` instead."
+  },
+  {
+   "k": "mcp_servers",
+   "no": "json",
+   "desc": "Definition for MCP servers that Codex can reach out to for tool calls."
+  },
+  {
+   "k": "memories",
+   "no": "json",
+   "desc": "Memories subsystem settings."
+  },
+  {
+   "k": "model",
+   "no": "matn",
+   "desc": "Optional override of model selection."
+  },
+  {
+   "k": "model_auto_compact_token_limit",
+   "no": "adad",
+   "desc": "Token usage threshold triggering auto-compaction of conversation history."
+  },
+  {
+   "k": "model_auto_compact_token_limit_scope",
+   "no": "choice",
+   "desc": "Controls whether the auto-compaction limit applies to the full context or only to tokens after the carried prefix in the current compaction window.",
+   "enum": [
+    "total",
+    "body_after_prefix"
+   ]
+  },
+  {
+   "k": "model_catalog_json",
+   "no": "matn",
+   "desc": "Optional path to a JSON model catalog (applied on startup only). Per-thread `config` overrides are accepted but do not reapply this (no-ops)."
+  },
+  {
+   "k": "model_context_window",
+   "no": "adad",
+   "desc": "Size of the context window for the model, in tokens."
+  },
+  {
+   "k": "model_instructions_file",
+   "no": "matn",
+   "desc": "Optional path to a file containing model instructions that will override the built-in instructions for the selected model. Users are STRONGLY DISCOURAGED from using this field, as deviating from the instructions sanctioned by Codex will likely degrade model performance."
+  },
+  {
+   "k": "model_post_turn_compact_threshold_percent",
+   "no": "adad",
+   "desc": "Percentage of the usable context window that triggers compaction after a final response. Existing auto-compaction limits still apply. Omitted or zero disables turn-end compaction; valid values are 0–100."
+  },
+  {
+   "k": "model_provider",
+   "no": "matn",
+   "desc": "Provider to use from the model_providers map."
+  },
+  {
+   "k": "model_providers",
+   "no": "json",
+   "desc": "User-defined provider entries that extend the built-in list. Built-in IDs cannot be overridden."
+  },
+  {
+   "k": "model_reasoning_effort",
+   "no": "matn",
+   "desc": ""
+  },
+  {
+   "k": "model_reasoning_summary",
+   "no": "choice",
+   "desc": "",
+   "enum": [
+    "auto",
+    "concise",
+    "detailed",
+    "none"
+   ]
+  },
+  {
+   "k": "model_verbosity",
+   "no": "choice",
+   "desc": "Optional verbosity control for GPT-5 models (Responses API `text.verbosity`).",
+   "enum": [
+    "low",
+    "medium",
+    "high"
+   ]
+  },
+  {
+   "k": "notice",
+   "no": "json",
+   "desc": "Collection of in-product notices (different from notifications) See [`crate::types::Notice`] for more details"
+  },
+  {
+   "k": "notify",
+   "no": "json",
+   "desc": "Optional external command to spawn for end-user notifications."
+  },
+  {
+   "k": "openai_base_url",
+   "no": "matn",
+   "desc": "Base URL override for the built-in `openai` model provider."
+  },
+  {
+   "k": "orchestrator",
+   "no": "json",
+   "desc": "Orchestrator-owned feature settings."
+  },
+  {
+   "k": "oss_provider",
+   "no": "matn",
+   "desc": "Preferred OSS provider for local models, e.g. \"lmstudio\" or \"ollama\"."
+  },
+  {
+   "k": "otel",
+   "no": "json",
+   "desc": "OTEL configuration."
+  },
+  {
+   "k": "permissions",
+   "no": "json",
+   "desc": "Named permissions profiles."
+  },
+  {
+   "k": "personality",
+   "no": "choice",
+   "desc": "Deprecated: `friendly` and `pragmatic` no longer select a style.",
+   "enum": [
+    "none",
+    "friendly",
+    "pragmatic"
+   ]
+  },
+  {
+   "k": "plan_mode_reasoning_effort",
+   "no": "matn",
+   "desc": ""
+  },
+  {
+   "k": "plugins",
+   "no": "json",
+   "desc": "Default and per-plugin settings keyed by exact `<plugin>@<marketplace>` IDs."
+  },
+  {
+   "k": "profile",
+   "no": "matn",
+   "desc": "Profile to use from the `profiles` map."
+  },
+  {
+   "k": "profiles",
+   "no": "json",
+   "desc": "Named profiles to facilitate switching between different configurations."
+  },
+  {
+   "k": "project_doc_fallback_filenames",
+   "no": "json",
+   "desc": "Ordered list of fallback filenames to look for when AGENTS.md is missing."
+  },
+  {
+   "k": "project_doc_max_bytes",
+   "no": "adad",
+   "desc": "Maximum total bytes of project instruction content across all selected environments.",
+   "pish": 32768
+  },
+  {
+   "k": "project_root_markers",
+   "no": "json",
+   "desc": "Markers used to detect the project root when searching parent directories for `.codex` folders. Defaults to [\".git\"] when unset."
+  },
+  {
+   "k": "projects",
+   "no": "json",
+   "desc": ""
+  },
+  {
+   "k": "realtime",
+   "no": "json",
+   "desc": "Experimental / do not use. Realtime websocket session selection. `version` controls v1/v2 and `type` controls conversational/transcription."
+  },
+  {
+   "k": "responses_api_metadata",
+   "no": "json",
+   "desc": "Bounded, product-owned metadata attached to every Responses API request."
+  },
+  {
+   "k": "review_model",
+   "no": "matn",
+   "desc": "Review model override used by the `/review` feature."
+  },
+  {
+   "k": "sandbox_mode",
+   "no": "choice",
+   "desc": "Sandbox mode to use.",
+   "enum": [
+    "read-only",
+    "workspace-write",
+    "danger-full-access"
+   ]
+  },
+  {
+   "k": "sandbox_workspace_write",
+   "no": "json",
+   "desc": "Sandbox configuration to apply if `sandbox` is `WorkspaceWrite`."
+  },
+  {
+   "k": "service_tier",
+   "no": "matn",
+   "desc": "Optional explicit service tier request id for new turns (for example `default`, `priority`, or `flex`; legacy `fast` also works)."
+  },
+  {
+   "k": "shell_environment_policy",
+   "no": "json",
+   "desc": "",
+   "pish": {
+    "exclude": null,
+    "experimental_use_profile": null,
+    "filters": null,
+    "ignore_default_excludes": null,
+    "include_only": null,
+    "inherit": null,
+    "set": null
+   }
+  },
+  {
+   "k": "show_raw_agent_reasoning",
+   "no": "onoff",
+   "desc": "When set to `true`, `AgentReasoningRawContentEvent` events will be shown in the UI/output. Defaults to `false`."
+  },
+  {
+   "k": "skills",
+   "no": "json",
+   "desc": "User-level skill config entries keyed by SKILL.md path."
+  },
+  {
+   "k": "sqlite_home",
+   "no": "matn",
+   "desc": "Directory where Codex stores the SQLite state DB. Defaults to `$CODEX_SQLITE_HOME` when set. Otherwise uses `$CODEX_HOME`."
+  },
+  {
+   "k": "suppress_unstable_features_warning",
+   "no": "onoff",
+   "desc": "Suppress warnings about unstable (under development) features."
+  },
+  {
+   "k": "thread_unload_delay_secs",
+   "no": "adad",
+   "desc": "Seconds a thread must have no subscribers and no activity before app-server unloads it. Defaults to 60 (1 minute); zero unloads immediately. Resolved when each thread is loaded; request config overrides apply per thread."
+  },
+  {
+   "k": "tool_output_token_limit",
+   "no": "adad",
+   "desc": "Token budget applied when storing tool/function outputs in the context manager."
+  },
+  {
+   "k": "tool_suggest",
+   "no": "json",
+   "desc": "Additional discoverable tools that can be suggested for installation."
+  },
+  {
+   "k": "tools",
+   "no": "json",
+   "desc": "Nested tools section for feature toggles"
+  },
+  {
+   "k": "tui",
+   "no": "json",
+   "desc": "Collection of settings that are specific to the TUI."
+  },
+  {
+   "k": "web_search",
+   "no": "choice",
+   "desc": "Controls the web search tool mode: disabled, cached, indexed, or live.",
+   "enum": [
+    "disabled",
+    "cached",
+    "indexed",
+    "live"
+   ]
+  },
+  {
+   "k": "windows",
+   "no": "json",
+   "desc": "Windows-specific configuration."
+  }
+ ]
+}

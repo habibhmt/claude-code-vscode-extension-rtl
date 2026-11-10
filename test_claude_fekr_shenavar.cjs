@@ -49,15 +49,22 @@ ${row('دو جمله:','یک. دو.')}${row('fekr:','fekrِ یک کلمه دو')
   assert.equal(pori,'75%');
   // numbered history, ‹ › walk it (Habib, 8 Nov 20:04)
   const ta=await p.evaluate(()=>{window.__crtl_shenavar_fekr((()=>{const c=document.createElement('div');c.innerHTML='<div><span class="text_x">fekr:</span><span class="text_x">fekrِ تازه</span></div>';document.body.appendChild(c);return c})());
-   const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent,w=()=>L.querySelector('.crtl-fekr-matn').textContent.trim();
+   const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent.split(' · ')[0],w=()=>L.querySelector('.crtl-fekr-matn').textContent.trim();
    const o=[sh(),w()];L.querySelectorAll('.crtl-fekr-dokme')[0].click();o.push(sh(),w());L.querySelectorAll('.crtl-fekr-dokme')[1].click();o.push(sh());return o});
   assert.deepEqual(ta,['2/2','fekrِ تازه','1/2','fekrِ یک کلمه دو کارِ سه قدمِ چهار','2/2']);
   // each chat its own list (Habib, 8 Nov 20:56): chat B starts empty, A's list stays A's
   const jodā=await p.evaluate(()=>{const keys=()=>Object.keys(localStorage).filter(k=>k.startsWith('crtl-fekr-tarikhche'));
    window.__crtl_set_sid('A');const c=document.createElement('div');c.innerHTML='<div><span class="text_x">fekr:</span><span class="text_x">fekrِ آ</span></div>';document.body.appendChild(c);window.__crtl_shenavar_fekr(c);
    window.__crtl_set_sid('B');c.querySelectorAll('span')[1].textContent='fekrِ ب';window.__crtl_shenavar_fekr(c);
-   const L=document.getElementById('crtl-fekr-shenavar');return [L.querySelector('.crtl-fekr-shomare').textContent,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:A')).length,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:B')).length,keys().includes('crtl-fekr-tarikhche')]});
+   const L=document.getElementById('crtl-fekr-shenavar');return [L.querySelector('.crtl-fekr-shomare').textContent.split(' · ')[0],JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:A')).length,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:B')).length,keys().includes('crtl-fekr-tarikhche')]});
   assert.deepEqual(jodā,['1/1',1,1,false],'jodā '+jodā);
+  // the number keeps counting past 100 and each entry shows its Tehran date and time (Habib, 10 Nov 23:12)
+  const sad=await p.evaluate(()=>{window.__crtl_set_sid('C');const c=document.createElement('div');document.body.appendChild(c);
+   for(let n=1;n<=105;n++){c.innerHTML='<div><span class="text_x">fekr:</span><span class="text_x">fekrِ شمارهٔ '+n+'</span></div>';window.__crtl_shenavar_fekr(c)}
+   const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent;const o=[sh()];
+   for(let k=0;k<200;k++)L.querySelectorAll('.crtl-fekr-dokme')[0].click();o.push(sh(),L.querySelector('.crtl-fekr-matn').textContent.trim(),JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:C')).length);c.remove();return o});
+  assert.match(sad[0],/^105\/105 · .*[۰-۹]{2}:[۰-۹]{2}/,'sad '+sad);assert.match(sad[1],/^6\/105 · /,'sad '+sad);
+  assert.equal(sad[2],'fekrِ شمارهٔ 6');assert.equal(sad[3],100);
   // right-click on its words: the chat's own menu (quote, copy, search …)
   await p.evaluate(()=>{const r=document.createRange();r.selectNodeContents(document.querySelector('#crtl-fekr-shenavar .crtl-fekr-matn'));getSelection().removeAllRanges();getSelection().addRange(r)});
   await p.click('#crtl-fekr-shenavar .crtl-fekr-kalame',{button:'right'});

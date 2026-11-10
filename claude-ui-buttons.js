@@ -2959,8 +2959,15 @@
     // the same fekr with only another part changed («خودکار»): no new entry and the fekr does not fade in
     // again; only the changed part moves (Habib, 10 Nov 02:02: «همش ثینکینگ تکراری میاره»)
     var bi_harekat = yeksan_ba_ghabli(ta[ta.length - 1], matn);
+    var me = meta_fekr(ta.length);
     if (bi_harekat.length) { ta[ta.length - 1] = matn; zakhire_tarikhche_fekr(ta); }
-    else if (ta[ta.length - 1] !== matn) { ta.push(matn); if (ta.length > HAD_TARIKHCHE_FEKR) ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); zakhire_tarikhche_fekr(ta); }
+    else if (ta[ta.length - 1] !== matn) {
+      // the real number keeps counting past HAD_TARIKHCHE_FEKR; only the list is cut (Habib, 10 Nov 23:12:
+      // «تا ۱۰۰ تا بیشتر نشون نمیده … زمان و تاریخ هم براشون بگذار که بدونم مال کی هستند»)
+      ta.push(matn); me.push({ n: (me.length ? me[me.length - 1].n : 0) + 1, t: Date.now() });
+      if (ta.length > HAD_TARIKHCHE_FEKR) { ta.splice(0, ta.length - HAD_TARIKHCHE_FEKR); me.splice(0, me.length - HAD_TARIKHCHE_FEKR); }
+      zakhire_tarikhche_fekr(ta); zakhire_meta_fekr(me);
+    }
     neshan_fekr(lay, ta.length - 1, true, bi_harekat);
   }
   // one list per chat: localStorage is shared by every chat tab, so one key mixed all chats' fekr
@@ -2988,11 +2995,32 @@
     } catch (e) { return []; }
   }
   window.__crtl_yeksan_ba_ghabli = yeksan_ba_ghabli;
+  // per entry of the list: its real number (n) and when it came (t, ms); older entries get numbers 1… and no time
+  var KELID_META_FEKR_PAYE = 'crtl-fekr-meta', meta_bi_shenase = [];
+  function meta_fekr(tedad) {
+    var sid = shenase_fekr(), a = meta_bi_shenase;
+    if (sid) try { a = JSON.parse(localStorage.getItem(KELID_META_FEKR_PAYE + ':' + sid) || '[]'); if (!Array.isArray(a)) a = []; } catch (e) { a = []; }
+    if (a.length > tedad) a = a.slice(a.length - tedad);
+    var kam = tedad - a.length, aval = a.length ? a[0].n - kam : 1;
+    for (var q = kam - 1; q >= 0; q--) a.unshift({ n: Math.max(1, aval + q), t: null });
+    return a;
+  }
+  function zakhire_meta_fekr(a) {
+    var sid = shenase_fekr(); if (!sid) { meta_bi_shenase = a; return; }
+    try { localStorage.setItem(KELID_META_FEKR_PAYE + ':' + sid, JSON.stringify(a)); } catch (e) {}
+  }
+  var ZAMAN_FEKR = (function () { try { return new Intl.DateTimeFormat('fa-IR', { timeZone: 'Asia/Tehran', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }); } catch (e) { return null; } })();
+  function matn_shomare_fekr(m, kol) {
+    var z = m && m.t && ZAMAN_FEKR ? ' · ' + ZAMAN_FEKR.format(new Date(m.t)) : '';
+    return (m ? m.n : '?') + '/' + kol + z;
+  }
+  window.__crtl_meta_fekr = function () { return meta_fekr(tarikhche_fekr().length); };
   function neshan_fekr(lay, i, ba_harekat, bi_harekat) {
     bi_harekat = bi_harekat || [];
     var ta = tarikhche_fekr(); if (!ta.length) return;
     i = Math.max(0, Math.min(ta.length - 1, i)); lay.dataset.shomare = i;
-    var sh = lay.querySelector('.crtl-fekr-shomare'); if (sh) sh.textContent = (i + 1) + '/' + ta.length;
+    var me = meta_fekr(ta.length), sh = lay.querySelector('.crtl-fekr-shomare');
+    if (sh) sh.textContent = matn_shomare_fekr(me[i], me.length ? me[me.length - 1].n : ta.length);
     var jaye = lay.querySelector('.crtl-fekr-matn'); jaye.textContent = '';
     // one entry: the parts (title + lines), or an older entry's plain lines
     var parts = null; if (ta[i].charAt(0) === '[') { try { parts = JSON.parse(ta[i]); } catch (e) {} }

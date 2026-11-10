@@ -1,0 +1,4 @@
+small automatic chat notifications: 0
+large automatic chat notifications: 1
+expected 0 in both; FAIL
+exit code: 1

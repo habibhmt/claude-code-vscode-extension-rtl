@@ -1,0 +1,73 @@
+{
+  "scope": "Read-only OS permission records; not an end-to-end app-control test.",
+  "client_date": "2026-11-02",
+  "records": [
+    {
+      "service": "kTCCServiceAccessibility",
+      "client": "/Applications/Claude.app/Contents/Helpers/app-cu-helper",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceAccessibility",
+      "client": "com.anthropic.claudefordesktop",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceAccessibility",
+      "client": "com.openai.codex",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceAccessibility",
+      "client": "com.openai.sky.CUAService",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceScreenCapture",
+      "client": "/Applications/Claude.app/Contents/Helpers/app-cu-helper",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceScreenCapture",
+      "client": "com.anthropic.claudefordesktop",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceScreenCapture",
+      "client": "com.openai.codex",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceScreenCapture",
+      "client": "com.openai.sky.CUAService",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceSystemPolicyAllFiles",
+      "client": "com.anthropic.claudefordesktop",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceSystemPolicyAllFiles",
+      "client": "com.openai.codex",
+      "auth_value": 2
+    },
+    {
+      "service": "kTCCServiceSystemPolicyAllFiles",
+      "client": "com.openai.sky.CUAService",
+      "auth_value": 2
+    }
+  ],
+  "cua_observations": [
+    "System Settings Developer Tools tree read successfully.",
+    "Browser inventory: The browser access host is unavailable.",
+    "Two native UI calls timed out.",
+    "Attempt to select Claude: Sky Computer Use native pipe startup failed."
+  ],
+  "plugin_permission_observations": {
+    "global_default": "Allow low-risk actions",
+    "Gmail": "Use my default",
+    "Computer Use via account permission tool": "not_installed; not a statement about local Codex installation"
+  },
+  "settings_changed": false
+}

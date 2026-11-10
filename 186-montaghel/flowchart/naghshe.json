@@ -1,0 +1,27 @@
+[
+  {"id": "h_app", "onvan": "اپ منوبار", "shakhe": [
+    {"shakhe_esm": "کد اپ", "masir": "swift/Sources/", "madrak": "کامیت fec610a", "kar": ["sakht", "menubar", "javab", "cache", "faghat", "zang", "khodkar", "chatgpt"]},
+    {"shakhe_esm": "آزمون‌ها", "masir": "swift/tests/", "madrak": "کامیت fec610a", "kar": ["chatgpt"]},
+    {"shakhe_esm": "ساخت اپ", "masir": "swift/build.sh", "kar": ["sakht"]}
+  ]},
+  {"id": "h_madrak", "onvan": "سندها و پیگیری", "shakhe": [
+    {"shakhe_esm": "تعریف‌ها", "masir": "doc/tarif/", "madrak": "کامیت 848d7d4", "kar": ["tarif"]},
+    {"shakhe_esm": "سندهای ChatGPT و Claude Code", "masir": "doc/", "madrak": "کامیت 0044f7d", "kar": ["chatgpt"]},
+    {"shakhe_esm": "معلق‌ها", "masir": "moalagh.md", "madrak": "moalagh.md", "kar": ["faktor", "credit", "haiku"]},
+    {"shakhe_esm": "بک‌لاگ قدیمی پنل", "masir": "BACKLOG.md", "kar": []}
+  ]},
+  {"id": "h_ghadimi", "onvan": "ابزارها و نسخه‌های قدیمی", "shakhe": [
+    {"shakhe_esm": "نسخهٔ قدیمی Electron", "masir": "app/", "kar": []},
+    {"shakhe_esm": "منوبار قدیمی", "masir": "menubar/", "kar": []},
+    {"shakhe_esm": "ابزارهای سنجش", "masir": "tools/", "kar": []},
+    {"shakhe_esm": "نصب خودکار", "masir": "install-autostart.sh", "kar": []},
+    {"shakhe_esm": "حذف نصب خودکار", "masir": "uninstall-autostart.sh", "kar": []},
+    {"shakhe_esm": "گزارش قدیمی سشن", "masir": "session-report-20260815-0525.html", "kar": []},
+    {"shakhe_esm": "گزارش زندهٔ context", "masir": "context-status.md", "kar": []},
+    {"shakhe_esm": "صفحهٔ زندهٔ context", "masir": "context-status.html", "kar": []}
+  ]},
+  {"id": "h_agent", "onvan": "فایل‌های ایجنت", "shakhe": [
+    {"shakhe_esm": "اسکیل‌ها", "masir": ".agents/", "kar": []},
+    {"shakhe_esm": "گزارش‌های ناظر", "masir": ".nazer/", "kar": []}
+  ]}
+]

@@ -1,0 +1,150 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  :root {
+    --fg: rgba(255,255,255,.95);
+    --dim: rgba(255,255,255,.45);
+    --track: rgba(255,255,255,.14);
+    --bar: #3b82f6;
+    --alpha: .62;
+    --warn: #f59e0b;
+    --crit: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: transparent; overflow: hidden; }
+  body {
+    font: 12px -apple-system, "SF Pro Text", system-ui, sans-serif;
+    color: var(--fg);
+    -webkit-user-select: none; cursor: default;
+  }
+  #shell {
+    height: 100%;
+    background: rgba(22,22,24,var(--alpha));
+    border: .5px solid rgba(255,255,255,.12);
+    border-radius: 12px;
+    backdrop-filter: blur(28px) saturate(160%);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  #bars { padding: 10px 12px 8px; -webkit-app-region: drag; }
+  .row { margin-bottom: 9px; }
+  .row:last-child { margin-bottom: 0; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .pct { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .reset { font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .track { height: 4px; border-radius: 2px; background: var(--track); margin-top: 4px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 2px; background: var(--bar); transition: width .4s ease; }
+  .fill.warn { background: var(--warn); } .fill.crit { background: var(--crit); }
+
+  #list { display: none; flex: 1; overflow-y: auto; border-top: .5px solid rgba(255,255,255,.1); padding: 6px 0; }
+  body.open #list { display: block; }
+  .chat { padding: 7px 12px; display: flex; flex-direction: column; gap: 3px; }
+  .chat + .chat { border-top: .5px solid rgba(255,255,255,.06); }
+  .chat .h { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex: none; }
+  .dot.off { background: rgba(255,255,255,.2); }
+  .folder { font-weight: 600; font-variant-numeric: tabular-nums; color: #93c5fd; flex: none; }
+  .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: right; }
+  .meta { display: flex; gap: 8px; font-size: 10px; color: var(--dim); font-variant-numeric: tabular-nums; padding-left: 12px; }
+  .meta b { font-weight: 600; color: rgba(255,255,255,.7); }
+  #list::-webkit-scrollbar { width: 6px; }
+  #list::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 3px; }
+  #empty { padding: 14px; text-align: center; color: var(--dim); }
+  #stale { display: none; padding: 5px 12px; font-size: 10px; color: var(--warn);
+           background: rgba(245,158,11,.10); border-top: .5px solid rgba(245,158,11,.25); }
+  body.stale #stale { display: block; }
+  body.stale #bars { opacity: .55; }
+  #sort { display: none; gap: 10px; padding: 4px 12px 6px; font-size: 10px; color: var(--dim);
+          border-top: .5px solid rgba(255,255,255,.1); }
+  body.open #sort { display: flex; }
+  #sort span { cursor: default; }
+  #sort span.on { color: var(--fg); font-weight: 600; }
+  #sort .spacer { flex: 1; }
+  #opacity { -webkit-appearance: none; width: 62px; height: 3px; border-radius: 2px;
+             background: var(--track); outline: none; }
+  #opacity::-webkit-slider-thumb { -webkit-appearance: none; width: 9px; height: 9px;
+             border-radius: 50%; background: var(--fg); }
+  /* click-through: show the user the panel is no longer catching clicks */
+  body.ghost #shell { border-color: rgba(255,255,255,.05); }
+  body.ghost #bars { opacity: .8; }
+</style>
+<div id="shell">
+  <div id="bars"></div>
+  <div id="stale"></div>
+  <div id="sort">
+    <span data-k="recent">تازه‌ترین</span>
+    <span data-k="heavy">پرمصرف‌ترین</span>
+    <span data-k="context">پرکانتکست‌ترین</span>
+    <span class="spacer"></span>
+    <input id="opacity" type="range" min="20" max="95" step="5" title="شفافیت">
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+  const bars = document.getElementById('bars'), list = document.getElementById('list');
+  const stale = document.getElementById('stale'), sortBar = document.getElementById('sort');
+
+  const cls = p => p >= 90 ? 'crit' : p >= 70 ? 'warn' : '';
+  function left(iso) {
+    if (!iso) return '';
+    const ms = Date.parse(iso) - Date.now();
+    if (!(ms > 0)) return 'اکنون';
+    const h = ms / 3.6e6;
+    if (h >= 24) return Math.round(h / 24) + 'd';
+    if (h >= 1) return Math.round(h) + 'h';
+    return Math.max(1, Math.round(ms / 6e4)) + 'm';
+  }
+
+  function ago(ms) {
+    const m = Math.round((Date.now() - ms) / 6e4);
+    return m < 1 ? 'همین الان' : m < 60 ? m + ' دقیقه پیش' : Math.round(m / 60) + ' ساعت پیش';
+  }
+
+  function render(d) {
+    document.body.classList.toggle('stale', !!d.error);
+    if (d.error) {
+      stale.textContent = 'ارتباط با سرور قطع — آخرین عدد سالم' +
+        (d.staleSince ? '، ' + ago(d.staleSince) : '');
+    }
+    for (const el of sortBar.children) el.classList.toggle('on', el.dataset.k === d.sort);
+    bars.innerHTML = d.rows.map(r => `
+      <div class="row">
+        <div class="top"><span class="pct">${r.percent}%</span><span class="reset">${left(r.resets_at)}</span></div>
+        <div class="track"><div class="fill ${cls(r.percent)}" style="width:${Math.min(100, r.percent)}%"></div></div>
+      </div>`).join('');
+
+    list.innerHTML = d.sessions.length ? d.sessions.map(s => `
+      <div class="chat">
+        <div class="h">
+          <span class="dot ${s.live ? '' : 'off'}"></span>
+          <span class="folder">${s.folder}</span>
+          <span class="title">${(s.title || '—').split(/\s+/).slice(0, 5).join(' ')}</span>
+        </div>
+        <div class="meta">
+          <span>${(s.model || '?').replace('claude-', '')}</span>
+          <span>ctx <b>${Math.round(s.ctxPct)}%</b></span>
+          <span>~<b>${s.share.session.toFixed(1)}</b>/<b>${s.share.weekly.toFixed(1)}</b>/<b>${s.share.fable.toFixed(1)}</b></span>
+        </div>
+      </div>`).join('') : '<div id="empty">چتی نیست</div>';
+  }
+
+  sortBar.addEventListener('click', e => {
+    const k = e.target.dataset?.k;
+    if (k) { e.stopPropagation(); window.api.setSort(k); }
+  });
+  const opacity = document.getElementById('opacity');
+  opacity.addEventListener('input', e => {
+    e.stopPropagation();
+    window.api.setOpacity(e.target.value / 100);
+  });
+  opacity.addEventListener('click', e => e.stopPropagation());
+  window.api.onOpacity(v => {
+    document.documentElement.style.setProperty('--alpha', v);
+    opacity.value = Math.round(v * 100);
+  });
+  window.api.onClickThrough(v => document.body.classList.toggle('ghost', v));
+
+  bars.addEventListener('click', e => { if (!e.detail || e.detail === 1) window.api.toggleExpand(); });
+  window.api.onExpanded(v => document.body.classList.toggle('open', v));
+  window.api.onData(render);
+</script>

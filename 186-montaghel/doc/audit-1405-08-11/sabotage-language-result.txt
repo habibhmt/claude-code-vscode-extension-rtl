@@ -1,0 +1,9 @@
+FAIL language = "persian"
+PASS cc-plugin-you-should-know on
+PASS cc-plugin-sec-default on
+PASS cc-plugin-plugin-authoring on
+PASS cc-plugin-mods-guide on
+PASS cc-plugin-responsive-mode on
+PASS cc-plugin-diff on
+PASS cc-plugin-claude-test on
+FAILED

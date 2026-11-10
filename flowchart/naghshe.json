@@ -479,5 +479,135 @@
     "madrak": "کامیت 0b23d94"
    }
   ]
+ },
+ {
+  "id": "h_186",
+  "onvan": "۱۸۶ · پنلِ مصرف (منتقل‌شده)",
+  "shakhe": [
+   {
+    "shakhe_esm": "۱۸۶ · کد اپ",
+    "masir": "186-montaghel/swift/Sources/",
+    "madrak": "کامیت fec610a",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · آزمون‌ها",
+    "masir": "186-montaghel/swift/tests/",
+    "madrak": "کامیت fec610a",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · ساخت اپ",
+    "masir": "186-montaghel/swift/build.sh",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · تعریف‌ها",
+    "masir": "186-montaghel/doc/tarif/",
+    "madrak": "کامیت 848d7d4",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · سندهای ChatGPT و Claude Code",
+    "masir": "186-montaghel/doc/",
+    "madrak": "کامیت 0044f7d",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · معلق‌ها",
+    "masir": "186-montaghel/moalagh.md",
+    "madrak": "moalagh.md",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · بک‌لاگ قدیمی پنل",
+    "masir": "186-montaghel/BACKLOG.md",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · نسخهٔ قدیمی Electron",
+    "masir": "186-montaghel/app/",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · منوبار قدیمی",
+    "masir": "186-montaghel/menubar/",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · ابزارهای سنجش",
+    "masir": "186-montaghel/tools/",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · نصب خودکار",
+    "masir": "186-montaghel/install-autostart.sh",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · حذف نصب خودکار",
+    "masir": "186-montaghel/uninstall-autostart.sh",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · گزارش قدیمی سشن",
+    "masir": "186-montaghel/session-report-20260815-0525.html",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · گزارش زندهٔ context",
+    "masir": "186-montaghel/context-status.md",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · صفحهٔ زندهٔ context",
+    "masir": "186-montaghel/context-status.html",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · اسکیل‌ها",
+    "masir": "186-montaghel/.agents/",
+    "kar": [
+     "tahvil_186"
+    ]
+   },
+   {
+    "shakhe_esm": "۱۸۶ · گزارش‌های ناظر",
+    "masir": "186-montaghel/.nazer/",
+    "kar": [
+     "tahvil_186"
+    ]
+   }
+  ]
  }
 ]

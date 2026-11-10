@@ -1,0 +1,257 @@
+{
+ "nama_esm_kerkere": "۱۸۶ مصرف (منتقل‌شده)",
+ "nama_movaghat": false,
+ "khaneha": [
+  {
+   "id": "sakht",
+   "onvan": "ساخت اپ ClaudeUsage با Swift",
+   "khane_vaziat": "done",
+   "radif": [
+    "شروع ۳۱ اوت ۲۰۲۶"
+   ],
+   "madrak": "کامیت 8129402"
+  },
+  {
+   "id": "menubar",
+   "onvan": "درصدها در منوبار",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 90a544e"
+  },
+  {
+   "id": "javab",
+   "onvan": "زنگ «جواب آماده شد»",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 1708b39"
+  },
+  {
+   "id": "cache",
+   "onvan": "زنگ سرد شدن کش",
+   "khane_vaziat": "done",
+   "radif": [
+    "دقیقهٔ ۳۰، ۴۵، ۵۰ و ۵۵"
+   ],
+   "madrak": "کامیت 9c7c21c"
+  },
+  {
+   "id": "moshaver",
+   "onvan": "مشاور سهمیه",
+   "khane_vaziat": "done",
+   "radif": [
+    "۳۰ اکتبر با پنل حذف شد"
+   ],
+   "madrak": "کامیت‌های 9c06ce8 و b6b2c52"
+  },
+  {
+   "id": "tarif",
+   "onvan": "تعریف‌ها و واژه‌نامهٔ حبیب",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 848d7d4"
+  },
+  {
+   "id": "cpu",
+   "onvan": "کم کردن مصرف CPU پنل",
+   "khane_vaziat": "done",
+   "radif": [
+    "میانگین ۹٫۸٪ به ۲٫۴٪"
+   ],
+   "madrak": "کامیت 86af445"
+  },
+  {
+   "id": "faghat",
+   "onvan": "فقط درصدها بمانند",
+   "khane_vaziat": "done",
+   "radif": [
+    "پنل و مشاور حذف شد"
+   ],
+   "madrak": "کامیت b6b2c52؛ حبیب ۳۰ اکتبر: «فقط همون درصد ها فقط بمونه»"
+  },
+  {
+   "id": "zang",
+   "onvan": "برگشت دو زنگ کنار درصدها",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت 8df80ce؛ حبیب ۳۰ اکتبر: «نه این دوتا هم بمونن با درصدها»"
+  },
+  {
+   "id": "khodkar",
+   "onvan": "بی‌زنگ شدن چت‌های «(خودکار)»",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "کامیت‌های 5e1ee7e و 9656cd9"
+  },
+  {
+   "id": "chatgpt",
+   "onvan": "درصد و زمان ریست ChatGPT در منوبار",
+   "khane_vaziat": "done",
+   "radif": [
+    "با سایت یکی بود",
+    "پوش نشده"
+   ],
+   "madrak": "کامیت fec610a"
+  },
+  {
+   "id": "faktor",
+   "onvan": "چک فاکتور کلود: مالیات تگزاس نباشد",
+   "khane_vaziat": "todo",
+   "radif": [
+    "موعد ۱۸ نوامبر"
+   ],
+   "madrak": "moalagh.md"
+  },
+  {
+   "id": "credit",
+   "onvan": "خرج کردیت API پیش از تمام شدن",
+   "khane_vaziat": "todo",
+   "radif": [
+    "۲۰۰ دلار",
+    "احتمالاً تا ۲۰ نوامبر ۳:۳۰ بامداد"
+   ],
+   "madrak": "moalagh.md"
+  },
+  {
+   "id": "haiku",
+   "onvan": "دیدن تلنگر Haiku در شبی که همهٔ چت‌ها بسته‌اند",
+   "khane_vaziat": "done",
+   "radif": [
+    "۴ بار بلیط ۸ ساعت تمدید شد"
+   ],
+   "madrak": "لاگ ClaudeUsage-fetch.log: ۴ بار after > before، ۱ تا ۶ نوامبر؛ حبیب ۷ نوامبر «بله»"
+  },
+  {
+   "id": "edame",
+   "shekl": "lozi",
+   "onvan": "کارهای مانده ادامه پیدا کند؟",
+   "khane_vaziat": "you",
+   "radif": [
+    "فقط با «ادامه بده»"
+   ]
+  },
+  {
+   "id": "skill",
+   "onvan": "درس ساختن اولین اسکیل",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "اسکیل chek-darsad ساخته شد؛ در چت تازه با «چقدر مونده» باز شد و با description خراب باز نشد"
+  },
+  {
+   "id": "bcherny",
+   "onvan": "خواندن توییت‌های bcherny",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "۵ توییت آخر @bcherny از x.com خوانده شد، ۷ نوامبر"
+  },
+  {
+   "id": "changelog",
+   "onvan": "تغییرات نسخه‌های ۲.۱.۳۱۶ و ۳۱۷",
+   "khane_vaziat": "done",
+   "radif": [],
+   "madrak": "CHANGELOG.md رسمی GitHub، ۲.۱.۳۱۶ و ۲.۱.۳۱۷ خوانده شد، ۷ نوامبر"
+  },
+  {
+   "id": "montazer",
+   "onvan": "منتظر درخواست تازهٔ حبیب",
+   "khane_vaziat": "todo",
+   "radif": []
+  }
+ ],
+ "khatha": [
+  [
+   "sakht",
+   "menubar",
+   ""
+  ],
+  [
+   "menubar",
+   "javab",
+   ""
+  ],
+  [
+   "javab",
+   "cache",
+   ""
+  ],
+  [
+   "cache",
+   "moshaver",
+   ""
+  ],
+  [
+   "moshaver",
+   "tarif",
+   ""
+  ],
+  [
+   "tarif",
+   "cpu",
+   ""
+  ],
+  [
+   "cpu",
+   "faghat",
+   ""
+  ],
+  [
+   "faghat",
+   "zang",
+   ""
+  ],
+  [
+   "zang",
+   "khodkar",
+   ""
+  ],
+  [
+   "khodkar",
+   "chatgpt",
+   ""
+  ],
+  [
+   "chatgpt",
+   "faktor",
+   ""
+  ],
+  [
+   "faktor",
+   "credit",
+   ""
+  ],
+  [
+   "credit",
+   "haiku",
+   ""
+  ],
+  [
+   "haiku",
+   "edame",
+   ""
+  ],
+  [
+   "edame",
+   "skill",
+   "بله"
+  ],
+  [
+   "edame",
+   "montazer",
+   "خیر"
+  ],
+  [
+   "skill",
+   "bcherny",
+   ""
+  ],
+  [
+   "bcherny",
+   "changelog",
+   ""
+  ],
+  [
+   "changelog",
+   "montazer",
+   ""
+  ]
+ ]
+}

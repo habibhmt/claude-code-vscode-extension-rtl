@@ -1011,11 +1011,12 @@ const shart_baz_har_chat = new Map()
 // «fekr» in the middle of a turn: every had_fekr_vasat tools, and before a question window; only the
 // three sentences, from the chat itself (warm cache). One at a time; the turn's own summary still comes at its end.
 export const had_fekr_vasat = 3
+export const fekr_dobare_ms = 10000
 let fekr_vasat_dar_kar = false
 const prompt_fekr_vasat = '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
   'همین الان، وسطِ کار، در سه جملهٔ کوتاهِ فارسیِ ساده و اول‌شخص بگو. Reply ONLY with JSON: ' +
   '{"text": "-", "fekr": {"fekr": "<الان به چه فکر می‌کنم و دنبالِ چه‌ام>", "kard": "<همین الان چه کردم، با اسمِ ابزار یا فایل>", "bad": "<قدمِ بعدی‌ام>"}}'
-async function fekr_vasat($, foori) {
+export async function fekr_vasat($, foori) {
   const id = await $.session.id()
   if (!foori) {
     const N = (await fasele_ha($)).val.fekr, n = shomar_abzar_chat.get(id) || 0
@@ -1026,12 +1027,20 @@ async function fekr_vasat($, foori) {
   if (!p?.fekr) return false
   fekr_vasat_dar_kar = true
   try {
-    const r = await $.model.fork({ prompt: prompt_fekr_vasat })
+    let r = await $.model.fork({ prompt: prompt_fekr_vasat }), dobare = false
     if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'fekr_vasat', 'fork', r.usage)
+    // api-error came 1–12 s before the chat's own turn ended (91, 10 Nov: 4 of 22): one more try a little later
+    // (Habib, 10 Nov 03:47: «بله، یک بار دوباره»)
+    if (!r.isAnswered && r.reason === 'api-error') {
+      dobare = true
+      await new Promise((ok) => $.clock.after(fekr_dobare_ms, ok))
+      r = await $.model.fork({ prompt: prompt_fekr_vasat })
+      if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'fekr_vasat', 'fork', r.usage)
+    }
     const got = r.isAnswered ? khandan_fekr(r.text) : null
     // a fork that gave nothing usable is written down with its reason and its first words, never silently
     // dropped: the old fekr stayed on screen and looked repeated (91, 10 Nov 01:48–02:03: 9 forks, 0 fekr)
-    if (!got) { await benevis_daftar($, 'fekr_vasat_shekast', { dalil: r.isAnswered ? (String(r.text || '').trim() ? 'bad_json' : 'khali') : (r.reason || '?'), aval: String(r.text || '').slice(0, 300) }); return false }
+    if (!got) { await benevis_daftar($, 'fekr_vasat_shekast', { dalil: r.isAnswered ? (String(r.text || '').trim() ? 'bad_json' : 'khali') : (r.reason || '?'), aval: String(r.text || '').slice(0, 300), dobare }); return false }
     if (!got.fekr && !got.kard && !got.bad) return false
     // only the fekr changes: «دو جمله» and the turn's summary stay as they are
     if (do_jomle_akhar.for !== id) do_jomle_akhar = { text: do_jomle_akhar.text || '', for: id }

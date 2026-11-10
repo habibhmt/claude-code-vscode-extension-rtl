@@ -12,4 +12,9 @@ assert.equal(forks, 2); assert.equal(sabr, R.fekr_dobare_ms)
 forks = 0; javab[1] = javab[0]
 assert.equal(await R.fekr_vasat($, true), false); assert.equal(forks, 2, 'فقط یک بار دوباره')
 assert.ok(daftar.some((x) => /"dobare":true/.test(x)))
+// the failure keeps the fork's own words (Habib, 11 Nov 02:23)
+forks = 0; javab[0] = { isAnswered: false, reason: 'api-error', usage: {}, error: 'prompt is too long: 301234 tokens' }; javab[1] = javab[0]
+await R.fekr_vasat($, true)
+assert.ok(daftar.some((x) => /"khata":"\{\\"error\\":\\"prompt is too long/.test(x) && /"khata_aval":"\{/.test(x)), 'khata ' + daftar.at(-1))
+assert.equal(R.matn_khata_fork({ isAnswered: true, text: 'x' }), '')
 console.log('dobare: ok')

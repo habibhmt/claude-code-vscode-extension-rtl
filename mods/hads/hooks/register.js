@@ -833,8 +833,7 @@ const prompt_jambandi_nobat = (lines, tools, ezafe = null, anjam = []) => '(ای
   '۵) هر خواستهٔ حبیب در همین نوبت که انجام نشد ⇒ anjam_nashod. ' +
   '۶) مدرک فقط همان چیزی را ثابت می‌کند که خودش نشان می‌دهد: ویرایشِ کد ⇒ «کد اضافه شد»، نه «کار می‌کند»؛ رفتار فقط با آزمونی که همان رفتار را دید ⇒ وگرنه anjam_nashod «رفتارش آزموده نشد». فارسیِ ساده، با واژه‌های حبیب. ' +
   'Reply ONLY with JSON: {"text": "<at most two short sentences: the whole turn>", "anjam_shod": ["<short> ⇐ <evidence>", …], "anjam_nashod": ["<short>", …], ' +
-  // «fekr» (Habib, 8 Nov 13:01: «یه قسمت تازه درست کن به اسم fekr … مدل از خودش میاد میگه که داره به چی فکر میکنه به چی کرده؟ چیکار کرده؟»):
-  // the raw fekr is not kept in the transcript (337 blocks, 1 with text), so the chat itself, warm cache, tells it
+  // «fekr» (Habib, 8 Nov 13:01: «یه قسمت تازه درست کن به اسم fekr … مدل از خودش میاد میگه که داره به چی fekr میکنه به چی کرده؟ چیکار کرده؟»):
   '"fekr": {"fekr": "<یک جمله، اول‌شخص: در این نوبت به چه فکر می‌کردم و دنبالِ چه بودم>", "kard": "<یک جمله، اول‌شخص: چه کردم، با اسمِ ابزار یا فایلِ اصلی>", "bad": "<یک جمله، اول‌شخص: فکرِ بعدی‌ام یا قدمِ بعدی>"}' +
   (ezafe ? ', ' + prompt_fork_bakhsh_ha(ezafe, anjam).join(', ') + '}' + ghaede_bakhsh_ha(ezafe, anjam) : '}')
 export function khandan_jambandi(raw) {
@@ -1484,7 +1483,7 @@ async function bargardandan_akharin($, id) {
 function radif_fekr(p, id, Box, Text) {
   const sm_th = do_jomle_akhar.for === id ? do_jomle_akhar.summary : null
   if (!p.fekr || !sm_th?.fekr) return []
-  return [['fekr', 'به چه فکر کرد:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']].filter(([k]) => sm_th.fekr[k]).map(([k, esm]) =>
+  return [['fekr', 'fekr:'], ['kard', 'چه کرد:'], ['bad', 'بعدش:']].filter(([k]) => sm_th.fekr[k]).map(([k, esm]) =>
     Box({ flexDirection: 'row', columnGap: 1, children: [Text({ dimColor: true, children: [esm] }), Text({ key: 'hads-th-' + k, children: [sm_th.fekr[k]] })] }))
 }
 // the order of the parts, the same in every chat (Habib, 25 Oct 18:01: «این دکمه ها باید قابلیت جابجایی

@@ -1851,7 +1851,7 @@
     var toggles = document.createElement('div');
     toggles.className = 'crtl-actions';
     toggles.appendChild(sakht_dokme(s.collapse ? 'جمع: روشن' : 'جمع: خاموش',
-      'کوچک‌کردن بخش‌های فکر و tool call', function () {
+      'کوچک‌کردن بخش‌های fekr و tool call', function () {
         var cur = khandan_tanzim(); cur.collapse = !cur.collapse; zakhire_tanzim(cur); emal_andaze_va_rang(cur); sakht_dobare();
       }));
     toggles.appendChild(sakht_dokme(s.tableScroll ? 'جدول: اسکرول' : 'جدول: آزاد',
@@ -2908,7 +2908,7 @@
   /* «fekr» floats: no window, only words over the chat, fading in one by one (Habib, 8 Nov 17:10: «مثل یه
      فلوت ویندو باشه که حتی ویندوش قابل دیدن نباشه فقط کلمه ها بیان»). The mod's three rows are found by their
      labels, hidden in the card, and their sentences drawn in a fixed, see-through, click-through layer. */
-  var BARCHASB_FEKR = ['به چه فکر کرد:', 'چه کرد:', 'بعدش:'], fekr_akhar = '';
+  var BARCHASB_FEKR = ['fekr:', 'چه کرد:', 'بعدش:'], fekr_akhar = '';
   // the mod's hidden line (v2.56+): which parts float, in Habib's order, and their lines (Habib, 8 Nov 21:18: «توی تنظیم
   // باشه که میخوایم توی فلوت شناور بیاد یانه … همه خصوصیات اون ثینکینگ رو بگیره … بالا و پایین ترتیبش رو چید»)
   var NESHANE_SHENAVAR = '\u2063SHENAVAR';
@@ -2925,6 +2925,7 @@
     }
     return o && Array.isArray(o.list) && Array.isArray(o.parts) ? o : null;
   }
+  // «fekr» is the mod's plain summary of the work for Habib, never the model's inner reasoning (Doc/tarif/26)
   function shenavar_fekr(card) {
     var ls = card.querySelectorAll('span[class*="text_"]'), jomle_ha = [];
     for (var i = 0; i < ls.length; i++) {
@@ -2963,7 +2964,7 @@
     neshan_fekr(lay, ta.length - 1, true, bi_harekat);
   }
   // one list per chat: localStorage is shared by every chat tab, so one key mixed all chats' fekr
-  // (Habib, 8 Nov 20:56: «فکر کردنای همهٔ چت‌ها رو پشت سر هم داره میاره … باید اینها جدا بشه»).
+  // (Habib, 8 Nov 20:56: «fekr کردنای همهٔ چت‌ها رو پشت سر هم داره میاره … باید اینها جدا بشه»).
   // No chat id known yet ⇒ the list lives only in this page, never in a shared key.
   var KELID_TARIKHCHE_FEKR_PAYE = 'crtl-fekr-tarikhche', HAD_TARIKHCHE_FEKR = 100, tarikhche_bi_shenase = [];
   try { localStorage.removeItem(KELID_TARIKHCHE_FEKR_PAYE); } catch (e) {}

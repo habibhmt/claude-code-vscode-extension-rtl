@@ -7,7 +7,7 @@ const script=fs.readFileSync(process.env.BUTTONS_JS||__dirname+'/claude-ui-butto
 const row=(l,t)=>`<div class="box_x" style="display:flex"><span class="text_x">${l}</span><span class="text_x">${t}</span></div>`;
 const page=`<!doctype html><html dir="rtl"><body style="margin:0"><div class="messagesContainer_x" style="height:300px;margin-top:40px"></div>
 <div class="abovePrompt_x"><div class="card_x" id="card"><div data-engine-mark>From the hads plugin</div><div class="band_x"><div class="box_x" id="part">
-${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ یک کلمه دو')}${row('چه کرد:','کارِ سه')}${row('بعدش:','قدمِ چهار')}
+${row('دو جمله:','یک. دو.')}${row('fekr:','fekrِ یک کلمه دو')}${row('چه کرد:','کارِ سه')}${row('بعدش:','قدمِ چهار')}
 </div></div></div></div><div aria-label="Message input" contenteditable="true"></div></body></html>`;
 (async()=>{
  const b=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
@@ -25,7 +25,7 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
     hidden:rows.map(x=>getComputedStyle(x).display),op:rows.map(x=>getComputedStyle(x).opacity),wop:L&&getComputedStyle(L.querySelector('.crtl-fekr-kalame')).opacity,djShown:getComputedStyle(document.querySelector('#part').firstElementChild).display,
     above:L&&Math.abs(L.getBoundingClientRect().top-46)<2&&L.getBoundingClientRect().width<=900*0.38+1}});
   console.log(JSON.stringify(r));assert.equal(r.lay,true);assert.equal(r.pos,'fixed');assert.notEqual(r.bg,'rgba(0, 0, 0, 0)');assert.equal(r.resize,'both');
-  assert.deepEqual(r.words,['فکرِ','یک','کلمه','دو','کارِ','سه','قدمِ','چهار']);
+  assert.deepEqual(r.words,['fekrِ','یک','کلمه','دو','کارِ','سه','قدمِ','چهار']);
   assert.deepEqual(r.hidden,['flex','flex','flex']);assert.deepEqual(r.op,['1','1','1']);assert.deepEqual(r.wop,'0.85');assert.equal(r.djShown,'flex');assert.equal(r.above,true);
   // the box closed to its one button: the rows still come but are hidden in the card; the floater stays
   const baste1=await p.evaluate(()=>{document.getElementById('card').classList.add('crtl-hads-tak-dokme');return [...document.querySelectorAll('.crtl-fekr-radif')].map(x=>getComputedStyle(x).display).concat(!!document.getElementById('crtl-fekr-shenavar'))});
@@ -48,14 +48,14 @@ ${row('دو جمله:','یک. دو.')}${row('به چه فکر کرد:','فکرِ
   const pori=await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--crtl-fekr-pori-darsad').trim());
   assert.equal(pori,'75%');
   // numbered history, ‹ › walk it (Habib, 8 Nov 20:04)
-  const ta=await p.evaluate(()=>{window.__crtl_shenavar_fekr((()=>{const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ تازه</span></div>';document.body.appendChild(c);return c})());
+  const ta=await p.evaluate(()=>{window.__crtl_shenavar_fekr((()=>{const c=document.createElement('div');c.innerHTML='<div><span class="text_x">fekr:</span><span class="text_x">fekrِ تازه</span></div>';document.body.appendChild(c);return c})());
    const L=document.getElementById('crtl-fekr-shenavar'),sh=()=>L.querySelector('.crtl-fekr-shomare').textContent,w=()=>L.querySelector('.crtl-fekr-matn').textContent.trim();
    const o=[sh(),w()];L.querySelectorAll('.crtl-fekr-dokme')[0].click();o.push(sh(),w());L.querySelectorAll('.crtl-fekr-dokme')[1].click();o.push(sh());return o});
-  assert.deepEqual(ta,['2/2','فکرِ تازه','1/2','فکرِ یک کلمه دو کارِ سه قدمِ چهار','2/2']);
+  assert.deepEqual(ta,['2/2','fekrِ تازه','1/2','fekrِ یک کلمه دو کارِ سه قدمِ چهار','2/2']);
   // each chat its own list (Habib, 8 Nov 20:56): chat B starts empty, A's list stays A's
   const jodā=await p.evaluate(()=>{const keys=()=>Object.keys(localStorage).filter(k=>k.startsWith('crtl-fekr-tarikhche'));
-   window.__crtl_set_sid('A');const c=document.createElement('div');c.innerHTML='<div><span class="text_x">به چه فکر کرد:</span><span class="text_x">فکرِ آ</span></div>';document.body.appendChild(c);window.__crtl_shenavar_fekr(c);
-   window.__crtl_set_sid('B');c.querySelectorAll('span')[1].textContent='فکرِ ب';window.__crtl_shenavar_fekr(c);
+   window.__crtl_set_sid('A');const c=document.createElement('div');c.innerHTML='<div><span class="text_x">fekr:</span><span class="text_x">fekrِ آ</span></div>';document.body.appendChild(c);window.__crtl_shenavar_fekr(c);
+   window.__crtl_set_sid('B');c.querySelectorAll('span')[1].textContent='fekrِ ب';window.__crtl_shenavar_fekr(c);
    const L=document.getElementById('crtl-fekr-shenavar');return [L.querySelector('.crtl-fekr-shomare').textContent,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:A')).length,JSON.parse(localStorage.getItem('crtl-fekr-tarikhche:B')).length,keys().includes('crtl-fekr-tarikhche')]});
   assert.deepEqual(jodā,['1/1',1,1,false],'jodā '+jodā);
   // right-click on its words: the chat's own menu (quote, copy, search …)

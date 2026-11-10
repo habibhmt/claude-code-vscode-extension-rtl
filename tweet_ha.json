@@ -1,0 +1,10 @@
+{
+  "tozih": "آدم‌هایی که توییت‌هایشان هر روز خوانده و به فارسی گزارش می‌شود (tweet_ha.mjs). حبیب ۱۱ نوامبر ۲۰۲۶ ۰۲:۵۰، پنجره: هر چهار نفرِ پیشنهادی «بله»؛ bcherny از ۳۱ اکت.",
+  "afrad": [
+    { "user": "bcherny", "kist": "Boris Cherny، سازندهٔ Claude Code", "az": "حبیب ۳۱ اکت ۲۰۲۶" },
+    { "user": "alexalbert__", "kist": "Alex Albert، Anthropic؛ نکتهٔ پرامپت", "az": "حبیب ۱۱ نوا ۰۲:۳۹" },
+    { "user": "ClaudeDevs", "kist": "حسابِ رسمیِ توسعه‌دهنده‌های Claude", "az": "پنجرهٔ ۱۱ نوا ۰۲:۵۰" },
+    { "user": "lydiahallie", "kist": "Lydia Hallie، Anthropic", "az": "پنجرهٔ ۱۱ نوا ۰۲:۵۰" },
+    { "user": "noahzweben", "kist": "Noah Zweben، مدیرِ محصولِ Claude Code", "az": "پنجرهٔ ۱۱ نوا ۰۲:۵۰" }
+  ]
+}

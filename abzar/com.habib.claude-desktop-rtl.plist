@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>Label</key><string>com.habib.claude-desktop-rtl</string>
+<key>ProgramArguments</key><array><string>/bin/zsh</string><string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/abzar/claude-desktop-rtl.sh</string></array>
+<key>RunAtLoad</key><true/>
+</dict></plist>

@@ -1,0 +1,20 @@
+/* فونت: وزیرمتنِ نصب‌شده روی همین مک (بی دانلود، پس CSP ِ صفحه جلویش را نمی‌گیرد) */
+body, p, li, td, th, h1, h2, h3, h4, h5, h6, blockquote, span, div, button, input, textarea, label, a {
+  font-family: 'Vazirmatn', 'Vazir', system-ui, sans-serif !important;
+}
+/* پایه راست‌به‌چپ؛ هر بلوک جهتش را از اولین حرفش می‌گیرد (فارسی ⇐ راست‌به‌چپ، انگلیسی ⇐ چپ‌به‌راست) */
+html, body { direction: rtl !important; }
+p, li, td, th, h1, h2, h3, h4, h5, h6, blockquote, dd, dt, label, summary, figcaption, span[data-text], div[data-block],
+[contenteditable="true"], textarea, input[type="text"], input:not([type]) {
+  unicode-bidi: plaintext !important;
+  text-align: start !important;
+}
+table { direction: rtl !important; }
+ul, ol { padding-inline-start: 1.5em; }
+/* کد: بلوک خودش جهتش را از اولین حرف می‌گیرد (فارسی ⇐ راست‌به‌چپ)؛ isolate روی تک‌تکِ تکه‌ها (pre *) حروفِ فارسی را از هم جدا می‌کرد — برداشته شد (حبیب ۲۴ اکت ۱۵:۱۲، عکس) */
+pre, code, kbd, samp, .hljs, [class*="language-"], .cm-editor, .monaco-editor {
+  unicode-bidi: plaintext !important;
+  text-align: start !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, 'Vazirmatn', monospace !important;
+}
+pre *, code * { font-family: inherit !important; }

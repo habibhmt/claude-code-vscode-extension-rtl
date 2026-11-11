@@ -237,6 +237,22 @@
     "کارهایش در نمای «۱۸۶ مصرف»"
    ],
    "madrak": "کامیت 8e29503"
+  },
+  {
+   "id": "tweet_ha",
+   "shekl": "mostatil",
+   "khane_vaziat": "todo",
+   "onvan": "توییت‌های روزانهٔ آدم‌های Claude Code به فارسی (com.habib.tweet-ha، ساعت ۱۰)",
+   "radif": [],
+   "madrak": "اولین اجرا: ۱۷ توییت ⇐ Doc/tweet_ha/2026-11-11.md؛ اسمِ غلط ⇐ exit 1"
+  },
+  {
+   "id": "desktop_rtl",
+   "shekl": "mostatil",
+   "khane_vaziat": "done",
+   "onvan": "RTL در Claude Desktop ِ اصلی (بی پچ)",
+   "radif": [],
+   "madrak": "REACT_PROFILE=1 + لینکِ extensions؛ Claude-RTL حذف شد"
   }
  ],
  "khatha": [
@@ -403,6 +419,16 @@
   [
    "jadval_javab",
    "tahvil_186",
+   ""
+  ],
+  [
+   "jadval_javab",
+   "tweet_ha",
+   ""
+  ],
+  [
+   "patch_rtl",
+   "desktop_rtl",
    ""
   ]
  ]

@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Habib RTL for Claude",
+  "version": "1.0.4",
+  "description": "راست‌به‌چپ برای claude.ai و قاب‌های claudeusercontent.com (سندها، آرتیفکت‌ها)",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.claudeusercontent.com/*"
+      ],
+      "css": [
+        "rtl.css"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://claude.ai/*",
+        "*://*.claude.ai/*"
+      ],
+      "css": [
+        "rtl-claude.css"
+      ],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ]
+}

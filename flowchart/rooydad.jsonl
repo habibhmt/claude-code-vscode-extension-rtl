@@ -50,3 +50,9 @@
 {"rooydad_ts": "2026-11-07 03:25:35", "rooydad_noe": "alan", "khane": "tab_tanzim", "matn": "آخرین کار: پیش‌فرض‌ها زنده از راهنمای برنامه خوانده می‌شوند (v2.45.0)؛ پچ روی 2.1.319 هم زده شد"}
 {"rooydad_ts": "2026-11-07 03:25:35", "rooydad_noe": "vaziat", "khane": "jadval_javab", "matn": "جدول گزینه‌ها بعد از جواب سؤال بماند: مانده ⇒ در جریان", "rooydad_khane_vaziat_qabl": "todo", "rooydad_khane_vaziat_bad": "now"}
 {"rooydad_ts": "2026-11-10 22:42:07", "rooydad_noe": "alan", "khane": "tahvil_186", "matn": "فلوچارتِ ۱۸۶ به ۱۳۶ آمد: یک خانه در کارها و ۱۹ خانه در نمای «۱۸۶ مصرف»"}
+{"rooydad_ts": "2026-11-10 23:17:48", "rooydad_noe": "alan", "khane": "jadval_javab", "matn": "شمارهٔ fekr دیگر در ۱۰۰ نمی‌ماند و هر fekr تاریخ و ساعتِ تهران دارد (v2.59.5، پچ روی ۳۱ IDE)"}
+{"rooydad_ts": "2026-11-11 02:19:04", "rooydad_noe": "alan", "khane": "jadval_javab", "matn": "v2.59.5 کامیت و پوش شد (4cbb4b7، تگ v2.59.5)؛ ریست‌ها: ۳ تا تا ۹ مارس ۲۰۲۷، تمدید ۱۷ نوامبر، تصمیمِ تمدید با حبیب ماند"}
+{"rooydad_ts": "2026-11-11 02:26:50", "rooydad_noe": "alan", "khane": "jadval_javab", "matn": "شکستِ fork ِ fekr: ۷ از ۸ تا ۱۵ دقیقه بعد از compact؛ از این به بعد متنِ خطا (khata، khata_aval) ثبت می‌شود"}
+{"rooydad_ts": "2026-11-11 03:00:05", "rooydad_noe": "taze", "khane": "tweet_ha", "matn": "خانهٔ تازه: توییت‌های روزانهٔ آدم‌های Claude Code به فارسی (com.habib.tweet-ha، ساعت ۱۰)", "rooydad_khane_vaziat_bad": "todo"}
+{"rooydad_ts": "2026-11-11 20:32:33", "rooydad_noe": "taze", "khane": "desktop_rtl", "matn": "خانهٔ تازه: RTL در Claude Desktop ِ اصلی (بی پچ)", "rooydad_khane_vaziat_bad": "todo"}
+{"rooydad_ts": "2026-11-11 20:32:33", "rooydad_noe": "vaziat", "khane": "desktop_rtl", "matn": "RTL در Claude Desktop ِ اصلی (بی پچ): مانده ⇒ انجام شد", "rooydad_khane_vaziat_qabl": "todo", "rooydad_khane_vaziat_bad": "done"}

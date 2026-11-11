@@ -12,6 +12,10 @@ assert.equal(forks, 2); assert.equal(sabr, R.fekr_dobare_ms)
 forks = 0; javab[1] = javab[0]
 assert.equal(await R.fekr_vasat($, true), false); assert.equal(forks, 2, 'فقط یک بار دوباره')
 assert.ok(daftar.some((x) => /"dobare":true/.test(x)))
+// a successful fekr keeps the same clues (Habib, board, 12 Nov)
+{ const d = daftar.map((x) => { try { return JSON.parse(x) } catch { return {} } }).find((d) => /fekr_vasat$/.test(d.kind ?? d.type ?? d.no ?? '') || JSON.stringify(d).includes('"fekr":{"fekr":"الف"'))
+  const x = d && (d.sorag ?? JSON.parse(d.data ?? '{}').sorag)
+  assert.ok(x && 'usage' in x && 'ms_fork' in x && x.context === 1 && 'ms_az_compact' in x, 'sorag ِ موفق ' + JSON.stringify(d)) }
 // the failure keeps the fork's own words (Habib, 11 Nov 02:23)
 forks = 0; javab[0] = { isAnswered: false, reason: 'api-error', usage: {}, error: 'prompt is too long: 301234 tokens' }; javab[1] = javab[0]
 await R.fekr_vasat($, true)

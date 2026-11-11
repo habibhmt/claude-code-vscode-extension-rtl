@@ -1064,7 +1064,9 @@ export async function fekr_vasat($, foori) {
     // only the fekr changes: «دو جمله» and the turn's summary stay as they are
     if (do_jomle_akhar.for !== id) do_jomle_akhar = { text: do_jomle_akhar.text || '', for: id }
     do_jomle_akhar.summary = { ...(do_jomle_akhar.summary || { text: '-', anjam_shod: [], anjam_nashod: [] }), fekr: got }
-    await benevis_daftar($, 'fekr_vasat', { fekr: got, foori: !!foori })
+    // the same clues on success too, so failures can be set against successes (Habib, board, 12 Nov «بله،
+    // سرنخ‌های fekr ِ موفق هم ثبت شود»)
+    await benevis_daftar($, 'fekr_vasat', { fekr: got, foori: !!foori, sorag: await sorag_khata_fork($, r, (await $.clock.now()) - t0) })
     $.ui.invalidate('ui.render')
     return true
   } catch {

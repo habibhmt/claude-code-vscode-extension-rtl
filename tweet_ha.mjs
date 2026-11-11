@@ -57,7 +57,7 @@ async function joziat(t) {
   return { ...t, iso: new Date(d.created_at).toISOString(), matn: d.text || '', naghl: d.quote ? `@${d.quote.author?.screen_name}: ${d.quote.text || ''}` : '' }
 }
 
-async function khandan(send, user) {
+async function khandan(send, user, sabr = sabr_safhe_ms) {
   let t = await send('Target.createTarget', { url: `https://x.com/${user}`, background: true, windowState: 'minimized' })
   if (t.error) t = await send('Target.createTarget', { url: `https://x.com/${user}`, background: true })
   if (t.error) throw new Error('تب باز نشد: ' + JSON.stringify(t.error))
@@ -65,7 +65,7 @@ async function khandan(send, user) {
   try {
     const sid = (await send('Target.attachToTarget', { targetId, flatten: true })).result.sessionId
     await send('Emulation.setFocusEmulationEnabled', { enabled: true }, sid)
-    await new Promise((ok) => setTimeout(ok, sabr_safhe_ms))
+    await new Promise((ok) => setTimeout(ok, sabr))
     const e = await send('Runtime.evaluate', { expression: ESTEKHRAJ, returnByValue: true }, sid)
     return (e.result?.result?.value || []).slice(0, had_tweet_har_kas)
   } finally { await send('Target.closeTarget', { targetId }) }
@@ -102,8 +102,10 @@ async function asli() {
   const taze = [], bi_tweet = []
   try {
     for (const f of fehrest) {
-      const ha = await khandan(send, f.user)
-      const khodash = ha.filter((t) => t.user.toLowerCase() === f.user.toLowerCase())
+      const mal = (ha) => ha.filter((t) => t.user.toLowerCase() === f.user.toLowerCase())
+      let khodash = mal(await khandan(send, f.user))
+      // a slow page gave 0 once (11 Nov 21:11, bcherny) and 10 a minute later: one more look, longer
+      if (!khodash.length) khodash = mal(await khandan(send, f.user, sabr_safhe_ms * 2))
       if (!khodash.length) { bi_tweet.push(f.user); continue }
       const ghabli = new Set(dide[f.user] || []), aval = !dide[f.user]
       for (const t of khodash) {
@@ -119,13 +121,21 @@ async function asli() {
     ws.close()
   }
   if (bi_tweet.length) khata(`از این‌ها هیچ توییتی خوانده نشد (اسمِ غلط، یا x.com بیرون‌مان کرده): ${bi_tweet.join('، ')}`)
-  if (!taze.length) { say(`تازه‌ای نبود (${fehrest.length} نفر)`); if (!KHOSHK && !bi_tweet.length) writeFileSync(DIDE, JSON.stringify(dide, null, 1)); return }
   mkdirSync(GOZARESH_DIR, { recursive: true })
-  taze.sort((a, b) => Date.parse(b.iso) - Date.parse(a.iso))
-  const fa = tarjome(taze)
   const rooz = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Tehran' })
   const file = join(GOZARESH_DIR, rooz + '.md')
   const sar = existsSync(file) ? '' : `# توییت‌های تازهٔ Claude Code — ${rooz}\n\nفهرستِ آدم‌ها: \`tweet_ha.json\`. هر توییت فقط یک بار می‌آید.\n`
+  // nothing new is news too: a line in the day file and a notification, every run (Habib, 11 Nov 21:15
+  // «بله، همیشه خبر بده»; at 10:01 the run only wrote to its log and he saw nothing)
+  if (!taze.length) {
+    const akhar = fehrest.map((f) => `@${f.user}`).join('، ')
+    appendFileSync(file, `${sar}\n## خوانده‌شده ساعتِ ${ZAMAN.format(new Date())}\n\nتوییتِ تازه‌ای نبود (${fehrest.length - bi_tweet.length} از ${fehrest.length} نفر خوانده شد: ${akhar}).\n`)
+    say(`تازه‌ای نبود (${fehrest.length} نفر) ⇐ ${file}`)
+    if (!bi_tweet.length) notif('توییت‌های Claude Code', `امروز توییتِ تازه‌ای نبود (${fehrest.length} نفر خوانده شد)`)
+    if (!KHOSHK && !bi_tweet.length) writeFileSync(DIDE, JSON.stringify(dide, null, 1)); return
+  }
+  taze.sort((a, b) => Date.parse(b.iso) - Date.parse(a.iso))
+  const fa = tarjome(taze)
   const satr = taze.map((t) => `| ${ZAMAN.format(new Date(t.iso))} | @${t.user} | ${tamiz(fa[t.id]?.fa) || '(ترجمه نیامد) ' + tamiz(t.matn).slice(0, 120)} | ${tamiz(fa[t.id]?.kar) || '-'} | [لینک](https://x.com/${t.user}/status/${t.id}) |`)
   appendFileSync(file, `${sar}\n## خوانده‌شده ساعتِ ${ZAMAN.format(new Date())}\n\n| کی (تهران) | کی | به زبانِ ساده | به کارِ حبیب | لینک |\n|---|---|---|---|---|\n${satr.join('\n')}\n`)
   if (!KHOSHK) writeFileSync(DIDE, JSON.stringify(dide, null, 1))

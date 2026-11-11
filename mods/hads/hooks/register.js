@@ -1019,6 +1019,18 @@ export function matn_khata_fork(r) {
   for (const [k, v] of Object.entries(r)) if (!['text', 'usage', 'isAnswered', 'reason'].includes(k)) bagi[k] = v instanceof Error ? String(v.stack || v.message || v) : v
   try { return JSON.stringify(bagi).slice(0, 800) } catch (e) { return String(e).slice(0, 200) }
 }
+// the clues the fork's own result leaves out, beside khata (Habib, 11 Nov 21:15 «بله، اضافه کن»): what it
+// sent (usage: 0 input tokens ⇒ refused before it left, status null), how long it took, the chat's context, and
+// the time since this chat's last compact (most failures were 0–2 min after one)
+const akhar_compact_har_chat = new Map()
+export async function sorag_khata_fork($, r, ms) {
+  const s = {}
+  try { s.usage = r?.usage ?? null } catch {}
+  s.ms_fork = ms
+  try { s.context = (await $.session.usage())?.context?.tokens ?? null } catch { s.context = null }
+  try { const c = akhar_compact_har_chat.get(await $.session.id()); s.ms_az_compact = c ? (await $.clock.now()) - c : null } catch { s.ms_az_compact = null }
+  return s
+}
 let fekr_vasat_dar_kar = false
 const prompt_fekr_vasat = '(این پیام از مودِ «حدس» است، نه از حبیب؛ کاری نکن و ابزاری صدا نزن.) ' +
   'همین الان، وسطِ کار، در سه جملهٔ کوتاهِ فارسیِ ساده و اول‌شخص بگو. Reply ONLY with JSON: ' +
@@ -1034,20 +1046,20 @@ export async function fekr_vasat($, foori) {
   if (!p?.fekr) return false
   fekr_vasat_dar_kar = true
   try {
-    let r = await $.model.fork({ prompt: prompt_fekr_vasat }), dobare = false, khata_aval = ''
+    let t0 = await $.clock.now(), r = await $.model.fork({ prompt: prompt_fekr_vasat }), dobare = false, khata_aval = '', sorag_aval = null
     if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'fekr_vasat', 'fork', r.usage)
     // api-error came 1–12 s before the chat's own turn ended (91, 10 Nov: 4 of 22): one more try a little later
     // (Habib, 10 Nov 03:47: «بله، یک بار دوباره»)
     if (!r.isAnswered && r.reason === 'api-error') {
-      dobare = true; khata_aval = matn_khata_fork(r)
+      dobare = true; khata_aval = matn_khata_fork(r); sorag_aval = await sorag_khata_fork($, r, (await $.clock.now()) - t0)
       await new Promise((ok) => $.clock.after(fekr_dobare_ms, ok))
-      r = await $.model.fork({ prompt: prompt_fekr_vasat })
+      t0 = await $.clock.now(); r = await $.model.fork({ prompt: prompt_fekr_vasat })
       if (r.isAnswered || r.reason !== 'nothing-to-fork') await benevis_kharj($, 'fekr_vasat', 'fork', r.usage)
     }
     const got = r.isAnswered ? khandan_fekr(r.text) : null
     // a fork that gave nothing usable is written down with its reason and its first words, never silently
     // dropped: the old fekr stayed on screen and looked repeated (91, 10 Nov 01:48–02:03: 9 forks, 0 fekr)
-    if (!got) { await benevis_daftar($, 'fekr_vasat_shekast', { dalil: r.isAnswered ? (String(r.text || '').trim() ? 'bad_json' : 'khali') : (r.reason || '?'), aval: String(r.text || '').slice(0, 300), dobare, khata: matn_khata_fork(r), khata_aval }); return false }
+    if (!got) { await benevis_daftar($, 'fekr_vasat_shekast', { dalil: r.isAnswered ? (String(r.text || '').trim() ? 'bad_json' : 'khali') : (r.reason || '?'), aval: String(r.text || '').slice(0, 300), dobare, khata: matn_khata_fork(r), khata_aval, sorag: r.isAnswered ? null : await sorag_khata_fork($, r, (await $.clock.now()) - t0), sorag_aval }); return false }
     if (!got.fekr && !got.kard && !got.bad) return false
     // only the fekr changes: «دو جمله» and the turn's summary stay as they are
     if (do_jomle_akhar.for !== id) do_jomle_akhar = { text: do_jomle_akhar.text || '', for: id }
@@ -1826,6 +1838,7 @@ export function register(on) {
   // ک-۳۴: not awaited and the event untouched, so a compact is the same with this hook as without it
   on('session.compact', async ($, e, next) => {
     try { if (!e.agentId) { const msgs = e.messages; $.clock.after(0, () => zakhire_payam($, msgs)) } } catch {}
+    try { if (!e.agentId) akhar_compact_har_chat.set(await $.session.id(), await $.clock.now()) } catch {}
     return next(e)
   })
 

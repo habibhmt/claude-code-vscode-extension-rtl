@@ -17,4 +17,7 @@ forks = 0; javab[0] = { isAnswered: false, reason: 'api-error', usage: {}, error
 await R.fekr_vasat($, true)
 assert.ok(daftar.some((x) => /"khata":"\{\\"error\\":\\"prompt is too long/.test(x) && /"khata_aval":"\{/.test(x)), 'khata ' + daftar.at(-1))
 assert.equal(R.matn_khata_fork({ isAnswered: true, text: 'x' }), '')
+// and the clues beside it: what it sent, how long, the context, the time since compact (Habib, 11 Nov 21:15)
+{ const d = JSON.parse(daftar.at(-1)); const x = d.sorag ?? JSON.parse(d.data ?? '{}').sorag
+  assert.ok(x && 'usage' in x && 'ms_fork' in x && x.context === 1 && 'ms_az_compact' in x, 'sorag ' + daftar.at(-1)) }
 console.log('dobare: ok')

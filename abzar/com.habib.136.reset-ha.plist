@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.habib.136.reset-ha</string>
+  <key>ProgramArguments</key><array><string>/Users/habib/.nvm/versions/node/v22.23.2/bin/node</string><string>/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/reset_ha.mjs</string></array>
+  <key>EnvironmentVariables</key><dict><key>LANG</key><string>en_US.UTF-8</string><key>LC_ALL</key><string>en_US.UTF-8</string></dict>
+  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>20</integer></dict>
+  <key>AbandonProcessGroup</key><true/>
+  <key>ProcessType</key><string>Background</string>
+</dict></plist>

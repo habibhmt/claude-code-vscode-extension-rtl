@@ -253,6 +253,22 @@
    "onvan": "RTL در Claude Desktop ِ اصلی (بی پچ)",
    "radif": [],
    "madrak": "REACT_PROFILE=1 + لینکِ extensions؛ Claude-RTL حذف شد"
+  },
+  {
+   "id": "alarm_reset_majani",
+   "shekl": "mostatil",
+   "khane_vaziat": "todo",
+   "onvan": "آلارمِ ریستِ مجانی تا ۱۹ آذر شب",
+   "radif": [],
+   "madrak": "com.habib.136.alarm-reset-majani بار شد؛ ۷ آزمون با ساعتِ ساختگی + خرابکاری"
+  },
+  {
+   "id": "reset_ha",
+   "shekl": "mostatil",
+   "khane_vaziat": "done",
+   "onvan": "چکِ روزانهٔ ریست‌های Claude و ChatGPT",
+   "radif": [],
+   "madrak": "آلارم به چتِ ۱۳۶ رسید (۲۳:۳۱)"
   }
  ],
  "khatha": [
@@ -429,6 +445,16 @@
   [
    "patch_rtl",
    "desktop_rtl",
+   ""
+  ],
+  [
+   "desktop_rtl",
+   "alarm_reset_majani",
+   ""
+  ],
+  [
+   "alarm_reset_majani",
+   "reset_ha",
    ""
   ]
  ]

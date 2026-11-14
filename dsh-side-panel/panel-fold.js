@@ -237,7 +237,9 @@ export function faNum(value, digits = 0) {
 /** دلار: کمتر از یک سنت با ۵ رقم، بقیه با ۴ رقم. */
 export function faMoney(value) {
   if (typeof value !== 'number' || !Number.isFinite(value)) return '—'
-  return '$' + value.toFixed(Math.abs(value) < 0.01 ? 5 : 4)
+  // LRI…PDI (جداسازِ چپ‌به‌راست): وسطِ جملهٔ فارسی، «$» به آن سرِ عدد نمی‌پرد
+  // (بی این، «نوبتِ ۲ · $0.0151» روی صفحه «0.0151$» می‌شد — قاعدهٔ W2 ِ یونیکد).
+  return '\u2066$' + value.toFixed(Math.abs(value) < 0.01 ? 5 : 4) + '\u2069'
 }
 
 /**

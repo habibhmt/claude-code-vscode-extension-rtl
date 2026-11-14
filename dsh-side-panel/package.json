@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "پنل کنارِ چت: ترجمهٔ سادهٔ تراژکتوری و آمار + خرجِ دقیقِ هر چت از OpenRouter",
+  "scripts": {
+    "test": "node --test test/*.mjs"
+  },
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",

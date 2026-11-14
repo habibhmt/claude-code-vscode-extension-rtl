@@ -19,6 +19,9 @@
     "./package.json": "./package.json"
   },
   "main": "lib/index.js",
+  "scripts": {
+    "test": "node --test test/*.mjs"
+  },
   "files": [
     "lib",
     "locale",

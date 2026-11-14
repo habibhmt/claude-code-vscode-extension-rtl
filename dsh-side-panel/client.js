@@ -253,7 +253,9 @@ window.__ModuleLoader__.load({
     /** دلار: کمتر از یک سنت با ۵ رقم، بقیه با ۴ رقم. */
     function faMoney(value) {
       if (typeof value !== 'number' || !Number.isFinite(value)) return '—'
-      return '$' + value.toFixed(Math.abs(value) < 0.01 ? 5 : 4)
+      // LRI…PDI (جداسازِ چپ‌به‌راست): وسطِ جملهٔ فارسی، «$» به آن سرِ عدد نمی‌پرد
+      // (بی این، «نوبتِ ۲ · $0.0151» روی صفحه «0.0151$» می‌شد — قاعدهٔ W2 ِ یونیکد).
+      return '\u2066$' + value.toFixed(Math.abs(value) < 0.01 ? 5 : 4) + '\u2069'
     }
 
     /**
@@ -456,7 +458,7 @@ window.__ModuleLoader__.load({
       }
       return h('div', { style: reds.length > 0 ? CSS.redCard : CSS.card, 'data-waste-card': '' },
         h('div', { style: { ...CSS.title, ...(reds.length > 0 ? CSS.red : CSS.amber) } },
-          reds.length > 0 ? '● پولِ الکی: ' + faMoney(c.waste.total) + ' از ' + faMoney(c.total) + ' (' + faNum(Math.round(share * 100)) + '٪)' : '▲ گران، ولی با دلیل'),
+          reds.length > 0 ? '● پولِ الکی: ' + faMoney(c.waste.total) + ' از ' + faMoney(c.total) + ' (' + faNum(Math.round(share * 100)) + '٪)' + (c.pending > 0 ? ' — ناقص، قیمت‌ها در راه' : '') : '▲ گران، ولی با دلیل'),
         reds.map(k => h('div', { key: k.kind, style: { ...CSS.red, fontSize: 12.5 } },
           '● ' + (KIND_LABEL[k.kind] || k.kind) + ': ' + faNum(k.count) + ' بار — الکی ' + faMoney(k.usd))),
         ambers.map(k => h('div', { key: k.kind, style: { ...CSS.amber, fontSize: 12.5 } },
@@ -475,9 +477,18 @@ window.__ModuleLoader__.load({
         }), { input: 0, cached: 0, output: 0 }),
         providers: raw.providers || [],
         unpriceable: raw.unpriceable || 0,
+        noId: raw.noId || 0,
         byModel: raw.byModel || [], top: raw.top || [], turns: raw.turns || [], list: raw.list || [],
         wasteTop: raw.wasteTop || [], waste: raw.waste || null,
       }
+    }
+
+    /** جمعِ دلاریِ یک مدل؛ اگر هیچ قیمتی نیامده «در راه»، نه $0 ِ دروغ. */
+    function modelMoney(m) {
+      const waiting = m.pending || 0
+      const unpriced = m.unpriced || 0
+      if (waiting + unpriced >= m.count) return waiting > 0 ? 'قیمت در راه…' : 'بی‌قیمت'
+      return faMoney(m.cost) + (waiting > 0 ? ' (+' + faNum(waiting) + ' در راه)' : '')
     }
 
     /** بخشِ «تراژکتوری به فارسی». */
@@ -496,15 +507,21 @@ window.__ModuleLoader__.load({
           c
             ? h('div', null,
               c.priced > 0
-                ? h('div', { style: CSS.big }, faMoney(c.total))
+                ? h('div', { style: CSS.big }, faMoney(c.total),
+                  // تا قیمت‌ها کامل نیامده، عدد «تا این‌جا» است، نه جمعِ نهایی (بعد از ری‌استارت چند ثانیه طول می‌کشد).
+                  c.pending > 0 ? h('span', { style: { ...CSS.amber, fontSize: 12, fontWeight: 600, marginInlineStart: 8 }, 'data-incomplete': '' }, '▲ ناقص — هنوز بالا می‌رود') : null)
                 : h('div', { style: { ...CSS.big, fontSize: 15 } }, 'قیمتِ دلاری ندارد'),
               h('div', null, faNum(c.requests) + ' رفت‌وبرگشت با مدل' + (c.pending > 0 ? ' · قیمتِ ' + faNum(c.pending) + ' تا هنوز در راه است' : '')),
               h('div', null, 'فرستاده: ' + faNum(c.tokens.input + c.tokens.cached) + ' توکن (' + faNum(c.tokens.cached) + ' از کش) · برگشت: ' + faNum(c.tokens.output)),
               c.byModel.map(m => h('div', { key: m.model, style: CSS.hint },
-                m.model + ': ' + faNum(m.count) + ' بار' + (c.priced > 0 ? ' · ' + faMoney(m.cost) : ''))),
-              c.unpriceable > 0 && h('div', { style: CSS.hint },
-                faNum(c.unpriceable) + ' رفت‌وبرگشت از سرویسِ ' + (c.providers.filter(p => p !== 'openrouter').join('، ') || 'دیگر') + ' است، نه OpenRouter؛ قیمتِ دقیقِ آن‌ها را جایی نداریم (عدد را حدس نمی‌زنیم).'),
-              c.priced > 0 && h('div', { style: CSS.hint }, 'عدد دقیق است: هزینهٔ هر جواب از خودِ OpenRouter (همان صفحهٔ Activity)، فقط برای همین چت.'))
+                m.model + ': ' + faNum(m.count) + ' بار' + (c.priced > 0 ? ' · ' + modelMoney(m) : ''))),
+              c.unpriceable - (c.noId || 0) > 0 && h('div', { style: CSS.hint },
+                faNum(c.unpriceable - (c.noId || 0)) + ' رفت‌وبرگشت از سرویسِ ' + (c.providers.filter(p => p !== 'openrouter').join('، ') || 'دیگر') + ' است، نه OpenRouter؛ قیمتِ دقیقِ آن‌ها را جایی نداریم (عدد را حدس نمی‌زنیم).'),
+              c.noId > 0 && h('div', { style: CSS.hint },
+                faNum(c.noId) + ' جوابِ OpenRouter شناسهٔ gen-… نداشت (قطع یا خطا شده)؛ قیمتش را نمی‌شود پرسید.'),
+              c.priced > 0 && h('div', { style: CSS.hint }, c.pending > 0
+                ? 'هر عدد از خودِ OpenRouter است؛ وقتی «در راه»ها صفر شد، جمع نهایی و دقیق است.'
+                : 'عدد دقیق است: هزینهٔ هر جواب از خودِ OpenRouter (همان صفحهٔ Activity)، فقط برای همین چت.'))
             : h('div', { style: CSS.hint },
               oldHost ? 'برای خرجِ دقیقِ همین چت، اپ یک بار بسته و باز شود (نصفِ پشتِ صحنه تازه شده).'
                 : chat.status === 'error' ? 'خطا: ' + chat.error
@@ -566,7 +583,7 @@ window.__ModuleLoader__.load({
         h(Card, { title: 'به تفکیکِ مدل (همین چت)' },
           c && c.byModel.length > 0
             ? c.byModel.map(m => h('div', { key: m.model, style: CSS.row },
-              h('div', null, m.model + (c.priced > 0 ? ' · ' : ''), c.priced > 0 ? h('b', null, faMoney(m.cost)) : null),
+              h('div', null, m.model + (c.priced > 0 ? ' · ' : ''), c.priced > 0 ? h('b', null, modelMoney(m)) : null),
               h('div', { style: CSS.hint }, faNum(m.count) + ' بار · ورودیِ تازه ' + faNum(m.input) + ' · از کش ' + faNum(m.cached) + ' · خروجی ' + faNum(m.output))))
             : h('div', { style: CSS.hint }, '—')),
         h('div', { style: { ...CSS.hint, marginTop: 4 } },
@@ -606,12 +623,13 @@ window.__ModuleLoader__.load({
       if (!c) return null
       const wasted = c.waste && c.waste.total > 0 ? c.waste.total : 0
       const redShare = c.total > 0 && wasted / c.total >= 0.1
-      const label = c.priced > 0 ? faMoney(c.total) : 'بی‌قیمت'
+      // «بی‌قیمت» در فارسی «گران‌بها» هم معنی می‌دهد ⇒ روشن‌تر: قیمت ندارد.
+      const label = c.priced > 0 ? faMoney(c.total) + (c.pending > 0 ? '…' : '') : 'قیمت ندارد'
       return h('button', {
         type: 'button',
         'data-side-panel-cost-pill': '',
         title: c.priced > 0
-          ? 'خرجِ واقعیِ همین چت از OpenRouter' + (wasted > 0 ? ' — الکی: ' + faMoney(wasted) : '') + ' (بزن تا پنل باز شود)'
+          ? 'خرجِ واقعیِ همین چت از OpenRouter' + (c.pending > 0 ? ' (ناقص: قیمتِ ' + faNum(c.pending) + ' جواب هنوز در راه است)' : '') + (wasted > 0 ? ' — الکی: ' + faMoney(wasted) : '') + ' (بزن تا پنل باز شود)'
           : 'این چت از OpenRouter نیست؛ قیمتِ دقیق ندارد',
         onClick: () => { setSection('trajectory'); openPanel(ctx) },
         style: {

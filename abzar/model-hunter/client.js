@@ -42,7 +42,8 @@ window.__ModuleLoader__.load({
       .mh-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
       .mh-btn { border: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-primary); border-radius: 8px; padding: 5px 10px; font: inherit; font-size: 12px; cursor: pointer; }
       .mh-btn:hover { border-color: var(--dsw-alias-border-l2); }
-      .mh-btn[data-on="1"] { background: var(--dsw-alias-brand-primary); color: #fff; border-color: transparent; }
+      /* brand-primary در تمِ تیره سفید است ⇒ متنِ سفید روی سفید = «نقطهٔ سفید» (حبیب ۱۵ نوامبر). رنگِ ثابت. */
+      .mh-btn[data-on="1"] { background: #2563eb; color: #fff; border-color: transparent; }
       .mh-btn:disabled { opacity: .5; cursor: default; }
       .mh-table { width: 100%; border-collapse: collapse; font-size: 12px; }
       .mh-table th.mh-th, .mh-table th.mh-th-active { cursor: pointer; user-select: none; }
@@ -60,8 +61,17 @@ window.__ModuleLoader__.load({
       .mh-legend { margin-top: 10px; font-size: 11px; color: var(--dsw-alias-label-secondary); }
       .mh-rec-title { font-weight: 600; margin-bottom: 4px; }
       .mh-tier { margin-inline-start: 6px; font-size: 10px; padding: 1px 5px; border-radius: 6px; background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-secondary); border: 1px solid var(--dsw-alias-border-l1); }
-      .mh-best-tag { margin-inline-start: 6px; font-size: 10px; padding: 1px 5px; border-radius: 6px; background: var(--dsw-alias-brand-primary); color: #fff; }
+      .mh-best-tag { margin-inline-start: 6px; font-size: 10px; padding: 1px 5px; border-radius: 6px; background: #16a34a; color: #fff; }
       .mh-best td { background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent); }
+      .mh-ml { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; }
+      .mh-ml-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+      .mh-chip { flex: none; font-size: 10px; line-height: 14px; padding: 0 4px; border-radius: 5px; color: var(--dsw-alias-label-secondary); background: var(--dsw-alias-bg-layer-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .mh-chip.mh-red { color: #fff; background: #dc2626; }
+      .mh-chip.mh-amber { color: #1f1300; background: #f59e0b; }
+      .mh-chip.mh-green { color: #fff; background: #16a34a; }
+      .mh-sum { direction: rtl; text-align: right; font-size: 11px; line-height: 1.6; padding: 6px 10px; margin: 4px 6px; border-radius: 8px; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); white-space: normal; max-width: 340px; }
+      .mh-sum-hint { color: #b45309; }
+      .mh-sum-ok { color: #16a34a; }
     `
 
     function useHunter() {
@@ -205,10 +215,16 @@ window.__ModuleLoader__.load({
         return Object.keys(data.families).sort()
       }, [data])
 
-      const head = h('div', { className: 'mh-head' },
-        h('h2', { className: 'mh-title' }, 'شکارچی مدل'),
-        h('span', { className: 'mh-sub' },
-          data && data.ts ? `اسنپ‌شات: ${new Date(data.ts).toLocaleString('fa-IR')}` : 'در حالِ خواندن از OpenRouter…'))
+      const head = h('div', null,
+        h('div', { className: 'mh-head' },
+          h('h2', { className: 'mh-title' }, 'شکارچی مدل'),
+          h('span', { className: 'mh-sub' },
+            data && data.ts ? `اسنپ‌شات: ${new Date(data.ts).toLocaleString('fa-IR')}` : 'در حالِ خواندن از OpenRouter…')),
+        h('div', { className: 'mh-rec' },
+          h('b', null, 'مدل را از منوی مدلِ پایینِ هر چت عوض کن. '),
+          'همان‌جا کنارِ هر گزینه قیمتِ هر پیام، کش‌نخوردنِ اندازه‌گیری‌شده، «ارزان‌ترین» و هشدارِ «عوض کنی پیامِ بعدی بی‌کش چند دلار می‌شود» هست، و ردیفِ «افورت» (سطحِ فکر) هم همان‌جاست. این صفحه فقط گزارش است.',
+          data && data.catalog && data.catalog.ts ? h('div', { className: 'mh-sub', style: { marginTop: '4px' } },
+            `منوی مدلِ چت: ${data.catalog.listed} گزینه` + (data.catalog.failed && data.catalog.failed.length ? ` · ${data.catalog.failed.length} سرور ساخته نشد` : '') + (data.catalog.error ? ` · خطا: ${data.catalog.error}` : '')) : null))
 
       const bar = h('div', { className: 'mh-bar' },
         h('button', { className: 'mh-btn', onClick: load, disabled: busy }, 'تازه‌سازی'),
@@ -244,7 +260,7 @@ window.__ModuleLoader__.load({
           key,
           className: sortKey === key ? 'mh-th-active' : 'mh-th',
           onClick: () => clickSort(key),
-        }, label + (sortKey === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''))).concat([h('th', { key: 'act' }, '')]))
+        }, label + (sortKey === key ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''))))
 
       const recKey = rec && rec.recommended
         ? `${rec.model}|${rec.recommended.provider}|${rec.recommended.quantization}|${rec.recommended.costPerRequest}`
@@ -269,11 +285,7 @@ window.__ModuleLoader__.load({
         h('td', { className: 'mh-q' }, r.priceIn1m.toFixed(4)),
         h('td', { className: 'mh-q' }, (r.cacheRead1m == null || r.cacheKnown === false) ? '—' : r.cacheRead1m.toFixed(4)),
         h('td', { className: 'mh-q' }, r.priceOut1m.toFixed(4)),
-        h('td', null, r.uptime == null ? '—' : `${r.uptime.toFixed(0)}%`),
-        h('td', null, h('button', {
-          className: 'mh-btn', disabled: busy,
-          onClick: () => apply(r.model, r.provider, scope),
-        }, 'ست کن'))))
+        h('td', null, r.uptime == null ? '—' : `${r.uptime.toFixed(0)}%`)))
 
       const table = h('table', { className: 'mh-table' },
         h('thead', null, tableHead),
@@ -295,11 +307,7 @@ window.__ModuleLoader__.load({
           h('div', { style: { marginTop: '8px' } },
             h('b', null, rec.recommended.provider),
             ` · سطح ${TIER_FA[rec.recommended.tier || 'default'] || rec.recommended.tier} · ${rec.recommended.quantization} — هزینهٔ هر درخواست $${rec.recommended.costPerRequest}، کیفیت ${rec.recommended.quality}، کش‌نخوردن ${rec.recommended.missPct == null ? '۳٪ (فرض)' : rec.recommended.missPct + '٪'}، ۱۰۰۰ درخواست $${rec.projectedPer1000Requests}`,
-            rec.baseline ? ` — در برابر دیپ‌سیک رسمی $${rec.baseline.costPerRequest} (${rec.savingsPct > 0 ? `${rec.savingsPct}٪ ارزان‌تر` : `${Math.abs(rec.savingsPct)}٪ گران‌تر`})` : '',
-            h('button', {
-              className: 'mh-btn', style: { marginInlineStart: '10px' }, disabled: busy,
-              onClick: () => apply(rec.model, rec.recommended.provider, rec.profile.scope),
-            }, 'ست کن روی همین دامنه')),
+            rec.baseline ? ` — در برابر دیپ‌سیک رسمی $${rec.baseline.costPerRequest} (${rec.savingsPct > 0 ? `${rec.savingsPct}٪ ارزان‌تر` : `${Math.abs(rec.savingsPct)}٪ گران‌تر`})` : ''),
           h('div', { className: 'mh-sub', style: { marginTop: '6px' } },
             'گزینه‌های بعدی: ' + rec.alternatives.map((a) => `${a.provider} $${a.costPerRequest}`).join(' · '))) : null,
         data && rows.length ? table : null,
@@ -310,6 +318,153 @@ window.__ModuleLoader__.load({
           + `کش ${(data.calibration || {}).cacheSharePct ?? 97}٪ (وقتی کش می‌خورد) · ورودی ${(data.calibration || {}).promptTokens ?? 338000} · خروجی ${(data.calibration || {}).outputTokens ?? 698} توکن`
           + '  |  «کش‌نخوردن» از چت‌های واقعیِ خودمان اندازه گرفته می‌شود؛ سرورِ ارزانی که کش را نگه نمی‌دارد این‌جا گران درمی‌آید'
           + '  |  — در آف واقعی = این مدل پایهٔ رسمیِ دیپ‌سیک ندارد') : null)
+    }
+
+    /* ---------------- منوی مدلِ خودِ چت ----------------
+     * حبیب: «انتخابِ مدل باید توی خودِ چت باشه، خودکار بسنجه، همهٔ مدل‌ها اون‌جا باشن و
+     * موقعِ عوض کردن هشدارِ قیمتِ مدلِ جدیدِ بی‌کش بده».
+     * label: کنارِ نامِ هر گزینه قیمتِ هر پیامِ همین چت، کش‌نخوردن، ارزان‌ترین، هزینهٔ عوض کردن.
+     * options: یک خطِ خلاصه زیرِ ردیف‌های مدل و افورت.
+     * confirm: کلیک روی گزینه‌ای که عوض کردنش ≥ یک سنت خرج دارد، اول می‌پرسد. */
+    const pickerCache = new Map()
+    const pickerListeners = new Set()
+    const currentKeyBySession = new Map()
+    let lastPickerSession = null
+    function anthropicKey(id) {
+      return String(id || '').replace(/^anthropic\//, '').replace(/:.*$/, '').toLowerCase().replace(/\./g, '-')
+    }
+    function pickerKey(providerId, modelId) {
+      return providerId === 'anthropic' ? 'anthropic|' + anthropicKey(modelId) : providerId + '|' + modelId
+    }
+    function money(x) {
+      if (x == null || !Number.isFinite(x)) return '—'
+      if (x >= 1) return '$' + x.toFixed(2)
+      if (x >= 0.01) return '$' + x.toFixed(3)
+      return '$' + x.toFixed(4)
+    }
+    function kTok(n) { return n >= 1000 ? Math.round(n / 1000).toLocaleString('fa-IR') + ' هزار' : String(n || 0) }
+    function loadPicker(sid, maxAge) {
+      if (!sid) return
+      const hit = pickerCache.get(sid)
+      if (hit && (hit.loading || Date.now() - hit.ts < (maxAge || 15000))) return
+      pickerCache.set(sid, { ...(hit || {}), loading: true, ts: hit ? hit.ts : 0 })
+      fetch('/plugins/model-hunter/picker?sessionId=' + encodeURIComponent(sid), { credentials: 'same-origin', cache: 'no-store' })
+        .then(r => r.json())
+        .then(j => { pickerCache.set(sid, { ts: Date.now(), data: j && j.ok ? j : null, loading: false }) })
+        .catch(() => { pickerCache.set(sid, { ts: Date.now(), data: hit ? hit.data : null, loading: false }) })
+        .finally(() => { for (const f of pickerListeners) f() })
+    }
+    function usePicker(sid, every) {
+      const [, force] = React.useState(0)
+      React.useEffect(() => {
+        if (!sid) return undefined
+        const f = () => force(n => n + 1)
+        pickerListeners.add(f)
+        loadPicker(sid)
+        const t = setInterval(() => loadPicker(sid), every || 30000)
+        return () => { pickerListeners.delete(f); clearInterval(t) }
+      }, [sid, every])
+      const hit = sid ? pickerCache.get(sid) : null
+      return hit ? hit.data : null
+    }
+    function sidOf(props) {
+      const sid = (props && props.sessionId) || currentSessionId || null
+      if (sid) lastPickerSession = sid
+      return sid
+    }
+    /** هزینهٔ اضافهٔ عوض کردن به این گزینه = پیامِ اولِ بی‌کشِ آن − پیامِ معمولیِ همین الان. */
+    function switchExtra(data, sid, item) {
+      const cur = data && data.items ? data.items[currentKeyBySession.get(sid)] : null
+      return item ? item.cold - (cur ? cur.warm : 0) : null
+    }
+
+    function ModelLabel(props) {
+      const provider = props.provider || {}
+      const model = props.model || {}
+      const sid = sidOf(props)
+      const key = pickerKey(provider.id, model.id)
+      if (props.selected && sid) currentKeyBySession.set(sid, key)
+      const data = usePicker(sid, props.placement === 'trigger' ? 60000 : 20000)
+      const item = data && data.items ? data.items[key] : null
+      const name = model.name || model.id
+      if (!item || props.placement === 'menu') return h('span', { className: 'mh-ml' }, name)
+      const missRed = item.missPct != null && item.missPct > 2
+      if (props.placement === 'trigger') {
+        return h('span', { className: 'mh-ml', title: 'هر پیامِ همین چت ≈ ' + money(item.warm) },
+          name, h('span', { className: 'mh-chip' + (missRed ? ' mh-red' : '') }, money(item.warm)))
+      }
+      const best = data.best && data.best[item.model] === model.id
+      const tokens = data.tokens || 0
+      const extra = !props.selected && tokens > 0 ? switchExtra(data, sid, item) : null
+      const tip = [
+        name,
+        'هر پیامِ همین چت (با کش): ' + money(item.warm),
+        'ورودی $' + item.in1m + '/M · کش ' + (item.cache1m == null ? 'ندارد' : '$' + item.cache1m + '/M') + ' · خروجی $' + item.out1m + '/M',
+        item.missPct != null ? 'کش‌نخوردنِ اندازه‌گیری‌شده: ' + item.missPct + '٪ از ' + item.missSamples + ' بار' : 'کش‌نخوردن هنوز اندازه گرفته نشده (۳٪ فرض)',
+        extra != null ? 'اگر عوض کنی: پیامِ بعدی کلِ تاریخچهٔ این چت (' + kTok(tokens) + ' توکن) را بی‌کش می‌فرستد ≈ ' + money(item.cold) : null,
+      ].filter(Boolean).join('\n')
+      return h('span', { className: 'mh-ml', title: tip },
+        h('span', { className: 'mh-ml-name' }, name),
+        h('span', { className: 'mh-chip' }, money(item.warm) + '/پیام'),
+        item.missPct != null ? h('span', { className: 'mh-chip' + (missRed ? ' mh-red' : '') }, 'کش‌نخوردن ' + item.missPct + '٪') : null,
+        best ? h('span', { className: 'mh-chip mh-green' }, 'ارزان‌ترین') : null,
+        extra != null && extra >= 0.001 ? h('span', { className: 'mh-chip ' + (extra >= 0.05 ? 'mh-red' : 'mh-amber') }, 'عوض کنی: ' + money(item.cold)) : null)
+    }
+
+    function ModelSummary(props) {
+      const sid = sidOf(props)
+      const data = usePicker(sid, 20000)
+      if (!data || !data.items) return null
+      const curKey = currentKeyBySession.get(sid)
+      const cur = data.items[curKey]
+      const tokens = data.tokens || 0
+      if (!cur) {
+        return h('div', { className: 'mh-sum' }, 'تاریخچهٔ این چت: ' + kTok(tokens) + ' توکن. قیمتِ مدلِ فعلی معلوم نیست. هر بار عوض کردنِ مدل، پیامِ بعدی کلِ تاریخچه را بی‌کش می‌فرستد.')
+      }
+      const bestRef = data.best ? data.best[cur.model] : null
+      const best = bestRef ? data.items['openrouter|' + bestRef] : null
+      const lines = [h('div', { key: 'a' }, 'این چت: ' + kTok(tokens) + ' توکن تاریخچه · الان ' + cur.provider + ' ≈ ' + money(cur.warm) + ' هر پیام'
+        + (cur.missPct != null ? ' · کش‌نخوردن ' + cur.missPct + '٪' : ''))]
+      if (best && best !== cur && best.warm < cur.warm) {
+        const extra = best.cold - cur.warm
+        const saving = cur.warm - best.warm
+        const pays = saving > 0 ? Math.ceil(extra / saving) : null
+        lines.push(h('div', { key: 'b', className: 'mh-sum-hint' },
+          'ارزان‌ترین سرورِ همین مدل: ' + best.provider + ' ≈ ' + money(best.warm) + ' هر پیام. عوض کردن یک بار ≈ ' + money(best.cold)
+          + (pays ? ' خرج دارد و بعد از حدودِ ' + pays.toLocaleString('fa-IR') + ' پیام جبران می‌شود.' : '.')))
+      } else if (best) {
+        lines.push(h('div', { key: 'b', className: 'mh-sum-ok' }, '✓ روی ارزان‌ترین سرورِ همین مدل هستی؛ عوض نکن.'))
+      }
+      return h('div', { className: 'mh-sum' }, lines)
+    }
+
+    function installSwitchGuard() {
+      const onClick = (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('button[role="menuitemradio"]') : null
+        if (!btn || btn.getAttribute('aria-checked') === 'true') return
+        const tag = btn.querySelector('[data-model-id][data-provider-id]')
+        if (!tag) return
+        const sid = lastPickerSession
+        const hit = sid ? pickerCache.get(sid) : null
+        const data = hit && hit.data
+        if (!data || !data.items || !(data.tokens > 0)) return
+        const item = data.items[pickerKey(tag.getAttribute('data-provider-id'), tag.getAttribute('data-model-id'))]
+        if (!item) return
+        const extra = switchExtra(data, sid, item)
+        if (extra == null || extra < 0.01) return
+        const cur = data.items[currentKeyBySession.get(sid)]
+        const msg = 'عوض کردنِ مدلِ این چت به «' + (btn.getAttribute('title') || item.model) + '»\n\n'
+          + 'پیامِ بعدی کلِ تاریخچهٔ این چت (' + kTok(data.tokens) + ' توکن) را بی‌کش می‌فرستد ≈ ' + money(item.cold)
+          + (cur ? '\nاگر عوض نکنی، پیامِ بعدی ≈ ' + money(cur.warm) : '')
+          + '\nبعد از آن هر پیام ≈ ' + money(item.warm) + '\n\nعوض شود؟'
+        if (!window.confirm(msg)) {
+          e.preventDefault()
+          e.stopPropagation()
+          e.stopImmediatePropagation()
+        }
+      }
+      document.addEventListener('click', onClick, true)
+      return () => document.removeEventListener('click', onClick, true)
     }
 
     function Icon(props) {
@@ -341,6 +496,14 @@ window.__ModuleLoader__.load({
         ctx.slots.inject('conversation.input.left', () => ctx.slots.register({
           name: 'conversation.input.left', id: 'model-hunter-session', order: 90,
         }, wrap(SessionReporter)))
+        // منوی مدلِ خودِ چت: قیمت کنارِ هر گزینه + خلاصه زیرِ ردیف‌ها + پرسش پیش از عوض کردنِ گران.
+        ctx.slots.inject('conversation.input.model.label', () => ctx.slots.register({
+          name: 'conversation.input.model.label',
+        }, wrap(ModelLabel)))
+        ctx.slots.inject('conversation.input.model.options', () => ctx.slots.register({
+          name: 'conversation.input.model.options', id: 'model-hunter-summary', order: 10,
+        }, wrap(ModelSummary)))
+        ctx.effect(() => installSwitchGuard())
       },
     }
   },

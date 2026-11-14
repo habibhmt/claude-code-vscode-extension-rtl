@@ -9,12 +9,17 @@
  *   GET  /plugins/model-hunter/state      → اسنپ‌شات + الگوی کالیبره
  *   GET  /plugins/model-hunter/recommend  → پیشنهاد بر اساسِ مصرفِ واقعیِ چت‌ها
  *   POST /plugins/model-hunter/apply      → {model, provider, scope, sessionId}
+ *   GET  /plugins/model-hunter/picker?sessionId= → قیمتِ هر گزینهٔ منوی مدلِ چت برای همین چت
+ *
+ * از ۱۵ نوامبر انتخابِ مدل در منوی مدلِ خودِ چت است (نه پنلِ بیرون): syncCatalog برای هر مدلِ
+ * دیپ‌سیک ارزان‌ترین سرورها را با افورت و ظرفیت در فهرستِ route ِ openrouter می‌گذارد.
  */
 
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { recentLogs, providerStats, createGenerationBook, lastRefOfLog, logPathOf, decompress } from './measure.js'
+import { pickEndpoints, planCatalog, sameList, rowForRef, parseRef, pickerItems, contextTokensOfLog, presetSlug } from './picker.js'
 
 const OPENROUTER = 'https://openrouter.ai/api/v1'
 const FOCUS = 'deepseek/deepseek-v4.1-flash-1017'
@@ -153,6 +158,8 @@ function scoreEndpoint(e, slug) {
     official: slug === 'deepseek',
     maxCompletion: e.max_completion_tokens || null,
     usable: e.status === 0 || e.status == null,
+    // DSH بی ابزار کار نمی‌کند؛ سروری که tools ندارد در منوی چت نمی‌آید (نامعلوم ⇒ null).
+    tools: Array.isArray(e.supported_parameters) ? e.supported_parameters.includes('tools') : null,
   }
 }
 
@@ -195,7 +202,7 @@ export function applyMeasured(snap, measured, calib = CALIBRATION) {
   return { ...snap, families, rows, measuredTs: Date.now() }
 }
 
-async function scan(config) {
+export async function scan(config) {
   const modelList = (await getJson(`${OPENROUTER}/models`)).data || []
   const providers = (await getJson(`${OPENROUTER}/providers`)).data || []
   const slugOf = Object.fromEntries(providers.filter((p) => p.name && p.slug).map((p) => [p.name, p.slug]))
@@ -232,6 +239,8 @@ async function scan(config) {
       batch: m.id.endsWith(':batch'),
       context: m.context_length || null,
       created: m.created || null,
+      reasoning: m.reasoning || null,
+      input: (m.architecture && m.architecture.input_modalities) || null,
       endpoints: rows,
       winners: winnersOf(usable),
     }
@@ -239,7 +248,9 @@ async function scan(config) {
     families[fam].push(entry)
     allRows.push(...rows.map((r) => ({ ...r, model: m.id })))
   }
-  return { ts: Date.now(), families, rows: allRows, error: null }
+  // قیمتِ مدل‌های Anthropic برای هشدارِ «عوض کردن» در منوی چت (همان قیمتِ فهرست است).
+  const anthropic = modelList.filter((m) => m.id.startsWith('anthropic/') && !m.id.includes(':')).map((m) => ({ id: m.id, pricing: m.pricing }))
+  return { ts: Date.now(), families, rows: allRows, anthropic, error: null }
 }
 
 function topText(snap, task, limit, familyFilter) {
@@ -248,15 +259,6 @@ function topText(snap, task, limit, familyFilter) {
   const lines = sorted.slice(0, limit).map((r, i) =>
     `${i + 1}. ${r.model} | ${r.provider} (${r.quantization}${r.tier ? `, ${r.tier}` : ''}) | کیفیت ${r.quality} | آف واقعی ${r.realOffPct == null ? '—' : `${r.realOffPct}%`} | $${r.costCalib}/درخواست | ورودی $${r.priceIn1m}/M`)
   return lines.join('\n')
-}
-
-function slugify(s) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)
-}
-
-function presetSlug(model, provider) {
-  const fam = model.split('/')[1] || model
-  return slugify(`mh-${fam}-${provider}`)
 }
 
 function readEnvKeySync(name) {
@@ -334,6 +336,88 @@ async function ensureModelListed(ctx, ref) {
     return { ...base, providers }
   })
   return true
+}
+
+/** ردیفِ پیکربندیِ route ِ openrouter (همان جایی که فهرستِ مدل‌ها هست). */
+function openrouterRow(ctx) {
+  const editor = ctx.get('configEditor')
+  if (!editor || typeof editor.configuration !== 'function') return null
+  let rows = []
+  try { rows = editor.configuration() } catch { return null }
+  const row = rows.find((r) => Boolean({ ...(r.inherited || {}), ...(r.override || {}) }?.providers?.openrouter))
+  if (!row) return null
+  const merged = { ...(row.inherited || {}), ...(row.override || {}) }
+  const models = merged.providers.openrouter.models
+  return { editor, row, models: Array.isArray(models) ? models : [] }
+}
+
+const PRESETS_FILE = path.join(os.homedir(), '.dsh', 'storages', 'model-hunter', 'presets.json')
+function readPresetBook() {
+  try { return JSON.parse(fs.readFileSync(PRESETS_FILE, 'utf8')) } catch { return {} }
+}
+function writePresetBook(book) {
+  try { fs.mkdirSync(path.dirname(PRESETS_FILE), { recursive: true }); fs.writeFileSync(PRESETS_FILE, JSON.stringify(book, null, 1)) } catch { /* فقط کش است */ }
+}
+
+/**
+ * منوی مدلِ چت را با اسنپ‌شات هم‌گام می‌کند: برای هر مدلِ دیپ‌سیک ارزان‌ترین سرورها (preset)
+ * + افورت و ظرفیت. فقط وقتی فهرست واقعاً فرق کرده باشد می‌نویسد (نوشتنِ بی‌دلیل = بازخوانیِ کاتالوگ).
+ * @returns { listed, added, failed, written }
+ */
+async function syncCatalog(ctx, cfg) {
+  if (!state.ts || !state.families) return { listed: 0, added: 0, failed: [], written: false, note: 'اسنپ‌شات نیست' }
+  const target = openrouterRow(ctx)
+  if (!target) return { listed: 0, added: 0, failed: [], written: false, note: 'route ِ openrouter پیدا نشد' }
+  const existingIds = new Set(target.models.map((m) => m && m.id))
+  const picks = pickEndpoints(state.families, { perModel: cfg.perModel || 3, qualityFloor: cfg.qualityFloor ?? 85 })
+  const book = readPresetBook()
+  const ready = []
+  const failed = []
+  for (const p of picks) {
+    if (existingIds.has(p.ref) || book[p.slug]) { ready.push(p); continue }
+    try {
+      await ensurePreset(ctx, cfg, p.model, p.row)
+      book[p.slug] = { model: p.model, provider: p.row.provider, ts: Date.now() }
+      ready.push(p)
+    } catch (err) {
+      failed.push({ ref: p.ref, error: String(err?.message || err).slice(0, 200) })
+    }
+  }
+  writePresetBook(book)
+  const metaOf = new Map()
+  for (const entries of Object.values(state.families)) for (const m of entries) metaOf.set(m.model, m)
+  const lookup = (ref) => {
+    const { model } = parseRef(ref)
+    const meta = metaOf.get(model)
+    const row = rowForRef(state.rows, ref)
+    if (!meta || !row) return null
+    return { ref, name: (meta.name || model).replace(/^[^:]+:\s*/, ''), row, meta }
+  }
+  const next = planCatalog(target.models, ready, lookup)
+  const added = next.filter((m) => !existingIds.has(m.id)).length
+  if (sameList(next, target.models)) return { listed: next.length, added: 0, failed, written: false }
+  await target.editor.edit(target.row.entry, (current, inherited) => {
+    const base = { ...(inherited || {}), ...(current || {}) }
+    const providers = { ...(base.providers || {}) }
+    providers.openrouter = { ...(providers.openrouter || {}), models: next }
+    return { ...base, providers }
+  })
+  return { listed: next.length, added, failed, written: true }
+}
+
+/** اندازهٔ تاریخچهٔ هر چت؛ با mtime ِ لاگ کش می‌شود تا هر بار کلِ لاگ باز نشود. */
+const tokenCache = new Map()
+function sessionTokens(sessionId) {
+  const file = logPathOf(sessionId)
+  if (!file) return 0
+  let mtime = 0
+  try { mtime = fs.statSync(file).mtimeMs } catch { return 0 }
+  const hit = tokenCache.get(file)
+  if (hit && hit.mtime === mtime) return hit.tokens
+  let tokens = 0
+  try { tokens = contextTokensOfLog(decompress(fs.readFileSync(file))) } catch { tokens = 0 }
+  tokenCache.set(file, { mtime, tokens })
+  return tokens
 }
 
 async function allSessionRows(ctx) {
@@ -566,6 +650,37 @@ function fmtApply(result) {
   return `مدل ست شد: ${result.ref}\nارائه‌دهنده پین‌شده: ${result.provider}\n${(live.switched || []).length} چت عوض شد` + (kept ? `، ${kept} چت دست نخورد (مدلِ دیگری داشتند یا همین الان روی همین بودند)` : '') + '\nهر چتی که عوض شد، درخواستِ بعدی‌اش یک بار بی‌کش است (سرورِ تازه کش را از صفر می‌سازد).'
 }
 
+const LOOPBACK = /^(127\.\d+\.\d+\.\d+|localhost|\[::1\])(:\d+)?$/i
+
+/**
+ * سدِ کمینه (همان قاعدهٔ dsh-side-panel): سرورِ وبِ DSH احرازِ سراسری ندارد، پس بی این سد هر سایتی
+ * در مرورگر می‌توانست با POST به ‎/apply‎ مدلِ چت‌ها را عوض کند. Host باید loopback باشد،
+ * درخواستِ cross-site رد می‌شود، Origin اگر هست باید همان Host یا اپِ دسکتاپ باشد.
+ * @returns null یعنی مجاز؛ وگرنه علتِ رد.
+ */
+export function rejectReason(req) {
+  const headers = (req && req.headers) || {}
+  const host = typeof headers.host === 'string' ? headers.host.trim() : ''
+  if (host !== '' && !LOOPBACK.test(host)) return 'host'
+  if (headers['sec-fetch-site'] === 'cross-site') return 'cross-site'
+  const origin = typeof headers.origin === 'string' ? headers.origin.trim() : ''
+  if (origin !== '' && origin !== 'null') {
+    let parsed
+    try { parsed = new URL(origin) } catch { return 'origin' }
+    const sameHost = host !== '' && parsed.host.toLowerCase() === host.toLowerCase()
+    if (!sameHost && parsed.protocol !== 'dsh-app:' && parsed.protocol !== 'file:') return 'origin'
+  }
+  return null
+}
+function refuse(req, res) {
+  const reason = rejectReason(req)
+  if (reason === null) return false
+  res.statusCode = 403
+  res.setHeader('content-type', 'application/json; charset=utf-8')
+  res.end(JSON.stringify({ ok: false, error: 'forbidden: ' + reason }))
+  return true
+}
+
 export const name = 'model-hunter'
 export const inject = ['tools']
 
@@ -585,10 +700,23 @@ export function apply(ctx, config) {
     }
   }
 
+  let catalog = { ts: 0, listed: 0, added: 0, failed: [], written: false }
+  const sync = async () => {
+    if (cfg.syncCatalog === false) return
+    try {
+      catalog = { ts: Date.now(), ...(await syncCatalog(ctx, cfg)) }
+      if (catalog.written) ctx.logger?.info?.(`model-hunter: منوی مدل ${catalog.listed} گزینه (${catalog.added} تازه)`)
+    } catch (err) {
+      catalog = { ...catalog, ts: Date.now(), error: String(err?.message || err) }
+      ctx.logger?.warn?.(`model-hunter: هم‌گامیِ منوی مدل شکست خورد: ${err}`)
+    }
+  }
+
   const refresh = async () => {
     try {
       state = applyMeasured(await scan(cfg), measured, cfg.calibration)
       ctx.logger?.info?.(`model-hunter: ${state.rows.length} ارائه‌دهنده در ${Object.keys(state.families).length} خانواده`)
+      await sync()
     } catch (err) {
       state = { ...state, error: String(err), ts: Date.now() }
       ctx.logger?.warn?.(`model-hunter: اسکن شکست خورد: ${err}`)
@@ -619,7 +747,7 @@ export function apply(ctx, config) {
         scope: {
           type: 'string',
           enum: ['session', 'project', 'all'],
-          description: 'دامنهٔ اعمال: session فقط همین چت، project همهٔ چت‌های همین پروژه، all همهٔ چت‌های همهٔ پروژه‌ها (پیش‌فرض)',
+          description: 'دامنهٔ اعمال: session فقط همین چت (پیش‌فرض)، project همهٔ چت‌های همین پروژه، all همهٔ چت‌های همهٔ پروژه‌ها',
         },
       },
       required: ['action'],
@@ -634,7 +762,8 @@ export function apply(ctx, config) {
       if (!state.ts) await refresh()
       if (action === 'apply') {
         if (!args.model) throw new Error('برای apply باید model بدهی')
-        const result = await applyChoice(ctx, cfg, args.model, args.provider || '', args.scope || 'all', exec?.agent?.id || null)
+        // پیش‌فرض فقط همین چت: عوض کردنِ چت‌های دیگر یعنی یک پیامِ بی‌کش برای هر کدام (حبیب ۱۵ نوامبر).
+        const result = await applyChoice(ctx, cfg, args.model, args.provider || '', args.scope || 'session', exec?.agent?.id || null)
         return { text: fmtApply(result) }
       }
       if (action === 'recommend') {
@@ -668,6 +797,7 @@ export function apply(ctx, config) {
       kind: 'exact',
       path: '/plugins/model-hunter/state',
       handler: (req, res) => {
+        if (refuse(req, res)) return
         res.setHeader('content-type', 'application/json; charset=utf-8')
         res.end(JSON.stringify({
           ts: state.ts,
@@ -677,6 +807,7 @@ export function apply(ctx, config) {
           measured,
           priorMissPct: PRIOR_MISS * 100,
           minSamples: MIN_SAMPLES,
+          catalog,
           families: Object.fromEntries(Object.entries(state.families).map(([k, v]) => [k, v.map((m) => ({
             model: m.model, name: m.name, batch: m.batch, context: m.context, winners: m.winners,
           }))])),
@@ -687,8 +818,37 @@ export function apply(ctx, config) {
 
     webCtx.effect(() => web.register({
       kind: 'exact',
+      path: '/plugins/model-hunter/picker',
+      handler: (req, res) => {
+        if (refuse(req, res)) return
+        res.setHeader('content-type', 'application/json; charset=utf-8')
+        res.setHeader('cache-control', 'no-store')
+        try {
+          const url = new URL(req.url, 'http://localhost')
+          const sessionId = url.searchParams.get('sessionId') || ''
+          const tokens = sessionId ? sessionTokens(sessionId) : 0
+          const target = openrouterRow(ctx)
+          const { items, best } = pickerItems({
+            openrouter: target ? target.models : [],
+            rows: state.rows || [],
+            anthropic: state.anthropic || [],
+            tokens,
+            priorMiss: PRIOR_MISS,
+            minSamples: MIN_SAMPLES,
+          })
+          res.end(JSON.stringify({ ok: true, ts: state.ts, measuredTs: state.measuredTs || 0, tokens, items, best, catalog }))
+        } catch (err) {
+          res.statusCode = 500
+          res.end(JSON.stringify({ ok: false, error: String(err?.message || err) }))
+        }
+      },
+    }))
+
+    webCtx.effect(() => web.register({
+      kind: 'exact',
       path: '/plugins/model-hunter/recommend',
       handler: async (req, res) => {
+        if (refuse(req, res)) return
         res.setHeader('content-type', 'application/json; charset=utf-8')
         try {
           const url = new URL(req.url, 'http://localhost')
@@ -710,7 +870,9 @@ export function apply(ctx, config) {
       kind: 'exact',
       path: '/plugins/model-hunter/apply',
       handler: async (req, res) => {
+        if (refuse(req, res)) return
         if (req.method !== 'POST') { res.statusCode = 405; res.end('POST only'); return }
+        if (!/^application\/json\b/i.test(String(req.headers && req.headers['content-type'] || ''))) { res.statusCode = 415; res.end(JSON.stringify({ ok: false, error: 'فقط application/json' })); return }
         let body = ''
         for await (const chunk of req) body += chunk
         try {

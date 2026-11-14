@@ -84,11 +84,27 @@ const half = log.split('\n')
 const frame = text => spawnSync('/opt/homebrew/bin/zstd', ['-c'], { input: Buffer.from(text) }).stdout
 fs.writeFileSync(path.join(dir, 'session.v4.jsonl.zstd'), Buffer.concat([frame(half.slice(0, 4).join('\n') + '\n'), frame(half.slice(4).join('\n'))]))
 const read = createLogCache({ root })
-assert.equal(read('session-test1').requests.length, 3, 'all frames read, not only the first')
-const route = chatCost('session-test1', { readChatLog: read, priceBook: { priceOf: id => prices[id], flush() {} } })
+assert.equal((await read('session-test1')).requests.length, 3, 'all frames read, not only the first')
+// دو درخواستِ هم‌زمان (قرص + پنل) ⇒ یک بار باز کردن، همان شیء
+const [p1, p2] = await Promise.all([read('session-test1'), read('session-test1')])
+assert.equal(p1, p2, 'concurrent reads share one decompress')
+const route = await chatCost('session-test1', { readChatLog: read, priceBook: { priceOf: id => prices[id], flush() {} } })
 assert.equal(route.found, true)
 assert.equal(route.priced, 2)
-assert.equal(chatCost('session-none', { readChatLog: read, priceBook: { priceOf() {}, flush() {} } }).found, false)
+assert.equal((await chatCost('session-none', { readChatLog: read, priceBook: { priceOf() {}, flush() {} } })).found, false)
+// باز کردن ناهمگام است: رشتهٔ اصلی در حینِ آن آزاد می‌ماند
+{
+  const big = path.join(root, '--x--', 'session-big1')
+  fs.mkdirSync(big, { recursive: true })
+  fs.writeFileSync(path.join(big, 'session.v4.jsonl.zstd'), frame((log + '\n').repeat(4000)))
+  const fresh = createLogCache({ root })
+  let ticks = 0
+  const timer = setInterval(() => { ticks += 1 }, 1)
+  const parsedBig = await fresh('session-big1')
+  clearInterval(timer)
+  assert.equal(parsedBig.requests.length, 3 * 4000)
+  assert.ok(ticks > 0, 'event loop kept running while zstd worked')
+}
 fs.rmSync(root, { recursive: true, force: true })
 
 // ۶) چتِ غیرِ OpenRouter (مثلاً anthropic با msg_…): هیچ پرسشی، هیچ $0 ِ دروغ
@@ -108,6 +124,47 @@ assert.equal(anthSum.list[0].cost, null)
 assert.equal(anthSum.topBy, 'tokens')
 assert.deepEqual(anthSum.providers, ['anthropic'])
 
+// ۶ب) سرصفحهٔ پیامِ همتا بی declared-write-scopes هم پاک شود
+{
+  const peer = parseSessionLog([
+    ev('turn/start', 1, { turn: 1 }),
+    ev('user/message', 2, { source: { kind: 'session-message' }, content: [{ type: 'text', text: '[session-message] Sent by another user-launched Harness session, not by the current user.\nfrom: session-x\nsent-at: 2026-11-15T00:00:00Z\n\nسلام مجری' }] }),
+  ].join('\n'))
+  assert.equal(peer.turns.get(1).trigger.text.startsWith('سلام مجری'), true, 'header without scopes is stripped')
+}
+
+// ۶ج) جمعِ هر مدل: قیمتِ نیامده جدا، جوابِ OpenRouter بی gen-… جدا از «غیرِ OpenRouter»
+{
+  const mix = parseSessionLog([
+    ev('turn/start', 1, { turn: 1 }),
+    am(1, 1, 10, 'gen-p1', { inputTokens: 10, outputTokens: 1 }),
+    am(1, 2, 20, 'gen-p2', { inputTokens: 10, outputTokens: 1 }),
+    am(1, 3, 30, null, { inputTokens: 10, outputTokens: 1 }),
+  ].join('\n'))
+  const s = summarizeChatCost(mix, id => (id === 'gen-p1' ? 0.01 : undefined))
+  assert.equal(s.byModel[0].pending, 1)
+  assert.equal(s.byModel[0].unpriced, 1)
+  assert.equal(s.noId, 1, 'openrouter row without gen id counted as noId')
+  assert.equal(s.unpriceable, 1)
+}
+
+// ۶د) صفِ قیمت: تازه‌ترینِ هر دور اول، صفِ قبلی به هم نمی‌ریزد
+{
+  const order = []
+  const gate = []
+  const book2 = createPriceBook({
+    readKey: () => 'k', retryMs: 0, concurrency: 1,
+    fetchImpl: async (url) => { order.push(url.split('id=')[1]); await new Promise(r => gate.push(r)); return { ok: true, json: async () => ({ data: { total_cost: 1 } }) } },
+  })
+  for (const id of ['gen-1', 'gen-2', 'gen-3']) book2.priceOf(id)
+  book2.flush() // gen-3 در پرواز؛ صف: gen-2, gen-1
+  for (const id of ['gen-1', 'gen-2', 'gen-3', 'gen-4', 'gen-5']) book2.priceOf(id)
+  book2.flush() // تازه‌ها: gen-5, gen-4 جلوی gen-2, gen-1
+  while (order.length < 5) { await new Promise(r => setTimeout(r, 1)); const g = gate.shift(); if (g) g() }
+  gate.forEach(g => g())
+  assert.deepEqual(order, ['gen-3', 'gen-5', 'gen-4', 'gen-2', 'gen-1'])
+}
+
 // ۷) «پولِ الکی»: علتِ هر کش‌نخوردن + دلارِ الکی
 {
   const mk = (i, over) => ({ turn: 1, step: i, time: i * 60000, model: 'deepseek-v4.1-flash-1017', ref: 'x@preset/mh-deepseek-v4-1-flash-1017-deepinfra', responseId: 'gen-' + i, real: 'DeepInfra', promptN: 100000, cachedN: 99000, cost: 0.001, tools: [], ...over })
@@ -125,6 +182,8 @@ assert.deepEqual(anthSum.providers, ['anthropic'])
   assert.equal(rows[0].waste, 0, 'first request is not waste')
   assert.ok(Math.abs(rows[2].waste - (0.01 - 100000 * 0.001 / 99000 * 99000 / 100000 * 100000 / 100000)) < 0.002, 'waste = cost minus cached-equivalent')
   assert.ok(rows[2].flags[0].level === 'red' && rows[6].flags[0].level === 'amber')
+  assert.ok(rows[6].flags.find(f => f.kind === 'big').text.includes('۲۵۰ هزار'), 'Persian digits in flag text')
+  assert.ok(!/[0-9]/.test(rows[6].flags.find(f => f.kind === 'big').text), 'no Latin digits next to Persian text')
   const w = summarizeWaste(rows)
   assert.equal(w.byKind.dropped.count, 1)
   assert.ok(w.total > 0.03, 'red waste summed')

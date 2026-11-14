@@ -124,8 +124,9 @@ assert.equal(firstTrackPx('auto a b'), null)
 
 // ۱۲) فارسی
 assert.equal(faNum(12345), '۱۲٬۳۴۵')
-assert.equal(faMoney(0.000913), '$0.00091')
-assert.equal(faMoney(0.0247), '$0.0247')
+assert.equal(faMoney(0.000913), '\u2066$0.00091\u2069', 'LTR isolate: $ stays before the number inside Persian text')
+assert.equal(faMoney(0.0247), '\u2066$0.0247\u2069')
+assert.equal(faMoney(0.0247).replace(/[\u2066\u2069]/g, ''), '$0.0247')
 assert.equal(faMoney(null), '—')
 assert.match(explainCost({ input: 251582, cached: 4096, output: 275 }), /کش نخورد/)
 assert.match(explainCost({ input: 128, cached: 295168, output: 112 }), /از کش آمد/)

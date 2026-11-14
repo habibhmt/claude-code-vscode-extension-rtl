@@ -15,7 +15,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import zlib from 'node:zlib'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 
 export const SESSIONS_ROOT = path.join(os.homedir(), '.dsh', 'sessions')
 const SAFE_ID = /^[A-Za-z0-9_-]{4,120}$/
@@ -65,6 +65,37 @@ export function decompress(buffer) {
   throw new Error('zstd باز نشد (نه برنامهٔ zstd، نه zlib)')
 }
 
+const ZSTD_BINS = ['/opt/homebrew/bin/zstd', '/usr/local/bin/zstd', 'zstd']
+
+/** یک بار اجرای zstd -dc بی‌آنکه رشتهٔ اصلیِ host بایستد. */
+function zstdAsync(bin, buffer) {
+  return new Promise((resolve) => {
+    let child
+    try { child = spawn(bin, ['-dc'], { stdio: ['pipe', 'pipe', 'ignore'] }) } catch { resolve(null); return }
+    const chunks = []
+    child.stdout.on('data', chunk => chunks.push(chunk))
+    child.on('error', () => resolve(null))
+    // لاگِ زنده ممکن است قابِ آخرش نیمه‌کاره باشد ⇒ zstd کدِ خطا می‌دهد ولی هرچه سالم بود بیرون داده.
+    child.on('close', () => resolve(chunks.length > 0 ? Buffer.concat(chunks).toString('utf8') : null))
+    child.stdin.on('error', () => { /* zstd زودتر بسته شد */ })
+    child.stdin.end(buffer)
+  })
+}
+
+/**
+ * همان decompress، ولی ناهمگام: باز کردنِ لاگِ چندمگابایتی (۵۰–۱۵۰ میلی‌ثانیه) دیگر
+ * رشتهٔ اصلیِ host را — که جریانِ زندهٔ همهٔ چت‌ها را هم می‌گرداند — قفل نمی‌کند.
+ * @param buffer - بایت‌های فایل.
+ * @returns متنِ JSONL.
+ */
+export async function decompressAsync(buffer) {
+  for (const bin of ZSTD_BINS) {
+    const text = await zstdAsync(bin, buffer)
+    if (text) return text
+  }
+  return decompress(buffer)
+}
+
 /** نامِ کوتاهِ مدل: «deepseek/deepseek-v4.1-flash-1017@preset/…» ⇒ «deepseek-v4.1-flash-1017». */
 export function shortModel(model) {
   if (typeof model !== 'string' || model === '') return 'نامعلوم'
@@ -81,8 +112,9 @@ function firstText(content, max = 160) {
       // یادداشت‌های خودکارِ اپ (system-reminder، زمان، کانتکست) حرفِ کسی نیستند.
       if (/^\s*(<system-reminder>|Time sampled|Context injection)/.test(block.text)) continue
       let text = block.text
-      // پیامِ همتا: سرصفحهٔ [session-message]… را رد کن تا خودِ حرف بیاید.
-      text = text.replace(/^\[session-message\][\s\S]*?declared-write-scopes:[^\n]*\n/, '')
+      // پیامِ همتا: سرصفحهٔ [session-message]… (خطِ اول + خط‌های «کلید: مقدار» تا خطِ خالی)
+      // را رد کن تا خودِ حرف بیاید — چه declared-write-scopes داشته باشد چه نه.
+      text = text.replace(/^\[session-message\][^\n]*\n(?:[a-z-]+: [^\n]*\n)*\n?/, '')
       text = text.replace(/\s+/g, ' ').trim()
       return text.length > max ? text.slice(0, max) + '…' : text
     }
@@ -164,6 +196,11 @@ function slugOf(name) {
   return String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
 }
 
+/** عددِ صحیح با رقمِ فارسی (برچسب‌ها کنارِ متنِ فارسی می‌نشینند؛ قبلاً «318 هزار» لاتین بود). */
+function faInt(value) {
+  return Math.round(value).toLocaleString('fa-IR', { useGrouping: false })
+}
+
 const GAP_MS = 5 * 60 * 1000
 const MISS_MIN_PROMPT = 20000
 const BIG_PROMPT = 200000
@@ -221,8 +258,8 @@ export function flagWaste(rows) {
       flags.push({ kind: 'fallback', level: 'red', text: 'preset روی سرورِ دیگری بود ولی ' + row.real + ' جواب داد (جایگزینِ خودکار) ⇒ کش به خطر افتاد' })
     }
     if (/-pro(\b|-)/.test(row.model || '')) flags.push({ kind: 'pro', level: 'amber', text: 'مدلِ گران (pro) — هر توکن چند برابرِ flash' })
-    if (row.promptN > BIG_PROMPT) flags.push({ kind: 'big', level: 'amber', text: 'چت خیلی بزرگ است: ' + Math.round(row.promptN / 1000) + ' هزار توکن در هر درخواست' })
-    if ((stepsPerTurn.get(row.turn) ?? 0) > MANY_STEPS) flags.push({ kind: 'steps', level: 'amber', text: 'این نوبت ' + stepsPerTurn.get(row.turn) + ' رفت‌وبرگشت داشت؛ هر قدم کلِ تاریخچه را دوباره می‌فرستد' })
+    if (row.promptN > BIG_PROMPT) flags.push({ kind: 'big', level: 'amber', text: 'چت خیلی بزرگ است: ' + faInt(row.promptN / 1000) + ' هزار توکن در هر درخواست' })
+    if ((stepsPerTurn.get(row.turn) ?? 0) > MANY_STEPS) flags.push({ kind: 'steps', level: 'amber', text: 'این نوبت ' + faInt(stepsPerTurn.get(row.turn)) + ' رفت‌وبرگشت داشت؛ هر قدم کلِ تاریخچه را دوباره می‌فرستد' })
     if (row.responseId && row.responseId.startsWith('gen-')) prev = row
     return { ...row, flags, waste }
   })
@@ -260,7 +297,8 @@ export function isOpenRouterId(id) {
 export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
   const pricedRows = parsed.requests.map((row) => {
     const base = { ...row, promptN: (row.input ?? 0) + (row.cached ?? 0), cachedN: row.cached ?? 0, real: null }
-    if (!isOpenRouterId(row.responseId)) return { ...base, cost: null, pending: false, unpriceable: true }
+    // جوابِ OpenRouter که شناسهٔ gen-… ندارد (قطع‌شده/خطا) هم بی‌قیمت است، ولی «غیرِ OpenRouter» نیست.
+    if (!isOpenRouterId(row.responseId)) return { ...base, cost: null, pending: false, unpriceable: true, noId: row.provider === 'openrouter' }
     const cost = priceOf(row.responseId)
     const detail = detailOf(row.responseId)
     return {
@@ -279,6 +317,7 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
   let priced = 0
   let pending = 0
   let unpriceable = 0
+  let noId = 0
   const tokens = { input: 0, cached: 0, output: 0 }
   const providers = new Set()
   const byModel = new Map()
@@ -287,12 +326,16 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
     if (row.cost !== null) { total += row.cost; priced += 1 }
     if (row.pending) pending += 1
     if (row.unpriceable) unpriceable += 1
+    if (row.noId) noId += 1
     tokens.input += row.input ?? 0
     tokens.cached += row.cached ?? 0
     tokens.output += row.output ?? 0
     if (row.real || row.provider) providers.add(row.real || row.provider)
-    const model = byModel.get(row.model) ?? { model: row.model, count: 0, cost: 0, input: 0, cached: 0, output: 0 }
+    const model = byModel.get(row.model) ?? { model: row.model, count: 0, cost: 0, pending: 0, unpriced: 0, input: 0, cached: 0, output: 0 }
     model.count += 1
+    // قیمتِ نیامده جمعِ مدل را «$0» ِ دروغ نکند: جدا شمرده می‌شود.
+    if (row.pending) model.pending += 1
+    if (row.unpriceable) model.unpriced += 1
     model.cost += row.cost ?? 0
     model.input += row.input ?? 0
     model.cached += row.cached ?? 0
@@ -311,6 +354,7 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
     priced,
     pending,
     unpriceable,
+    noId,
     waste,
     providers: [...providers],
     tokens,
@@ -339,7 +383,9 @@ export function createPriceBook({ readKey, fetchImpl = fetch, concurrency = 4, r
   const retryAt = new Map() // id ⇒ زمانِ تلاشِ بعدی
   const attempts = new Map()
   const queue = []
+  const fresh = [] // شناسه‌های تازه در همین دور (به ترتیبِ زمان)
   const queued = new Set()
+  const flying = new Set() // در حالِ پرسیدن ⇒ دوباره در صف نرود (پرسشِ تکراری)
   let inFlight = 0
 
   const pump = () => {
@@ -347,7 +393,8 @@ export function createPriceBook({ readKey, fetchImpl = fetch, concurrency = 4, r
       const id = queue.shift()
       queued.delete(id)
       inFlight += 1
-      lookup(id).finally(() => { inFlight -= 1; pump() })
+      flying.add(id)
+      lookup(id).finally(() => { inFlight -= 1; flying.delete(id); pump() })
     }
   }
 
@@ -386,33 +433,51 @@ export function createPriceBook({ readKey, fetchImpl = fetch, concurrency = 4, r
     priceOf(id) {
       if (prices.has(id)) return prices.get(id)
       const wait = retryAt.get(id)
-      if (!queued.has(id) && (wait === undefined || wait <= Date.now())) {
+      if (!queued.has(id) && !flying.has(id) && (wait === undefined || wait <= Date.now())) {
         retryAt.delete(id)
         queued.add(id)
-        queue.push(id)
+        fresh.push(id)
       }
       return undefined
     },
     /** جزئیاتِ OpenRouter برای یک gen-… (سرورِ واقعی و کشِ واقعی) یا null. */
     detailOf(id) { return details.get(id) ?? null },
-    /** پس از هر دورِ priceOf صدا بزن تا صف راه بیفتد (تازه‌ترها اول). */
-    flush() { queue.reverse(); pump() },
+    /**
+     * پس از هر دورِ priceOf صدا بزن تا صف راه بیفتد: تازه‌ترینِ این دور اول، بعد
+     * باقیِ صفِ قبلی به همان ترتیبِ خودش (قبلاً کلِ صف هر بار برعکس می‌شد ⇒ ترتیب
+     * یک‌درمیان عوض می‌شد و قدیمی‌ها گاهی جلو می‌افتادند).
+     */
+    flush() { queue.unshift(...fresh.reverse()); fresh.length = 0; pump() },
     size() { return prices.size },
   }
 }
 
-/** لاگِ پارس‌شده را تا وقتی فایل عوض نشده نگه می‌دارد. */
-export function createLogCache({ root = SESSIONS_ROOT } = {}) {
+/**
+ * لاگِ پارس‌شده را تا وقتی فایل عوض نشده نگه می‌دارد (ناهمگام).
+ * چند درخواستِ هم‌زمان برای یک فایل (قرصِ پایین + پنل) فقط یک بار باز می‌کنند.
+ * @returns read(sessionId) ⇒ Promise<parsed | null>
+ */
+export function createLogCache({ root = SESSIONS_ROOT, max = 12 } = {}) {
   const cache = new Map()
-  return function read(sessionId) {
+  const inflight = new Map()
+  return async function read(sessionId) {
     const file = findSessionLog(sessionId, root)
     if (!file) return null
-    const stat = fs.statSync(file)
+    const stat = await fs.promises.stat(file)
     const stamp = `${stat.size}:${stat.mtimeMs}`
     const hit = cache.get(file)
     if (hit && hit.stamp === stamp) return hit.parsed
-    const parsed = parseSessionLog(decompress(fs.readFileSync(file)))
-    cache.set(file, { stamp, parsed })
-    return parsed
+    const key = file + '|' + stamp
+    if (inflight.has(key)) return inflight.get(key)
+    const job = (async () => {
+      const parsed = parseSessionLog(await decompressAsync(await fs.promises.readFile(file)))
+      cache.delete(file)
+      cache.set(file, { stamp, parsed })
+      // فقط چند چتِ آخر در حافظه بماند (هر لاگِ بزرگ ده‌ها مگابایت متن است).
+      while (cache.size > max) cache.delete(cache.keys().next().value)
+      return parsed
+    })()
+    inflight.set(key, job)
+    try { return await job } finally { inflight.delete(key) }
   }
 }

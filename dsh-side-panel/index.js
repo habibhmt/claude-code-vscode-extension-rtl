@@ -12,11 +12,14 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createLogCache, createPriceBook, summarizeChatCost } from './cost-log.js'
 
 const OPENROUTER = 'https://openrouter.ai/api/v1'
 const ENV_PATH = path.join(os.homedir(), '.dsh', '.env')
 const CACHE_MS = 1500
+// کنارِ خودِ همین فایل (نه مسیرِ سخت‌نوشتهٔ پوشهٔ پروژه).
+const DIAG_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), 'diag.log')
 
 export const name = '@local/dsh-side-panel'
 export const inject = []
@@ -40,6 +43,44 @@ function readKey() {
 }
 
 let cache = { ts: 0, value: null }
+
+const LOOPBACK = /^(127\.\d+\.\d+\.\d+|localhost|\[::1\])(:\d+)?$/i
+const DIAG_MAX_BYTES = 1024 * 1024
+
+/**
+ * سدِ کمینه برای مسیرهای این افزونه. سرورِ وبِ DSH خودش احرازِ هویتِ سراسری ندارد
+ * (README ِ dsh-host-webserver: «No server-wide authentication»)؛ پس بی این سد، هر
+ * صفحهٔ وبِ دیگری در مرورگر می‌توانست به ‎/diag‎ بنویسد (POST ِ ساده، بی preflight)
+ * یا با DNS-rebinding خرجِ چت‌ها و تکهٔ پیام‌های حبیب را بخواند.
+ * - Host اگر هست باید loopback باشد (جلوی DNS-rebinding).
+ * - درخواستِ cross-site ِ مرورگر رد می‌شود؛ Origin اگر هست باید همان Host یا اپِ دسکتاپ باشد.
+ * درخواستِ خودِ پنل (same-origin یا dsh-app://) و curl ِ محلی رد نمی‌شوند.
+ * @param req - درخواستِ Node.
+ * @returns null یعنی مجاز؛ وگرنه علتِ رد.
+ */
+export function rejectReason(req) {
+  const headers = (req && req.headers) || {}
+  const host = typeof headers.host === 'string' ? headers.host.trim() : ''
+  if (host !== '' && !LOOPBACK.test(host)) return 'host'
+  if (headers['sec-fetch-site'] === 'cross-site') return 'cross-site'
+  const origin = typeof headers.origin === 'string' ? headers.origin.trim() : ''
+  if (origin !== '' && origin !== 'null') {
+    let parsed
+    try { parsed = new URL(origin) } catch { return 'origin' }
+    const sameHost = host !== '' && parsed.host.toLowerCase() === host.toLowerCase()
+    if (!sameHost && parsed.protocol !== 'dsh-app:' && parsed.protocol !== 'file:') return 'origin'
+  }
+  return null
+}
+
+/** اگر رد شد، 403 می‌نویسد و true برمی‌گرداند. */
+function refuse(req, res) {
+  const reason = rejectReason(req)
+  if (reason === null) return false
+  res.statusCode = 403
+  res.end(JSON.stringify({ error: 'forbidden: ' + reason }))
+  return true
+}
 
 /**
  * خواندنِ بدنهٔ JSON یک درخواستِ POST با سقفِ ۱۶ کیلوبایت.
@@ -71,8 +112,8 @@ const priceBook = createPriceBook({ readKey })
  * @param sessionId - شناسهٔ سشن.
  * @returns خلاصهٔ هزینه یا { found: false }.
  */
-export function chatCost(sessionId, deps = { readChatLog, priceBook }) {
-  const parsed = deps.readChatLog(sessionId)
+export async function chatCost(sessionId, deps = { readChatLog, priceBook }) {
+  const parsed = await deps.readChatLog(sessionId)
   if (!parsed) return { sessionId, found: false }
   const summary = summarizeChatCost(parsed, id => deps.priceBook.priceOf(id), id => (typeof deps.priceBook.detailOf === 'function' ? deps.priceBook.detailOf(id) : null))
   deps.priceBook.flush()
@@ -114,6 +155,7 @@ export function apply(ctx) {
       handler: async (req, res) => {
         res.setHeader('content-type', 'application/json; charset=utf-8')
         res.setHeader('cache-control', 'no-store')
+        if (refuse(req, res)) return
         try {
           res.end(JSON.stringify(await keyState()))
         } catch (err) {
@@ -136,10 +178,25 @@ export function apply(ctx) {
           res.end(JSON.stringify({ error: 'فقط POST' }))
           return
         }
+        if (refuse(req, res)) return
+        // فقط application/json: فرمِ سادهٔ مرورگر (text/plain، بی preflight) راه ندارد.
+        if (!/^application\/json\b/i.test(String(req.headers && req.headers['content-type'] || ''))) {
+          res.statusCode = 415
+          res.end(JSON.stringify({ error: 'فقط application/json' }))
+          return
+        }
         try {
           const body = await readJsonBody(req)
           const line = JSON.stringify({ ts: new Date().toISOString(), ...body }) + '\n'
-          fs.appendFileSync(path.join(os.homedir(), '1-MY-WORK', '136th-day-fix-rtl-claude', 'dsh-side-panel', 'diag.log'), line)
+          // سقفِ ۱ مگابایت: diag.log نباید بی‌حد بزرگ شود.
+          let size = 0
+          try { size = fs.statSync(DIAG_PATH).size } catch { size = 0 }
+          if (size + Buffer.byteLength(line) > DIAG_MAX_BYTES) {
+            res.statusCode = 507
+            res.end(JSON.stringify({ error: 'diag.log پر است (۱ مگابایت)' }))
+            return
+          }
+          fs.appendFileSync(DIAG_PATH, line)
           res.end(JSON.stringify({ ok: true }))
         } catch (err) {
           res.statusCode = 500
@@ -154,10 +211,11 @@ export function apply(ctx) {
       handler: async (req, res) => {
         res.setHeader('content-type', 'application/json; charset=utf-8')
         res.setHeader('cache-control', 'no-store')
+        if (refuse(req, res)) return
         try {
           const url = new URL(req.url, 'http://localhost')
           const sessionId = url.searchParams.get('sessionId') || ''
-          res.end(JSON.stringify(chatCost(sessionId)))
+          res.end(JSON.stringify(await chatCost(sessionId)))
         } catch (err) {
           res.statusCode = 500
           res.end(JSON.stringify({ error: String(err && err.message ? err.message : err) }))

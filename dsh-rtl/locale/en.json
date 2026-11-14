@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Right-to-left layout",
+    "description": "Mirrors the Web UI for Persian: right-to-left direction, Vazirmatn typography, left-to-right code blocks, and a settings page with one switch per effect.",
+    "detail": "docs/DETAIL.md"
+  }
+}

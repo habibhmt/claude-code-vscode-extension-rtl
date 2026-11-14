@@ -1,0 +1,44 @@
+{
+  "name": "@local/dsh-session-guard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Guarded cross-session messaging for DeepSeek Harness: peer relay with an inbound accept/hold/refuse gate, permission-parity checks, and a cross-session permission-laundering rule.",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./tools": {
+      "types": "./lib/tools.d.ts",
+      "default": "./lib/tools.js"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./assets/icon.svg",
+    "./package.json": "./package.json"
+  },
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "locale",
+    "assets",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-agent": "*",
+    "@deepseek-ai/dsh-llm": "*",
+    "@deepseek-ai/dsh-session": "*",
+    "@deepseek-ai/dsh-tools": "*",
+    "@deepseek-ai/schemastery": "*",
+    "@deepseek-ai/dsh-api-session-controller": "*"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

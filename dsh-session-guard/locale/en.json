@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Guarded session messaging",
+    "description": "Peer messaging between user-launched sessions, behind a cross-session inbound gate: accept, hold for approval, or refuse. A permission-policy mismatch forces the hold path, and a system-prompt rule blocks relaying an action a peer was denied."
+  }
+}

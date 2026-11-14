@@ -1,0 +1,10 @@
+# dsh-session-guard bundle patch.
+# Two rows over the profile root: the Host-side guarded service and its
+# model-facing tools. Row order is documentation only; activation is driven by
+# service availability.
+- insert:
+    - id: session-guard
+      name: '@local/dsh-session-guard'
+
+    - id: session-guard-tools
+      name: '@local/dsh-session-guard/tools'

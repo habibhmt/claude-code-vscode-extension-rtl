@@ -1,0 +1,29 @@
+{
+  "name": "@local/dsh-rtl",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Right-to-left and Persian typography for the DSH Web UI",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "docs",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": ["@deepseek-ai/dsh-client-ui-settings"]
+    }
+  }
+}

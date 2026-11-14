@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Session Messaging Tools">
+  <rect width="64" height="64" rx="14" fill="#0d1526"/>
+  <path d="M11 20a5 5 0 0 1 5-5h18a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H24l-8 6v-6h-.5A4.5 4.5 0 0 1 11 30.5z" fill="#4f8cff"/>
+  <path d="M36 22h13a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5h-2l-6 5v-5h-1a5 5 0 0 1-5-5z" fill="#9dbbff" opacity=".9"/>
+  <circle cx="21" cy="25" r="2" fill="#0d1526"/>
+  <circle cx="28" cy="25" r="2" fill="#0d1526"/>
+</svg>

@@ -40,3 +40,6 @@ abzar/hoshdar-saghf.reset.log
 # Model hunter / OpenRouter scanner artifacts
 abzar/openrouter-deepseek/.cache/
 abzar/openrouter-deepseek/khoroji/
+
+# Archive (flowchart data retired 2026-11-15)
+archive/

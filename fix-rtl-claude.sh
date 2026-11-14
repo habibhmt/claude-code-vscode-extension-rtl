@@ -586,6 +586,16 @@ patch_ide "Windsurf" "$HOME/.windsurf/extensions/anthropic.claude-code-*/webview
 patch_ide "Windsurf Next" "$HOME/.windsurf-next/extensions/anthropic.claude-code-*/webview"
 patch_ide "Devin" "$HOME/.devin/extensions/anthropic.claude-code-*/webview"
 
+# Project 216 owns the OpenRouter model selector overlay. Reapply after every
+# RTL rebuild, including a stamp-only run. Anchor drift fails this install.
+DEEPSEEK_MODEL_PATCH="$REPO_DIR/../216th-day-migration-to-open-source-model/scripts/patch_deepseek_models.py"
+if [ -f "$DEEPSEEK_MODEL_PATCH" ] && [ "$HAVE_PYTHON" = true ]; then
+    for deepseek_ext in "$HOME"/.vscode/extensions/anthropic.claude-code-*/extension.js; do
+        [ -f "$deepseek_ext" ] || continue
+        python3 "$DEEPSEEK_MODEL_PATCH" "$deepseek_ext"
+    done
+fi
+
 if [ $patched -eq 0 ] && [ $skipped -gt 0 ]; then
     # everything already carries the current stamp; say nothing
     [ "$KILL_ZOMBIES" = true ] && "$REPO_DIR/kill-claude-zombies.sh" --yes

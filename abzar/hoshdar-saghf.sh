@@ -11,7 +11,7 @@ PLIST=~/Library/LaunchAgents/com.habib.136.hoshdar-saghf.plist
 say() { print -r -- "[$(date '+%F %T')] $1" >> $LOG }
 
 if [[ -n $HOSHDAR_AZMUN ]]; then d=$HOSHDAR_AZMUN; else
-  j=$(RESET_KHOSHK=1 RESET_LOG=$LOG $NODE $REPO/reset_ha.mjs 2>>$LOG)
+  j=$(RESET_KHOSHK=1 RESET_LOG=$INJA/hoshdar-saghf.reset.log $NODE $REPO/reset_ha.mjs 2>>$LOG)
   d=$(print -r -- $j | /usr/bin/python3 -I -c 'import json,sys,re
 try: print(re.search(r"(\d+)% used", json.load(sys.stdin)["khande"]["claude"]["vaz"]).group(1))
 except Exception: print("")')

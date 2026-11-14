@@ -3118,7 +3118,8 @@
   var radif_amar = [['saat', '۱ ساعت'], ['ruz', '۲۴ ساعت'], ['hame', 'کل']];
   var amar_matn_akhar = '', amar_bozorg = false, ja_kuchak_amar = null;
   function fa(n) { return String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d]; }); }
-  function dolar(n) { return '$' + (n >= 1 ? n.toFixed(2) : n.toFixed(3)); }
+  function dolar(n) { return Number.isFinite(n) ? '$' + (n >= 1 ? n.toFixed(2) : n.toFixed(3)) : 'نامعلوم'; }
+  function amar_esc(s) { return String(s == null ? 'نامعلوم' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   // small: no row names, they take the most room (Habib, 26 Oct 23:12: «اون قسمت ستون اول رو حذف کن که جا بگیره
   // خودم میفهمم»); the rows stay in the same order, 1 h · 24 h · all, and big shows the names
   function jadval_kuchak(a, ba_esm) {
@@ -3135,12 +3136,12 @@
   function jadval_bozorg(a) {
     var esm = {}; sotun_amar.forEach(function (c) { esm[c[0]] = c[1]; });
     var h = '<div class="crtl-amar-sar"><b>تماس‌های «حدس» در همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>' + jadval_kuchak(a, true);
-    h += '<div class="crtl-amar-dolar">' + radif_amar.map(function (r) { return r[1] + ': <b>' + dolar((a[r[0]] || {}).usd || 0) + '</b>'; }).join(' · ') + '</div>';
+    h += '<div class="crtl-amar-dolar">' + radif_amar.map(function (r) { return r[1] + ': <b>' + dolar((a[r[0]] || {}).usd) + '</b>'; }).join(' · ') + '</div>';
     h += '<table class="crtl-amar-riz"><tr><th>ساعت</th><th>کارها</th><th>مدل</th><th>ورودی</th><th>خروجی</th><th>نوشتنِ کش</th><th>خواندنِ کش</th><th>دلار</th></tr>';
     (a.riz || []).forEach(function (x) {
       var d = new Date(x.t), t = d.toLocaleString('fa-IR', { timeZone: 'Asia/Tehran', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-      h += '<tr><td>' + t + '</td><td>' + x.b.map(function (k) { return esm[k] || k; }).join('، ') + '</td><td>' + (x.rah === 'sonnet' ? 'Sonnet' : 'fork (Opus)') + '</td>' +
-        [x['in'], x.out, x.cw, x.cr].map(function (n) { return '<td>' + fa(n.toLocaleString('en-US')) + '</td>'; }).join('') + '<td>' + dolar(x.usd) + '</td></tr>';
+      h += '<tr><td>' + t + '</td><td>' + x.b.map(function (k) { return esm[k] || k; }).join('، ') + '</td><td>' + amar_esc(x.model || 'نامعلوم') + (x.provider ? ' / ' + amar_esc(x.provider) : '') + '</td>' +
+        [x['in'], x.out, x.cw, x.cr].map(function (n) { return '<td>' + (Number.isFinite(n) ? fa(n.toLocaleString('en-US')) : 'نامعلوم') + '</td>'; }).join('') + '<td>' + dolar(x.usd) + '</td></tr>';
     });
     return h + '</table>';
   }

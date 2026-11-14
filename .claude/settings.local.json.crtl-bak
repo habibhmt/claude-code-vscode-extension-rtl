@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/fix-rtl-claude.sh)"
+    ]
+  },
+  "autoCompactWindow": 200000,
+  "remoteControlAtStartup": true
+}

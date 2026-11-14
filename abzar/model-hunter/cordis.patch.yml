@@ -1,0 +1,8 @@
+- insert:
+    - id: model-hunter
+      name: '@local/model-hunter'
+      config:
+        families:
+          - deepseek
+        refreshMinutes: 120
+        focus: deepseek/deepseek-v4.1-flash-1017

@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Model hunter",
+    "description": "Ranks DeepSeek models on OpenRouter by delivery quality and discount, shows them in a sidebar panel, and switches the active model with a provider-pinned preset.",
+    "detail": "docs/DETAIL.md"
+  }
+}

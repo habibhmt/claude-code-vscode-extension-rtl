@@ -35,3 +35,8 @@ reset_ha.log
 reset_ha.dide.json
 abzar/bale-136.log
 abzar/hoshdar-saghf.log
+abzar/hoshdar-saghf.reset.log
+
+# Model hunter / OpenRouter scanner artifacts
+abzar/openrouter-deepseek/.cache/
+abzar/openrouter-deepseek/khoroji/

@@ -53,7 +53,6 @@ window.__ModuleLoader__.load({
       .mh-table tr:hover td { background: var(--dsw-alias-bg-layer-1); }
       .mh-fam { margin: 18px 0 6px; font-size: 13px; font-weight: 600; color: var(--dsw-alias-label-primary); }
       .mh-q { font-variant-numeric: tabular-nums; }
-      .mh-off { color: var(--dsw-alias-state-success-primary); font-weight: 600; }
       .mh-err { color: var(--dsw-alias-state-error-primary); font-size: 12px; }
       .mh-ok { color: var(--dsw-alias-state-success-primary); font-size: 12px; }
       .mh-empty { color: var(--dsw-alias-label-secondary); padding: 24px 0; }
@@ -146,11 +145,11 @@ window.__ModuleLoader__.load({
         ['tier', 'سطح', 'سطحِ ظرفیتِ همان اندپوینت: استاندارد = ظرفیتِ معمول؛ flex = ارزان‌تر با اولویتِ کمتر؛ priority (fast/turbo/prime) = سریع‌تر و گران‌تر', (r) => r.tier || 'default', 'asc'],
         ['quant', 'دقت', 'quantization: fp32/bf16 دقیق‌ترین، fp8 متعارف، fp4/mxfp4 سبک‌شده', (r) => r.quantization, 'asc'],
         ['quality', 'کیفیت', 'امتیازِ این پلاگین (نه OpenRouter): ۰٫۷۲×دقت + ۰٫۲۸×آپ‌تایم + امتیازِ سطح', (r) => r.quality, 'desc'],
-        ['off', 'off', 'تخفیفِ اعلام‌شدهٔ OpenRouter', (r) => r.offPct, 'desc'],
+        ['real', 'آف واقعی', 'صرفهٔ واقعی نسبت به دیپ‌سیکِ رسمیِ همان مدل، با الگوی مصرفِ خودمان (کش ۹۲٪ · ورودی ۳۳۸٬۰۰۰ · خروجی ۶۹۸ توکن)', (r) => (r.realOffPct == null ? -1e9 : r.realOffPct), 'desc'],
+        ['cost', '$/درخواست', 'هزینهٔ هر درخواستِ خودمان با همان الگو (دلار)', (r) => (r.costCalib == null ? Infinity : r.costCalib), 'asc'],
         ['in', 'ورودی $/M', 'قیمتِ هر یک میلیون توکنِ ورودیِ بدونِ کش', (r) => r.priceIn1m, 'asc'],
-        ['cache', 'کش $/M', 'قیمتِ هر یک میلیون توکنِ خوانده‌شده از کش', (r) => r.cacheRead1m ?? 0, 'asc'],
+        ['cache', 'کش $/M', 'قیمتِ هر یک میلیون توکنِ خوانده‌شده از کش (— = ارائه‌دهنده منتشر نکرده)', (r) => (r.cacheRead1m == null ? Infinity : r.cacheRead1m), 'asc'],
         ['out', 'خروجی $/M', 'قیمتِ هر یک میلیون توکنِ خروجی', (r) => r.priceOut1m, 'asc'],
-        ['listed', 'اعلامی ورودی/خروجی', 'قیمتِ اعلامیِ ارائه‌دهنده پیش از تخفیف', (r) => r.listedIn1m ?? r.priceIn1m, 'asc'],
         ['uptime', 'آپ‌تایم', 'درصدِ موفقیتِ ۳۰ دقیقهٔ گذشته', (r) => (r.uptime == null ? -1 : r.uptime), 'desc'],
       ]
       const sortValue = React.useCallback((r) => {
@@ -178,7 +177,7 @@ window.__ModuleLoader__.load({
           if (task === 'fast') return (r.tier === 'priority' ? 100 : r.tier === 'ultrafast' ? 60 : 0) + r.quality
           if (task === 'long') return (r.maxCompletion || 0) * 1e-6 + r.quality
           if (task === 'code') return r.quality + ((r.quantization === 'fp8' || r.quantization === 'fp16') ? 5 : 0)
-          return 0.55 * (r.quality / 100) + 0.45 * (r.offPct / 100)
+          return 0.55 * (r.quality / 100) + 0.45 * (Math.max(0, r.realOffPct || 0) / 100)
         }
         const dir = sortDir === 'asc' ? 1 : -1
         const ordered = [...list].sort((a, b) => {
@@ -260,11 +259,11 @@ window.__ModuleLoader__.load({
         h('td', null, TIER_FA[r.tier || 'default'] || r.tier || 'استاندارد'),
         h('td', null, r.quantization),
         h('td', { className: 'mh-q' }, r.quality.toFixed(1)),
-        h('td', { className: 'mh-off' }, r.offPct ? `${r.offPct.toFixed(0)}%` : '—'),
+        h('td', { className: 'mh-q' }, r.realOffPct == null ? '—' : `${r.realOffPct > 0 ? '+' : ''}${r.realOffPct.toFixed(1)}٪`),
+        h('td', { className: 'mh-q' }, r.costCalib == null ? '—' : r.costCalib.toFixed(5)),
         h('td', { className: 'mh-q' }, r.priceIn1m.toFixed(4)),
-        h('td', { className: 'mh-q' }, (r.cacheRead1m ?? 0).toFixed(4)),
+        h('td', { className: 'mh-q' }, (r.cacheRead1m == null || r.cacheKnown === false) ? '—' : r.cacheRead1m.toFixed(4)),
         h('td', { className: 'mh-q' }, r.priceOut1m.toFixed(4)),
-        h('td', { className: 'mh-q' }, `${(r.listedIn1m ?? r.priceIn1m).toFixed(4)} / ${(r.listedOut1m ?? r.priceOut1m).toFixed(4)}`),
         h('td', null, r.uptime == null ? '—' : `${r.uptime.toFixed(0)}%`),
         h('td', null, h('button', {
           className: 'mh-btn', disabled: busy,
@@ -300,7 +299,11 @@ window.__ModuleLoader__.load({
             'گزینه‌های بعدی: ' + rec.alternatives.map((a) => `${a.provider} $${a.costPerRequest}`).join(' · '))) : null,
         data && rows.length ? table : null,
         data && rows.length ? h('div', { className: 'mh-legend' },
-          'سطح: استاندارد = ظرفیتِ معمول · flex = ارزان‌تر و دیرتر · priority = سریع‌تر و گران‌تر  |  کش = قیمتِ خواندن از حافظهٔ کش  |  اعلامی = قیمت پیش از تخفیف') : null)
+          'سطح: استاندارد = ظرفیتِ معمول · flex = ارزان‌تر و دیرتر · priority = سریع‌تر و گران‌تر'
+          + '  |  کش = قیمتِ خواندن از حافظهٔ کش (— = منتشر نشده؛ همان توکن‌ها قیمتِ کاملِ ورودی می‌خورند)'
+          + '  |  آف واقعی و $/درخواست با الگوی خودمان حساب می‌شوند: '
+          + `کش ${(data.calibration || {}).cacheSharePct ?? 92}٪ · ورودی ${(data.calibration || {}).promptTokens ?? 338000} · خروجی ${(data.calibration || {}).outputTokens ?? 698} توکن`
+          + '  |  — در آف واقعی = این مدل پایهٔ رسمیِ دیپ‌سیک ندارد') : null)
     }
 
     function Icon(props) {

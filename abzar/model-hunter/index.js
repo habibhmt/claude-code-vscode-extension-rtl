@@ -1,13 +1,14 @@
 /**
  * Model Hunter — Host half
  * ------------------------
- * OpenRouter را می‌خواند، مدل‌های دیپ‌سیک را روی «کیفیت تحویل» و «off» رتبه می‌دهد،
- * با ابزار model_hunter در اختیار مدل می‌گذارد و انتخابِ مدل را (با preset برای پینِ
- * ارائه‌دهنده) روی DSH اعمال می‌کند.
+ * OpenRouter را می‌خواند، مدل‌های دیپ‌سیک را روی «کیفیت تحویل» و «صرفهٔ واقعی نسبت به
+ * دیپ‌سیکِ رسمی» رتبه می‌دهد، با ابزار model_hunter در اختیار مدل می‌گذارد و انتخابِ مدل
+ * را (با preset برای پینِ ارائه‌دهنده) روی DSH اعمال می‌کند.
  *
- * خروجیِ HTTP برای پنل:
- *   GET  /api/model-hunter/state   → اسنپ‌شات
- *   POST /api/model-hunter/apply   → {model, provider, quantization}
+ * خروجیِ HTTP برای پنل (بیرونِ `/api` تا از فنسِ نشست رد نشود):
+ *   GET  /plugins/model-hunter/state      → اسنپ‌شات + الگوی کالیبره
+ *   GET  /plugins/model-hunter/recommend  → پیشنهاد بر اساسِ مصرفِ واقعیِ چت‌ها
+ *   POST /plugins/model-hunter/apply      → {model, provider, scope, sessionId}
  */
 
 import fs from 'node:fs'
@@ -23,11 +24,20 @@ const PRECISION = {
 }
 const TIER_BONUS = { priority: 4, ultrafast: 2, flex: -4 }
 
+/**
+ * الگوی مصرفِ خودِ ما، برای «کالیبره»کردنِ هزینه — اعدادِ حبیب:
+ * کش ۹۲٪، ورودیِ هر درخواست ۳۳۸٬۰۰۰ توکن، خروجی ۶۹۸ توکن.
+ * با این الگو، هزینهٔ هر درخواست در هر ارائه‌دهنده حساب می‌شود و آفِ واقعی
+ * نسبت به «دیپ‌سیکِ رسمیِ همان مدل» درمی‌آید (نه تخفیفِ اعلامیِ OpenRouter).
+ */
+const CALIBRATION = { cacheSharePct: 92, promptTokens: 338000, outputTokens: 698 }
+
 const DEFAULTS = {
   families: ['deepseek'],
   refreshMinutes: 120,
   focus: FOCUS,
   managementKeyEnv: 'OPENROUTER_MANAGEMENT_KEY',
+  calibration: CALIBRATION,
 }
 
 let state = { ts: 0, families: {}, rows: [], error: null }
@@ -35,6 +45,42 @@ let state = { ts: 0, families: {}, rows: [], error: null }
 const num = (x, d = 0) => {
   const n = Number(x)
   return Number.isFinite(n) ? n : d
+}
+
+/**
+ * قیمت‌ِ مؤثرِ توکنِ کش‌شده (دلار به ازای یک میلیون).
+ * اگر ارائه‌دهنده قیمتِ کش را منتشر نکرده باشد (`null`)، یعنی کش ندارد و همان
+ * توکن‌ها به قیمتِ کاملِ ورودی حساب می‌شوند. «۰» گذاشتن، هزینه را رایگان و
+ * آف را دروغین می‌کند.
+ */
+export function effCachePrice(priceInPerM, cacheReadPerM) {
+  return cacheReadPerM == null ? num(priceInPerM) : num(cacheReadPerM)
+}
+
+/** هزینهٔ یک درخواست با الگوی مصرفِ کالیبره (دلار). */
+export function calibratedCost(row, calib = CALIBRATION) {
+  const c = { ...CALIBRATION, ...(calib || {}) }
+  const share = Math.max(0, Math.min(1, num(c.cacheSharePct, 92) / 100))
+  const prompt = num(c.promptTokens, 338000)
+  const out = num(c.outputTokens, 698)
+  const cachePerM = effCachePrice(row.priceIn1m, row.cacheRead1m)
+  return (prompt * share * cachePerM + prompt * (1 - share) * num(row.priceIn1m) + out * num(row.priceOut1m)) / 1e6
+}
+
+/**
+ * به هر ردیفِ یک مدل، هزینهٔ کالیبره و «آفِ واقعی» را می‌چسباند.
+ * پایه = اندپوینتِ رسمیِ DeepSeek همان مدل؛ اگر آن مدل در OpenRouter ارائه‌دهندهٔ
+ * رسمیِ دیپ‌سیک ندارد، آفِ واقعی `null` می‌ماند (حدس نمی‌زنیم).
+ */
+export function withRealOff(rows, calib = CALIBRATION) {
+  const costs = rows.map((r) => calibratedCost(r, calib))
+  const officialIndex = rows.findIndex((r) => r.official)
+  const base = officialIndex >= 0 ? costs[officialIndex] : null
+  return rows.map((r, i) => ({
+    ...r,
+    costCalib: Math.round(costs[i] * 1e6) / 1e6,
+    realOffPct: base && base > 0 ? Math.round((1 - costs[i] / base) * 1000) / 10 : null,
+  }))
 }
 
 async function getJson(url) {
@@ -50,11 +96,10 @@ function scoreEndpoint(e, slug) {
   const uptimeVal = uptime == null ? 60 : num(uptime, 60)
   const tier = e.service_tier || null
   const quality = Math.max(0, Math.min(100, 0.72 * (PRECISION[q] ?? 62) + 0.28 * uptimeVal + (TIER_BONUS[tier] ?? 0)))
-  let discount = num(pr.discount)
-  if (discount > 1) discount = discount / 100
-  discount = Math.max(0, Math.min(0.99, discount))
   const priceIn = num(pr.prompt)
   const priceOut = num(pr.completion)
+  const cacheReadRaw = pr.input_cache_read == null ? null : num(pr.input_cache_read)
+  const priceIn1m = Math.round(priceIn * 1e6 * 1e4) / 1e4
   return {
     provider: e.provider_name || '?',
     slug,
@@ -63,13 +108,13 @@ function scoreEndpoint(e, slug) {
     uptime: uptime == null ? null : Math.round(num(uptime) * 100) / 100,
     status: e.status,
     quality: Math.round(quality * 100) / 100,
-    offPct: Math.round(discount * 10000) / 100,
     priceIn, priceOut,
-    cacheRead1m: Math.round(num(pr.input_cache_read) * 1e6 * 1e4) / 1e4,
-    priceIn1m: Math.round(priceIn * 1e6 * 1e4) / 1e4,
+    // آفِ اعلامیِ OpenRouter حذف شد؛ فقط «آفِ واقعی» (realOffPct در withRealOff) معنا دارد
+    cacheKnown: cacheReadRaw != null,
+    cacheRead1m: cacheReadRaw == null ? null : Math.round(cacheReadRaw * 1e6 * 1e4) / 1e4,
+    cacheBilled1m: Math.round(effCachePrice(priceIn, cacheReadRaw) * 1e6 * 1e4) / 1e4,
+    priceIn1m,
     priceOut1m: Math.round(priceOut * 1e6 * 1e4) / 1e4,
-    listedIn1m: Math.round((discount > 0 ? priceIn / (1 - discount) : priceIn) * 1e6 * 1e4) / 1e4,
-    listedOut1m: Math.round((discount > 0 ? priceOut / (1 - discount) : priceOut) * 1e6 * 1e4) / 1e4,
     official: slug === 'deepseek',
     maxCompletion: e.max_completion_tokens || null,
     usable: e.status === 0 || e.status == null,
@@ -81,7 +126,7 @@ function taskScore(r, task) {
   if (task === 'fast') return (r.tier === 'priority' ? 100 : r.tier === 'ultrafast' ? 60 : 0) + r.quality
   if (task === 'long') return r.maxCompletion * 1e-6 + r.quality
   if (task === 'code') return r.quality + (r.quantization === 'fp8' || r.quantization === 'fp16' ? 5 : 0)
-  return 0.55 * (r.quality / 100) + 0.45 * (r.offPct / 100)
+  return 0.55 * (r.quality / 100) + 0.45 * (Math.max(0, num(r.realOffPct)) / 100)
 }
 
 async function scan(config) {
@@ -102,15 +147,16 @@ async function scan(config) {
       continue
     }
     const seen = new Set()
-    const rows = []
+    const raw = []
     for (const e of eps) {
       const name = e.provider_name || '?'
       const row = scoreEndpoint(e, slugOf[name] || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))
       const key = `${row.provider}|${row.quantization}|${row.priceIn}|${row.priceOut}|${row.tier}`
       if (seen.has(key)) continue
       seen.add(key)
-      rows.push(row)
+      raw.push(row)
     }
+    const rows = withRealOff(raw, config.calibration)
     const usable = rows.filter((r) => r.usable)
     const fam = (m.id.split('/')[1] || m.id).replace(/:batch$/, '')
     const entry = {
@@ -122,8 +168,8 @@ async function scan(config) {
       created: m.created || null,
       endpoints: rows,
       winners: {
-        quality: [...usable].sort((a, b) => b.quality - a.quality || b.offPct - a.offPct || a.priceIn - b.priceIn)[0] || null,
-        off: [...usable].sort((a, b) => b.offPct - a.offPct || b.quality - a.quality || a.priceIn - b.priceIn)[0] || null,
+        quality: [...usable].sort((a, b) => b.quality - a.quality || num(b.realOffPct, -1e9) - num(a.realOffPct, -1e9) || a.priceIn - b.priceIn)[0] || null,
+        saving: [...usable].sort((a, b) => num(b.realOffPct, -1e9) - num(a.realOffPct, -1e9) || b.quality - a.quality || a.priceIn - b.priceIn)[0] || null,
         balanced: [...usable].sort((a, b) => taskScore(b, 'balanced') - taskScore(a, 'balanced') || a.priceIn - b.priceIn)[0] || null,
         cheap: [...usable].sort((a, b) => a.priceIn - b.priceIn)[0] || null,
       },
@@ -139,7 +185,7 @@ function topText(snap, task, limit, familyFilter) {
   const rows = snap.rows.filter((r) => r.usable && (!familyFilter || r.model.includes(familyFilter)))
   const sorted = [...rows].sort((a, b) => taskScore(b, task) - taskScore(a, task))
   const lines = sorted.slice(0, limit).map((r, i) =>
-    `${i + 1}. ${r.model} | ${r.provider} (${r.quantization}${r.tier ? `, ${r.tier}` : ''}) | کیفیت ${r.quality} | off ${r.offPct}% | ورودی $${r.priceIn1m}/M`)
+    `${i + 1}. ${r.model} | ${r.provider} (${r.quantization}${r.tier ? `, ${r.tier}` : ''}) | کیفیت ${r.quality} | آف واقعی ${r.realOffPct == null ? '—' : `${r.realOffPct}%`} | $${r.costCalib}/درخواست | ورودی $${r.priceIn1m}/M`)
   return lines.join('\n')
 }
 
@@ -313,8 +359,10 @@ async function buildProfile(ctx, scope, currentSessionId) {
 }
 
 function costPerRequest(row, profile) {
+  // کشِ منتشرنشده = بدونِ کش: همان توکن‌ها قیمتِ کاملِ ورودی را می‌دهند (همان قاعدهٔ ستونِ پنل)
+  const cachePerM = effCachePrice(row.priceIn1m ?? row.priceIn * 1e6, row.cacheRead1m)
   return (profile.avgUncachedPerRequest * row.priceIn
-    + profile.avgCachedPerRequest * (row.cacheRead1m / 1e6)
+    + profile.avgCachedPerRequest * (cachePerM / 1e6)
     + profile.avgOutPerRequest * row.priceOut)
 }
 
@@ -344,9 +392,11 @@ export function recommendFromProfile(snap, profile, config, options = {}) {
     quantization: r.quantization,
     tier: r.tier || null,
     quality: r.quality,
-    offPct: r.offPct,
+    realOffPct: r.realOffPct == null ? null : r.realOffPct,
+    costCalib: r.costCalib ?? Math.round(calibratedCost(r, config.calibration) * 1e6) / 1e6,
     priceIn1m: r.priceIn1m,
     cacheRead1m: r.cacheRead1m,
+    cacheKnown: r.cacheKnown !== false,
     priceOut1m: r.priceOut1m,
     uptime: r.uptime,
     costPerRequest: Math.round(costPerRequest(r, profile) * 1e6) / 1e6,
@@ -362,6 +412,8 @@ export function recommendFromProfile(snap, profile, config, options = {}) {
     quantization: officialRow.quantization,
     tier: officialRow.tier || null,
     quality: officialRow.quality,
+    realOffPct: 0,
+    costCalib: Math.round(calibratedCost(officialRow, config.calibration) * 1e6) / 1e6,
     priceIn1m: officialRow.priceIn1m,
     cacheRead1m: officialRow.cacheRead1m,
     priceOut1m: officialRow.priceOut1m,
@@ -430,7 +482,7 @@ export function apply(ctx, config) {
   const tool = {
     name: 'model_hunter',
     description:
-      'رتبه‌بندیِ مدل‌های دیپ‌سیک در OpenRouter بر اساس کیفیت تحویل و تخفیف (off). '
+      'رتبه‌بندیِ مدل‌های دیپ‌سیک در OpenRouter بر اساس کیفیت تحویل و صرفهٔ واقعی نسبت به دیپ‌سیکِ رسمی. '
       + 'action=list فهرست برترین‌ها، action=suggest پیشنهاد برای یک نوع کار، '
       + 'action=apply فقط وقتی کاربر صریحاً خواست مدل عوض شود.',
     parameters: {
@@ -470,7 +522,7 @@ export function apply(ctx, config) {
         const lines = [
           `دامنه: ${label} — ${profile.sessions} چت، ${profile.requests} درخواست (${profile.missing ? `${profile.missing} بدونِ آمار، ` : ''}کش ${profile.cacheShare}٪)`,
           `میانگینِ هر درخواست: ورودی ${profile.avgPromptPerRequest} (کش ${profile.avgCachedPerRequest})، خروجی ${profile.avgOutPerRequest}`,
-          `پیشنهاد: ${rec.recommended.provider} · سطح ${rec.recommended.tier || 'استاندارد'} · ${rec.recommended.quantization} — هزینهٔ هر درخواست $${rec.recommended.costPerRequest}، کیفیت ${rec.recommended.quality}`,
+          `پیشنهاد: ${rec.recommended.provider} · سطح ${rec.recommended.tier || 'استاندارد'} · ${rec.recommended.quantization} — هزینهٔ هر درخواست $${rec.recommended.costPerRequest}، کیفیت ${rec.recommended.quality}، آف واقعی ${rec.recommended.realOffPct == null ? '—' : `${rec.recommended.realOffPct}%`}`,
           `هزینهٔ ۱۰۰۰ درخواست: $${rec.projectedPer1000Requests}`,
           '',
           'گزینه‌های بعدی:',
@@ -498,6 +550,7 @@ export function apply(ctx, config) {
           ts: state.ts,
           error: state.error,
           focus: cfg.focus,
+          calibration: cfg.calibration || CALIBRATION,
           families: Object.fromEntries(Object.entries(state.families).map(([k, v]) => [k, v.map((m) => ({
             model: m.model, name: m.name, batch: m.batch, context: m.context, winners: m.winners,
           }))])),

@@ -1,11 +1,15 @@
 /**
  * ثابت می‌کند آزمون‌ها واقعاً سنجش می‌کنند: روی نسخهٔ سالم سبز، روی نسخهٔ عمداً خراب‌شده قرمز.
  *
- * چهار خرابکاری:
- *   ۱) مرتب‌سازی: clickSort بی‌اثر           → sort.test.cjs باید قرمز شود
- *   ۲) override مدل: نادیده گرفته شود        → recommend.test.cjs باید قرمز شود
- *   ۳) تطبیقِ مدل: زیررشته‌ای شود            → recommend.test.cjs باید قرمز شود
- *   ۴) فیلترِ خانواده: به indexOf برگردد     → family.test.cjs باید قرمز شود
+ * هشت خرابکاری:
+ *   ۱) مرتب‌سازی: clickSort بی‌اثر                     → sort.test.cjs باید قرمز شود
+ *   ۲) override مدل: نادیده گرفته شود                  → recommend.test.cjs باید قرمز شود
+ *   ۳) تطبیقِ مدل: زیررشته‌ای شود                      → recommend.test.cjs باید قرمز شود
+ *   ۴) فیلترِ خانواده: به indexOf برگردد               → family.test.cjs باید قرمز شود
+ *   ۵) آفِ واقعی از قیمتِ ورودیِ خالی حساب شود         → realoff.test.cjs باید قرمز شود
+ *   ۶) قیمتِ کشِ نامعلوم صفر (رایگان) شود              → realoff.test.cjs باید قرمز شود
+ *   ۷) مسیرِ «پیشنهاد» کشِ نامعلوم را صفر بگیرد        → recommend.test.cjs باید قرمز شود
+ *   ۸) ستونِ «آف واقعی» به offPctِ اعلامی وصل شود      → sort.test.cjs باید قرمز شود
  *
  * اجرا: node test/verify.cjs
  */
@@ -51,7 +55,7 @@ function scenario(title, { test, env, file, from, to }) {
 }
 
 console.log('== ۰) نسخهٔ سالم — همه باید سبز باشند')
-for (const t of ['sort.test.cjs', 'recommend.test.cjs', 'family.test.cjs']) {
+for (const t of ['sort.test.cjs', 'recommend.test.cjs', 'family.test.cjs', 'realoff.test.cjs']) {
   const r = run(t, {})
   if (r.status !== 0) { ok = false; console.log(`  ✗ ${t}: EXIT=${r.status}`); console.log(r.out.slice(-500)) }
   else console.log(`  ✓ ${t}: EXIT=0`)
@@ -85,5 +89,33 @@ scenario('فیلتر به indexOf برگردد', {
   to: '          list = list.filter((r) => r.model.indexOf(family) >= 0)',
 })
 
-console.log(ok ? '\nنتیجه: هر سه آزمون واقعاً سنجش می‌کنند.' : '\nنتیجه: دست‌کم یک آزمون قابلِ اعتماد نیست.')
+console.log('\n== ۵) خرابکاریِ آفِ واقعی (ورودیِ خالی به‌جای هزینهٔ کالیبره)')
+scenario('آف از قیمتِ ورودی تنها حساب شود', {
+  test: 'realoff.test.cjs', env: {}, file: HOST,
+  from: '  const costs = rows.map((r) => calibratedCost(r, calib))',
+  to: '  const costs = rows.map((r) => num(r.priceIn1m))',
+})
+
+console.log('\n== ۶) خرابکاریِ قیمتِ کشِ نامعلوم (صفر = رایگان)')
+scenario('effCachePrice برای کشِ نامعلوم صفر بدهد', {
+  test: 'realoff.test.cjs', env: {}, file: HOST,
+  from: '  return cacheReadPerM == null ? num(priceInPerM) : num(cacheReadPerM)',
+  to: '  return cacheReadPerM == null ? 0 : num(cacheReadPerM)',
+})
+
+console.log('\n== ۷) خرابکاریِ مسیرِ پیشنهاد (کشِ نامعلوم صفر)')
+scenario('costPerRequest کشِ نامعلوم را رایگان بگیرد', {
+  test: 'recommend.test.cjs', env: {}, file: HOST,
+  from: '  const cachePerM = effCachePrice(row.priceIn1m ?? row.priceIn * 1e6, row.cacheRead1m)',
+  to: '  const cachePerM = row.cacheRead1m || 0',
+})
+
+console.log('\n== ۸) خرابکاریِ ستونِ «آف واقعی» در پنل')
+scenario('ستونِ آف واقعی به offPctِ اعلامی وصل شود', {
+  test: 'sort.test.cjs', env: {}, file: CLIENT,
+  from: "(r) => (r.realOffPct == null ? -1e9 : r.realOffPct), 'desc'",
+  to: "(r) => (r.offPct || 0), 'desc'",
+})
+
+console.log(ok ? '\nنتیجه: هر هشت آزمون واقعاً سنجش می‌کنند.' : '\nنتیجه: دست‌کم یک آزمون قابلِ اعتماد نیست.')
 process.exit(ok ? 0 : 1)

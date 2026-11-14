@@ -12,10 +12,11 @@ const { JSDOM } = require('jsdom')
 const CLIENT = process.env.MH_CLIENT || path.join(__dirname, '..', 'client.js')
 
 const rows = [
-  { model: 'deepseek/x', provider: 'Bravo', tier: 'priority', quantization: 'fp8', quality: 95, offPct: 10, priceIn1m: 0.30, cacheRead1m: 0.009, priceOut1m: 0.90, listedIn1m: 0.30, listedOut1m: 0.90, uptime: 100, status: 0, usable: true, official: false, maxCompletion: 1 },
-  { model: 'deepseek/x', provider: 'Alpha', tier: null, quantization: 'fp8', quality: 91, offPct: 65, priceIn1m: 0.10, cacheRead1m: 0.002, priceOut1m: 0.40, listedIn1m: 0.30, listedOut1m: 1.20, uptime: 100, status: 0, usable: true, official: false, maxCompletion: 1 },
-  { model: 'deepseek/x', provider: 'Zeta', tier: 'flex', quantization: 'fp4', quality: 87, offPct: 0, priceIn1m: 0.05, cacheRead1m: 0.001, priceOut1m: 0.20, listedIn1m: 0.05, listedOut1m: 0.20, uptime: 66, status: 0, usable: true, official: false, maxCompletion: 1 },
-  { model: 'deepseek/x', provider: 'DeepSeek', tier: null, quantization: 'unknown', quality: 88, offPct: 0, priceIn1m: 0.15, cacheRead1m: 0.003, priceOut1m: 0.60, listedIn1m: 0.15, listedOut1m: 0.60, uptime: 100, status: 0, usable: true, official: true, maxCompletion: 1 },
+  { model: 'deepseek/x', provider: 'Bravo', tier: 'priority', quantization: 'fp8', quality: 95, realOffPct: 10, costCalib: 0.009, priceIn1m: 0.30, cacheRead1m: 0.009, cacheKnown: true, priceOut1m: 0.90, uptime: 100, status: 0, usable: true, official: false, maxCompletion: 1 },
+  { model: 'deepseek/x', provider: 'Alpha', tier: null, quantization: 'fp8', quality: 91, realOffPct: 30, costCalib: 0.004, priceIn1m: 0.10, cacheRead1m: 0.002, cacheKnown: true, priceOut1m: 0.40, uptime: 100, status: 0, usable: true, official: false, maxCompletion: 1 },
+  { model: 'deepseek/x', provider: 'Zeta', tier: 'flex', quantization: 'fp4', quality: 87, realOffPct: 0, costCalib: 0.002, priceIn1m: 0.05, cacheRead1m: 0.001, cacheKnown: true, priceOut1m: 0.20, uptime: 66, status: 0, usable: true, official: false, maxCompletion: 1 },
+  { model: 'deepseek/x', provider: 'DeepSeek', tier: null, quantization: 'unknown', quality: 88, realOffPct: 0, costCalib: 0.005, priceIn1m: 0.15, cacheRead1m: 0.003, cacheKnown: true, priceOut1m: 0.60, uptime: 100, status: 0, usable: true, official: true, maxCompletion: 1 },
+  { model: 'deepseek/x', provider: 'NoCache', tier: null, quantization: 'fp8', quality: 60, realOffPct: null, costCalib: 0.050, priceIn1m: 0.20, cacheRead1m: null, cacheKnown: false, priceOut1m: 0.50, uptime: 99, status: 0, usable: true, official: false, maxCompletion: 1 },
 ]
 const state = { ts: Date.now(), focus: 'deepseek/x', error: null, families: { x: [] }, rows }
 
@@ -86,23 +87,49 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
     await act(async () => { await new Promise((r) => setTimeout(r, 30)) })
   }
 
-  check('ترتیبِ پیش‌فرض (مرجعِ دیپ‌سیک اول)', providers(), ['DeepSeek', 'Alpha', 'Bravo', 'Zeta'])
+  check('ترتیبِ پیش‌فرض (مرجعِ دیپ‌سیک اول)', providers(), ['DeepSeek', 'Alpha', 'Bravo', 'Zeta', 'NoCache'])
   check('بدونِ کلیک هیچ فلشی نیست', ths().every((h) => !h.textContent.includes('▲') && !h.textContent.includes('▼')), true)
 
+  // ---- ستون‌های تازه: آفِ اعلامی حذف، «آف واقعی» و «$/درخواست» جایش ----
+  const labels = () => ths().map((h) => h.textContent.replace(/[▲▼]/g, '').trim())
+  check('سرستونِ «آف واقعی» هست', labels().includes('آف واقعی'), true)
+  check('سرستونِ «آف واقعی» دقیقاً یکی', labels().filter((l) => l === 'آف واقعی').length, 1)
+  check('سرستونِ «$/درخواست» هست', labels().includes('$/درخواست'), true)
+  check('ستونِ آفِ اعلامی (off) حذف شده', labels().includes('off'), false)
+  check('ستونِ «اعلامی ورودی/خروجی» حذف شده', labels().some((l) => l.includes('اعلامی')), false)
+
+  const cells = (provider) => {
+    const tr = [...document.querySelectorAll('tbody tr')].find((r) => r.children[1].textContent.includes(provider))
+    return [...tr.children].map((td) => td.textContent.trim())
+  }
+  check('آفِ واقعیِ مثبت با علامت +', cells('Alpha')[5], '+30.0٪')
+  check('آفِ واقعیِ صفر', cells('DeepSeek')[5], '0.0٪')
+  check('آفِ واقعیِ بی‌پایه «—»', cells('NoCache')[5], '—')
+  check('قیمتِ کشِ منتشرنشده «—»', cells('NoCache')[8], '—')
+  check('ستونِ $/درخواست ۵ رقمِ اعشار', cells('Alpha')[6], '0.00400')
+
+  await click('آف واقعی')
+  check('کلیک «آف واقعی» → نزولی', providers(), ['Alpha', 'Bravo', 'DeepSeek', 'Zeta', 'NoCache'])
+  check('فلشِ آف واقعی ▼', arrow('آف واقعی'), '▼')
+
+  await click('$/درخواست')
+  check('کلیک «$/درخواست» → صعودی', providers(), ['Zeta', 'Alpha', 'DeepSeek', 'Bravo', 'NoCache'])
+  check('فلشِ $/درخواست ▲', arrow('$/درخواست'), '▲')
+
   await click('ورودی')
-  check('کلیک «ورودی» → صعودی', providers(), ['Zeta', 'Alpha', 'DeepSeek', 'Bravo'])
+  check('کلیک «ورودی» → صعودی', providers(), ['Zeta', 'Alpha', 'DeepSeek', 'NoCache', 'Bravo'])
   check('فلشِ صعودی ▲', arrow('ورودی'), '▲')
 
   await click('ورودی')
-  check('کلیک دوم → نزولی', providers(), ['Bravo', 'DeepSeek', 'Alpha', 'Zeta'])
+  check('کلیک دوم → نزولی', providers(), ['Bravo', 'NoCache', 'DeepSeek', 'Alpha', 'Zeta'])
   check('فلشِ نزولی ▼', arrow('ورودی'), '▼')
 
   await click('کیفیت')
-  check('کلیک «کیفیت» → نزولی', providers(), ['Bravo', 'Alpha', 'DeepSeek', 'Zeta'])
+  check('کلیک «کیفیت» → نزولی', providers(), ['Bravo', 'Alpha', 'DeepSeek', 'Zeta', 'NoCache'])
   check('فلشِ کیفیت ▼', arrow('کیفیت'), '▼')
 
   await click('ارائه‌دهنده')
-  check('کلیک «ارائه‌دهنده» → صعودی', providers(), ['Alpha', 'Bravo', 'DeepSeek', 'Zeta'])
+  check('کلیک «ارائه‌دهنده» → صعودی', providers(), ['Alpha', 'Bravo', 'DeepSeek', 'NoCache', 'Zeta'])
   check('فلشِ ارائه‌دهنده ▲', arrow('ارائه‌دهنده'), '▲')
 
   // خواستهٔ حبیب: هیچ tooltip با هاور نباشد

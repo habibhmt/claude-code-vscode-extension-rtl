@@ -35,6 +35,10 @@ const snap = { rows: [
   row('deepseek/deepseek-chat', 'DeepInfra', 257e-9, 130e-6, 1028e-9),
   row('deepseek/deepseek-chat-v3.1', 'DeepInfra', 250e-9, 130e-6, 950e-9),
   row('deepseek/deepseek-chat-v3-0324', 'DeepInfra', 290e-9, 110e-6, 1140e-9),
+  // ردیفی که OpenRouter قیمتِ کش را برایش منتشر نکرده (یعنی کش ندارد)
+  { model: 'deepseek/deepseek-nocache', provider: 'DeepInfra', slug: 'deepinfra', quantization: 'fp8', tier: null,
+    quality: 90, usable: true, official: false, priceIn: 0.32e-6, priceOut: 0.89e-6,
+    cacheRead1m: null, cacheKnown: false, priceIn1m: 0.32, priceOut1m: 0.89, uptime: 100, status: 0 },
 ] }
 const cfg = { focus: FOCUS, qualityFloor: 85 }
 const profile = { scope: 'session', sessions: 1, requests: 10, cacheShare: 96,
@@ -64,6 +68,16 @@ const profile = { scope: 'session', sessions: 1, requests: 10, cacheShare: 96,
   const chat = mod.recommendFromProfile(snap, profile, cfg, { model: 'deepseek-chat' })
   check('override: deepseek-chat فقط خودش', chat.model, 'deepseek/deepseek-chat')
   check('override: chat کاندید = ۱', chat.alternatives.length + 1, 1)
+
+  // ---- کشِ منتشرنشده نباید «رایگان» حساب شود ----
+  const nc = mod.recommendFromProfile(snap, profile, cfg, { model: 'deepseek-nocache' })
+  check('مدلِ بی‌پایه: آفِ واقعی null (پایهٔ رسمی ندارد)', nc.recommended.realOffPct, null)
+  check('مدلِ بی‌پایه: هزینهٔ هر درخواست = همهٔ ورودی با قیمتِ کامل',
+    Math.abs(nc.recommended.costPerRequest - 0.096534) < 1e-9, true)
+  check('خروجیِ پیشنهاد دیگر offPctِ اعلامی ندارد',
+    Object.prototype.hasOwnProperty.call(nc.recommended, 'offPct'), false)
+  check('خروجیِ پیشنهاد realOffPct دارد',
+    Object.prototype.hasOwnProperty.call(pro.recommended, 'realOffPct'), true)
 
   // ---- باگ ۳: پیش‌فرض ----
   const def = mod.recommendFromProfile(snap, profile, cfg)

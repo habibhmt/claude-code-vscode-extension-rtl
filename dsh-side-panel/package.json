@@ -1,0 +1,35 @@
+{
+  "name": "@local/dsh-side-panel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "پنل کنارِ چت: ترجمهٔ سادهٔ تراژکتوری و آمار + خرجِ دقیقِ هر چت از OpenRouter",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./icon": "./icon.svg",
+    "./fold": "./panel-fold.js"
+  },
+  "files": [
+    "index.js",
+    "cost-log.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "panel-fold.js"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  }
+}

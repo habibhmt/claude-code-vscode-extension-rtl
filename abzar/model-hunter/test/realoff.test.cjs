@@ -1,7 +1,8 @@
 /**
  * آزمونِ شرط‌دارِ «آفِ واقعی» (نیمهٔ Host).
  * جای درصدِ آفِ اعلامیِ OpenRouter را «صرفهٔ واقعی نسبت به دیپ‌سیکِ رسمی» می‌گیرد،
- * با الگوی مصرفِ خودمان: کش ۹۲٪ · ورودی ۳۳۸٬۰۰۰ توکن · خروجی ۶۹۸ توکن.
+ * با الگوی مصرفِ خودمان: کش ۹۲٪ · ورودی ۳۳۸٬۰۰۰ توکن · خروجی ۶۹۸ توکن،
+ * به‌علاوهٔ «کش‌نخوردنِ بی‌دلیلِ» هر سرور (اندازه‌گیری‌شده، یا ۳٪ ِ پیش‌فرض).
  *
  * باگ‌هایی که می‌پوشاند:
  *   ۱) آفِ اعلامی به‌جای هزینهٔ کالیبره گزارش شود
@@ -61,14 +62,16 @@ const chatDeepInfra = r('DeepInfra', 0.32, null, 0.89) // کش منتشر نشد
   // ---- ۲) آفِ واقعی روی فلش ----
   const flash = mod.withRealOff([flashOfficial, flashBaidu, flashPrime], cal)
   check('فلش: ردیفِ رسمی = پایه', flash[0].realOffPct, 0)
-  near('فلش: آفِ واقعیِ بایدو (نه ۶۵٪ اعلامی)', flash[1].realOffPct, 34.0)
-  near('فلش: آفِ واقعیِ PrimeIntellect (اعلامی ۰٪ بود)', flash[2].realOffPct, 55.3)
+  // هر سه بی‌اندازه‌گیری ⇒ ۳٪ کش‌نخوردنِ پیش‌فرض روی همه (رسمی ۰٫۰۰۶۷۸ $/درخواست)
+  near('فلش: آفِ واقعیِ بایدو (نه ۶۵٪ اعلامی)', flash[1].realOffPct, 34.2)
+  near('فلش: آفِ واقعیِ PrimeIntellect (اعلامی ۰٪ بود)', flash[2].realOffPct, 58.7)
   check('فلش: هزینهٔ کالیبره در خروجی هست', typeof flash[1].costCalib, 'number')
 
   // ---- ۳) آفِ واقعی روی مدلِ واقعیِ کاربر (pro-0813) ----
   const pro = mod.withRealOff([proOfficial, proBaidu, proDeepInfra], cal)
-  near('پرو-۰۸۱۳: آفِ واقعیِ بایدو', pro[1].realOffPct, 1.4)
-  near('پرو-۰۸۱۳: آفِ واقعیِ DeepInfra منفی', pro[2].realOffPct, -161.1, 0.1)
+  near('پرو-۰۸۱۳: آفِ واقعیِ بایدو', pro[1].realOffPct, 1.1)
+  // با کش‌نخوردنِ پیش‌فرضِ ۳٪ (هیچ‌کدام اندازه‌گیری نشده‌اند): رسمی ۰٫۰۳۲۰۲، DeepInfra ۰٫۰۷۹۲۶ ⇒ −۱۴۷٫۵٪
+  near('پرو-۰۸۱۳: آفِ واقعیِ DeepInfra منفی', pro[2].realOffPct, -147.5, 0.1)
 
   // ---- ۴) مدلِ بی‌پایه: حدس نمی‌زنیم ----
   const noBase = mod.withRealOff([chatDeepInfra], cal)
@@ -83,8 +86,27 @@ const chatDeepInfra = r('DeepInfra', 0.32, null, 0.89) // کش منتشر نشد
 
   // ---- ۶) الگو قابلِ تغییر است (کانفیگ) ----
   const allCached = mod.withRealOff([flashOfficial, flashBaidu], { cacheSharePct: 100, promptTokens: 338000, outputTokens: 0 })
-  near('با کشِ ۱۰۰٪ فقط نرخِ کش می‌ماند', allCached[1].costCalib, Math.round((338000 * 0.002094 / 1e6) * 1e6) / 1e6, 1e-6)
-  near('آف با الگوی دیگر هم حساب می‌شود', allCached[1].realOffPct, 30.2, 0.2)
+  // کش ۱۰۰٪ در حالتِ کش‌خورده، ولی ۳٪ ِ درخواست‌ها (پیش‌فرض) کش نمی‌خورند و کاملِ ورودی را می‌دهند
+  near('با کشِ ۱۰۰٪ + ۳٪ کش‌نخوردن', allCached[1].costCalib, Math.round((0.97 * 338000 * 0.002094 / 1e6 + 0.03 * 338000 * 0.0977 / 1e6) * 1e6) / 1e6, 1e-6)
+  near('آف با الگوی دیگر هم حساب می‌شود', allCached[1].realOffPct, 33.0, 0.2)
+
+  // ---- ۶ب) کش‌نخوردنِ اندازه‌گیری‌شده رتبه را برمی‌گرداند (۱۴ نوامبر، داده‌های واقعی) ----
+  // بایدو ارزان‌تر است ولی ۵٫۹٪ بی‌دلیل کش نمی‌خورد؛ DeepInfra ۰٫۲٪.
+  const flashDeepInfra = r('DeepInfra', 0.098, 0.0029, 0.294)
+  const cal97 = { cacheSharePct: 97, promptTokens: 338000, outputTokens: 698 }
+  const measured = mod.withRealOff([
+    flashOfficial,
+    { ...flashBaidu, measured: { eligible: 614, missPct: 5.9 } },
+    { ...flashDeepInfra, measured: { eligible: 403, missPct: 0.2 } },
+  ], cal97)
+  near('بایدو با ۵٫۹٪ کش‌نخوردن ($/درخواست)', measured[1].costCalib, 0.0038, 0.0001)
+  near('DeepInfra با ۰٫۲٪ ($/درخواست)', measured[2].costCalib, 0.00221, 0.0001)
+  check('با اندازه‌گیری، DeepInfra از بایدو ارزان‌تر درمی‌آید', measured[2].costCalib < measured[1].costCalib, true)
+  check('بی‌اندازه‌گیری (فقط قیمتِ فهرست)، بایدو ارزان‌تر به نظر می‌آمد',
+    mod.calibratedCost(flashBaidu, cal97) < mod.calibratedCost(flashDeepInfra, cal97), true)
+  check('نمونهٔ کم (<۳۰) ⇒ پیش‌فرضِ ۳٪، نه عددِ اندازه‌گیری', mod.missRateOf({ measured: { eligible: 5, missPct: 50 } }), 0.03)
+  check('filterSameModel: چتِ pro با انتخابِ flash عوض نمی‌شود', mod.filterSameModel(['a', 'b', 'c'], 'deepseek/x-flash@preset/mh-x', (id) => ({ a: 'deepseek/x-pro@preset/p', b: 'deepseek/x-flash@preset/mh-x', c: 'deepseek/x-flash@preset/other' })[id], 'all').targets, ['c'])
+  check('filterSameModel: scope=session همیشه همان چت', mod.filterSameModel(['a'], 'deepseek/x-flash@preset/mh-x', () => 'deepseek/x-pro', 'session').targets, ['a'])
 
   // ---- ۷) هیچ فیلدِ درصدِ اعلامی در ردیف نمانده ----
   check('ردیف دیگر offPct ندارد', Object.prototype.hasOwnProperty.call(flashBaidu, 'offPct'), false)

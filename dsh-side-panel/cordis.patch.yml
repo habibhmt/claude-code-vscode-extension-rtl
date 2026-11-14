@@ -1,0 +1,3 @@
+- insert:
+    - id: side-panel
+      name: '@local/dsh-side-panel'

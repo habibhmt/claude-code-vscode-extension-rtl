@@ -14,6 +14,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { recentLogs, providerStats, createGenerationBook, lastRefOfLog, logPathOf, decompress } from './measure.js'
 
 const OPENROUTER = 'https://openrouter.ai/api/v1'
 const FOCUS = 'deepseek/deepseek-v4.1-flash-1017'
@@ -30,7 +31,15 @@ const TIER_BONUS = { priority: 4, ultrafast: 2, flex: -4 }
  * با این الگو، هزینهٔ هر درخواست در هر ارائه‌دهنده حساب می‌شود و آفِ واقعی
  * نسبت به «دیپ‌سیکِ رسمیِ همان مدل» درمی‌آید (نه تخفیفِ اعلامیِ OpenRouter).
  */
-const CALIBRATION = { cacheSharePct: 92, promptTokens: 338000, outputTokens: 698 }
+const CALIBRATION = { cacheSharePct: 97, promptTokens: 338000, outputTokens: 698 }
+
+/**
+ * سهمِ «کش‌نخوردنِ بی‌دلیل» وقتی هنوز اندازه نگرفته‌ایم (کمتر از ۳۰ نمونه): میانگینِ
+ * اندازه‌گیریِ ۱۴ نوامبر روی ۱۹۸۵ درخواست (۵۷ بار) ≈ ۳٪. بدبینانه‌تر از بهترین سرور،
+ * تا سرورِ ناآزموده الکی اول نشود.
+ */
+export const PRIOR_MISS = 0.03
+export const MIN_SAMPLES = 30
 
 const DEFAULTS = {
   families: ['deepseek'],
@@ -57,7 +66,11 @@ export function effCachePrice(priceInPerM, cacheReadPerM) {
   return cacheReadPerM == null ? num(priceInPerM) : num(cacheReadPerM)
 }
 
-/** هزینهٔ یک درخواست با الگوی مصرفِ کالیبره (دلار). */
+/**
+ * هزینهٔ یک درخواست وقتی کش می‌خورد، با الگوی کالیبره (دلار).
+ * cacheSharePct این‌جا «سهمِ کش در درخواستِ کش‌خورده» است (۹۷٪ ِ اندازه‌گیری‌شده)، نه
+ * میانگینِ کل؛ کش‌نخوردن‌ها جدا در expectedCost حساب می‌شوند.
+ */
 export function calibratedCost(row, calib = CALIBRATION) {
   const c = { ...CALIBRATION, ...(calib || {}) }
   const share = Math.max(0, Math.min(1, num(c.cacheSharePct, 92) / 100))
@@ -67,13 +80,35 @@ export function calibratedCost(row, calib = CALIBRATION) {
   return (prompt * share * cachePerM + prompt * (1 - share) * num(row.priceIn1m) + out * num(row.priceOut1m)) / 1e6
 }
 
+/** هزینهٔ یک درخواست وقتی کش نخورد: کلِ پرامپت با قیمتِ کاملِ ورودی. */
+export function missCost(row, calib = CALIBRATION) {
+  const c = { ...CALIBRATION, ...(calib || {}) }
+  return (num(c.promptTokens, 338000) * num(row.priceIn1m) + num(c.outputTokens, 698) * num(row.priceOut1m)) / 1e6
+}
+
+/** نرخِ کش‌نخوردنِ بی‌دلیل برای یک ردیف: اندازه‌گیری‌شده اگر نمونه کافی است، وگرنه PRIOR_MISS. */
+export function missRateOf(row) {
+  return row && row.measured && row.measured.eligible >= MIN_SAMPLES && row.measured.missPct != null
+    ? row.measured.missPct / 100
+    : PRIOR_MISS
+}
+
+/**
+ * هزینهٔ مورد انتظارِ یک درخواست = کش‌خورده × (۱ − m) + کش‌نخورده × m.
+ * m از چت‌های خودمان اندازه گرفته می‌شود؛ سرورِ ارزانی که کش را نگه نمی‌دارد این‌جا گران درمی‌آید.
+ */
+export function expectedCost(row, calib = CALIBRATION) {
+  const m = missRateOf(row)
+  return (1 - m) * calibratedCost(row, calib) + m * missCost(row, calib)
+}
+
 /**
  * به هر ردیفِ یک مدل، هزینهٔ کالیبره و «آفِ واقعی» را می‌چسباند.
  * پایه = اندپوینتِ رسمیِ DeepSeek همان مدل؛ اگر آن مدل در OpenRouter ارائه‌دهندهٔ
  * رسمیِ دیپ‌سیک ندارد، آفِ واقعی `null` می‌ماند (حدس نمی‌زنیم).
  */
 export function withRealOff(rows, calib = CALIBRATION) {
-  const costs = rows.map((r) => calibratedCost(r, calib))
+  const costs = rows.map((r) => expectedCost(r, calib))
   const officialIndex = rows.findIndex((r) => r.official)
   const base = officialIndex >= 0 ? costs[officialIndex] : null
   return rows.map((r, i) => ({
@@ -129,6 +164,37 @@ function taskScore(r, task) {
   return 0.55 * (r.quality / 100) + 0.45 * (Math.max(0, num(r.realOffPct)) / 100)
 }
 
+function winnersOf(usable) {
+  return {
+    quality: [...usable].sort((a, b) => b.quality - a.quality || num(b.realOffPct, -1e9) - num(a.realOffPct, -1e9) || a.priceIn - b.priceIn)[0] || null,
+    saving: [...usable].sort((a, b) => num(b.realOffPct, -1e9) - num(a.realOffPct, -1e9) || b.quality - a.quality || a.priceIn - b.priceIn)[0] || null,
+    balanced: [...usable].sort((a, b) => taskScore(b, 'balanced') - taskScore(a, 'balanced') || a.priceIn - b.priceIn)[0] || null,
+    cheap: [...usable].sort((a, b) => a.priceIn - b.priceIn)[0] || null,
+  }
+}
+
+/**
+ * اندازه‌گیریِ واقعی را روی اسنپ‌شات می‌نشاند و هزینه/آف/برنده‌ها را از نو حساب می‌کند.
+ * @param snap - اسنپ‌شاتِ scan.
+ * @param measured - خروجیِ providerStats.
+ * @returns اسنپ‌شاتِ تازه (بی‌تغییرِ اصلی).
+ */
+export function applyMeasured(snap, measured, calib = CALIBRATION) {
+  const byKey = new Map((measured || []).map(m => [m.model + '|' + m.provider, m]))
+  const families = {}
+  const rows = []
+  for (const [fam, entries] of Object.entries(snap.families || {})) {
+    families[fam] = entries.map((entry) => {
+      // اندازه‌گیری فقط روی سطحِ استاندارد می‌نشیند: presetها سرور را پین می‌کنند، نه سطح را،
+      // پس دادهٔ ما مالِ سطحِ پیش‌فرض است؛ flex/priority ِ همان سرور هنوز «ناآزموده»‌اند (۳٪ فرض).
+      const endpoints = withRealOff(entry.endpoints.map(r => ({ ...r, measured: r.tier ? null : (byKey.get(entry.model + '|' + r.provider) || null) })), calib)
+      rows.push(...endpoints.map(r => ({ ...r, model: entry.model })))
+      return { ...entry, endpoints, winners: winnersOf(endpoints.filter(r => r.usable)) }
+    })
+  }
+  return { ...snap, families, rows, measuredTs: Date.now() }
+}
+
 async function scan(config) {
   const modelList = (await getJson(`${OPENROUTER}/models`)).data || []
   const providers = (await getJson(`${OPENROUTER}/providers`)).data || []
@@ -167,12 +233,7 @@ async function scan(config) {
       context: m.context_length || null,
       created: m.created || null,
       endpoints: rows,
-      winners: {
-        quality: [...usable].sort((a, b) => b.quality - a.quality || num(b.realOffPct, -1e9) - num(a.realOffPct, -1e9) || a.priceIn - b.priceIn)[0] || null,
-        saving: [...usable].sort((a, b) => num(b.realOffPct, -1e9) - num(a.realOffPct, -1e9) || b.quality - a.quality || a.priceIn - b.priceIn)[0] || null,
-        balanced: [...usable].sort((a, b) => taskScore(b, 'balanced') - taskScore(a, 'balanced') || a.priceIn - b.priceIn)[0] || null,
-        cheap: [...usable].sort((a, b) => a.priceIn - b.priceIn)[0] || null,
-      },
+      winners: winnersOf(usable),
     }
     if (!families[fam]) families[fam] = []
     families[fam].push(entry)
@@ -196,6 +257,17 @@ function slugify(s) {
 function presetSlug(model, provider) {
   const fam = model.split('/')[1] || model
   return slugify(`mh-${fam}-${provider}`)
+}
+
+function readEnvKeySync(name) {
+  try {
+    const text = fs.readFileSync(path.join(os.homedir(), '.dsh', '.env'), 'utf8')
+    for (const line of text.split('\n')) {
+      const t = line.trim()
+      if (t.startsWith(`${name}=`)) return t.slice(name.length + 1).trim()
+    }
+  } catch { /* ignore */ }
+  return undefined
 }
 
 async function readEnvFileKey(name) {
@@ -282,15 +354,44 @@ function pickTargets(rows, scope, currentSessionId) {
   return rows.filter((r) => r.cwd === cwd).map((r) => r.sessionId)
 }
 
+/** مدلِ فعلیِ یک چت از لاگش (آخرین جواب یا انتخابِ مدل)؛ نامعلوم ⇒ null. */
+function currentRefOf(sessionId) {
+  const file = logPathOf(sessionId)
+  if (!file) return null
+  try { return lastRefOfLog(decompress(fs.readFileSync(file))) } catch { return null }
+}
+
+/**
+ * کدام چت‌ها باید عوض شوند؟ فقط چت‌هایی که همین الان روی **همین مدل** (با هر سرور)
+ * هستند. چتی که pro است با انتخابِ سرورِ flash، flash نمی‌شود؛ و چتی که همین الان
+ * روی همین preset است دست نمی‌خورد (عوض‌کردنِ بی‌دلیل یعنی یک بار کلِ تاریخچه بی‌کش).
+ * scope=session همیشه همان یک چت را عوض می‌کند (انتخابِ صریح).
+ */
+export function filterSameModel(ids, ref, refOf, scope) {
+  if (scope === 'session') return { targets: [...ids], kept: [] }
+  const model = ref.split('@')[0]
+  const targets = []
+  const kept = []
+  for (const id of ids) {
+    const current = refOf(id)
+    if (current === ref) { kept.push({ id, reason: 'همین الان روی همین است' }); continue }
+    if (current !== null && current.split('@')[0] !== model) { kept.push({ id, reason: 'مدلِ دیگری دارد: ' + current.split('@')[0] }); continue }
+    targets.push(id)
+  }
+  return { targets, kept }
+}
+
 async function switchSessions(ctx, ref, scope = 'all', currentSessionId = null) {
   const sc = ctx.get('sessionController')
   if (!sc || typeof sc.selectModel !== 'function') {
-    return { scope, attempted: 0, switched: [], failed: [], note: 'sessionController unavailable' }
+    return { scope, attempted: 0, switched: [], failed: [], kept: [], note: 'sessionController unavailable' }
   }
   const rows = await allSessionRows(ctx)
   const live = (ctx.get('agents')?.list?.() || []).map((a) => a.id)
-  const ids = new Set(pickTargets(rows, scope, currentSessionId))
-  for (const id of live) if (ids.has(id) || scope === 'all') ids.add(id)
+  const all = new Set(pickTargets(rows, scope, currentSessionId))
+  for (const id of live) if (all.has(id) || scope === 'all') all.add(id)
+  const { targets, kept } = filterSameModel(all, ref, currentRefOf, scope)
+  const ids = new Set(targets)
   const switched = []
   const failed = []
   for (const id of ids) {
@@ -301,7 +402,7 @@ async function switchSessions(ctx, ref, scope = 'all', currentSessionId = null) 
       failed.push({ id, error: String(err?.message || err) })
     }
   }
-  return { scope, attempted: ids.size, switched, failed }
+  return { scope, attempted: ids.size, switched, failed, kept }
 }
 
 function projCacheFile(sessionId) {
@@ -358,12 +459,13 @@ async function buildProfile(ctx, scope, currentSessionId) {
   }
 }
 
-function costPerRequest(row, profile) {
-  // کشِ منتشرنشده = بدونِ کش: همان توکن‌ها قیمتِ کاملِ ورودی را می‌دهند (همان قاعدهٔ ستونِ پنل)
-  const cachePerM = effCachePrice(row.priceIn1m ?? row.priceIn * 1e6, row.cacheRead1m)
-  return (profile.avgUncachedPerRequest * row.priceIn
-    + profile.avgCachedPerRequest * (cachePerM / 1e6)
-    + profile.avgOutPerRequest * row.priceOut)
+function costPerRequest(row, profile, calib = CALIBRATION) {
+  // اندازهٔ درخواست از مصرفِ واقعیِ دامنه؛ سهمِ کش در حالتِ کش‌خورده از کالیبره؛
+  // و کش‌نخوردنِ بی‌دلیلِ همین سرور از اندازه‌گیری (expectedCost).
+  const shape = { ...CALIBRATION, ...(calib || {}) }
+  if (profile && profile.avgPromptPerRequest > 0) shape.promptTokens = profile.avgPromptPerRequest
+  if (profile && profile.avgOutPerRequest > 0) shape.outputTokens = profile.avgOutPerRequest
+  return expectedCost(row, shape)
 }
 
 /**
@@ -393,13 +495,16 @@ export function recommendFromProfile(snap, profile, config, options = {}) {
     tier: r.tier || null,
     quality: r.quality,
     realOffPct: r.realOffPct == null ? null : r.realOffPct,
-    costCalib: r.costCalib ?? Math.round(calibratedCost(r, config.calibration) * 1e6) / 1e6,
+    costCalib: r.costCalib ?? Math.round(expectedCost(r, config.calibration) * 1e6) / 1e6,
     priceIn1m: r.priceIn1m,
     cacheRead1m: r.cacheRead1m,
     cacheKnown: r.cacheKnown !== false,
     priceOut1m: r.priceOut1m,
     uptime: r.uptime,
-    costPerRequest: Math.round(costPerRequest(r, profile) * 1e6) / 1e6,
+    costPerRequest: Math.round(costPerRequest(r, profile, config.calibration) * 1e6) / 1e6,
+    missPct: r.measured && r.measured.eligible >= MIN_SAMPLES ? r.measured.missPct : null,
+    missSamples: r.measured ? r.measured.eligible : 0,
+    measuredCostPerRequest: r.measured && r.measured.requests >= MIN_SAMPLES ? r.measured.costPerRequest : null,
   }))
   const eligible = scored.filter((r) => r.quality >= floor)
   const pool = eligible.length ? eligible : scored
@@ -413,11 +518,11 @@ export function recommendFromProfile(snap, profile, config, options = {}) {
     tier: officialRow.tier || null,
     quality: officialRow.quality,
     realOffPct: 0,
-    costCalib: Math.round(calibratedCost(officialRow, config.calibration) * 1e6) / 1e6,
+    costCalib: Math.round(expectedCost(officialRow, config.calibration) * 1e6) / 1e6,
     priceIn1m: officialRow.priceIn1m,
     cacheRead1m: officialRow.cacheRead1m,
     priceOut1m: officialRow.priceOut1m,
-    costPerRequest: Math.round(costPerRequest(officialRow, profile) * 1e6) / 1e6,
+    costPerRequest: Math.round(costPerRequest(officialRow, profile, config.calibration) * 1e6) / 1e6,
   } : null
   const savingsPct = baseline && baseline.costPerRequest > 0
     ? Math.round((1 - best.costPerRequest / baseline.costPerRequest) * 1000) / 10
@@ -447,14 +552,18 @@ async function applyChoice(ctx, config, model, provider, scope = 'all', currentS
     const svc = ctx.get('agentDefaultModel')
     if (svc) {
       const current = svc.currentSelection()
-      await svc.saveSelection({ ...current, model: preset.ref })
+      // پیش‌فرضِ چت‌های تازه هم فقط وقتی عوض می‌شود که همین مدل باشد (pro با انتخابِ سرورِ flash، flash نمی‌شود).
+      const currentModel = current && typeof current.model === 'string' ? current.model.split('@')[0] : null
+      if (!currentModel || currentModel === model || current.provider !== 'openrouter') await svc.saveSelection({ ...current, model: preset.ref })
     }
   }
   return { model, provider: row.provider, ref: preset.ref, listed, live }
 }
 
 function fmtApply(result) {
-  return `مدل ست شد: ${result.ref}\nارائه‌دهنده پین‌شده: ${result.provider}`
+  const live = result.live || {}
+  const kept = (live.kept || []).length
+  return `مدل ست شد: ${result.ref}\nارائه‌دهنده پین‌شده: ${result.provider}\n${(live.switched || []).length} چت عوض شد` + (kept ? `، ${kept} چت دست نخورد (مدلِ دیگری داشتند یا همین الان روی همین بودند)` : '') + '\nهر چتی که عوض شد، درخواستِ بعدی‌اش یک بار بی‌کش است (سرورِ تازه کش را از صفر می‌سازد).'
 }
 
 export const name = 'model-hunter'
@@ -463,9 +572,22 @@ export const inject = ['tools']
 export function apply(ctx, config) {
   const cfg = { ...DEFAULTS, ...(config || {}) }
 
+  const book = createGenerationBook({ readKey: () => process.env.OPENROUTER_API_KEY || readEnvKeySync('OPENROUTER_API_KEY') })
+  let measured = []
+  const measure = async () => {
+    try {
+      const logs = recentLogs({ days: cfg.measureDays || 7 })
+      await book.fill(Object.values(logs).flat().map(r => r.id))
+      measured = providerStats(logs, book.detailOf)
+      if (state.ts) state = applyMeasured(state, measured, cfg.calibration)
+    } catch (err) {
+      ctx.logger?.warn?.(`model-hunter: اندازه‌گیری شکست خورد: ${err}`)
+    }
+  }
+
   const refresh = async () => {
     try {
-      state = await scan(cfg)
+      state = applyMeasured(await scan(cfg), measured, cfg.calibration)
       ctx.logger?.info?.(`model-hunter: ${state.rows.length} ارائه‌دهنده در ${Object.keys(state.families).length} خانواده`)
     } catch (err) {
       state = { ...state, error: String(err), ts: Date.now() }
@@ -474,9 +596,10 @@ export function apply(ctx, config) {
   }
 
   ctx.effect(() => {
-    const t1 = setTimeout(refresh, 3000)
+    const t1 = setTimeout(async () => { await measure(); await refresh() }, 3000)
     const t2 = setInterval(refresh, Math.max(5, cfg.refreshMinutes) * 60_000)
-    return () => { clearTimeout(t1); clearInterval(t2) }
+    const t3 = setInterval(measure, 10 * 60_000)
+    return () => { clearTimeout(t1); clearInterval(t2); clearInterval(t3) }
   })
 
   const tool = {
@@ -551,6 +674,9 @@ export function apply(ctx, config) {
           error: state.error,
           focus: cfg.focus,
           calibration: cfg.calibration || CALIBRATION,
+          measured,
+          priorMissPct: PRIOR_MISS * 100,
+          minSamples: MIN_SAMPLES,
           families: Object.fromEntries(Object.entries(state.families).map(([k, v]) => [k, v.map((m) => ({
             model: m.model, name: m.name, batch: m.batch, context: m.context, winners: m.winners,
           }))])),

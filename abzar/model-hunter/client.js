@@ -146,7 +146,9 @@ window.__ModuleLoader__.load({
         ['quant', 'دقت', 'quantization: fp32/bf16 دقیق‌ترین، fp8 متعارف، fp4/mxfp4 سبک‌شده', (r) => r.quantization, 'asc'],
         ['quality', 'کیفیت', 'امتیازِ این پلاگین (نه OpenRouter): ۰٫۷۲×دقت + ۰٫۲۸×آپ‌تایم + امتیازِ سطح', (r) => r.quality, 'desc'],
         ['real', 'آف واقعی', 'صرفهٔ واقعی نسبت به دیپ‌سیکِ رسمیِ همان مدل، با الگوی مصرفِ خودمان (کش ۹۲٪ · ورودی ۳۳۸٬۰۰۰ · خروجی ۶۹۸ توکن)', (r) => (r.realOffPct == null ? -1e9 : r.realOffPct), 'desc'],
-        ['cost', '$/درخواست', 'هزینهٔ هر درخواستِ خودمان با همان الگو (دلار)', (r) => (r.costCalib == null ? Infinity : r.costCalib), 'asc'],
+        ['cost', '$/درخواست', 'هزینهٔ مورد انتظارِ هر درخواستِ خودمان (دلار): کش‌خورده × (۱−m) + کش‌نخورده × m', (r) => (r.costCalib == null ? Infinity : r.costCalib), 'asc'],
+        ['miss', 'کش‌نخوردن', 'درصدِ واقعیِ کش‌نخوردنِ بی‌دلیل در چت‌های خودمان (همان سرور، کمتر از ۵ دقیقه بعد). قرمز = بالای ۲٪. — = هنوز کمتر از ۳۰ نمونه (۳٪ فرض شده)', (r) => (r.measured && r.measured.eligible >= 30 ? r.measured.missPct : 3), 'asc'],
+        ['spent', '$ واقعی', 'میانگینِ هزینهٔ واقعیِ هر درخواست در چت‌های خودمان، از OpenRouter (n = تعداد)', (r) => (r.measured && r.measured.requests ? r.measured.costPerRequest : Infinity), 'asc'],
         ['in', 'ورودی $/M', 'قیمتِ هر یک میلیون توکنِ ورودیِ بدونِ کش', (r) => r.priceIn1m, 'asc'],
         ['cache', 'کش $/M', 'قیمتِ هر یک میلیون توکنِ خوانده‌شده از کش (— = ارائه‌دهنده منتشر نکرده)', (r) => (r.cacheRead1m == null ? Infinity : r.cacheRead1m), 'asc'],
         ['out', 'خروجی $/M', 'قیمتِ هر یک میلیون توکنِ خروجی', (r) => r.priceOut1m, 'asc'],
@@ -261,6 +263,9 @@ window.__ModuleLoader__.load({
         h('td', { className: 'mh-q' }, r.quality.toFixed(1)),
         h('td', { className: 'mh-q' }, r.realOffPct == null ? '—' : `${r.realOffPct > 0 ? '+' : ''}${r.realOffPct.toFixed(1)}٪`),
         h('td', { className: 'mh-q' }, r.costCalib == null ? '—' : r.costCalib.toFixed(5)),
+        h('td', { className: 'mh-q', style: r.measured && r.measured.eligible >= 30 && r.measured.missPct > 2 ? { color: '#ef4444', fontWeight: 700 } : undefined },
+          r.measured && r.measured.eligible >= 30 ? `${r.measured.missPct}٪ (${r.measured.misses}/${r.measured.eligible})` : '—'),
+        h('td', { className: 'mh-q' }, r.measured && r.measured.requests ? `${r.measured.costPerRequest.toFixed(5)} (n=${r.measured.requests})` : '—'),
         h('td', { className: 'mh-q' }, r.priceIn1m.toFixed(4)),
         h('td', { className: 'mh-q' }, (r.cacheRead1m == null || r.cacheKnown === false) ? '—' : r.cacheRead1m.toFixed(4)),
         h('td', { className: 'mh-q' }, r.priceOut1m.toFixed(4)),
@@ -289,7 +294,7 @@ window.__ModuleLoader__.load({
             `${rec.profile.sessions} چت، ${rec.profile.requests} درخواست، کش ${rec.profile.cacheShare}٪ — میانگینِ هر درخواست: ورودی ${rec.profile.avgPromptPerRequest} (کش ${rec.profile.avgCachedPerRequest})، خروجی ${rec.profile.avgOutPerRequest}`),
           h('div', { style: { marginTop: '8px' } },
             h('b', null, rec.recommended.provider),
-            ` · سطح ${TIER_FA[rec.recommended.tier || 'default'] || rec.recommended.tier} · ${rec.recommended.quantization} — هزینهٔ هر درخواست $${rec.recommended.costPerRequest}، کیفیت ${rec.recommended.quality}، ۱۰۰۰ درخواست $${rec.projectedPer1000Requests}`,
+            ` · سطح ${TIER_FA[rec.recommended.tier || 'default'] || rec.recommended.tier} · ${rec.recommended.quantization} — هزینهٔ هر درخواست $${rec.recommended.costPerRequest}، کیفیت ${rec.recommended.quality}، کش‌نخوردن ${rec.recommended.missPct == null ? '۳٪ (فرض)' : rec.recommended.missPct + '٪'}، ۱۰۰۰ درخواست $${rec.projectedPer1000Requests}`,
             rec.baseline ? ` — در برابر دیپ‌سیک رسمی $${rec.baseline.costPerRequest} (${rec.savingsPct > 0 ? `${rec.savingsPct}٪ ارزان‌تر` : `${Math.abs(rec.savingsPct)}٪ گران‌تر`})` : '',
             h('button', {
               className: 'mh-btn', style: { marginInlineStart: '10px' }, disabled: busy,
@@ -302,7 +307,8 @@ window.__ModuleLoader__.load({
           'سطح: استاندارد = ظرفیتِ معمول · flex = ارزان‌تر و دیرتر · priority = سریع‌تر و گران‌تر'
           + '  |  کش = قیمتِ خواندن از حافظهٔ کش (— = منتشر نشده؛ همان توکن‌ها قیمتِ کاملِ ورودی می‌خورند)'
           + '  |  آف واقعی و $/درخواست با الگوی خودمان حساب می‌شوند: '
-          + `کش ${(data.calibration || {}).cacheSharePct ?? 92}٪ · ورودی ${(data.calibration || {}).promptTokens ?? 338000} · خروجی ${(data.calibration || {}).outputTokens ?? 698} توکن`
+          + `کش ${(data.calibration || {}).cacheSharePct ?? 97}٪ (وقتی کش می‌خورد) · ورودی ${(data.calibration || {}).promptTokens ?? 338000} · خروجی ${(data.calibration || {}).outputTokens ?? 698} توکن`
+          + '  |  «کش‌نخوردن» از چت‌های واقعیِ خودمان اندازه گرفته می‌شود؛ سرورِ ارزانی که کش را نگه نمی‌دارد این‌جا گران درمی‌آید'
           + '  |  — در آف واقعی = این مدل پایهٔ رسمیِ دیپ‌سیک ندارد') : null)
     }
 

@@ -92,7 +92,7 @@ scenario('فیلتر به indexOf برگردد', {
 console.log('\n== ۵) خرابکاریِ آفِ واقعی (ورودیِ خالی به‌جای هزینهٔ کالیبره)')
 scenario('آف از قیمتِ ورودی تنها حساب شود', {
   test: 'realoff.test.cjs', env: {}, file: HOST,
-  from: '  const costs = rows.map((r) => calibratedCost(r, calib))',
+  from: '  const costs = rows.map((r) => expectedCost(r, calib))',
   to: '  const costs = rows.map((r) => num(r.priceIn1m))',
 })
 
@@ -106,8 +106,22 @@ scenario('effCachePrice برای کشِ نامعلوم صفر بدهد', {
 console.log('\n== ۷) خرابکاریِ مسیرِ پیشنهاد (کشِ نامعلوم صفر)')
 scenario('costPerRequest کشِ نامعلوم را رایگان بگیرد', {
   test: 'recommend.test.cjs', env: {}, file: HOST,
-  from: '  const cachePerM = effCachePrice(row.priceIn1m ?? row.priceIn * 1e6, row.cacheRead1m)',
+  from: '  const cachePerM = effCachePrice(row.priceIn1m, row.cacheRead1m)',
   to: '  const cachePerM = row.cacheRead1m || 0',
+})
+
+console.log('\n== ۹) خرابکاریِ کش‌نخوردنِ اندازه‌گیری‌شده (نادیده گرفته شود)')
+scenario('اندازه‌گیری نادیده گرفته شود و همه ۳٪ بگیرند', {
+  test: 'realoff.test.cjs', env: {}, file: HOST,
+  from: '  return row && row.measured && row.measured.eligible >= MIN_SAMPLES && row.measured.missPct != null',
+  to: '  return false && row && row.measured && row.measured.eligible >= MIN_SAMPLES && row.measured.missPct != null',
+})
+
+console.log('\n== ۱۰) خرابکاریِ «فقط چت‌های همین مدل»')
+scenario('همهٔ چت‌ها (حتی pro) عوض شوند', {
+  test: 'realoff.test.cjs', env: {}, file: HOST,
+  from: "    if (current !== null && current.split('@')[0] !== model) { kept.push({ id, reason: 'مدلِ دیگری دارد: ' + current.split('@')[0] }); continue }",
+  to: '',
 })
 
 console.log('\n== ۸) خرابکاریِ ستونِ «آف واقعی» در پنل')

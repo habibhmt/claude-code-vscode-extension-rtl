@@ -318,9 +318,22 @@ function costPerRequest(row, profile) {
     + profile.avgOutPerRequest * row.priceOut)
 }
 
-function recommendFromProfile(snap, profile, config, options = {}) {
-  const focusModel = config.focus
-  const all = snap.rows.filter((r) => r.model === focusModel && r.usable)
+/**
+ * تطبیقِ شناسهٔ مدل با مقدارِ ورودی.
+ * مقدارِ منوی پنل شناسهٔ بدونِ پیشوندِ ارائه‌دهنده است (مثلِ `deepseek-v4-pro-0813`)
+ * ولی ردیف‌های اسنپ‌شات شناسهٔ کامل دارند (`deepseek/deepseek-v4-pro-0813`).
+ * تطبیق با **برابری** است نه زیررشته، وگرنه `deepseek-chat` سه مدل را می‌گیرد.
+ */
+export function modelMatches(rowModel, requested) {
+  if (typeof rowModel !== 'string' || typeof requested !== 'string' || !rowModel || !requested) return false
+  if (rowModel === requested) return true
+  const slash = rowModel.indexOf('/')
+  return slash >= 0 && rowModel.slice(slash + 1) === requested
+}
+
+export function recommendFromProfile(snap, profile, config, options = {}) {
+  const focusModel = (options && options.model) || config.focus
+  const all = snap.rows.filter((r) => modelMatches(r.model, focusModel) && r.usable)
   // همهٔ سطح‌ها همیشه در رتبه‌بندی می‌آیند؛ سطحِ هر ردیف در ستونِ «سطح» نوشته می‌شود
   const rows = all
   if (!rows.length) throw new Error('برای مدلِ فوکوس ارائه‌دهندهٔ سالمی نیست')
@@ -358,7 +371,7 @@ function recommendFromProfile(snap, profile, config, options = {}) {
     ? Math.round((1 - best.costPerRequest / baseline.costPerRequest) * 1000) / 10
     : null
   return {
-    model: focusModel,
+    model: (all[0] && all[0].model) || focusModel,
     profile,
     qualityFloor: floor,
     recommended: best,
@@ -426,7 +439,7 @@ export function apply(ctx, config) {
         action: { type: 'string', enum: ['list', 'suggest', 'recommend', 'apply'], description: 'نوع عملیات' },
         task: { type: 'string', enum: ['balanced', 'code', 'long', 'cheap', 'fast'], description: 'نوع کار برای suggest' },
         limit: { type: 'integer', minimum: 1, maximum: 30, description: 'تعداد ردیف' },
-        model: { type: 'string', description: 'شناسهٔ مدل برای apply' },
+        model: { type: 'string', description: 'شناسهٔ مدل (برای apply) یا مدلِ هدفِ پیشنهاد (برای recommend)' },
         provider: { type: 'string', description: 'نام یا اسلاگِ ارائه‌دهنده برای apply' },
         scope: {
           type: 'string',
@@ -452,7 +465,7 @@ export function apply(ctx, config) {
       if (action === 'recommend') {
         const scope = args.scope || 'project'
         const profile = await buildProfile(ctx, scope, exec?.agent?.id || null)
-        const rec = recommendFromProfile(state, profile, cfg)
+        const rec = recommendFromProfile(state, profile, cfg, { model: args.model })
         const label = { session: 'همین چت', project: 'همین پروژه', all: 'همهٔ پروژه‌ها' }[scope] || scope
         const lines = [
           `دامنه: ${label} — ${profile.sessions} چت، ${profile.requests} درخواست (${profile.missing ? `${profile.missing} بدونِ آمار، ` : ''}کش ${profile.cacheShare}٪)`,
@@ -502,9 +515,10 @@ export function apply(ctx, config) {
           const url = new URL(req.url, 'http://localhost')
           const scope = url.searchParams.get('scope') || 'project'
           const sessionId = url.searchParams.get('sessionId') || null
+          const modelParam = url.searchParams.get('model') || undefined
           if (!state.ts) await refresh()
           const profile = await buildProfile(ctx, scope, sessionId)
-          const result = recommendFromProfile(state, profile, cfg)
+          const result = recommendFromProfile(state, profile, cfg, { model: modelParam })
           res.end(JSON.stringify({ ok: true, ...result }))
         } catch (err) {
           res.statusCode = 400

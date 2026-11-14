@@ -1,9 +1,13 @@
 /**
- * ثابت می‌کند آزمونِ مرتب‌سازی واقعاً سنجش می‌کند، نه فقط چاپ.
- * ۱) روی فایلِ اصلی → باید سبز شود (exit 0)
- * ۲) روی نسخهٔ عمداً خراب‌شده (clickSort بی‌اثر) → باید قرمز شود (exit ≠ 0)
+ * ثابت می‌کند آزمون‌ها واقعاً سنجش می‌کنند: روی نسخهٔ سالم سبز، روی نسخهٔ عمداً خراب‌شده قرمز.
  *
- * اجرا:  node test/verify.cjs
+ * چهار خرابکاری:
+ *   ۱) مرتب‌سازی: clickSort بی‌اثر           → sort.test.cjs باید قرمز شود
+ *   ۲) override مدل: نادیده گرفته شود        → recommend.test.cjs باید قرمز شود
+ *   ۳) تطبیقِ مدل: زیررشته‌ای شود            → recommend.test.cjs باید قرمز شود
+ *   ۴) فیلترِ خانواده: به indexOf برگردد     → family.test.cjs باید قرمز شود
+ *
+ * اجرا: node test/verify.cjs
  */
 const fs = require('fs')
 const os = require('os')
@@ -11,56 +15,75 @@ const path = require('path')
 const { spawnSync } = require('child_process')
 
 const dir = __dirname
-const real = path.join(dir, '..', 'client.js')
-const testFile = path.join(dir, 'sort.test.cjs')
+const HOST = path.join(dir, '..', 'index.js')
+const CLIENT = path.join(dir, '..', 'client.js')
 
-function runOn(clientPath) {
-  return spawnSync(process.execPath, [testFile], {
-    env: { ...process.env, MH_CLIENT: clientPath },
-    encoding: 'utf8',
+function run(testFile, env) {
+  const r = spawnSync(process.execPath, [path.join(dir, testFile)], {
+    env: { ...process.env, ...env }, encoding: 'utf8',
   })
+  return { status: r.status, out: (r.stdout || '') + (r.stderr || '') }
 }
 
 let ok = true
+const results = []
 
-console.log('== ۱) فایلِ اصلی: انتظار سبز (exit 0)')
-const good = runOn(real)
-const goodExit = good.status
-console.log(`   exit=${goodExit}`)
-if (goodExit !== 0) {
-  ok = false
-  console.log('   ✗ فایلِ اصلی نباید قرمز شود')
-  console.log(good.stdout || good.stderr)
-} else {
-  console.log('   ✓ سبز شد، همان‌طور که باید')
-}
-
-console.log('\n== ۲) خرابکاریِ عمدی: clickSort بی‌اثر → انتظار قرمز (exit ≠ 0)')
-const src = fs.readFileSync(real, 'utf8')
-const sabotaged = src.replace(
-  /const clickSort = React\.useCallback\(\(key\) => \{[\s\S]*?\}, \[sortKey\]\)/,
-  'const clickSort = React.useCallback((key) => { /* عمداً بی‌اثر */ }, [sortKey])',
-)
-if (sabotaged === src) {
-  ok = false
-  console.log('   ✗ خرابکاری اعمال نشد؛ الگوی clickSort پیدا نشد')
-} else {
-  const tmp = path.join(os.tmpdir(), `mh-sabotaged-${process.pid}.cjs`)
-  fs.writeFileSync(tmp, sabotaged)
-  const bad = runOn(tmp)
-  const badExit = bad.status
-  console.log(`   exit=${badExit}`)
-  if (badExit === 0) {
+function scenario(title, { test, env, file, from, to }) {
+  const ext = file === HOST ? '.mjs' : '.cjs'
+  const tmp = path.join(os.tmpdir(), `mh-sabotage-${process.pid}-${Math.random().toString(36).slice(2)}${ext}`)
+  const src = fs.readFileSync(file, 'utf8')
+  if (!src.includes(from)) {
+    console.log(`  ✗ ${title}: الگوی خرابکاری پیدا نشد`)
     ok = false
-    console.log('   ✗ خرابکاری قرمز نداد! آزمون بی‌ارزش است')
-    console.log(bad.stdout)
-  } else {
-    const failed = String(bad.stdout).split('\n').filter((l) => l.includes('✗'))
-    console.log(`   ✓ قرمز شد (${failed.length} شرط شکست)`)
-    for (const l of failed.slice(0, 3)) console.log('     ' + l.trim())
+    return
   }
+  fs.writeFileSync(tmp, src.replace(from, to))
+  const r = run(test, { ...env, [file === HOST ? 'MH_HOST' : 'MH_CLIENT']: tmp })
+  const failed = r.out.split('\n').filter((l) => l.includes('✗')).length
+  if (r.status === 0) {
+    console.log(`  ✗ ${title}: خرابکاری قرمز نداد (EXIT=0) — آزمون بی‌ارزش است`)
+    ok = false
+  } else {
+    console.log(`  ✓ ${title}: EXIT=${r.status} · ${failed} شرط قرمز`)
+  }
+  results.push({ title, status: r.status, failed })
   fs.unlinkSync(tmp)
 }
 
-console.log(ok ? '\nنتیجه: آزمون واقعاً سنجش می‌کند.' : '\nنتیجه: آزمون قابلِ اعتماد نیست.')
+console.log('== ۰) نسخهٔ سالم — همه باید سبز باشند')
+for (const t of ['sort.test.cjs', 'recommend.test.cjs', 'family.test.cjs']) {
+  const r = run(t, {})
+  if (r.status !== 0) { ok = false; console.log(`  ✗ ${t}: EXIT=${r.status}`); console.log(r.out.slice(-500)) }
+  else console.log(`  ✓ ${t}: EXIT=0`)
+}
+
+console.log('\n== ۱) خرابکاریِ مرتب‌سازی')
+scenario('clickSort بی‌اثر', {
+  test: 'sort.test.cjs', env: {}, file: CLIENT,
+  from: 'const clickSort = React.useCallback((key) => {',
+  to: 'const clickSort = React.useCallback((key) => { return; ',
+})
+
+console.log('\n== ۲) خرابکاریِ overrideِ مدل')
+scenario('options.model نادیده گرفته شود', {
+  test: 'recommend.test.cjs', env: {}, file: HOST,
+  from: 'const focusModel = (options && options.model) || config.focus',
+  to: 'const focusModel = config.focus',
+})
+
+console.log('\n== ۳) خرابکاریِ تطبیقِ مدل (زیررشته)')
+scenario('modelMatches زیررشته‌ای شود', {
+  test: 'recommend.test.cjs', env: {}, file: HOST,
+  from: "  if (rowModel === requested) return true\n  const slash = rowModel.indexOf('/')\n  return slash >= 0 && rowModel.slice(slash + 1) === requested",
+  to: '  return rowModel.indexOf(requested) >= 0',
+})
+
+console.log('\n== ۴) خرابکاریِ فیلترِ خانواده')
+scenario('فیلتر به indexOf برگردد', {
+  test: 'family.test.cjs', env: {}, file: CLIENT,
+  from: "          const tail = (m) => { const i = m.indexOf('/'); return i >= 0 ? m.slice(i + 1) : m }\n          list = list.filter((r) => r.model === family || tail(r.model) === family)",
+  to: '          list = list.filter((r) => r.model.indexOf(family) >= 0)',
+})
+
+console.log(ok ? '\nنتیجه: هر سه آزمون واقعاً سنجش می‌کنند.' : '\nنتیجه: دست‌کم یک آزمون قابلِ اعتماد نیست.')
 process.exit(ok ? 0 : 1)

@@ -90,10 +90,10 @@ window.__ModuleLoader__.load({
         return () => clearInterval(t)
       }, [load])
 
-      const recommend = React.useCallback(async (scope) => {
+      const recommend = React.useCallback(async (scope, family) => {
         setBusy(true); setNotice(null); setRec(null)
         try {
-          const qs = new URLSearchParams({ scope, ...(currentSessionId ? { sessionId: currentSessionId } : {}) })
+          const qs = new URLSearchParams({ scope, ...(currentSessionId ? { sessionId: currentSessionId } : {}), ...(family !== 'all' ? { model: family } : {}) })
           const r = await fetch(`/plugins/model-hunter/recommend?${qs}`, { credentials: 'same-origin' })
           const j = await r.json()
           if (!j.ok) throw new Error(j.error || `HTTP ${r.status}`)
@@ -169,7 +169,10 @@ window.__ModuleLoader__.load({
       const rows = React.useMemo(() => {
         const all = (data && data.rows) || []
         let list = all.filter((r) => r.usable)
-        if (family !== 'all') list = list.filter((r) => r.model.indexOf(family) >= 0)
+        if (family !== 'all') {
+          const tail = (m) => { const i = m.indexOf('/'); return i >= 0 ? m.slice(i + 1) : m }
+          list = list.filter((r) => r.model === family || tail(r.model) === family)
+        }
         const score = (r) => {
           if (task === 'cheap') return -r.priceIn
           if (task === 'fast') return (r.tier === 'priority' ? 100 : r.tier === 'ultrafast' ? 60 : 0) + r.quality
@@ -231,7 +234,7 @@ window.__ModuleLoader__.load({
         ]),
         h('button', {
           className: 'mh-btn', disabled: busy || (!currentSessionId && scope !== 'all'),
-          onClick: () => recommend(scope),
+          onClick: () => recommend(scope, family),
         }, 'پیشنهاد برای این دامنه'),
         )
 
@@ -282,7 +285,7 @@ window.__ModuleLoader__.load({
         data && !rows.length ? h('div', { className: 'mh-empty' }, 'برای این فیلتر ردیفی نیست.') : null,
         rec ? h('div', { className: 'mh-rec' },
           h('div', { className: 'mh-rec-title' },
-            `پیشنهاد برای ${({ session: 'همین چت', project: 'همین پروژه', all: 'همهٔ پروژه‌ها' })[rec.profile.scope] || rec.profile.scope}`),
+            `پیشنهاد برای ${({ session: 'همین چت', project: 'همین پروژه', all: 'همهٔ پروژه‌ها' })[rec.profile.scope] || rec.profile.scope} — مدل: ${String(rec.model || '').replace('deepseek/', '')}`),
           h('div', { className: 'mh-sub' },
             `${rec.profile.sessions} چت، ${rec.profile.requests} درخواست، کش ${rec.profile.cacheShare}٪ — میانگینِ هر درخواست: ورودی ${rec.profile.avgPromptPerRequest} (کش ${rec.profile.avgCachedPerRequest})، خروجی ${rec.profile.avgOutPerRequest}`),
           h('div', { style: { marginTop: '8px' } },

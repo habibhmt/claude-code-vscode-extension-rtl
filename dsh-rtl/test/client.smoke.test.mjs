@@ -181,4 +181,31 @@ if (JSDOM) {
     assert.equal(d.getElementById('en').getAttribute('dir'), 'ltr')
     assert.equal(d.getElementById('ok').style.getPropertyValue('text-align'), 'right')
   })
+  test('بلوکِ تمام‌انگلیسی چپ‌چین می‌شود؛ برچسبِ کنارِ آیکون و متنِ فارسی نه؛ کلیدِ برنامه چپ‌به‌راست', async () => {
+    const { w } = boot()
+    const d = w.document
+    d.body.insertAdjacentHTML('beforeend',
+      '<div id="card" style="display:flex"><span id="ico"><svg></svg></span>' +
+      '<div id="main" style="display:flex;flex-direction:column"><div style="display:flex"><button>Subagent</button></div>' +
+      '<span id="desc" style="display:block">Set Subagent recursion depth, count, and models.</span></div>' +
+      '<button role="switch" aria-checked="true"><span></span></button></div>' +
+      '<div id="row" style="display:flex"><svg></svg><span id="ws" style="display:block">Default workspace</span></div>' +
+      '<div style="display:flex;flex-direction:column"><span id="long" style="display:block">' + 'Keep linked GitHub pull requests beside your conversation. '.repeat(8) + '</span></div>' +
+      '<div id="col2" style="display:block"><p id="lone" style="display:block">Install, enable, and configure plugins</p></div>' +
+      '<div style="display:flex;flex-direction:column"><span id="fadesc" style="display:block">توضیحِ فارسی</span></div>')
+    await new Promise(r => setTimeout(r, 700))
+    assert.equal(d.getElementById('main').getAttribute('dir'), 'ltr', 'ستونِ عنوان + توضیح')
+    assert.equal(d.getElementById('card').getAttribute('dir'), null, 'کارتِ دارای کلید و آیکون برنمی‌گردد')
+    assert.equal(d.getElementById('ws').getAttribute('dir'), null, 'نامِ کنارِ آیکون سرِ جایش')
+    assert.equal(d.getElementById('lone').getAttribute('dir'), 'ltr', 'پاراگرافِ انگلیسیِ تنها')
+    assert.equal(d.getElementById('fadesc').getAttribute('dir'), null, 'فارسی دست نمی‌خورد')
+    assert.ok(d.getElementById('long').closest('[dir="ltr"]'), 'توضیحِ بلندتر از ۳۰۰ نویسه هم (خودش یا ستونش)')
+    // متن فارسی شد ⇒ dir برداشته می‌شود
+    d.getElementById('lone').textContent = 'نصب و پیکربندیِ افزونه‌ها'
+    await new Promise(r => setTimeout(r, 700))
+    assert.equal(d.getElementById('lone').getAttribute('dir'), null)
+    const css = [...d.querySelectorAll('style')].map(s => s.textContent).join('\n')
+    assert.match(css, /\[role="switch"\]:not\(\.dsh-rtl-switch\)\s*\{\s*direction: ltr;/)
+    assert.match(css, /nav:has\(button\[data-index\]\)\s*\{\s*display: none !important;/, 'نردبانِ نوبت‌ها پنهان')
+  })
 }

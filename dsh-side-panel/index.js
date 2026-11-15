@@ -13,7 +13,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createLogCache, createPriceBook, summarizeChatCost } from './cost-log.js'
+import { createAnthropicPrices, createLogCache, createPriceBook, summarizeChatCost } from './cost-log.js'
 
 const OPENROUTER = 'https://openrouter.ai/api/v1'
 const ENV_PATH = path.join(os.homedir(), '.dsh', '.env')
@@ -106,18 +106,21 @@ function readJsonBody(req) {
 
 const readChatLog = createLogCache()
 const priceBook = createPriceBook({ readKey })
+const anthropicPrices = createAnthropicPrices()
 
 /**
  * خرجِ دقیقِ یک چت: لاگِ سشن + قیمتِ هر gen-… از OpenRouter.
  * @param sessionId - شناسهٔ سشن.
  * @returns خلاصهٔ هزینه یا { found: false }.
  */
-export async function chatCost(sessionId, deps = { readChatLog, priceBook }) {
+export async function chatCost(sessionId, deps = { readChatLog, priceBook, anthropicPrices }) {
   const parsed = await deps.readChatLog(sessionId)
   if (!parsed) return { sessionId, found: false }
-  const summary = summarizeChatCost(parsed, id => deps.priceBook.priceOf(id), id => (typeof deps.priceBook.detailOf === 'function' ? deps.priceBook.detailOf(id) : null))
+  const anth = deps.anthropicPrices
+  const summary = summarizeChatCost(parsed, id => deps.priceBook.priceOf(id), id => (typeof deps.priceBook.detailOf === 'function' ? deps.priceBook.detailOf(id) : null),
+    model => (anth ? anth.priceOf(model) : null))
   deps.priceBook.flush()
-  return { sessionId, found: true, ts: Date.now(), ...summary }
+  return { sessionId, found: true, ts: Date.now(), ...summary, anthropicSource: anth ? anth.source() : null }
 }
 
 /** آخرین وضعیتِ کلید؛ حداکثر هر ۱.۵ ثانیه یک درخواست. */

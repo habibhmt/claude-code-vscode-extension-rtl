@@ -176,6 +176,7 @@ export function parseSessionLog(text) {
         stop: response.stopReason ?? null,
         input: typeof usage.inputTokens === 'number' ? usage.inputTokens : null,
         cached: typeof usage.cacheReadTokens === 'number' ? usage.cacheReadTokens : 0,
+        written: typeof usage.cacheWriteTokens === 'number' ? usage.cacheWriteTokens : 0,
         output: typeof usage.outputTokens === 'number' ? usage.outputTokens : null,
         tools,
       })
@@ -294,9 +295,21 @@ export function isOpenRouterId(id) {
   return typeof id === 'string' && id.startsWith('gen-')
 }
 
-export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
+export function summarizeChatCost(parsed, priceOf, detailOf = () => null, anthropicPriceOf = () => null) {
   const pricedRows = parsed.requests.map((row) => {
     const base = { ...row, promptN: (row.input ?? 0) + (row.cached ?? 0), cachedN: row.cached ?? 0, real: null }
+    // Anthropic صورت‌حسابِ تک‌جواب نمی‌دهد ⇒ توکن‌های همین لاگ × جدولِ رسمیِ قیمتِ Anthropic.
+    if (row.provider === 'anthropic') {
+      const cost = anthropicCost(row, anthropicPriceOf(row.ref || row.model))
+      return {
+        ...base,
+        promptN: base.promptN + (row.written ?? 0),
+        cost,
+        pending: false,
+        unpriceable: cost === null,
+        estimated: cost !== null,
+      }
+    }
     // جوابِ OpenRouter که شناسهٔ gen-… ندارد (قطع‌شده/خطا) هم بی‌قیمت است، ولی «غیرِ OpenRouter» نیست.
     if (!isOpenRouterId(row.responseId)) return { ...base, cost: null, pending: false, unpriceable: true, noId: row.provider === 'openrouter' }
     const cost = priceOf(row.responseId)
@@ -318,7 +331,8 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
   let pending = 0
   let unpriceable = 0
   let noId = 0
-  const tokens = { input: 0, cached: 0, output: 0 }
+  let estimated = 0
+  const tokens = { input: 0, cached: 0, written: 0, output: 0 }
   const providers = new Set()
   const byModel = new Map()
   const byTurn = new Map()
@@ -327,8 +341,10 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
     if (row.pending) pending += 1
     if (row.unpriceable) unpriceable += 1
     if (row.noId) noId += 1
+    if (row.estimated) estimated += 1
     tokens.input += row.input ?? 0
     tokens.cached += row.cached ?? 0
+    tokens.written += row.written ?? 0
     tokens.output += row.output ?? 0
     if (row.real || row.provider) providers.add(row.real || row.provider)
     const model = byModel.get(row.model) ?? { model: row.model, count: 0, cost: 0, pending: 0, unpriced: 0, input: 0, cached: 0, output: 0 }
@@ -355,6 +371,7 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
     pending,
     unpriceable,
     noId,
+    estimated,
     waste,
     providers: [...providers],
     tokens,
@@ -370,6 +387,131 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null) {
     wasteTop: rows.filter(row => row.waste > 0).sort((a, b) => b.waste - a.waste).slice(0, 5),
     turns: [...byTurn.values()].reverse().slice(0, 25),
     list: newestFirst.slice(0, 80),
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Anthropic — حبیب ۱۵ نوامبر: «قیمت خودت رو هم در بیار از api انثروپیک و درستش کن».
+ * API ِ Anthropic (‎/v1/models‎) قیمت نمی‌دهد و هزینهٔ تک‌جواب هم ندارد (فقط Cost API ِ
+ * سازمانی با کلیدِ admin، روزانه و کلی). پس: توکن‌های همان جواب در لاگ (inputTokens،
+ * cacheReadTokens، cacheWriteTokens، outputTokens) × جدولِ رسمیِ قیمت از خودِ Anthropic
+ * (همان صفحهٔ Pricing، نسخهٔ markdown). اگر صفحه در دسترس نبود، نسخهٔ پشتیبانِ زیر.
+ * نوشتنِ کش با نرخِ ۵ دقیقه: pi-ai بی cacheRetention همان «short» = ۵ دقیقه را می‌فرستد
+ * (resolveCacheRetention در ‎@earendil-works/pi-ai‎) و پروفایل cacheRetention ندارد.
+ * ------------------------------------------------------------------ */
+export const ANTHROPIC_PRICING_URL = 'https://platform.claude.com/docs/en/about-claude/pricing.md'
+
+/** پشتیبان: همان جدول، خوانده‌شده در ۱۵ نوامبر ۲۰۲۶. دلار برای هر میلیون توکن. */
+export const ANTHROPIC_FALLBACK = {
+  'claude-opus-5-5': [{ in: 4, w5: 5, w1h: 8, read: 0.2, out: 20 }],
+  'claude-opus-5': [{ in: 5, w5: 6.25, w1h: 10, read: 0.5, out: 25 }],
+  'claude-opus-4-8': [{ in: 5, w5: 6.25, w1h: 10, read: 0.5, out: 25 }],
+  'claude-sonnet-5-5': [{ in: 2, w5: 2.5, w1h: 4, read: 0.1, out: 10 }],
+  'claude-sonnet-5': [{ in: 2, w5: 2.5, w1h: 4, read: 0.2, out: 10 }],
+  'claude-sonnet-4-6': [{ in: 3, w5: 3.75, w1h: 6, read: 0.3, out: 15 }],
+  'claude-haiku-5-5': [
+    { maxPrompt: 100000, in: 0.1, w5: 0.125, w1h: 0.2, read: 0.01, out: 0.5 },
+    { in: 0.5, w5: 0.625, w1h: 1, read: 0.05, out: 2.5 },
+  ],
+  'claude-haiku-4-5': [{ in: 1, w5: 1.25, w1h: 2, read: 0.1, out: 5 }],
+}
+
+/** «Claude Opus 5.5» یا «anthropic/claude-opus-5.5» یا «claude-opus-4-5-20251101» ⇒ «claude-opus-5-5» / «claude-opus-4-5». */
+export function anthropicModelKey(name) {
+  let s = String(name || '').toLowerCase().split('@')[0]
+  s = s.replace(/^anthropic\//, '').replace(/:.*$/, '').trim()
+  s = s.replace(/\s+/g, '-').replace(/\./g, '-')
+  if (!s.startsWith('claude-')) s = 'claude-' + s.replace(/^claude/, '').replace(/^-+/, '')
+  return s.replace(/-\d{8}$/, '').replace(/-latest$/, '')
+}
+
+function dollars(cell) {
+  const m = /\$\s*([0-9]+(?:\.[0-9]+)?)\s*\/\s*MTok/i.exec(String(cell || ''))
+  return m ? Number(m[1]) : null
+}
+
+/**
+ * جدولِ «Model pricing» ِ صفحهٔ قیمتِ Anthropic (markdown) ⇒ { 'claude-opus-5-5': [tier…] }.
+ * ستون‌ها: ورودی، نوشتنِ کشِ ۵ دقیقه، نوشتنِ کشِ ۱ ساعت، خواندنِ کش، خروجی.
+ * ردیفِ دوتکه (Haiku 5.5: «up to 100,000» و «over 100,000») دو پله می‌شود.
+ * @returns جدول یا null اگر چیزی خوانده نشد (صفحه عوض شده).
+ */
+export function parseAnthropicPricing(md) {
+  const text = String(md || '')
+  const start = text.indexOf('## Model pricing')
+  if (start < 0) return null
+  const end = text.indexOf('\n## ', start + 5)
+  const out = {}
+  for (const line of text.slice(start, end < 0 ? undefined : end).split('\n')) {
+    if (!/^\|\s*Claude /.test(line)) continue
+    const cells = line.split('|').slice(1, -1).map(c => c.trim())
+    if (cells.length < 6) continue
+    const [rawName, ...money] = cells
+    const nums = money.slice(0, 5).map(dollars)
+    if (nums.some(n => n === null)) continue
+    const name = rawName.replace(/\(\[[^\]]*\]\([^)]*\)\)/g, '').replace(/<[^>]+>/g, '')
+    const tierMatch = /\(for prompts (up to|over) ([0-9,]+) tokens\)/i.exec(name)
+    const key = anthropicModelKey(name.replace(/\(.*\)/g, '').trim())
+    const tier = { in: nums[0], w5: nums[1], w1h: nums[2], read: nums[3], out: nums[4] }
+    if (tierMatch && /up to/i.test(tierMatch[1])) tier.maxPrompt = Number(tierMatch[2].replace(/,/g, ''))
+    const list = out[key] ?? []
+    list.push(tier)
+    // پلهٔ سقف‌دار اول، بی‌سقف آخر
+    list.sort((a, b) => (a.maxPrompt ?? Infinity) - (b.maxPrompt ?? Infinity))
+    out[key] = list
+  }
+  return Object.keys(out).length > 0 ? out : null
+}
+
+/**
+ * هزینهٔ یک جوابِ Anthropic از توکن‌هایش.
+ * @param row - { input, cached, written, output }
+ * @param tiers - پله‌های قیمتِ همان مدل (یا null)
+ * @returns دلار یا null (قیمتِ مدل را نداریم / توکن نیامده)
+ */
+export function anthropicCost(row, tiers) {
+  if (!Array.isArray(tiers) || tiers.length === 0 || !row || row.output === null || row.input === null) return null
+  const input = row.input ?? 0
+  const cached = row.cached ?? 0
+  const written = row.written ?? 0
+  const prompt = input + cached + written
+  const tier = tiers.find(t => t.maxPrompt === undefined || prompt <= t.maxPrompt) ?? tiers[tiers.length - 1]
+  return (input * tier.in + written * tier.w5 + cached * tier.read + (row.output ?? 0) * tier.out) / 1e6
+}
+
+/**
+ * قیمت‌های Anthropic: یک بار از صفحهٔ رسمی (و روزی یک بار تازه)، تا آن موقع پشتیبان.
+ * @returns { priceOf(model) ⇒ tiers | null, source() ⇒ 'anthropic' | 'built-in', refresh() }
+ */
+export function createAnthropicPrices({ fetchImpl = fetch, url = ANTHROPIC_PRICING_URL, refreshMs = 24 * 3600 * 1000, retryMs = 10 * 60 * 1000 } = {}) {
+  let table = null
+  let fetchedAt = 0
+  let nextTry = 0
+  let flying = null
+  function refresh() {
+    if (flying || Date.now() < nextTry) return flying
+    flying = (async () => {
+      try {
+        const res = await fetchImpl(url, { headers: { accept: 'text/markdown,text/plain' } })
+        const parsed = res.ok ? parseAnthropicPricing(await res.text()) : null
+        if (parsed) { table = parsed; fetchedAt = Date.now(); nextTry = fetchedAt + refreshMs } else nextTry = Date.now() + retryMs
+      } catch {
+        nextTry = Date.now() + retryMs
+      } finally {
+        flying = null
+      }
+    })()
+    return flying
+  }
+  return {
+    priceOf(model) {
+      refresh()
+      const key = anthropicModelKey(model)
+      return (table && table[key]) || ANTHROPIC_FALLBACK[key] || null
+    },
+    source() { return table ? 'anthropic' : 'built-in' },
+    fetchedAt() { return fetchedAt },
+    refresh,
   }
 }
 

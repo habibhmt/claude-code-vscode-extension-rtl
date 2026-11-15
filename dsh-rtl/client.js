@@ -577,6 +577,22 @@ html[data-dsh-rtl-plaintext="on"] table:not(:has(code)) { direction: rtl; }
 html[data-dsh-rtl-plaintext="on"] ul,
 html[data-dsh-rtl-plaintext="on"] ol { padding-inline-start: 1.5em; }
 
+/* --- نردبانِ «Turn navigation» کنارِ گفتگو برداشته می‌شود -------------- *
+ * خط‌های ریزِ عمودیِ لبهٔ راستِ گفتگو (یکی برای هر نوبت). حبیب ۱۵ نوامبر:
+ * «این هم یه چیز اضافه هست برش دار». نشانه: nav ای که دکمه‌های data-index دارد
+ * (TurnNavigator.tsx)، مستقل از زبان و نامِ رمزیِ کلاس. */
+nav:has(button[data-index]) {
+  display: none !important;
+}
+
+/* --- کلیدهای خودِ برنامه (role=switch) چپ‌به‌راست ------------------- *
+ * دستگیره با translate(16px) به راست می‌رود؛ در راست‌به‌چپ از لبهٔ راست شروع
+ * می‌کرد و بیرون از کلید می‌افتاد = «لکهٔ سیاه» (حبیب ۱۵ نوامبر). کلیدِ
+ * خودِ این افزونه (.dsh-rtl-switch) برای راست‌به‌چپ ساخته شده و جدا است. */
+html[data-dsh-rtl="on"] [role="switch"]:not(.dsh-rtl-switch) {
+  direction: ltr;
+}
+
 /* --- نشانی‌ها ترتیبِ خواندنِ خودشان را نگه می‌دارند -------------------- */
 html[data-dsh-rtl="on"] a[href] {
   unicode-bidi: isolate;
@@ -720,6 +736,7 @@ html[data-dsh-rtl="on"] a[href] {
         el.setAttribute('data-dsh-rtl-ltr', '');
         touched += 1;
       }
+      touched = englishBlockPass(touched);
       const cells = document.querySelectorAll('td, th');
       for (let i = 0; i < cells.length && touched < 600; i += 1) {
         const el = cells[i];
@@ -730,6 +747,62 @@ html[data-dsh-rtl="on"] a[href] {
         el.setAttribute('data-dsh-rtl-skip', 'aligned');
         touched += 1;
       }
+    }
+
+    /* بلوکِ تمام‌انگلیسی (توضیحِ کارت‌های صفحهٔ Plugins: «.Set Subagent recursion depth…») در
+       راست‌به‌چپ راست‌چین بود و نقطهٔ تهش به اولِ خط می‌رفت. حبیب ۱۵ نوامبر: «این انگلیسی‌ها رو هم
+       چپ‌چین کن». دو جور گره dir="ltr" می‌گیرد:
+       (الف) ستونِ عمودیِ تمام‌لاتین (عنوان + توضیح) که درونش کنترل، آیکون یا کد نیست؛
+       (ب) گرهِ برگِ بلوکی (بی‌فرزند) که در ستون یا بلوک نشسته، نه در ردیفی کنارِ آیکون؛
+       تا نامِ پوشه و برچسبِ کنارِ آیکونِ نوارِ کنار سرِ جایش بماند. پیامِ خودِ کاربر و نوارِ کنار
+       دست نمی‌خورند. متنی که بعداً فارسی شد، dir اش برداشته می‌شود. */
+    const EN_COL_BLOCKERS = 'input, textarea, select, [role="switch"], [contenteditable], svg, img, pre, code, table';
+    const EN_OUTSIDE = 'nav, aside, [class*="sidebar" i], [class*="userRow"], [class*="userStack"], [contenteditable="true"], .dsh-rtl-page, .dsh-plus-bar, .dsh-plus-pop, #dsh-plus-find, #dsh-plus-ctx';
+    function isColumn(style) {
+      if (style.display === 'flex' || style.display === 'inline-flex') return style.flexDirection.indexOf('column') === 0;
+      return style.display === 'block' || style.display === 'flow-root' || style.display === 'list-item';
+    }
+    /* مثلِ isLatinText ولی تا ۲۰۰۰ نویسه: توضیحِ کارت در صفحه کوتاه‌شده («…») است ولی متنِ کاملش بلندتر از ۳۰۰. */
+    function isLatinBlock(text) {
+      const t = typeof text === 'string' ? text.trim() : '';
+      if (!t || t.length > 2000) return false;
+      return /[A-Za-z]/.test(t) && !RTL_LETTERS.test(t);
+    }
+    function englishBlockPass(touched) {
+      const marked = document.querySelectorAll('[data-dsh-rtl-ltr="en"]');
+      for (let i = 0; i < marked.length; i += 1) {
+        if (RTL_LETTERS.test(marked[i].textContent || '')) {
+          marked[i].removeAttribute('dir');
+          marked[i].removeAttribute('data-dsh-rtl-ltr');
+        }
+      }
+      const nodes = document.querySelectorAll('div, span, p, h1, h2, h3, h4, h5, h6, label, dd, dt');
+      for (let i = 0; i < nodes.length && touched < 500; i += 1) {
+        const el = nodes[i];
+        if (el.hasAttribute('dir') || el.hasAttribute('data-dsh-rtl-ltr')) continue;
+        if (!isLatinBlock(el.textContent)) continue;
+        if (el.closest(SKIP) || el.closest(EN_OUTSIDE) || el.closest('[dir="ltr"]')) continue;
+        const style = window.getComputedStyle(el);
+        if (style.direction !== 'rtl' || style.display === 'none') continue;
+        let ok = false;
+        if (el.children.length === 0) {
+          // (ب) برگ: خودش بلوکی، پدرش ستون
+          if (style.display.indexOf('inline') === 0) continue;
+          const parent = el.parentElement;
+          ok = !!parent && isColumn(window.getComputedStyle(parent));
+        } else if (el.tagName === 'DIV') {
+          // (الف) ستونِ عنوان + توضیح
+          const ai = style.alignItems;
+          ok = style.display.indexOf('flex') !== -1 && style.flexDirection.indexOf('column') === 0
+            && (ai === 'normal' || ai === 'stretch' || ai === '')
+            && !el.querySelector(EN_COL_BLOCKERS);
+        }
+        if (!ok) continue;
+        el.setAttribute('dir', 'ltr');
+        el.setAttribute('data-dsh-rtl-ltr', 'en');
+        touched += 1;
+      }
+      return touched;
     }
 
     function clearAlignPass() {

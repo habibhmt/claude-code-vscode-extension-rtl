@@ -66,7 +66,7 @@ await act(async () => { root.render(React.createElement('div', null, React.creat
 await act(async () => { await new Promise(r => setTimeout(r, 20)) })
 text = document.body.textContent
 assert.ok(!text.includes('ناقص'), 'complete ⇒ no incomplete marker')
-assert.ok(text.includes('عدد دقیق است'), 'complete ⇒ exact')
+assert.ok(text.includes('عددِ OpenRouter دقیق است'), 'complete ⇒ exact')
 await act(async () => { root.unmount() })
 for (const off of disposers) if (typeof off === 'function') off() // تایمرِ چیدمان و کلیک‌گیر
 dom.window.close()

@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { parseSessionLog, summarizeChatCost, createPriceBook, createLogCache, findSessionLog, shortModel, flagWaste, summarizeWaste } from '../cost-log.js'
+import { parseSessionLog, summarizeChatCost, createPriceBook, createLogCache, findSessionLog, shortModel, flagWaste, summarizeWaste, parseAnthropicPricing, anthropicCost, anthropicModelKey, createAnthropicPrices, ANTHROPIC_FALLBACK } from '../cost-log.js'
 import { chatCost } from '../index.js'
 
 const ev = (type, time, data) => JSON.stringify({ type, time, data })
@@ -123,6 +123,64 @@ assert.equal(anthSum.unpriceable, 1)
 assert.equal(anthSum.list[0].cost, null)
 assert.equal(anthSum.topBy, 'tokens')
 assert.deepEqual(anthSum.providers, ['anthropic'])
+
+// ۶ج) Anthropic: توکن × جدولِ رسمی (حبیب ۱۵ نوامبر). نمونهٔ واقعیِ لاگِ همین چت:
+// input 2 · read 163,856 · write 931 · out 498 روی claude-opus-5-5 ($4 / $5 / $0.20 / $20)
+{
+  const md = [
+    '## Model pricing', '',
+    '| Model | Base input tokens | 5m cache writes | 1h cache writes | Cache hits and refreshes | Output tokens |',
+    '| :-- | :-- | :-- | :-- | :-- | :-- |',
+    '| Claude Mythos 5.2 ([limited availability](https://support.claude.com/x)) | $8 / MTok | $10 / MTok | $16 / MTok | $0.20 / MTok<sup>1</sup> | $40 / MTok |',
+    '| Claude Opus 5.5                                  | $4 / MTok             | $5 / MTok       | $8 / MTok       | $0.20 / MTok<sup>2</sup> | $20 / MTok             |',
+    '| Claude Haiku 5.5 (for prompts up to 100,000 tokens) | $0.10 / MTok | $0.125 / MTok | $0.20 / MTok | $0.01 / MTok | $0.50 / MTok |',
+    '| Claude Haiku 5.5 (for prompts over 100,000 tokens) | $0.50 / MTok | $0.625 / MTok | $1 / MTok | $0.05 / MTok | $2.50 / MTok |',
+    '', '## Cloud platform pricing', '| Claude Opus 5.5 | $99 / MTok | $99 / MTok | $99 / MTok | $99 / MTok | $99 / MTok |',
+  ].join('\n')
+  const table = parseAnthropicPricing(md)
+  assert.deepEqual(table['claude-opus-5-5'], [{ in: 4, w5: 5, w1h: 8, read: 0.2, out: 20 }], 'only the Model pricing table is read')
+  assert.ok(table['claude-mythos-5-2'], 'link in the name is dropped')
+  assert.equal(table['claude-haiku-5-5'].length, 2)
+  assert.equal(table['claude-haiku-5-5'][0].maxPrompt, 100000)
+  assert.equal(parseAnthropicPricing('nothing here'), null)
+  assert.equal(anthropicModelKey('claude-opus-4-5-20251101'), 'claude-opus-4-5')
+  assert.equal(anthropicModelKey('anthropic/claude-opus-5.5'), 'claude-opus-5-5')
+
+  const row = { input: 2, cached: 163856, written: 931, output: 498 }
+  const want = (2 * 4 + 931 * 5 + 163856 * 0.2 + 498 * 20) / 1e6
+  assert.ok(Math.abs(anthropicCost(row, table['claude-opus-5-5']) - want) < 1e-12)
+  // Haiku 5.5: پرامپتِ بالای ۱۰۰ هزار (با کش) ⇒ پلهٔ گران
+  assert.ok(Math.abs(anthropicCost({ input: 1000, cached: 150000, written: 0, output: 100 }, table['claude-haiku-5-5']) - (1000 * 0.5 + 150000 * 0.05 + 100 * 2.5) / 1e6) < 1e-12)
+  assert.equal(anthropicCost(row, null), null)
+
+  const log = parseSessionLog(JSON.stringify({ type: 'assistant/message', time: 5, data: { turn: 1, step: 1,
+    usage: { inputTokens: 2, outputTokens: 498, cacheReadTokens: 163856, cacheWriteTokens: 931 },
+    message: { content: [], source: { provider: 'anthropic', model: 'claude-opus-5-5', replayState: { response: { responseId: 'msg_1' } } } } } }))
+  assert.equal(log.requests[0].written, 931)
+  const asked2 = []
+  const s = summarizeChatCost(log, id => { asked2.push(id); return 1 }, () => null, m => table[anthropicModelKey(m)] || null)
+  assert.equal(asked2.length, 0, 'msg_… still never goes to OpenRouter')
+  assert.equal(s.priced, 1)
+  assert.equal(s.estimated, 1)
+  assert.equal(s.unpriceable, 0)
+  assert.ok(Math.abs(s.total - want) < 1e-12)
+  assert.equal(s.tokens.written, 931)
+  // مدلِ ناشناخته ⇒ هنوز «قیمت ندارد»، نه $0
+  const unk = summarizeChatCost(parseSessionLog(JSON.stringify({ type: 'assistant/message', time: 5, data: { turn: 1, step: 1, usage: { inputTokens: 5, outputTokens: 5 },
+    message: { content: [], source: { provider: 'anthropic', model: 'claude-unknown-9', replayState: { response: { responseId: 'msg_2' } } } } } })), () => 1, () => null, () => null)
+  assert.equal(unk.priced, 0)
+  assert.equal(unk.unpriceable, 1)
+
+  // انبار: صفحهٔ رسمی ⇒ 'anthropic'؛ خطا ⇒ پشتیبان
+  const live = createAnthropicPrices({ fetchImpl: async () => ({ ok: true, text: async () => md }) })
+  assert.deepEqual(live.priceOf('claude-opus-5-5'), ANTHROPIC_FALLBACK['claude-opus-5-5'], 'fallback until the page arrives')
+  await live.refresh()
+  assert.equal(live.source(), 'anthropic')
+  const down = createAnthropicPrices({ fetchImpl: async () => { throw new Error('offline') } })
+  down.priceOf('x'); await down.refresh()
+  assert.equal(down.source(), 'built-in')
+  assert.ok(down.priceOf('claude-opus-5-5'))
+}
 
 // ۶ب) سرصفحهٔ پیامِ همتا بی declared-write-scopes هم پاک شود
 {

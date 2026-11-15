@@ -512,16 +512,19 @@ window.__ModuleLoader__.load({
                   c.pending > 0 ? h('span', { style: { ...CSS.amber, fontSize: 12, fontWeight: 600, marginInlineStart: 8 }, 'data-incomplete': '' }, '▲ ناقص — هنوز بالا می‌رود') : null)
                 : h('div', { style: { ...CSS.big, fontSize: 15 } }, 'قیمتِ دلاری ندارد'),
               h('div', null, faNum(c.requests) + ' رفت‌وبرگشت با مدل' + (c.pending > 0 ? ' · قیمتِ ' + faNum(c.pending) + ' تا هنوز در راه است' : '')),
-              h('div', null, 'فرستاده: ' + faNum(c.tokens.input + c.tokens.cached) + ' توکن (' + faNum(c.tokens.cached) + ' از کش) · برگشت: ' + faNum(c.tokens.output)),
+              h('div', null, 'فرستاده: ' + faNum(c.tokens.input + c.tokens.cached + (c.tokens.written || 0)) + ' توکن (' + faNum(c.tokens.cached) + ' از کش) · برگشت: ' + faNum(c.tokens.output)),
               c.byModel.map(m => h('div', { key: m.model, style: CSS.hint },
                 m.model + ': ' + faNum(m.count) + ' بار' + (c.priced > 0 ? ' · ' + modelMoney(m) : ''))),
               c.unpriceable - (c.noId || 0) > 0 && h('div', { style: CSS.hint },
                 faNum(c.unpriceable - (c.noId || 0)) + ' رفت‌وبرگشت از سرویسِ ' + (c.providers.filter(p => p !== 'openrouter').join('، ') || 'دیگر') + ' است، نه OpenRouter؛ قیمتِ دقیقِ آن‌ها را جایی نداریم (عدد را حدس نمی‌زنیم).'),
               c.noId > 0 && h('div', { style: CSS.hint },
                 faNum(c.noId) + ' جوابِ OpenRouter شناسهٔ gen-… نداشت (قطع یا خطا شده)؛ قیمتش را نمی‌شود پرسید.'),
-              c.priced > 0 && h('div', { style: CSS.hint }, c.pending > 0
-                ? 'هر عدد از خودِ OpenRouter است؛ وقتی «در راه»ها صفر شد، جمع نهایی و دقیق است.'
-                : 'عدد دقیق است: هزینهٔ هر جواب از خودِ OpenRouter (همان صفحهٔ Activity)، فقط برای همین چت.'))
+              c.estimated > 0 && h('div', { style: CSS.hint },
+                faNum(c.estimated) + ' رفت‌وبرگشت از Anthropic است. Anthropic هزینهٔ تک‌تکِ جواب را نمی‌دهد؛ عددش حساب شده: توکن‌های همان جواب در لاگ (ورودی، خواندن و نوشتنِ کش، خروجی) × جدولِ رسمیِ قیمتِ Anthropic' +
+                (c.anthropicSource === 'anthropic' ? ' (تازه از سایتِ Anthropic).' : ' (نسخهٔ ذخیره‌شدهٔ ۱۵ نوامبر؛ سایت در دسترس نبود).')),
+              c.priced - (c.estimated || 0) > 0 && h('div', { style: CSS.hint }, c.pending > 0
+                ? 'عددِ OpenRouter از خودِ OpenRouter است؛ وقتی «در راه»ها صفر شد، جمع نهایی و دقیق است.'
+                : 'عددِ OpenRouter دقیق است: هزینهٔ هر جواب از خودِ OpenRouter (همان صفحهٔ Activity)، فقط برای همین چت.'))
             : h('div', { style: CSS.hint },
               oldHost ? 'برای خرجِ دقیقِ همین چت، اپ یک بار بسته و باز شود (نصفِ پشتِ صحنه تازه شده).'
                 : chat.status === 'error' ? 'خطا: ' + chat.error
@@ -629,8 +632,8 @@ window.__ModuleLoader__.load({
         type: 'button',
         'data-side-panel-cost-pill': '',
         title: c.priced > 0
-          ? 'خرجِ واقعیِ همین چت از OpenRouter' + (c.pending > 0 ? ' (ناقص: قیمتِ ' + faNum(c.pending) + ' جواب هنوز در راه است)' : '') + (wasted > 0 ? ' — الکی: ' + faMoney(wasted) : '') + ' (بزن تا پنل باز شود)'
-          : 'این چت از OpenRouter نیست؛ قیمتِ دقیق ندارد',
+          ? (c.estimated > 0 ? 'خرجِ همین چت (Anthropic: توکن × جدولِ رسمیِ قیمت)' : 'خرجِ واقعیِ همین چت از OpenRouter') + (c.pending > 0 ? ' (ناقص: قیمتِ ' + faNum(c.pending) + ' جواب هنوز در راه است)' : '') + (wasted > 0 ? ' — الکی: ' + faMoney(wasted) : '') + ' (بزن تا پنل باز شود)'
+          : 'قیمتِ مدلِ این چت را نداریم (نه OpenRouter، نه در جدولِ Anthropic)',
         onClick: () => { setSection('trajectory'); openPanel(ctx) },
         style: {
           display: 'inline-flex', alignItems: 'center', gap: 4, border: 0, background: 'transparent',

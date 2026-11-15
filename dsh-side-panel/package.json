@@ -11,11 +11,13 @@
     ".": "./index.js",
     "./client": "./client.js",
     "./icon": "./icon.svg",
-    "./fold": "./panel-fold.js"
+    "./fold": "./panel-fold.js",
+    "./raw": "./raw-log.js"
   },
   "files": [
     "index.js",
     "cost-log.js",
+    "raw-log.js",
     "client.js",
     "cordis.patch.yml",
     "icon.svg",

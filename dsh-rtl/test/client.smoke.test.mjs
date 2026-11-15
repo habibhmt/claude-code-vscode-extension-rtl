@@ -208,4 +208,35 @@ if (JSDOM) {
     assert.match(css, /\[role="switch"\]:not\(\.dsh-rtl-switch\)\s*\{\s*direction: ltr;/)
     assert.match(css, /nav:has\(button\[data-index\]\)\s*\{\s*display: none !important;/, 'نردبانِ نوبت‌ها پنهان')
   })
+  test('نوارِ پایینِ کادرِ نوشتن زیرِ راست‌به‌چپ: حاشیهٔ auto از راست به چپ می‌رود (فرستادن سمتِ چپ، + سمتِ راست)', async () => {
+    const { w } = boot()
+    const d = w.document
+    const css = [...d.querySelectorAll('style')].map(s => s.textContent).join('\n')
+    // ۱) فقط فرزندِ مستقیمِ ردیفِ نوار (_row > _trailing) با margin-inline-start چپ‌چین می‌شود
+    const byClass = css.match(/html\[data-dsh-rtl="on"\] \[class\*="_row"\] > \[class\*="_trailing"\]\s*\{([^}]*)\}/)
+    assert.ok(byClass, 'قاعدهٔ _row > _trailing هست')
+    assert.match(byClass[1], /margin-inline-start:\s*auto\s*!important/)
+    assert.match(byClass[1], /margin-left:\s*0\s*!important/, 'حاشیهٔ چپِ ثابتِ برنامه صفر می‌شود')
+    // ۲) قاعدهٔ کلی‌ای که هر div ِ اپ را بگیرد نداریم
+    assert.doesNotMatch(css, /div\[class\]:not\(\[class\*="_tools"\]\)/, 'انتخابگرِ پهن و خطرناک نیست')
+    // ۳) هر قاعدهٔ margin-left: 0 فقط زیرِ راست‌به‌چپ
+    for (const rule of css.matchAll(/([^{}]*)\{\s*margin-inline-start:\s*auto\s*!important;\s*margin-left:\s*0/g)) {
+      assert.match(rule[1], /html\[data-dsh-rtl="on"\]/, 'قاعدهٔ بی‌شرط نداریم')
+    }
+    // ۴) روی ردیفِ واقعیِ نوار (همان ساختارِ InputBar.tsx) فقط گروهِ .trailing گرفته می‌شود
+    d.body.insertAdjacentHTML('beforeend',
+      '<div id="card"><div id="row" class="JZLxKW_row">' +
+      '<div id="tools" class="JZLxKW_tools"><button class="JZLxKW_add" aria-label="Commands"></button>' +
+      '<div id="modes" class="JZLxKW_modes"><button aria-label="Full access">Full access</button></div></div>' +
+      '<div id="trailing" class="JZLxKW_trailing"><div class="JZLxKW_standardControls"><button aria-label="Model">Claude</button></div>' +
+      '<button class="JZLxKW_primary" aria-label="Send message"></button></div></div>' +
+      '<div class="other_trailing" id="elsewhere"><div></div><button aria-label="x"></button></div></div>')
+    const sel = 'html[data-dsh-rtl="on"] [class*="_row"] > [class*="_trailing"]'
+    d.documentElement.setAttribute('data-dsh-rtl', 'on')
+    assert.deepEqual([...d.querySelectorAll(sel)].map(el => el.id), ['trailing'], 'فقط گروهِ مدل/میکروفن/فرستادن، نه _trailing ِ جای دیگر')
+    // ۵) با خاموش‌بودنِ راست‌به‌چپ اینیدکس با «off» جور نمی‌شود ⇒ چپ‌به‌راست دست‌نخورده
+    d.documentElement.setAttribute('data-dsh-rtl', 'off')
+    assert.equal(d.querySelectorAll('html[data-dsh-rtl="on"]').length, 0)
+    assert.match(css, /html\[data-dsh-rtl="on"\] \[class\*="_row"\] > \[class\*="_trailing"\]/)
+  })
 }

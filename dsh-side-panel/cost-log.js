@@ -131,6 +131,8 @@ export function parseSessionLog(text) {
   const requests = []
   const turns = new Map()
   const stepStart = new Map()
+  // ساب‌ایجنت‌هایی که همین چت راه انداخته (هر childId یک بار؛ آخرین نام/برچسب).
+  const subagents = new Map()
   let pendingTrigger = null
   let currentTurn = null
   for (const line of text.split('\n')) {
@@ -153,6 +155,25 @@ export function parseSessionLog(text) {
       currentTurn = data.turn
     } else if (event.type === 'turn/end') {
       currentTurn = null
+    } else if (event.type === 'subagent/catalog' && typeof data.childId === 'string' && data.childId !== '') {
+      // خودِ رخداد نوبت ندارد ⇒ نوبتِ جاریِ چت (آخرین turn/start تا turn/end).
+      const prev = subagents.get(data.childId) ?? null
+      const named = {
+        name: typeof data.name === 'string' && data.name !== '' ? data.name : (prev ? prev.name : null),
+        label: typeof data.label === 'string' && data.label !== '' ? data.label : (prev ? prev.label : null),
+        mode: typeof data.mode === 'string' ? data.mode : (prev ? prev.mode : null),
+      }
+      // تکرارِ همان فرزند (تغییرِ نام/برچسب) نباید نوبت و زمانِ شروعش را جابه‌جا کند.
+      if (prev) {
+        Object.assign(prev, named)
+      } else {
+        subagents.set(data.childId, {
+          childId: data.childId,
+          ...named,
+          turn: typeof data.turn === 'number' ? data.turn : (currentTurn !== null ? currentTurn : null),
+          time: typeof event.time === 'number' ? event.time : null,
+        })
+      }
     } else if (event.type === 'step/start' && typeof data.turn === 'number') {
       stepStart.set(`${data.turn}:${data.step}`, event.time)
     } else if (event.type === 'assistant/message' && data.message) {
@@ -182,7 +203,8 @@ export function parseSessionLog(text) {
       })
     }
   }
-  return { requests, turns }
+  // subagents به ترتیبِ رسیدنشان در لاگ (یعنی زمانِ شروع).
+  return { requests, turns, subagents: [...subagents.values()] }
 }
 
 /**
@@ -362,6 +384,8 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null, anthro
     turn.cost += row.cost ?? 0
     turn.waste = (turn.waste ?? 0) + (row.waste || 0)
     turn.requests += 1
+    // قیمتِ نیامده جدا شمرده می‌شود تا جمعِ «تا الانِ» نوبت کمتر از واقع و بی‌هشدار نماند.
+    turn.pending = (turn.pending ?? 0) + (row.pending ? 1 : 0)
     byTurn.set(row.turn, turn)
   }
   const newestFirst = rows.slice().reverse()
@@ -388,6 +412,122 @@ export function summarizeChatCost(parsed, priceOf, detailOf = () => null, anthro
     turns: [...byTurn.values()].reverse().slice(0, 25),
     list: newestFirst.slice(0, 80),
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * ساب‌ایجنت‌ها — حبیب ۱۵ نوامبر: «هزینه‌های ساب‌ایجنت‌ها این‌جا نمیاد که چقدره؛
+ * هم جدا پایین بیاد هم توی جدول‌ها مشخص باشه».
+ * هر ساب‌ایجنت یک سشنِ جدا دارد ⇒ خرجش در لاگِ خودش است. روندهٔ این‌جا
+ * (readChatLog) برای هر فرزند هم خوانده می‌شود؛ انبارِ لاگ (createLogCache)
+ * نتیجه را تا وقتی فایل عوض نشده نگه می‌دارد، پس این کار ارزان است.
+ * ------------------------------------------------------------------ */
+export const SUBAGENT_MAX_DEPTH = 5
+
+/** خلاصهٔ یک مدل از این‌جا به بعد فقط جمع نمی‌شود؛ شکلش با summarizeChatCost یکی است. */
+function emptyModel(model) {
+  return { model, count: 0, cost: 0, pending: 0, unpriced: 0, input: 0, cached: 0, output: 0 }
+}
+
+/**
+ * خرجِ فرزندان را کنارِ خرجِ خودِ چت می‌گذارد.
+ * خالص است: هیچ فایلی نمی‌خواند، هیچ شبکه‌ای نمی‌زند؛ فقط با چیزی که به آن می‌دهند کار می‌کند.
+ * @param children - [{ childId, name, label, turn, time, depth, parentId, summary }]
+ *   summary = خروجیِ summarizeChatCost برای لاگِ همان فرزند، یا null (لاگ پیدا نشد).
+ * @param ownTotal - جمعِ خرجِ خودِ چت (summary.total).
+ * @returns { subagents, subagentTotal, subagentPending, grandTotal, subagentModels }
+ */
+export function summarizeSubagents(children, ownTotal = 0) {
+  const list = []
+  for (const child of Array.isArray(children) ? children : []) {
+    if (!child || typeof child.childId !== 'string') continue
+    const s = child.summary && typeof child.summary === 'object' ? child.summary : null
+    const total = s && typeof s.total === 'number' ? s.total : 0
+    const tokens = s && s.tokens ? s.tokens : { input: 0, cached: 0, written: 0, output: 0 }
+    list.push({
+      childId: child.childId,
+      name: typeof child.name === 'string' ? child.name : null,
+      label: typeof child.label === 'string' ? child.label : null,
+      turn: typeof child.turn === 'number' ? child.turn : null,
+      time: typeof child.time === 'number' ? child.time : null,
+      found: Boolean(s && child.summary !== null),
+      requests: s && typeof s.requests === 'number' ? s.requests : 0,
+      priced: s && typeof s.priced === 'number' ? s.priced : 0,
+      pending: s && typeof s.pending === 'number' ? s.pending : 0,
+      total,
+      estimated: s && typeof s.estimated === 'number' ? s.estimated : 0,
+      unpriceable: s && typeof s.unpriceable === 'number' ? s.unpriceable : 0,
+      tokens: { input: tokens.input ?? 0, cached: tokens.cached ?? 0, written: tokens.written ?? 0, output: tokens.output ?? 0 },
+      byModel: s && Array.isArray(s.byModel) ? s.byModel : [],
+      providers: s && Array.isArray(s.providers) ? s.providers : [],
+      depth: typeof child.depth === 'number' ? child.depth : 0,
+      parentId: typeof child.parentId === 'string' ? child.parentId : null,
+    })
+  }
+  let subagentTotal = 0
+  let subagentPending = 0
+  const byModel = new Map()
+  for (const row of list) {
+    subagentTotal += row.total
+    subagentPending += row.pending
+    // مدل‌های ساب‌ایجنت‌ها زیرِ همین نام جمع می‌شوند؛ در جدولِ «به تفکیکِ مدل» با «(ساب‌ایجنت)» می‌آیند.
+    for (const m of row.byModel) {
+      const key = m && m.model ? m.model : 'نامعلوم'
+      const entry = byModel.get(key) ?? emptyModel(key)
+      entry.count += m.count ?? 0
+      entry.cost += m.cost ?? 0
+      entry.pending += m.pending ?? 0
+      entry.unpriced += m.unpriced ?? 0
+      entry.input += m.input ?? 0
+      entry.cached += m.cached ?? 0
+      entry.output += m.output ?? 0
+      byModel.set(key, entry)
+    }
+  }
+  return {
+    subagents: list,
+    subagentTotal,
+    subagentPending,
+    subagentModels: [...byModel.values()].sort((a, b) => b.cost - a.cost),
+    grandTotal: (typeof ownTotal === 'number' ? ownTotal : 0) + subagentTotal,
+  }
+}
+
+/**
+ * فرزندان را از درختِ ساب‌ایجنت‌ها جمع می‌کند (تودرتو هم)، بی دور و بی بی‌نهایت.
+ * @param readSummary - (childId) ⇒ Promise<{ requests, turns, subagents } | null>
+ * @param roots - فهرستِ فرزندانِ مستقیمِ همین چت: [{ childId, name, label, turn, time }]
+ * @param paths - مسیرِ زنجیره تا این‌جا (برای شکستنِ دور مانندِ «الف ب را راه انداخته، ب الف را»).
+ * @param collect - فهرستِ تختِ ({ ...child, depth, parentId, summary }) که این تابع پر می‌کند.
+ * @returns Promise فهرستِ تخت، عمق‌اول (پدر پیش از فرزند).
+ */
+export async function collectDescendants(readSummary, roots, paths = [], collect = []) {
+  return collectDescendantsAt(readSummary, roots, 0, paths, collect)
+}
+
+async function collectDescendantsAt(readSummary, roots, depth, paths, collect) {
+  for (const root of Array.isArray(roots) ? roots : []) {
+    if (!root || typeof root.childId !== 'string' || root.childId === '') continue
+    if (paths.includes(root.childId)) continue // دور (خودش را یا جدش را دوباره راه انداخته)
+    if (depth > SUBAGENT_MAX_DEPTH) continue
+    // لاگش نبود (summary === null) ⇒ در فهرست می‌ماند تا کاربر بداند چنین فرزندی هست،
+    // ولی فرزندِ تودرتویی برایش نمی‌گردیم.
+    const summary = await readSummary(root.childId)
+    const parentId = paths.length > 0 ? paths[paths.length - 1] : null
+    collect.push({
+      childId: root.childId,
+      name: root.name ?? null,
+      label: root.label ?? null,
+      turn: root.turn ?? null,
+      time: root.time ?? null,
+      depth,
+      parentId: root.parentId !== undefined ? root.parentId : parentId,
+      summary,
+    })
+    if (summary && Array.isArray(summary.subagents) && summary.subagents.length > 0) {
+      await collectDescendantsAt(readSummary, summary.subagents, depth + 1, [...paths, root.childId], collect)
+    }
+  }
+  return collect
 }
 
 /* ------------------------------------------------------------------ *

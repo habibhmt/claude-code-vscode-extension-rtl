@@ -69,4 +69,58 @@ assert.equal((await send(sessionCost, { url: '/plugins/side-panel/session-cost?s
 const none = await send(sessionCost, { url: '/plugins/side-panel/session-cost?sessionId=session-does-not-exist-000', headers: {} })
 assert.equal(none.status, 200)
 assert.equal(none.body.found, false, 'async route answers')
-console.log('host guards OK')
+
+// ---------- مسیرِ دادهٔ خام (raw-log) ----------
+function sendRaw(handler, url, headers = {}) {
+  return new Promise((resolve) => {
+    const res = {
+      statusCode: 200, headers: {},
+      setHeader(k, v) { this.headers[k] = v },
+      end(body) { resolve({ status: this.statusCode, headers: this.headers, body }) },
+    }
+    handler({ url, headers }, res)
+  })
+}
+const raw = routes.get('/plugins/side-panel/raw-log')
+assert.equal(typeof raw, 'function', 'raw-log route is registered')
+// سدِ مسیرها مثلِ بقیه (cross-origin ⇒ ۴۰۳)
+assert.equal((await sendRaw(raw, '/plugins/side-panel/raw-log?sessionId=x', { host: 'evil.example' })).status, 403)
+assert.equal((await sendRaw(raw, '/plugins/side-panel/raw-log?sessionId=x', { host: '127.0.0.1:1', 'sec-fetch-site': 'cross-site' })).status, 403)
+// چتِ ناموجود ⇒ ۲۰۰ با found:false، بی خطا
+const rawNone = await sendRaw(raw, '/plugins/side-panel/raw-log?sessionId=session-does-not-exist-000')
+assert.equal(rawNone.status, 200)
+assert.equal(JSON.parse(rawNone.body).found, false)
+// شناسهٔ ناامن (../) هم همین‌طور بی‌خطر
+assert.equal(JSON.parse((await sendRaw(raw, '/plugins/side-panel/raw-log?sessionId=../../etc/passwd')).body).found, false)
+// چتِ واقعی (لاگِ همین پکیج‌کد را در ریشهٔ سشن‌های قلابی می‌سازیم)
+{
+  const fs = await import('node:fs')
+  const os = await import('node:os')
+  const path = await import('node:path')
+  const { spawnSync } = await import('node:child_process')
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'sp-raw-'))
+  const dir = path.join(root, '--x--', 'session-raw1')
+  fs.mkdirSync(dir, { recursive: true })
+  const lines = [
+    JSON.stringify({ type: 'session', id: 'session-raw1' }),
+    JSON.stringify({ type: 'turn/start', seq: 0, time: 1794700000000, data: { turn: 1 } }),
+    'نیمه‌خط خراب {',
+  ]
+  const frame = spawnSync('/opt/homebrew/bin/zstd', ['-c'], { input: Buffer.from(lines.join('\n') + '\n') }).stdout
+  fs.writeFileSync(path.join(dir, 'session.v4.jsonl.zstd'), frame)
+  const { rawLogText, rawLogAnswer } = await import('../index.js')
+  // با rootِ واقعیِ home پیدا نمی‌شود؛ پس خودِ تابع را با همان فایل می‌سنجیم
+  const text = (await import('../cost-log.js')).decompress(frame)
+  const { splitLogLines, sliceRawLines } = await import('../raw-log.js')
+  const page = sliceRawLines(splitLogLines(text))
+  assert.equal(page.totalAll, 3)
+  assert.equal(page.lines[2].text, 'نیمه‌خط خراب {', 'خراب هم عیناً می‌آید')
+  fs.rmSync(root, { recursive: true, force: true })
+  assert.equal(typeof rawLogAnswer, 'function')
+  assert.equal(typeof rawLogText, 'function')
+}
+// دانلودِ چتِ ناموجود ⇒ باز هم JSONِ found:false (نه فایل)
+const dl = await sendRaw(raw, '/plugins/side-panel/raw-log?sessionId=session-does-not-exist-000&download=1')
+assert.equal(dl.status, 200)
+assert.equal(JSON.parse(dl.body).found, false)
+console.log('host guards OK (+ raw-log route)')

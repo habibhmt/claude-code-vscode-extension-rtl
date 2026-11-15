@@ -1,0 +1,256 @@
+
+.dsh-nav-root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* دکمهٔ هر تکه: دقیقاً اندازه و رنگِ خودِ اپ */
+.dsh-nav-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 220px;
+  min-height: 28px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--dsw-radius-md);
+  background: transparent;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dsh-nav-trigger-ancestor {
+  font-weight: 400;
+  color: var(--dsw-alias-label-tertiary);
+}
+
+.dsh-nav-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dsh-nav-trigger svg {
+  flex: none;
+}
+
+.dsh-nav-trigger svg.dsh-nav-chevron {
+  transition: transform 120ms ease;
+}
+
+.dsh-nav-trigger[aria-expanded='true'] svg.dsh-nav-chevron {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+  .dsh-nav-trigger:hover {
+    background: var(--dsw-alias-interactive-bg-hover);
+    color: var(--dsw-alias-label-primary);
+  }
+}
+
+.dsh-nav-trigger:focus-visible {
+  outline: none;
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}
+
+/* منو: همان قابِ منوی اپ */
+.dsh-nav-menu {
+  position: fixed;
+  z-index: 100;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: min(360px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: min(560px, calc(100dvh - 140px));
+  padding: 6px;
+  overflow: hidden;
+  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
+  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
+  box-shadow: var(--dsw-elevation-prominent);
+  top: calc(anchor(bottom) + 5px);
+  left: clamp(16px, anchor(left), calc(100vw - min(360px, calc(100vw - 32px)) - 16px));
+  position-area: none;
+  position-try-fallbacks: --dsh-nav-above, --dsh-nav-window;
+  height: fit-content;
+  min-height: 0;
+  margin: 0;
+}
+
+.dsh-nav-menu-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.dsh-nav-section-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 7px 8px;
+}
+
+.dsh-nav-section-title {
+  flex: none;
+  margin: 0;
+  color: var(--dsw-alias-label-primary);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.dsh-nav-section-progress {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-inline-start: 4px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.dsh-nav-empty {
+  margin: 0;
+  padding: 2px 10px 10px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* هر ردیف منو: نقطهٔ سبز، برچسب، زمان، تیک */
+.dsh-nav-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--dsw-radius-md);
+  background: transparent;
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+  line-height: 17px;
+  text-align: start;
+  cursor: pointer;
+  outline: none;
+}
+
+@media (hover: hover) {
+  .dsh-nav-row:hover {
+    background: var(--dsw-alias-interactive-bg-hover);
+  }
+}
+
+.dsh-nav-row:focus-visible {
+  background: var(--dsw-alias-interactive-bg-hover);
+}
+
+.dsh-nav-row-dot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 17px;
+}
+
+.dsh-nav-row-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dsh-nav-row-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 17px;
+  font-weight: 400;
+  color: inherit;
+}
+
+.dsh-nav-row-current .dsh-nav-row-label {
+  font-weight: 500;
+}
+
+.dsh-nav-row-secondary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.dsh-nav-row-metrics {
+  flex: none;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 10px;
+  line-height: 15px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: end;
+  display: grid;
+  grid-template-rows: 17px 15px;
+}
+
+.dsh-nav-row-time {
+  grid-row: 1;
+  line-height: 17px;
+  color: var(--dsw-alias-label-tertiary);
+  font-size: 12px;
+}
+
+.dsh-nav-row-tick {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 2px 0;
+  color: var(--dsw-alias-label-primary);
+}
+
+.dsh-nav-row-tick-space {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+
+@position-try --dsh-nav-above {
+  top: auto;
+  bottom: calc(anchor(top) + 5px);
+}
+
+@position-try --dsh-nav-window {
+  top: max(16px, var(--dsh-frame-overlay-top, 16px));
+  bottom: 16px;
+  align-self: safe start;
+  justify-self: safe start;
+}
+
+/* جهتِ راست‌به‌چپ: آیکونِ ^ به‌جای ⌄ رو به بالا می‌ماند، اندازه‌ها هم‌اند */
+html[dir='rtl'] .dsh-nav-row,
+html[dir='rtl'] .dsh-nav-row-content {
+  text-align: right;
+}

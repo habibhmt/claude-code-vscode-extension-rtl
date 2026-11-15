@@ -267,8 +267,78 @@ export function explainCost(row) {
   return reasons.length > 0 ? reasons.join(' · ') : 'رفت‌وبرگشتِ کوچک'
 }
 
+/**
+ * ترتیبِ کارت‌های پنل: ذخیره‌شده + پیش‌فرض ⇒ فهرستِ کامل و بی‌تکرار.
+ * saved = آنچه در localStorage بود (شاید هیچ، شاید زباله)؛ defaults = ترتیبِ پیش‌فرض.
+ * شناسه‌های تازه (که در saved نبودند) به ترتیبِ پیش‌فرض، ته فهرست می‌چسبند؛
+ * شناسهٔ ناشناخته در saved دور ریخته می‌شود. هیچ‌وقت throw نمی‌کند.
+ * @param {unknown} saved - فهرستِ ذخیره‌شده (یا هر چیزِ دیگر).
+ * @param {string[]} defaults - همهٔ شناسه‌های همین بخش، به ترتیبِ پیش‌فرض.
+ * @returns {string[]} همهٔ شناسه‌های defaults، اولی‌ها به ترتیبِ saved.
+ */
+export function mergeOrder(saved, defaults) {
+  const list = Array.isArray(defaults) ? defaults.filter(id => typeof id === 'string' && id !== '') : []
+  const known = new Set(list)
+  const out = []
+  for (const id of Array.isArray(saved) ? saved : []) {
+    if (typeof id !== 'string' || !known.has(id) || out.includes(id)) continue
+    out.push(id)
+  }
+  for (const id of list) if (!out.includes(id)) out.push(id)
+  return out
+}
+
+/**
+ * جای یک شناسه را در فهرست delta خانه جابه‌جا می‌کند (▲ = −۱، ▼ = +۱).
+ * بیرون از فهرست یا بیرون از مرز ⇒ همان فهرست (بدونِ تغییر).
+ * @param {string[]} order
+ * @param {string} id
+ * @param {number} delta
+ * @returns {string[]}
+ */
+export function moveId(order, id, delta) {
+  const list = Array.isArray(order) ? order.slice() : []
+  const from = list.indexOf(id)
+  const step = typeof delta === 'number' && Number.isFinite(delta) ? delta : 0
+  const to = from + step
+  if (from < 0 || step === 0 || to < 0 || to >= list.length) return list
+  list.splice(from, 1)
+  list.splice(to, 0, id)
+  return list
+}
 
 /** پهنای پیش‌فرضِ پنل (توافقِ ۲۱:۲۰، سؤالِ ۴): حداکثر ۵۲۰، و چت دستِ‌کم ۶۸۰ بماند. */
 export function preferredPanelWidth(frameWidth, sidebarWidth) {
   return Math.min(520, frameWidth - (sidebarWidth || 0) - 680)
+}
+
+export const PANEL_MIN_WIDTH = 300
+export const PANEL_CHAT_MIN = 400
+
+/**
+ * سقفِ پهنای پنل: پنل هرچه پهن‌تر، چت باید دستِ‌کم ۴۰۰ پیکسل بماند.
+ * @param {number} frameWidth - عرضِ کلِ قاب.
+ * @param {number} sidebarWidth - عرضِ سایدبار.
+ * @returns {number} بیشترین پهنای مجاز (هرگز از کمینه کمتر نمی‌شود).
+ */
+export function maxPanelWidth(frameWidth, sidebarWidth) {
+  if (typeof frameWidth !== 'number' || !Number.isFinite(frameWidth)) return PANEL_MIN_WIDTH
+  const rest = frameWidth - (typeof sidebarWidth === 'number' && Number.isFinite(sidebarWidth) ? sidebarWidth : 0) - PANEL_CHAT_MIN
+  return Math.max(PANEL_MIN_WIDTH, Math.round(rest))
+}
+
+/**
+ * پهنای خواسته‌شده را به بازهٔ مجاز می‌آورد (بی‌این، پنل یا چت از صفحه بیرون می‌زد).
+ * عددِ نامعتبر ⇒ بیشترین مجاز؟ نه: کمترین؛ تا پنلِ خراب‌شده چت را نبلعد.
+ * @param {number} wanted - پهنای خواسته‌شده (پیکسل).
+ * @param {number} frameWidth - عرضِ کلِ قاب.
+ * @param {number} sidebarWidth - عرضِ سایدبار.
+ * @returns {number} پهنای مجاز.
+ */
+export function clampPanelWidth(wanted, frameWidth, sidebarWidth) {
+  const max = maxPanelWidth(frameWidth, sidebarWidth)
+  // بی‌نهایت یعنی «هرچه پهن‌تر» ⇒ سقف؛ عددِ نامعتبر (NaN، متن، هیچ) ⇒ کمینه.
+  if (wanted === Infinity) return max
+  const value = typeof wanted === 'number' && Number.isFinite(wanted) ? Math.round(wanted) : PANEL_MIN_WIDTH
+  return Math.min(max, Math.max(PANEL_MIN_WIDTH, value))
 }

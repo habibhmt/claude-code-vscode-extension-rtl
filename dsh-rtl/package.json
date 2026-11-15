@@ -3,7 +3,12 @@
   "version": "1.2.0",
   "private": true,
   "type": "module",
-  "description": "Right-to-left and Persian typography for the DSH Web UI",
+  "description": "Right-to-left Persian typography and a three-level (global/project/chat) settings page for the DSH Web UI",
+  "scripts": {
+    "test": "node --test test/*.mjs",
+    "sync": "node tools/sync-plus.mjs",
+    "sync:check": "node tools/sync-plus.mjs --check"
+  },
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
@@ -17,7 +22,9 @@
     "locale/*.json",
     "docs",
     "icon.svg",
-    "plus-pure.js"
+    "plus-pure.js",
+    "settings-pure.js",
+    "tools"
   ],
   "dsh": {
     "bundle": {

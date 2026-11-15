@@ -4,6 +4,9 @@ window.__ModuleLoader__.load({
     const React = require('react');
     const h = React.createElement;
 
+    /* ctx ِ نیمهٔ کلاینت (برای پرسیدنِ پوشهٔ کار و تنظیم‌های خودِ برنامه) */
+    let clientCtx = null;
+
     /* #region plus-inline — تولیدِ خودکار از plus-pure.js (tools/sync-plus.mjs) */
 
     /* فهرستِ پیش‌فرضِ دکمه‌ها: همان dokme_ha.json ِ اکستنشن (نسخهٔ ۲)، منهای فرمان‌هایی که فقط در
@@ -348,12 +351,625 @@ window.__ModuleLoader__.load({
       return out.join('\n')
     }
     /* #endregion plus-inline */
+    /* #region settings-inline — تولیدِ خودکار از settings-pure.js (tools/sync-plus.mjs) */
+
+    /* ---------- سطح‌ها ---------- */
+
+    /** ترتیبِ سطح‌ها از قوی‌تر به ضعیف‌تر (اولی برنده است). */
+    const LEVELS = ['chat', 'project', 'global']
+
+    /** نامِ فارسیِ سطح‌ها برای صفحه. */
+    const LEVEL_NAMES = { global: 'سراسری', project: 'پروژه', chat: 'چت' }
+
+    /** نامِ فارسیِ پیش‌فرض (وقتی هیچ سطحی مقداری ندارد). */
+    const LEVEL_DEFAULT_NAME = 'پیش‌فرض'
+
+    function plainObject(value) {
+      return value !== null && typeof value === 'object' && !Array.isArray(value) ? value : null
+    }
+
+    /** یک سطح را از حملهٔ prototype بیرون نگه می‌دارد و کلیدهای ناشناخته را می‌ریزد. */
+    function cleanLayer(raw, keys) {
+      const obj = plainObject(raw)
+      const out = {}
+      if (!obj) return out
+      for (const key of keys) {
+        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue
+        const value = obj[key]
+        if (value === undefined) continue
+        out[key] = value
+      }
+      return out
+    }
+
+    /**
+     * سه لایهٔ خام (هر کدام رشتهٔ JSON یا شیء یا هیچ) ⇒ لایه‌های تمیز با کلیدهای مجاز.
+     * @param {{ global?: unknown, project?: unknown, chat?: unknown }} raw
+     * @param {string[]} keys کلیدهای مجازِ تنظیماتِ dsh-rtl
+     * @returns {{ global: object, project: object, chat: object }}
+     */
+    function readLayers(raw, keys) {
+      const wrap = plainObject(raw) || {}
+      const pick = (value) => {
+        let obj = value
+        if (typeof value === 'string') {
+          try { obj = JSON.parse(value) } catch (err) { obj = null }
+        }
+        return cleanLayer(obj, keys)
+      }
+      return { global: pick(wrap.global), project: pick(wrap.project), chat: pick(wrap.chat) }
+    }
+
+    /**
+     * مقدارِ مؤثر و اینکه از کدام سطح آمده.
+     * @param {{ global?: object, project?: object, chat?: object }} layers
+     * @param {string} key
+     * @param {unknown} fallback پیش‌فرض
+     * @returns {{ value: unknown, level: 'chat'|'project'|'global'|'default' }}
+     */
+    function effectiveOf(layers, key, fallback) {
+      const wrap = plainObject(layers) || {}
+      for (const level of LEVELS) {
+        const layer = plainObject(wrap[level])
+        if (layer && Object.prototype.hasOwnProperty.call(layer, key) && layer[key] !== undefined) {
+          return { value: layer[key], level }
+        }
+      }
+      return { value: fallback, level: 'default' }
+    }
+
+    /** برچسبِ فارسیِ سطحِ برنده برای نشانِ ردیف. */
+    function levelName(level) {
+      return level === 'default' ? LEVEL_DEFAULT_NAME : (LEVEL_NAMES[level] || LEVEL_DEFAULT_NAME)
+    }
+
+    /**
+     * یک لایه را عوض می‌کند بی‌آن‌که بقیه دست بخورند.
+     * value === undefined ⇒ آن کلید از آن سطح پاک می‌شود.
+     * @returns لایه‌های تازه (شیءِ نو؛ ورودی دست نمی‌خورد)
+     */
+    function setAt(layers, level, key, value) {
+      const base = plainObject(layers) || {}
+      if (!LEVELS.includes(level)) throw new Error('سطحِ نامعلوم: ' + String(level))
+      const next = { global: { ...(plainObject(base.global) || {}) }, project: { ...(plainObject(base.project) || {}) }, chat: { ...(plainObject(base.chat) || {}) } }
+      if (value === undefined) delete next[level][key]
+      else next[level][key] = value
+      return next
+    }
+
+    /** مقدارِ ذخیره‌شده در یک سطح (یا undefined). */
+    function valueAt(layers, level, key) {
+      const wrap = plainObject(layers) || {}
+      const layer = plainObject(wrap[level])
+      return layer && Object.prototype.hasOwnProperty.call(layer, key) ? layer[key] : undefined
+    }
+
+    /* ---------- امنیتِ شناسه و مسیر ---------- */
+
+    /** شناسهٔ چتِ مجاز: حرف/رقم/نقطه/خط‌تیره/زیرخط، تا ۱۲۸ نویسه، بیِ «..». */
+    const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/
+
+    /**
+     * آیا این شناسهٔ چت برای ساختنِ نامِ پرونده بی‌خطر است؟
+     * «../..» و خالی و بی‌حرف و بلند رد می‌شوند.
+     * @param {unknown} id
+     * @returns {boolean}
+     */
+    function isSafeId(id) {
+      if (typeof id !== 'string') return false
+      if (!SAFE_ID.test(id)) return false
+      if (id.includes('..')) return false
+      return true
+    }
+
+    /** الگوی مسیرِ مطلقِ پوشه: /... یا C:\... یا \\\\server\\... */
+    function isAbsolutePath(path) {
+      if (typeof path !== 'string' || path.length === 0 || path.length > 4096) return false
+      if (/\u0000/.test(path)) return false
+      return path.startsWith('/') || /^[A-Za-z]:[^0-9]/.test(path) || path.startsWith('\\\\')
+    }
+
+    /**
+     * آیا این مسیر برای نوشتنِ «.dsh-rtl.json» ِ پروژه، پوشهٔ کار است و نه جای حساس؟
+     * سدِ کاملاً سمتِگام: جلوی «/»، پوشهٔ خانه، پوشه‌های سیستم و هر مسیرِ شاملِ «..» را می‌گیرد.
+     * (گامِ اصلی، سنجشِ واقعیِ پوشه در نیمهٔ host است: موجود است؟ پوشه است؟)
+     * @param {string} path پوشهٔ کار
+     * @param {string} [home] پوشهٔ خانهٔ کاربر
+     * @returns {string|null} علتِ رد، یا null یعنی مجاز
+     */
+    function unsafeWorkspace(path, home) {
+      if (!isAbsolutePath(path)) return 'مسیر مطلق نیست'
+      if (path.split(/[\\/]/).includes('..')) return 'مسیر «..» دارد'
+      const clean = path.replace(/[\\/]+$/, '')
+      if (/^[A-Za-z]:$/.test(clean)) return 'ریشهٔ درایو'
+      if (clean === '') return 'ریشهٔ دیسک'
+      if (typeof home === 'string' && home) {
+        const h = home.replace(/[\\/]+$/, '')
+        if (h && clean === h) return 'پوشهٔ خانه'
+      }
+      const lower = clean.replace(/\\/g, '/').toLowerCase()
+      for (const sys of ['/etc', '/usr', '/bin', '/sbin', '/var', '/boot', '/dev', '/proc', '/sys', '/Library', '/System', '/private/etc', '/private/var']) {
+        if (lower === sys.toLowerCase() || lower.startsWith(sys.toLowerCase() + '/')) return 'پوشهٔ سیستم'
+      }
+      return null
+    }
+
+    /* ---------- اعتبارسنجیِ مقدار ---------- */
+
+    /**
+     * یک کلیدِ تنظیماتِ dsh-rtl را با همان ابزارِ readPlus تمیز می‌کند.
+     * کلیدهای booleans همیشه true/false می‌شوند (فقط false ِ صریح خاموش می‌کند).
+     * @param {string} key
+     * @param {unknown} value
+     * @param {{ readPlus: (raw: unknown) => object }} tools
+     * @returns {{ ok: true, value: unknown } | { ok: false, error: string }}
+     */
+    function validatePref(key, value, tools) {
+      if (STRUCTURAL_PLUS_KEYS.includes(key)) return { ok: false, error: 'کلیدِ ساختاری: ' + String(key) }
+      const prefs = plainObject(tools && tools.prefs) || {}
+      const inPrefs = Object.prototype.hasOwnProperty.call(prefs, key)
+      const plusDefaults = tools && tools.readPlus ? tools.readPlus({}) : {}
+      const inPlus = Object.prototype.hasOwnProperty.call(plusDefaults, key)
+      if (!inPrefs && !inPlus) return { ok: false, error: 'کلیدِ ناشناخته: ' + String(key) }
+      if (inPrefs) {
+        // سوییچ‌های صفحه (rtl/font/code/plaintext): فقط false ِ صریح خاموش می‌کند — هم‌رفتار با applyDom.
+        if (value === undefined) return { ok: true, value: prefs[key] }
+        return { ok: true, value: value !== false && value !== 'false' && value !== 0 && value !== '0' }
+      }
+      // مقدارهای aA با همان readPlus ِ خودِ کلاینت جور می‌شوند (بازه، رنگ، جای دکمه).
+      if (value === undefined) return { ok: true, value: plusDefaults[key] }
+      const probe = { [key]: value }
+      const one = tools.readPlus(probe)[key]
+      return { ok: true, value: one }
+    }
+
+    /**
+     * کلیدهایی از بشکه که نباید در سه سطح ذخیره شوند (فهرست و پروفایل‌ها ساختارِ سنگین دارند
+     * و دکمه‌ها/متن‌های ویژه در صفحهٔ aA ویرایش می‌شوند؛ سه‌سطحی‌کردنشان بی‌فایده و پرخطاست).
+     */
+    const STRUCTURAL_PLUS_KEYS = ['commands', 'extras', 'profiles']
+
+    /** همهٔ کلیدهای کلِ dsh-rtl برای بررسیِ اعتبار (booleans + plus). */
+    function allKeys(prefsDefaults, plusDefaults) {
+      const keys = []
+      for (const k of Object.keys(prefsDefaults || {})) keys.push(k)
+      for (const k of Object.keys(plusDefaults || {})) keys.push(k)
+      return keys
+    }
+
+    /* ---------- جست‌وجو ---------- */
+
+    /**
+     * آیا این ردیف با واژهٔ جست‌وجو می‌خواند؟ در برچسب/شرح/کلیدِ انگلیسی/مقدارِ الان می‌گردد.
+     * بی‌حساسیت به بزرگ/کوچک و به نیم‌فاصله.
+     * @param {{ label?: string, hint?: string, key?: string, value?: unknown }[]} hay
+     * @param {string} query
+     * @returns {boolean}
+     */
+    function matchesQuery(hay, query) {
+      const q = String(query == null ? '' : query).trim().toLowerCase().replace(/\u200c/g, ' ')
+      if (!q) return true
+      const word = (v) => (v === undefined ? '' : (v === true ? 'روشن' : v === false ? 'خاموش' : String(v)))
+      const text = (Array.isArray(hay) ? hay : [])
+        .map((h) => [h && h.label, h && h.hint, h && h.key, word(h && h.value)].join(' '))
+        .join(' ')
+        .toLowerCase()
+        .replace(/\u200c/g, ' ')
+      for (const word of q.split(/\s+/)) if (word && text.indexOf(word) === -1) return false
+      return true
+    }
+
+    /* ---------- ردیف‌های «تنظیم‌های خودِ اپ» ---------- */
+
+    /** نام‌های فارسیِ fallback برای کلیدهای شناخته‌شدهٔ اپ (بیِ این، کلیدِ انگلیسی نشان داده می‌شود). */
+    const APP_KEY_FA = {
+      'ui-theme': 'ظاهرِ برنامه',
+      preference: 'تم (روشن/تیره)',
+      fontSize: 'اندازهٔ متنِ گفتگو',
+      codeFontSize: 'اندازهٔ متنِ کد',
+      terminalFontSize: 'اندازهٔ متنِ ترمینال',
+      textFontFamily: 'فونتِ متن',
+      codeFontFamily: 'فونتِ کد',
+      terminalFontFamily: 'فونتِ ترمینال',
+      'agent-loop': 'حلقهٔ کارِ ایجنت',
+      maxParallelToolCalls: 'چند ابزار هم‌زمان',
+      'agent-default-model': 'مدلِ پیش‌فرض',
+      provider: 'سرویس‌دهندهٔ مدل',
+      model: 'نامِ مدل',
+      reasoningEffort: 'میزانِ فکرِ مدل',
+      subagent: 'ساب‌ایجنت',
+      maxDepth: 'حداکثرِ تودرتویی',
+      maxActiveSubagents: 'چند ساب‌ایجنت هم‌زمان',
+      'bash-local': 'اجرای فرمانِ بش',
+      cwd: 'پوشهٔ اجرای فرمان',
+      timeoutMs: 'مهلتِ فرمان (میلی‌ثانیه)',
+      maxTimeoutMs: 'بیشترین مهلتِ فرمان',
+      maxOutputBytes: 'سقفِ خروجیِ فرمان',
+      maxSpillBytes: 'سقفِ پروندهٔ سرریز',
+      graceMs: 'مهلتِ مِهرَبانی برای بستن',
+    }
+
+    /** پوشاندنِ رازها: هر کلیدی که بوی رمز/توکن/کلید/رمز عبور دارد. */
+    const SECRET_KEY = /(secret|token|apikey|api_key|api-key|password|passwd|credential|authorization|^key$|_key$|keyid|bearer|cookie|session_?key|private)/i
+
+    /** آیا این کلیدِ تنظیم راز است؟ (هیچ‌وقت مقدارش نشان داده نمی‌شود) */
+    function isSecretKey(key) {
+      return SECRET_KEY.test(String(key || ''))
+    }
+
+    /**
+     * مقدارِ نهایی برای نمایش: بولی ⇒ روشن/خاموش · خالی ⇒ «—» · راز ⇒ «••••••».
+     * @param {unknown} value
+     * @param {string} key
+     * @returns {string}
+     */
+    function displayValue(value, key) {
+      if (key !== undefined && isSecretKey(key)) return '•••••• (پنهان)'
+      if (value === undefined || value === null || value === '') return '—'
+      if (value === true) return 'روشن'
+      if (value === false) return 'خاموش'
+      if (typeof value === 'object') {
+        const json = JSON.stringify(value)
+        return json.length > 80 ? json.slice(0, 80) + '…' : json
+      }
+      return String(value)
+    }
+
+    /**
+     * از یک namespace ِ describe ِ DSH یک فهرستِ ردیفِ فارسی/شرح می‌سازد؛ همین ترتیب در صفحه می‌آید.
+     * فیلدِ راز نشان داده نمی‌شود (value پنهان می‌ماند و ویرایشی ندارد).
+     * @param {{ ns: string, value: object, schema?: object }} view
+     * @param {Record<string, {label?: string, tozih?: string, key_fa?: Record<string,string>}>} locale
+     * @returns {{ ns: string, key: string, label: string, hint: string, value: unknown, secret: boolean }[]}
+     */
+    function appSettingRows(view, locale) {
+      const rows = []
+      if (!view || typeof view !== 'object' || typeof view.ns !== 'string') return rows
+      const value = plainObject(view.value) || {}
+      const entry = plainObject(locale && locale[view.ns]) || {}
+      const keysFa = plainObject(entry.key_fa) || {}
+      const nsLabel = entry.label || APP_KEY_FA[view.ns] || view.ns
+      for (const key of Object.keys(value)) {
+        const secret = isSecretKey(key) || hasSecretPath(view, key)
+        const fieldFa = keysFa[key] || APP_KEY_FA[key] || key
+        rows.push({
+          ns: view.ns,
+          key,
+          label: secret ? fieldFa : nsLabel + ' — ' + fieldFa,
+          hint: secret ? 'این مقدار راز است و نشان داده نمی‌شود' : (entry.tozih || 'تنظیمِ خودِ برنامه؛ مقدارِ الان را می‌گوید.'),
+          value,
+          secret,
+        })
+      }
+      return rows
+    }
+
+    /** آیا مسیرِ این فیلد در «secrets» ِ describe اعلام شده؟ */
+    function hasSecretPath(view, key) {
+      const list = Array.isArray(view.secrets) ? view.secrets : []
+      return list.some((s) => s && Array.isArray(s.path) && s.path.length === 1 && s.path[0] === key)
+    }
+
+    /* ---------- فایلِ تنظیمِ سه‌سطحی ---------- */
+
+    /** پاک‌سازیِ شیئی که می‌خواهیم در پرونده بنویسیم: فقط کلیدهای مجاز، بیِ undefined. */
+    function cleanFile(raw, keys) {
+      const obj = plainObject(raw)
+      if (!obj) return {}
+      const out = {}
+      for (const key of keys) {
+        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue
+        if (obj[key] === undefined) continue
+        out[key] = obj[key]
+      }
+      return out
+    }
+
+    /**
+     * پاسخِ «الان» در یک ردیف: «الان: X از سراسری؛ یعنی …»
+     * @param {{ level: string, value: unknown, meaning?: string }} info
+     * @returns {string}
+     */
+    function nowLine(info) {
+      const text = info.value === undefined ? '—' : (typeof info.value === 'boolean' ? (info.value ? 'روشن' : 'خاموش') : String(info.value))
+      const meaning = info.meaning ? '؛ یعنی ' + info.meaning : ''
+      return 'الان: ' + text + ' از ' + levelName(info.level) + meaning
+    }
+    /* #endregion settings-inline */
+    /* #region app-locale-inline — تولیدِ خودکار از locale/app-settings-fa.json (tools/sync-plus.mjs) */
+    const APP_SETTINGS_LOCALE = {
+      "meta": {
+        "sharh": "برچسب و شرحِ فارسیِ تنظیم‌های خودِ برنامه (DSH) برای صفحهٔ «تنظیم‌های خودِ اپ».",
+        "sakht": "برای هر فضای‌نام (ns) یک ورودی با label و tozih و key_fa (برچسبِ فارسیِ هر فیلد)."
+      },
+      "ui-theme": {
+        "label": "ظاهر و خوانایی",
+        "tozih": "رنگ و اندازهٔ نوشته‌های برنامه. همان تنظیم‌هایی است که در Settings ← General ← Appearance هم هست؛ این‌جا فقط «الان» را نشان می‌دهد و می‌شود عوضش کرد.",
+        "key_fa": {
+          "preference": "تم (روشن / تیره / خودِ سیستم)",
+          "fontSize": "اندازهٔ متنِ گفتگو (پیکسل)",
+          "codeFontSize": "اندازهٔ متنِ کد (پیکسل)",
+          "terminalFontSize": "اندازهٔ متنِ ترمینالِ کنار (پیکسل)",
+          "textFontFamily": "فونتِ متن",
+          "codeFontFamily": "فونتِ کد",
+          "terminalFontFamily": "فونتِ ترمینال"
+        }
+      },
+      "agent-loop": {
+        "label": "حلقهٔ کارِ ایجنت",
+        "tozih": "رفتارِ ایجنت وقتی چند ابزار را با هم می‌خواهد اجرا کند. عددِ بزرگ‌تر یعنی سریع‌تر ولی شلوغ‌تر.",
+        "key_fa": {
+          "maxParallelToolCalls": "چند ابزار هم‌زمان اجرا شود (۱ تا بی‌نهایت)"
+        }
+      },
+      "agent-default-model": {
+        "label": "مدلِ پیش‌فرضِ ایجنت",
+        "tozih": "هر چتِ تازه با کدام مدل شروع شود و مدل چقدر فکر کند.",
+        "key_fa": {
+          "provider": "سرویس‌دهندهٔ مدل (مثلاً openrouter یا deepseek)",
+          "model": "نامِ مدل",
+          "reasoningEffort": "میزانِ فکرِ مدل (کم / معمولی / زیاد)"
+        }
+      },
+      "subagent": {
+        "label": "ساب‌ایجنت‌ها",
+        "tozih": "چند ساب‌ایجنت هم‌زمان کار کنند و تا چند لایه تودرتو بروند.",
+        "key_fa": {
+          "maxDepth": "حداکثر لایهٔ تودرتویی",
+          "maxActiveSubagents": "چند ساب‌ایجنت هم‌زمان"
+        }
+      },
+      "bash-local": {
+        "label": "اجرای فرمان در ترمینال",
+        "tozih": "فرمان‌های بش با پوشهٔ کارِ پیش‌فرض، مهلت و سقفِ خروجی اجرا می‌شوند.",
+        "key_fa": {
+          "cwd": "پوشهٔ پیش‌فرضِ اجرا",
+          "timeoutMs": "مهلتِ پیش‌فرضِ هر فرمان (میلی‌ثانیه)",
+          "maxTimeoutMs": "بیشترین مهلتی که یک فرمان می‌تواند بگیرد",
+          "maxOutputBytes": "سقفِ خروجیِ هر فرمان (بایت)",
+          "maxSpillBytes": "سقفِ پروندهٔ سرریزِ خروجی",
+          "graceMs": "مهلتِ مُلایم برای بستنِ برنامه (میلی‌ثانیه)"
+        }
+      },
+      "permission-presets": {
+        "label": "پیش‌تنظیم‌های اجازه",
+        "tozih": "پیش‌تنظیمی که هر چتِ تازه با آن اجازه می‌گیرد (دسترسی به فایل‌ها و پرسیدن).",
+        "key_fa": {
+          "presets": "فهرستِ پیش‌تنظیم‌ها",
+          "defaultPreset": "پیش‌تنظیمِ پیش‌فرضِ چت‌های تازه"
+        }
+      },
+      "web": {
+        "label": "جست‌وجو و خواندنِ وب",
+        "tozih": "ابزارِ وب (web_fetch و جست‌وجو) با کدام سرویس کار کند.",
+        "key_fa": {
+          "searchProvider": "سرویسِ جست‌وجو",
+          "fetchProvider": "سرویسِ خواندنِ صفحه"
+        }
+      },
+      "cotTranslation": {
+        "label": "ترجمهٔ فکرِ مدل",
+        "tozih": "متنی که مدل در حالِ فکر کردن می‌نویسد به کدام زبان و با کدام سرویس ترجمه شود.",
+        "key_fa": {
+          "provider": "سرویسِ ترجمه",
+          "targetLanguage": "زبانِ مقصد (auto = زبانِ خودِ برنامه)"
+        }
+      },
+      "mcpManager": {
+        "label": "سرورهای MCP",
+        "tozih": "ابزارهای بیرونی که به برنامه وصل می‌شوند. آشکارسازانِ رمز (apiKey، token) هرگز نشان داده نمی‌شوند.",
+        "key_fa": {
+          "servers": "فهرستِ سرورها"
+        }
+      }
+    };
+    /* #endregion app-locale-inline */
+
+    /* #region ask-md — جدول و پررنگ در پنجرهٔ سؤال (حبیب ۱۵ نوامبر ۲۰۲۶: «یه کاری کن که پنجره سوال فرمت جدول رو حفظ کنه»)
+     * پنجرهٔ سؤالِ برنامه متنِ سؤال را خام در <h2 class="…_titlePreview"> می‌گذارد، پس جدولِ
+     * مارک‌داون به‌صورتِ «| a | b |» و «|---|» دیده می‌شد. این‌جا همان متن خوانده و کنارِ h2 در
+     * یک <div data-dsh-ask-md> به جدول/پاراگراف/فهرست ساخته می‌شود و h2 فقط پنهان می‌شود
+     * (نه پاک)، تا دکمهٔ کپی، aria و Reactِ خودِ برنامه دست‌نخورده بمانند. همه‌چیز با
+     * createElement و textContent ساخته می‌شود — هیچ innerHTMLی نیست، پس متنِ مدل نمی‌تواند
+     * HTML تزریق کند. کدِ درون‌خطی <span> است نه <code>، چون قاعدهٔ «table:has(code)»
+     * ِ همین فایل کلِ جدول را چپ‌به‌راست می‌کرد. */
+    function askMdSplitRow(line) {
+      let s = line.trim();
+      if (s.startsWith('|')) s = s.slice(1);
+      if (s.endsWith('|') && !s.endsWith('\\|')) s = s.slice(0, -1);
+      const cells = [];
+      let cur = '';
+      let inCode = false;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i];
+        if (ch === '\\' && s[i + 1] === '|') { cur += '|'; i++; continue; }
+        if (ch === '`') inCode = !inCode;
+        if (ch === '|' && !inCode) { cells.push(cur.trim()); cur = ''; continue; }
+        cur += ch;
+      }
+      cells.push(cur.trim());
+      return cells;
+    }
+    function askMdIsRow(line) {
+      return /^\s*\|.*\|\s*$/.test(line);
+    }
+    function askMdIsSeparator(line) {
+      if (!askMdIsRow(line)) return false;
+      const cells = askMdSplitRow(line);
+      return cells.length > 0 && cells.every((c) => /^:?-{2,}:?$/.test(c));
+    }
+    /** متن ⇒ بلوک‌ها: table {head, rows} · list {items} · para {lines}. */
+    function askMdBlocks(text) {
+      const lines = String(text == null ? '' : text).replace(/\r\n?/g, '\n').split('\n');
+      const blocks = [];
+      let para = null;
+      let list = null;
+      const close = () => { para = null; list = null; };
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (askMdIsRow(line) && i + 1 < lines.length && askMdIsSeparator(lines[i + 1])) {
+          close();
+          const head = askMdSplitRow(line);
+          const rows = [];
+          i += 2;
+          while (i < lines.length && askMdIsRow(lines[i])) { rows.push(askMdSplitRow(lines[i])); i++; }
+          i--;
+          blocks.push({ type: 'table', head, rows });
+          continue;
+        }
+        if (line.trim() === '') { close(); continue; }
+        const bullet = /^\s*[-*•]\s+(.*)$/.exec(line);
+        if (bullet) {
+          para = null;
+          if (!list) { list = { type: 'list', items: [] }; blocks.push(list); }
+          list.items.push(bullet[1]);
+          continue;
+        }
+        list = null;
+        if (!para) { para = { type: 'para', lines: [] }; blocks.push(para); }
+        para.lines.push(line);
+      }
+      return blocks;
+    }
+    /** آیا متن چیزی دارد که ارزشِ ساختن داشته باشد (جدول، پررنگ، کد، فهرست)؟ */
+    function askMdWorth(text) {
+      const blocks = askMdBlocks(text);
+      if (blocks.some((b) => b.type === 'table' || b.type === 'list')) return true;
+      return /\*\*[^*\n]+\*\*|`[^`\n]+`/.test(String(text || ''));
+    }
+    /** پررنگ (**…**) و کدِ درون‌خطی (`…`) ⇒ گره‌های امن. */
+    function askMdInline(doc, parent, text) {
+      const re = /`([^`\n]+)`|\*\*([^*\n]+?)\*\*/g;
+      let last = 0;
+      let m;
+      const s = String(text);
+      while ((m = re.exec(s))) {
+        if (m.index > last) parent.appendChild(doc.createTextNode(s.slice(last, m.index)));
+        if (m[1] !== undefined) {
+          const code = doc.createElement('span');
+          code.setAttribute('data-dsh-ask-code', '');
+          code.setAttribute('dir', 'ltr');
+          code.textContent = m[1];
+          parent.appendChild(code);
+        } else {
+          const b = doc.createElement('strong');
+          askMdInline(doc, b, m[2]);
+          parent.appendChild(b);
+        }
+        last = re.lastIndex;
+      }
+      if (last < s.length) parent.appendChild(doc.createTextNode(s.slice(last)));
+    }
+    /** بلوک‌ها ⇒ یک <div data-dsh-ask-md>. */
+    function askMdRender(doc, text) {
+      const root = doc.createElement('div');
+      root.setAttribute('data-dsh-ask-md', '');
+      root.setAttribute('dir', /[\u0600-\u06FF]/.test(String(text || '')) ? 'rtl' : 'auto');
+      for (const block of askMdBlocks(text)) {
+        if (block.type === 'table') {
+          const wrap = doc.createElement('div');
+          wrap.setAttribute('data-dsh-ask-table', '');
+          const table = doc.createElement('table');
+          const thead = doc.createElement('thead');
+          const tr = doc.createElement('tr');
+          for (const cell of block.head) {
+            const th = doc.createElement('th');
+            askMdInline(doc, th, cell);
+            tr.appendChild(th);
+          }
+          thead.appendChild(tr);
+          table.appendChild(thead);
+          const tbody = doc.createElement('tbody');
+          for (const row of block.rows) {
+            const r = doc.createElement('tr');
+            for (let c = 0; c < block.head.length; c++) {
+              const td = doc.createElement('td');
+              askMdInline(doc, td, row[c] == null ? '' : row[c]);
+              r.appendChild(td);
+            }
+            tbody.appendChild(r);
+          }
+          table.appendChild(tbody);
+          wrap.appendChild(table);
+          root.appendChild(wrap);
+        } else if (block.type === 'list') {
+          const ul = doc.createElement('ul');
+          for (const item of block.items) {
+            const li = doc.createElement('li');
+            askMdInline(doc, li, item);
+            ul.appendChild(li);
+          }
+          root.appendChild(ul);
+        } else {
+          const p = doc.createElement('p');
+          block.lines.forEach((line, k) => {
+            if (k > 0) p.appendChild(doc.createElement('br'));
+            askMdInline(doc, p, line);
+          });
+          root.appendChild(p);
+        }
+      }
+      return root;
+    }
+    /**
+     * نگهبان: هر تیترِ سؤال که جدول/پررنگ/کد/فهرست دارد ⇒ نسخهٔ ساخته‌شده درست بعد از h2،
+     * و h2 با data-dsh-ask-md-hidden پنهان. متنِ منبع در data-src ِ نسخه می‌ماند تا فقط با
+     * عوض‌شدنِ متن دوباره ساخته شود (نه با هر تغییرِ DOM). خروجی: تابعِ پاک‌کننده.
+     */
+    function startAskMarkdown(win) {
+      const doc = win.document;
+      const SEL = '[data-question-key] [class*="_titlePreview"]';
+      const sync = () => {
+        let titles;
+        try { titles = doc.querySelectorAll(SEL); } catch (err) { return; }
+        for (let i = 0; i < titles.length; i++) {
+          const h = titles[i];
+          let text = '';
+          for (let n = h.firstChild; n; n = n.nextSibling) if (n.nodeType === 3) text += n.nodeValue;
+          const next = h.nextElementSibling;
+          const mine = next && next.hasAttribute('data-dsh-ask-md') ? next : null;
+          if (!askMdWorth(text)) {
+            if (mine) mine.remove();
+            if (h.hasAttribute('data-dsh-ask-md-hidden')) h.removeAttribute('data-dsh-ask-md-hidden');
+            continue;
+          }
+          if (mine && mine.getAttribute('data-src') === text) {
+            if (!h.hasAttribute('data-dsh-ask-md-hidden')) h.setAttribute('data-dsh-ask-md-hidden', '');
+            continue;
+          }
+          const view = askMdRender(doc, text);
+          view.setAttribute('data-src', text);
+          if (mine) mine.replaceWith(view);
+          else h.insertAdjacentElement('afterend', view);
+          h.setAttribute('data-dsh-ask-md-hidden', '');
+        }
+      };
+      let timer = 0;
+      let pending = false;
+      const schedule = () => {
+        if (pending) return;
+        pending = true;
+        timer = win.setTimeout(() => { pending = false; sync(); }, 60);
+      };
+      sync();
+      const observer = new win.MutationObserver(schedule);
+      observer.observe(doc.body, { childList: true, subtree: true, characterData: true });
+      return () => {
+        win.clearTimeout(timer);
+        observer.disconnect();
+        const views = doc.querySelectorAll('[data-dsh-ask-md]');
+        for (let i = 0; i < views.length; i++) views[i].remove();
+        const hidden = doc.querySelectorAll('[data-dsh-ask-md-hidden]');
+        for (let i = 0; i < hidden.length; i++) hidden[i].removeAttribute('data-dsh-ask-md-hidden');
+      };
+    }
+    /* #endregion ask-md */
 
     /* ------------------------------------------------------------------ *
      * Preference store (browser-local, survives reload)
      * ------------------------------------------------------------------ */
     const STORE_KEY = 'dsh-rtl:prefs:v1';
-    const DEFAULTS = { rtl: true, font: true, code: true, plaintext: true };
+    const DEFAULTS = { rtl: true, font: true, code: true, plaintext: true, chatFit: true };
     const listeners = new Set();
     let prefs = Object.assign({}, DEFAULTS);
 
@@ -378,6 +994,9 @@ window.__ModuleLoader__.load({
       root.setAttribute('data-dsh-rtl-font', prefs.font ? 'on' : 'off');
       root.setAttribute('data-dsh-rtl-code', prefs.code ? 'on' : 'off');
       root.setAttribute('data-dsh-rtl-plaintext', prefs.plaintext ? 'on' : 'off');
+      /* فقط false ِ صریح خاموش می‌کند — همان قاعدهٔ قبلیِ rtl/font/code/plaintext، تا مقدارِ
+         string یا ۰ که از پروندهٔ تنظیم‌ها/کش می‌آید فیت را بی‌صدا خاموش نکند. */
+      root.setAttribute('data-dsh-rtl-chatfit', prefs.chatFit === false ? 'off' : 'on');
       if (prefs.rtl) root.setAttribute('dir', 'rtl');
       else if (originalDir === null) root.removeAttribute('dir');
       else root.setAttribute('dir', originalDir);
@@ -390,6 +1009,7 @@ window.__ModuleLoader__.load({
       root.removeAttribute('data-dsh-rtl-font');
       root.removeAttribute('data-dsh-rtl-code');
       root.removeAttribute('data-dsh-rtl-plaintext');
+      root.removeAttribute('data-dsh-rtl-chatfit');
       if (originalDir === null) root.removeAttribute('dir');
       else root.setAttribute('dir', originalDir);
     }
@@ -593,6 +1213,187 @@ html[data-dsh-rtl="on"] [role="switch"]:not(.dsh-rtl-switch) {
   direction: ltr;
 }
 
+/* --- نوارِ پایینِ کادرِ نوشتن: مدل، میکروفن، فرستادن به لبهٔ چپ --------- *
+ * خودِ برنامه گروهِ «مدل + میکروفن + فرستادن» را با margin-left: auto به لبهٔ
+ * راست می‌چسباند (InputBar.module.css، کلاسِ .trailing). در راست‌به‌چپ این
+ * حاشیه آینه نمی‌شود، پس گروه سمتِ چپ می‌ماند و فاصلهٔ خالی بینِ «Full access»
+ * و «+» می‌افتد (گزارشِ حبیب، عکسِ کادرِ نوشتن). با margin-inline-start: auto
+ * همان گروه به لبهٔ چپ می‌رود و «+» و «Full access» سرِ جای راست می‌مانند.
+ * فقط فرزندِ مستقیمِ ردیفِ نوار (‎_row > _trailing‎) — نه هر div ِ دیگری در اپ. */
+html[data-dsh-rtl="on"] [class*="_row"] > [class*="_trailing"] {
+  margin-inline-start: auto !important;
+  margin-left: 0 !important;
+}
+
+/* #region soal-panh — پنجرهٔ سؤالِ تمام‌عرض (بارِ اول)
+ * پنجرهٔ سؤالِ خودِ برنامه (کادرِ جای کادرِ نوشتن، بالای آن می‌چسبد) سه ایراد داشت:
+ * باریک بود، حداکثر ۵۲۰px ارتفاع داشت که سؤالِ کوتاه هم اسکرول می‌خورد، و متنِ
+ * انگلیسیِ سؤال/گزینه/کادرِ پاسخ با «direction: rtl» ِ کلِ صفحه به‌هم می‌ریخت
+ * (نقطهٔ آخرِ جمله اول می‌رفت، پرانتز جابه‌جا). حالا پهن است، سقفِ ارتفاع به‌جای
+ * ۵۲۰px درصدی است که از کفِ صفحه فراتر نمی‌رود، اسکرولِ داخلی فقط برای فهرستِ
+ * بلندِ گزینه‌هاست، و متنِ خودِ پنجره راست‌چین است؛ ترتیبِ حرف‌های لاتین را تابعِ
+ * startQuestionTextDir (پایین‌تر) با گذاشتنِ dir برگرداند.
+ *
+ * انتخابگرها: نامِ کلاس‌ها موقعِ اجرا «<هش>_<نام>» می‌شود (الان I1ptPW_*). اسم‌هایی
+ * مثلِ frame/card/body/title در ۱۲ تا ۵۰ ماژولِ دیگرِ برنامه هم هست، پس فقط به یک
+ * جدِ پایدارِ خودِ برنامه گیر می‌کنیم: ظرفِ کادرِ نوشتن [data-composer-seat]، ظرفِ
+ * آخرین پرسشِ در انتظار [data-question-key]، و اسکرول‌پورتِ پنجره [data-question-scroll].
+ * cardMinimized/questionTitle/optionRow/customRow فقط در همین ماژول‌اند و از همین
+ * ظرف‌ها نه‌اندازه‌شان بزرگ‌تر است و نه بیرونشان می‌زنند.
+ * نیمهٔ برچسبِ «هر دو زبان» (فقط جهشِ متن) زیرِ data-dsh-rtl نیست: فارسی خواندنِ
+ * کد را خراب نمی‌کند. نیمهٔ «پهن/بلند» فقط با راست‌به‌چپ روشن است، مثلِ بقیهٔ فایل. */
+/* فقط کارتی که واقعاً کارتِ پنجرهٔ سؤال است: کارتِ کادرِ نوشتن هم در همان جای
+   کادرِ نوشتن است و نامش «_card» است، پس با «[data-composer-seat] > _card» پهن‌تر
+   می‌شد (آزمون همین را گرفت). نشانهٔ قطعی، تیترِ سؤال و فهرستِ گزینه‌های خودِ
+   پنجره است که در کارتِ نوشتن نیست. */
+[data-question-key] > [class*="_card"]:has([class*="_questionTitle"], [class*="_optionRow"]) {
+  max-width: none !important;
+  max-height: min(85vh, calc(100dvh - 160px)) !important;
+}
+[data-question-key] > [class*="_card"] > [class*="_cardMinimized"] {
+  max-height: none !important;
+}
+[data-question-scroll] {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* پهن/بلند: سقف و حاشیهٔ کارت، متنِ خیلی بلندِ سؤال (سه خط) و توضیحِ گزینه (دو خط)
+   کامل و بدونِ کلیپ، سؤال و توضیح و کادرِ پاسخ راست‌به‌چپ، و هر گزینه یک ردیفِ کامل. */
+html[data-dsh-rtl="on"] [data-question-key] [class*="_questionTitle"] [class*="_titlePreview"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_optionRow"] [class*="_description"] {
+  max-height: none !important;
+  animation: none !important;
+  clip-path: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+/* فقط «شروع از لبهٔ راست». جهتِ خودِ متن (rtl یا ltr) را مقدارِ dir می‌دهد که
+   تابعِ startQuestionTextDir روی تیتر/برچسب/توضیح می‌گذارد؛ این‌جا direction
+   گذاشتن دوباره متنِ لاتین را وارونه می‌کرد و «dir=ltr» هم به‌خاطرِ ارث‌بریِ قوی‌ترِ
+   این قاعده بی‌اثر می‌شد. */
+html[data-dsh-rtl="on"] [data-question-key] [class*="_questionTitle"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_detail"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_optionLabel"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_description"] {
+  text-align: right;
+}
+html[data-dsh-rtl="on"] [data-question-key] [class*="_customRow"] {
+  direction: rtl;
+  text-align: right;
+}
+html[data-dsh-rtl="on"] [data-question-key] [class*="_optionRow"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_customRow"] {
+  width: 100%;
+}
+html[data-dsh-rtl="on"] [data-question-key] [class*="_option"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_optionCopy"] {
+  width: 100%;
+  min-width: 0;
+}
+html[data-dsh-rtl="on"] [data-question-key] [class*="_optionCopy"],
+html[data-dsh-rtl="on"] [data-question-key] [class*="_optionLine"] {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+/* جدول/پررنگ/کد در متنِ سؤال (startAskMarkdown): h2 ِ خام پنهان و نسخهٔ ساخته‌شده جایش.
+   بی‌شرط (در هر دو زبان)، چون جدولِ خام در انگلیسی هم خواناتر نیست. */
+[data-question-key] [data-dsh-ask-md-hidden] {
+  display: none !important;
+}
+[data-question-key] [data-dsh-ask-md] {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.75;
+}
+[data-question-key] [data-dsh-ask-md] p {
+  margin: 0 0 0.5em;
+}
+[data-question-key] [data-dsh-ask-md] ul {
+  margin: 0 0 0.5em;
+  padding-inline-start: 1.4em;
+}
+[data-question-key] [data-dsh-ask-md] [data-dsh-ask-table] {
+  overflow-x: auto;
+  margin: 0.25em 0 0.75em;
+}
+[data-question-key] [data-dsh-ask-md] table {
+  border-collapse: collapse;
+}
+[data-question-key] [data-dsh-ask-md] th,
+[data-question-key] [data-dsh-ask-md] td {
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  padding: 4px 10px;
+  vertical-align: top;
+  text-align: start;
+}
+[data-question-key] [data-dsh-ask-md] th {
+  font-weight: 600;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+[data-question-key] [data-dsh-ask-md] strong {
+  font-weight: 700;
+}
+[data-question-key] [data-dsh-ask-md] [data-dsh-ask-code] {
+  font-family: "Vazir Code Hack", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  unicode-bidi: isolate;
+}
+/* #endregion soal-panh */
+
+/* #region chat-fit — چت تمام‌پهنا: پیام‌ها و کادرِ نوشتن پنلِ خودشان را پر کنند
+ * ایراد (عکسِ حبیب، پنجرهٔ ۲۷۳۰px با پنلِ راستِ باز): ستونِ گفتگو وسطِ پنل باریک
+ * می‌ماند و دو حاشیهٔ خالیِ بزرگ دو طرف می‌افتد. علتش یک چیز است:
+ * ConversationRoot.module.css (درونِ asar) روی ظرفِ .body دو متغیرِ عرض می‌سازد —
+ *   --dsh-chat-content-width      = clamp(680px, 64% عرضِ ستون, 920px)
+ *   --dsh-composer-card-max-width = آن + 32px
+ * و پنج مصرف‌کننده با آن‌ها سقفِ عرض می‌گیرند: ستونِ پیام‌ها (ChatView .column،
+ * max-width)، کارتِ کادرِ نوشتن و نوارِ اعلانش (InputBar .card/.notice)،
+ * نوارِ دکمهٔ آمادهٔ خودمان (dsh-plus-bar[data-where="dock"]) و دستهٔ تغییرِ عرض
+ * (ConversationWidthControls). هر پنج از همین دو متغیر می‌خوانند، پس همین دو
+ * روی ظرفِ چت دوباره تعریف می‌شوند و ستون به تمامِ عرضِ پنل می‌رسد؛ ستونِ
+ * دستیِ کشیده‌شده (--dsh-chat-user-width، حافظهٔ درگ) هم برای همین حالت بی‌اثر
+ * می‌شود تا یک درگِ قدیمی فیت را برنگرداند.
+ *
+ * چرا فقط دو متغیر و نه پنج قاعدهٔ max-width: نام‌های .column/.card/.notice عمومی‌اند
+ * و در ده‌ها ماژولِ دیگرِ برنامه هم هستند؛ متغیر فقط جایی اثر می‌گذارد که خودِ
+ * برنامه آن را می‌خواند، یعنی همان ظرفِ گفتگو و کارتِ نوشتن — چه LTR چه RTL
+ * (اندازه‌ها متقارن‌اند و این بلوک جهت نمی‌گذارد).
+ *
+ * لنگرِ انتخابگر: [data-conversation-content] که فقط روی ظرفِ چت است (یک جا
+ * در کلِ برنامه؛ ConversationContent.tsx). سقف‌های کاربردیِ خودِ برنامه هم
+ * این‌جا دوباره و درست نوشته می‌شوند، وگرنه با دو متغیر به اندازهٔ کلِ پنل باز
+ * می‌شدند: نوارِ اعلان (۵۲۰px، کادرِ نوشتن از ستون باریک‌تر می‌ماند)، فهرستِ
+ * بلندِ گزینهٔ پنجرهٔ سؤال (۵۲۰px، بلندتر از ۸۵vh دیده نمی‌شد) و کارتِ پاسخ به
+ * سؤال (۸۲٪). ستونِ توکارِ پنلِ کنارِ گفتگو (embeddedBody = min(100% - 32px, 920px))
+ * دست نمی‌خورد.
+ *
+ * فاصلهٔ کنار: ۲۴px هر طرف (max(0px, …) تا در پنلِ باریک منفی نشود). ستونِ
+ * پیام‌ها max-width: 100% ِ خودش را دارد و با این دو حاشیه پر می‌شود؛ نوارِ
+ * دکمه‌ها دو فاصلهٔ دیگر (۱۶+۲۴px کنارِ کادر) را هم برمی‌دارد تا با لبهٔ کادر و
+ * پیام‌ها هم‌تراز شود. کلِ بلوک فقط با data-dsh-rtl-chatfit="on" کار می‌کند
+ * (کلیدِ chatFit در صفحهٔ تنظیمات). */
+html[data-dsh-rtl-chatfit="on"] [data-conversation-content]:not([class*="_embeddedBody"]) {
+  --dsh-chat-content-width: max(0px, 100% - 48px);
+  --dsh-chat-user-width: var(--dsh-chat-content-width);
+  --dsh-composer-card-max-width: var(--dsh-chat-content-width);
+}
+html[data-dsh-rtl-chatfit="on"] [data-conversation-content]:not([class*="_embeddedBody"]) [class*="_notice"] {
+  max-width: min(520px, 100%);
+}
+html[data-dsh-rtl-chatfit="on"] [data-conversation-content]:not([class*="_embeddedBody"]) [data-question-key] [class*="_card"]:has([class*="_questionTitle"], [class*="_optionRow"]) {
+  /* !important یعنی بازگشت به سقفِ منطقیِ خودِ برنامه؛ قاعدهٔ بالا با none !important
+     کارت را بی‌سقف کرد و بی این هم کارتِ سؤال با ستونِ تمام‌عرض آسمان‌خراش می‌شد. */
+  max-width: min(calc(100% - 32px), 920px) !important;
+}
+html[data-dsh-rtl-chatfit="on"] [data-conversation-content]:not([class*="_embeddedBody"]) [data-question-reply] {
+  max-width: 82%;
+}
+/* #endregion chat-fit */
+
 /* --- نشانی‌ها ترتیبِ خواندنِ خودشان را نگه می‌دارند -------------------- */
 html[data-dsh-rtl="on"] a[href] {
   unicode-bidi: isolate;
@@ -621,6 +1422,107 @@ html[data-dsh-rtl="on"] a[href] {
   border-top: 1px solid var(--dsw-alias-border-l1);
 }
 .dsh-rtl-row-text { flex: 1 1 auto; min-width: 0; }
+/* --- صفحهٔ تنظیمات: جست‌وجو، بخش‌ها، خطِ «الان» و نشانِ سه سطح --- */
+.dsh-rtl-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-1, rgba(127,127,127,.08));
+  color: inherit;
+  font: inherit;
+}
+.dsh-rtl-search:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
+.dsh-rtl-section { margin-top: 22px; }
+.dsh-rtl-section h3 {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
+}
+.dsh-rtl-section-hint {
+  margin: 6px 0 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.dsh-rtl-row-now {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--dsw-alias-label-secondary);
+}
+.dsh-rtl-badges { display: inline-flex; gap: 6px; margin-top: 6px; }
+.dsh-rtl-level {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: transparent;
+  color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary));
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.7;
+  cursor: pointer;
+}
+.dsh-rtl-level[data-set="1"] { color: var(--dsw-alias-label-primary); border-color: var(--dsw-alias-border-l2); }
+.dsh-rtl-level-on { background: var(--dsw-alias-bg-layer-2, rgba(127,127,127,.18)); font-weight: 600; }
+.dsh-rtl-row-control { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dsh-rtl-row-level {
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-1, rgba(127,127,127,.08));
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 6px;
+}
+.dsh-rtl-row-value {
+  width: 84px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-1, rgba(127,127,127,.08));
+  color: inherit;
+  font: inherit;
+  padding: 3px 8px;
+}
+.dsh-rtl-save {
+  border: 1px solid var(--dsw-alias-brand-primary);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--dsw-alias-brand-primary);
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.dsh-rtl-save:hover { background: var(--dsw-alias-brand-primary); color: var(--dsw-alias-bg-layer-1, #1f1f1f); }
+.dsh-rtl-only-global {
+  display: inline-block;
+  margin: 8px 0 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--dsw-alias-bg-layer-2, rgba(127,127,127,.18));
+  color: var(--dsw-alias-label-secondary);
+  font-size: 11px;
+}
+.dsh-rtl-host-note[data-host="missing"] { color: #d08c22; }
+.dsh-rtl-empty { margin: 22px 0 0; color: var(--dsw-alias-label-secondary); font-size: 13px; }
+.dsh-rtl-row-key { display: block; margin-top: 3px; font-size: 11px; color: var(--dsw-alias-label-tertiary, var(--dsw-alias-label-secondary)); direction: ltr; text-align: right; }
+.dsh-rtl-app-edit { display: inline-flex; gap: 6px; align-items: center; }
+.dsh-rtl-app-edit input {
+  width: 110px;
+  border: 1px solid var(--dsw-alias-border-l2);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-1, rgba(127,127,127,.08));
+  color: inherit;
+  font: inherit;
+  padding: 3px 8px;
+}
 .dsh-rtl-row-title {
   display: block;
   font-size: 14px;
@@ -859,6 +1761,444 @@ html[data-dsh-rtl="on"] a[href] {
       );
     }
 
+/* ------------------------------------------------------------------ *
+     * صفحهٔ تنظیمات: بخش‌ها، ردیف‌ها و معنیِ هر مقدار
+     * برای هر ردیف: برچسبِ فارسی، یک خط شرحِ ساده، و «الان: X از Y؛ یعنی …».
+     * ------------------------------------------------------------------ */
+    const SECTION_SPECS = [
+      {
+        id: 'rtl',
+        title: 'راست‌چین',
+        hint: 'جهتِ صفحه، فونتِ فارسی، کد و متنِ دوطرفه.',
+        rows: [
+          { key: 'rtl', label: 'راست‌به‌چپ', hint: 'کل صفحه آینه می‌شود: نوارِ کنار سمتِ راست، پیام‌ها از راست، و متن‌ها با ترتیبِ فارسی و عربی.' },
+          { key: 'font', label: 'فونتِ فارسی (Vazirmatn)', hint: 'متن‌های فارسی با Vazirmatn و کدها با Vazir Code Hack نوشته می‌شوند.' },
+          { key: 'code', label: 'کد و خروجیِ ابزار چپ‌به‌راست بماند', hint: 'بلوک‌های کد، شمارهٔ خط‌ها، دیف و خروجیِ ابزارها برنمی‌گردند تا پرانتزها به‌هم نریزند.' },
+          { key: 'plaintext', label: 'هر بلوک از متنِ خودش پیروی کند', hint: 'پاراگرافِ فارسی راست‌به‌چپ و پاراگرافِ انگلیسی چپ‌به‌راست می‌ماند.' },
+          { key: 'soalPahn', type: 'bool', label: 'پنجرهٔ سؤالِ تمام‌عرض', hint: 'پنجره‌ای که ابزار از تو سؤال می‌پرسد پهن و بلند شود تا سؤالِ کوتاه هم اسکرول نخورد.', fallback: true },
+          { key: 'chatFit', type: 'bool', label: 'چت تمام‌پهنا (پر کردنِ پنل)', hint: 'پیام‌ها، جدول‌ها، کادرِ نوشتن، نوارِ دکمه‌ها و نوارِ وضعیت تا لبه‌های پنلِ چت پهن می‌شوند (فقط ۲۴ پیکسل فاصله) و با باز و بسته شدنِ پنلِ کنار همراه می‌شوند.', fallback: true },
+        ],
+      },
+      {
+        id: 'look',
+        title: 'ظاهر',
+        hint: 'اندازه، فاصله، رنگ و جدول.',
+        rows: [
+          { key: 'lh', label: 'فاصلهٔ خطوط', hint: 'به دهم؛ ۰ یعنی خودِ برنامه تصمیم بگیرد. ۱۸ یعنی فاصلهٔ کمی بازتر برای خواندنِ راحت‌تر.' },
+          { key: 'textColor', label: 'رنگِ متنِ گفتگو', hint: 'خالی = رنگِ خودِ تم. کدها رنگِ خودشان را نگه می‌دارند.' },
+          { key: 'tableScroll', label: 'جدولِ پهن داخلِ خودش بچرخد', hint: 'جدولِ پهن صفحه را بیرون نمی‌زند؛ داخلِ خانهٔ خودش افقی می‌چرخد.' },
+          { key: 'lines', label: 'پیامِ خودت چند خط دیده شود', hint: 'بیشتر از این خط‌ها جمع می‌شود؛ با موس یا کلیک کامل می‌شود. ۰ = همیشه کامل.' },
+          { key: 'hoverMs', label: 'مکثِ موس تا باز شدن (میلی‌ثانیه)', hint: 'چند هزارمِ ثانیه موس روی پیام بماند تا کامل شود.' },
+        ],
+      },
+      {
+        id: 'messages',
+        title: 'پیام‌ها و دکمه‌ها',
+        hint: 'دکمه‌های آمادهٔ کنارِ کادر، و رفتارِ پیام هنگام فرستادن.',
+        rows: [
+          { key: 'buttons', label: 'دکمه‌های فرمان پیدا باشند (Ctrl+Alt+B)', hint: 'ردیفِ دکمه‌های آماده بالای کادرِ نوشتن یا کنارِ اسمِ چت. فقط متن را می‌گذارند و نمی‌فرستند (مگر دکمه‌های ⏎).' },
+          { key: 'place', label: 'جای دکمه‌ها', hint: 'بالای کادرِ نوشتن، یا کنارِ اسمِ چت، یا هر دو.' },
+          { key: 'btnSize', label: 'اندازهٔ دکمه‌ها', hint: 'اندازهٔ نوشتهٔ دکمه‌ها به پیکسل (۸ تا ۲۰).' },
+          { key: 'opacity', label: 'پُری دکمه‌ها (درصد)', hint: 'کم = کم‌رنگ‌تر تا مزاحم نشوند؛ با موس پررنگ می‌شوند.' },
+          { key: 'accent', label: 'رنگِ دکمه‌ها', hint: 'خالی = رنگِ خودِ تم.' },
+          { key: 'noJump', label: 'با فرستادن، صفحه به پایین نپرد', hint: 'اگر بالاتر را می‌خواندی و Enter زدی، صفحه سرِ جایش می‌ماند.' },
+          { key: 'quoteMenu', label: 'کلیکِ راست روی متنِ انتخاب‌شده ⇒ منوی نقل‌قول (Ctrl+Alt+Q)', hint: 'متنِ انتخاب‌شده را به‌صورتِ نقل‌قول در کادر می‌گذارد.' },
+          { key: 'counter', label: 'شمارندهٔ نویسه‌های کادر', hint: 'زیرِ کادر می‌گوید چند نویسه نوشته‌ای.' },
+        ],
+      },
+      {
+        id: 'reach',
+        title: 'پروفایل و انتقال',
+        hint: 'پروفایل‌ها و انتقالِ تنظیمات در بخشِ aA پایینِ همین صفحه هستند.',
+        rows: [],
+      },
+    ];
+
+    /** معنیِ سادهٔ هر مقدار، برای خطِ «الان: …؛ یعنی …». */
+    const MEANING = {
+      rtl: (v) => (v ? 'چیدمانِ صفحه از راست شروع می‌شود' : 'صفحه مثلِ حالتِ عادی چپ‌به‌راست است'),
+      font: (v) => (v ? 'حرف‌های فارسی با فونتِ Vazirmatn نوشته می‌شوند' : 'فونتِ پیش‌فرضِ سیستم استفاده می‌شود'),
+      code: (v) => (v ? 'کد و خروجیِ ابزار چپ‌به‌راست می‌مانند' : 'کد هم مثلِ بقیه می‌چرخد'),
+      plaintext: (v) => (v ? 'هر پاراگراف جهتِ خودش را دارد' : 'همه از جهتِ صفحه پیروی می‌کنند'),
+      lh: (v) => Number(v) === 0 ? 'ارتفاعِ خطوطِ خودِ برنامه' : 'فاصلهٔ خطوط ' + (Number(v) / 10).toFixed(1) + ' برابر (تقریباً)',
+      textColor: (v) => (v ? 'متنِ گفتگو این رنگ است' : 'رنگِ متن از تمِ برنامه می‌آید'),
+      tableScroll: (v) => (v ? 'جدولِ پهن داخلِ خودش می‌چرخد' : 'جدولِ پهن صفحه را پهن می‌کند'),
+      lines: (v) => Number(v) === 0 ? 'پیامِ خودت همیشه کامل دیده می‌شود' : 'بیش از ' + v + ' خط جمع می‌شود',
+      hoverMs: (v) => (Number(v) === 0 ? 'بدونِ مکث باز می‌شود' : 'بعد از ' + v + ' هزارمِ ثانیه موس، پیام کامل می‌شود'),
+      buttons: (v) => (v ? 'دکمه‌های آماده دیده می‌شوند' : 'دکمه‌های آماده پنهان‌اند'),
+      place: (v) => (v === 'dock' ? 'بالای کادرِ نوشتن' : v === 'header' ? 'کنارِ اسمِ چت' : 'هر دو جا'),
+      btnSize: (v) => 'نوشتهٔ دکمه‌ها ' + v + ' پیکسل است',
+      opacity: (v) => 'دکمه‌ها ' + v + ' درصد پررنگ‌اند',
+      accent: (v) => (v ? 'رنگِ دکمه‌ها از خودش است' : 'رنگِ دکمه‌ها از تم می‌آید'),
+      noJump: (v) => (v ? 'صفحه وقتی Enter می‌زنی نمی‌پرد' : 'بعد از فرستادن، صفحه به آخر می‌رود'),
+      quoteMenu: (v) => (v ? 'کلیکِ راست منوی نقل‌قول می‌دهد' : 'کلیکِ راست منوی خودِ مرورگر است'),
+      counter: (v) => (v ? 'زیرِ کادر تعدادِ نویسه‌ها نوشته می‌شود' : 'شمارنده خاموش است'),
+      soalPahn: (v) => (v ? 'پنجرهٔ سؤال پهن و تمام‌قد است' : 'پنجرهٔ سؤال مثلِ حالتِ عادیِ برنامه است'),
+      chatFit: (v) => (v ? 'پیام‌ها و کادرِ نوشتن تمامِ عرضِ پنلِ چت را می‌گیرند' : 'چت مثلِ حالتِ عادیِ برنامه وسطِ پنل باریک می‌ماند'),
+    };
+
+
+/* ------------------------------------------------------------------ *
+     * سه سطحِ تنظیم (سراسری / پروژه / چت)
+     * منبعِ راستین: پرونده‌ها، از راهِ نیمهٔ host در /plugins/rtl/settings.
+     * localStorage فقط کشِ سریع و پشتیبان است: تا وقتی host راه نیفتاده (فقط Cmd+R خورده
+     * و اپ بسته و باز نشده)، صفحه با مقدارهای localStorage کار می‌کند و یک خط می‌گوید
+     * «برای ذخیره در پرونده، اپ یک بار بسته و باز شود».
+     * ------------------------------------------------------------------ */
+    const SETTINGS_ROUTE = '/plugins/rtl/settings';
+    const SETTINGS_CACHE_KEY = 'dsh-rtl:levels:v1';
+    const SETTINGS_DEFAULTS = Object.assign({}, DEFAULTS, PLUS_DEFAULTS);
+    const SETTINGS_LEVELS = ['global', 'project', 'chat'];
+
+    let workspaceCwd = '';
+    let workspaceProbed = false;
+    const settingsListeners = new Set();
+    let settingsState = {
+      host: 'loading',       // loading | ready | missing | error
+      note: '',
+      layers: { global: {}, project: {}, chat: {} },
+      files: null,
+      query: '',
+      sessionId: '',
+    };
+
+    function settingsEmit(patch) {
+      settingsState = Object.assign({}, settingsState, patch);
+      settingsListeners.forEach((fn) => { try { fn(); } catch (err) { /* بقیه بمانند */ } });
+    }
+
+    /**
+     * هوکِ صفحه: وضعیتِ سه سطح را می‌دهد و در اولین باری که صفحه باز شد پرونده‌ها را می‌خواند.
+     * @param {boolean} [lazy] true = فقط وقتی این صفحه باز شد بخوان (آزمون هم همین را می‌دهد)
+     */
+    function useSettingsStore(lazy) {
+      const [snap, setSnap] = React.useState(settingsState);
+      React.useEffect(() => {
+        const f = () => setSnap(settingsState);
+        settingsListeners.add(f);
+        f();
+        if (!workspaceProbed) {
+          workspaceProbed = true;
+          initSettings().catch(() => {
+            // خواندن نشد: پشتیبانِ localStorage می‌ماند و یک خط می‌گوید.
+            settingsState = Object.assign({}, settingsState, { host: 'error', note: 'پروندهٔ تنظیم‌ها خوانده نشد؛ فعلاً از همین مرورگر استفاده می‌شود.' });
+            settingsListeners.forEach((fn) => { try { fn(); } catch (err) { /* بقیه */ } });
+          });
+        }
+        return () => { settingsListeners.delete(f); };
+      }, []);
+      return snap;
+    }
+
+    /** شناسهٔ چتِ همین پنجره (از کادرِ نوشتنِ زنده یا نشانی). */
+    function currentSessionId() {
+      const c = pickComposer();
+      if (c && c.sid) return c.sid;
+      try {
+        const m = String(window.location.href).match(/session[\/=]([A-Za-z0-9._-]{4,128})/);
+        if (m) return m[1];
+      } catch (err) { /* بی نشانی */ }
+      return '';
+    }
+
+    /**
+     * پوشهٔ کارِ همین چت را از خودِ برنامه می‌پرسیم (نه از پوشهٔ کدِ افزونه).
+     * ctx.sessions.list snapshot هر چت یک cwd دارد؛ همین است که برنامه هم استفاده می‌کند.
+     */
+    async function probeWorkspace() {
+      if (workspaceCwd) return workspaceCwd;
+      const sid = currentSessionId();
+      const ctx = clientCtx;
+      const sessions = ctx && typeof ctx.get === 'function' ? ctx.get('sessions') : null;
+      if (!sessions || !sessions.list || typeof sessions.list.getSnapshot !== 'function') return '';
+      const cwdOf = () => {
+        const snap = sessions.list.getSnapshot();
+        if (!snap || !snap.byId) return '';
+        const row = sid ? snap.byId[sid] : null;
+        if (row && typeof row.cwd === 'string') return row.cwd;
+        // چتِ تازه در فهرست نیست: اگر فقط یک پوشه در فهرست است، همان پوشهٔ کار است.
+        const dirs = new Set();
+        for (const id of (Array.isArray(snap.ids) ? snap.ids : [])) {
+          const item = snap.byId[id];
+          if (item && typeof item.cwd === 'string' && item.cwd) dirs.add(item.cwd);
+        }
+        return dirs.size === 1 ? (dirs.values().next().value || '') : '';
+      };
+      try {
+        // فهرستِ چت‌ها که می‌آید pوشه‌اش هم می‌آید؛ حداکثر ۳ ثانیه صبر، بعد بی‌پوشه ادامه می‌دهیم.
+        for (let i = 0; i < 20; i += 1) {
+          const cwd = cwdOf();
+          if (cwd) return cwd;
+          await new Promise((r) => setTimeout(r, 150));
+        }
+      } catch (err) { /* بی دسترسی: سطحِ پروژه خاموش می‌ماند */ }
+      return '';
+    }
+
+    function settingsCacheRead() {
+      try {
+        const raw = window.localStorage.getItem(SETTINGS_CACHE_KEY);
+        if (!raw) return null;
+        return readLayers(JSON.parse(raw), Object.keys(SETTINGS_DEFAULTS));
+      } catch (err) { return null; }
+    }
+    function settingsCacheWrite(layers) {
+      try { window.localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(layers)); } catch (err) { /* بی‌جا */ }
+    }
+
+    /** یک‌بار در هر بارگذاری: پرونده‌ها را می‌خواند و (اگر لازم بود) سراسری را از localStorage پر می‌کند. */
+    async function initSettings() {
+      workspaceProbed = true;
+      const cached = settingsCacheRead();
+      if (cached) settingsEmit({ layers: cached });
+      const sid = currentSessionId();
+      settingsEmit({ sessionId: sid });
+      // پوشهٔ کار بی‌خطا: هر خطایی فقط سطحِ پروژه را خاموش می‌کند، نه خواندنِ پرونده‌ها را.
+      try { workspaceCwd = (await probeWorkspace()) || ''; } catch (err) { workspaceCwd = ''; }
+      const cwd = workspaceCwd || '';
+      const url = settingsUrl(SETTINGS_ROUTE + '?sessionId=' + encodeURIComponent(sid) + '&cwd=' + encodeURIComponent(cwd));
+      try {
+        const res = await fetch(url, { headers: { accept: 'application/json' }, credentials: 'same-origin' });
+        if (res.status === 404) {
+          settingsEmit({ host: 'missing', note: 'برای ذخیره در پرونده، اپ یک بار بسته و باز شود' });
+          return;
+        }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const body = await res.json();
+        if (!body || body.ok !== true) throw new Error('پاسخِ نامعلوم');
+        const layers = readLayers({ global: body.global, project: body.project, chat: body.chat }, Object.keys(SETTINGS_DEFAULTS));
+        const globalHasNothing = !body.global || Object.keys(body.global).length === 0;
+        if (globalHasNothing) await seedGlobalFromLocal();
+        settingsCacheWrite(layers);
+        settingsEmit({ layers: layers, host: 'ready', files: body.files || null, note: '' });
+      } catch (err) {
+        settingsEmit({ host: 'error', note: 'پروندهٔ تنظیم‌ها خوانده نشد؛ فعلاً از همین مرورگر استفاده می‌شود.' });
+      }
+    }
+
+    /** مهاجرتِ یک‌باره: مقدارهای localStorage ِ همین مرورگر ⇒ پروندهٔ سراسری. */
+    async function seedGlobalFromLocal() {
+      try {
+        const values = Object.assign({}, prefs, plus);
+        delete values.commands; delete values.extras; delete values.profiles;
+        await fetch(SETTINGS_ROUTE, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: 'seed', values: values }),
+        });
+      } catch (err) { /* پرونده نصفه‌کاره نماند؛ بارِ بعد دوباره */ }
+    }
+
+    /**
+     * یک مقدار را در یک سطح ذخیره/پاک می‌کند.
+     * value === undefined ⇒ آن کلید از آن سطح پاک می‌شود.
+     */
+    async function settingsSave(level, key, value) {
+      if (!SETTINGS_LEVELS.includes(level)) return;
+      const layers = setAt(settingsState.layers, level, key, value);
+      settingsEmit({ layers: layers });
+      settingsCacheWrite(layers);
+      applySettingsToRuntime(key, value, level);
+      // undefined در JSON نیست؛ پاک‌کردن با فهرستِ unset گفته می‌شود
+      const patch = {};
+      const unset = [];
+      if (value === undefined) unset.push(key);
+      else patch[key] = value;
+      const body = {
+        action: 'save', level: level, patch: patch, unset: unset,
+        sessionId: currentSessionId(), cwd: workspaceCwd || '',
+      };
+      try {
+        const res = await fetch(SETTINGS_ROUTE, {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+        });
+        if (res.status === 404) { settingsEmit({ host: 'missing', note: 'برای ذخیره در پرونده، اپ یک بار بسته و باز شود' }); return; }
+        const answer = await res.json();
+        if (!answer || answer.ok !== true) { toast('ذخیره نشد: ' + String(answer && answer.error ? answer.error : 'خطای نامعلوم')); return; }
+        const fresh = readLayers({ global: answer.global, project: answer.project, chat: answer.chat }, Object.keys(SETTINGS_DEFAULTS));
+        settingsCacheWrite(fresh);
+        settingsEmit({ layers: fresh, host: 'ready', files: answer.files || null, note: '' });
+      } catch (err) {
+        toast('پروندهٔ تنظیم‌ها جواب نداد؛ مقدار در همین مرورگر ماند');
+      }
+    }
+
+    /** مقدارِ مؤثر را همان لحظه روی CSS و ابزارها می‌نشاند. */
+    function applySettingsToRuntime(key, value, level) {
+      const effective = effectiveOf(settingsState.layers, key, SETTINGS_DEFAULTS[key]).value;
+      const next = {};
+      next[key] = effective;
+      if (Object.prototype.hasOwnProperty.call(DEFAULTS, key)) writePrefs(next);
+      else if (Object.prototype.hasOwnProperty.call(PLUS_DEFAULTS, key)) patchPlus(next);
+    }
+
+    function settingsSearch(query) {
+      settingsEmit({ query: String(query || '') });
+    }
+
+    /** مقدارِ یک کلید از سه سطح (برای رندرِ مثلاً CSS). */
+    function settingsEffective(key) {
+      return effectiveOf(settingsState.layers, key, SETTINGS_DEFAULTS[key]).value;
+    }
+
+    /* --- «تنظیم‌های خودِ اپ»: فقط خواندن از describe ِ DSH (خودش رازها را می‌پوشاند) --- */
+    let appSettingsState = { ready: false, error: '', rows: [], namespaces: [] };
+    let appSettingsForms = null;
+    const appSettingsListeners = new Set();
+
+    function appSettingsEmit(patch) {
+      appSettingsState = Object.assign({}, appSettingsState, patch);
+      appSettingsListeners.forEach((fn) => { try { fn(); } catch (err) { /* بقیه */ } });
+    }
+
+    function useAppSettings() {
+      const [snap, setSnap] = React.useState(appSettingsState);
+      React.useEffect(() => {
+        const f = () => setSnap(appSettingsState);
+        appSettingsListeners.add(f);
+        f();
+        void loadAppSettings();
+        return () => { appSettingsListeners.delete(f); };
+      }, []);
+      return snap;
+    }
+
+    /** نشانیِ مطلقِ یک مسیرِ همین اپ (client.js جز react چیزی import نمی‌کند، پس import.meta نداریم؛
+        دامنه هم نسبی نوشته می‌شود تا از خودِ مرورگر گرفته شود). */
+    function settingsUrl(pathname) {
+      return pathname;
+    }
+
+    async function loadAppSettings() {
+      const ctx = clientCtx;
+      const forms = ctx && typeof ctx.get === 'function' ? ctx.get('configForms') : null;
+      if (!forms || typeof forms.describe !== 'function') {
+        appSettingsEmit({ ready: true, error: 'سرویسِ تنظیم‌های برنامه در دسترس نیست', rows: [] });
+        return;
+      }
+      try {
+        const face = forms.describe();
+        await face.ensure();
+        const read = () => {
+          const snap = face.getSnapshot();
+          return snap && snap.view ? snap.view : null;
+        };
+        // تا وقتیdescribe جواب نداده دوباره می‌پرسیم (حداکثر ~۶ ثانیه)؛ بعد صفحه خالی می‌ماند.
+        let view = read();
+        for (let i = 0; i < 12 && !view; i += 1) {
+          await new Promise((r) => setTimeout(r, 500));
+          await face.ensure();
+          view = read();
+        }
+        if (!view) { appSettingsEmit({ ready: true, error: '', rows: [] }); return; }
+        appSettingsForms = forms;
+        const locale = (APP_SETTINGS_LOCALE && APP_SETTINGS_LOCALE.meta) ? APP_SETTINGS_LOCALE : {};
+        const rows = [];
+        for (const ns of view.namespaces || []) {
+          for (const row of appSettingRows(ns, locale)) {
+            if (!row.secret) rows.push(row);
+          }
+        }
+        appSettingsEmit({ ready: true, error: '', rows: rows, namespaces: (view.namespaces || []).map((n) => n.ns) });
+      } catch (err) {
+        appSettingsEmit({ ready: true, error: String(err && err.message ? err.message : err), rows: [] });
+      }
+    }
+
+    /** یک ردیفِ «تنظیم‌های خودِ اپ»: فقط مقدارِ الان + دکمهٔ تغییر (اگر فیلد volatile باشد) */
+    function AppRow(props) {
+      const row = props.row;
+      let form = null;
+      try { form = appSettingsForms ? appSettingsForms.get(row.ns) : null; } catch (err) { form = null; }
+      return h('div', { className: 'dsh-rtl-row dsh-rtl-app-row', key: props.key, 'data-app': row.ns + '.' + row.key },
+        h('div', { className: 'dsh-rtl-row-text' },
+          h('span', { className: 'dsh-rtl-row-title' }, row.label),
+          h('span', { className: 'dsh-rtl-row-hint' }, row.hint),
+          h('span', { className: 'dsh-rtl-row-now' }, 'الان: ' + displayValue(row.value, row.key), ' ', h('span', { className: 'dsh-rtl-level', 'data-level': 'global' }, 'سراسری')),
+          h('span', { className: 'dsh-rtl-row-key' }, row.ns + '.' + row.key)),
+        form ? h(AppControl, { row: row, form: form }) : h('span', { className: 'dsh-rtl-note' }, 'فقط‌خواندنی'));
+    }
+
+    /** کنترلِ ویرایشِ زنده: عدد/بولی/متن، با همان configForm ِ خودِ صفحه‌های تنظیماتِ DSH */
+    function AppControl(props) {
+      const row = props.row;
+      const form = props.form;
+      const [value, setValue] = React.useState(row.value);
+      const [busy, setBusy] = React.useState(false);
+      const commit = () => {
+        setBusy(true);
+        form.set(row.key, value).then((ok) => {
+          setBusy(false);
+          if (!ok) toast('برنامه این مقدار را نپذیرفت');
+        }, () => { setBusy(false); toast('ذخیره نشد'); });
+      };
+      if (typeof value === 'boolean') {
+        return h(Switch, { checked: !!value, label: row.label, onToggle: () => { setValue(!value); commit(); } });
+      }
+      if (typeof value === 'number') {
+        return h('span', { className: 'dsh-rtl-app-edit' },
+          h('input', { type: 'number', value: value, disabled: busy, onChange: (e) => setValue(Number(e.target.value)) }),
+          h('button', { type: 'button', onClick: commit, disabled: busy }, 'ثبت'));
+      }
+      if (typeof value === 'string') {
+        return h('span', { className: 'dsh-rtl-app-edit' },
+          h('input', { type: 'text', value: value, disabled: busy, onChange: (e) => setValue(e.target.value) }),
+          h('button', { type: 'button', onClick: commit, disabled: busy }, 'ثبت'));
+      }
+      return h('span', { className: 'dsh-rtl-note' }, 'این مقدار از این‌جا تغییر نمی‌کند');
+    }
+
+    /** سه تیکِ سطحِ یک ردیف + چک‌باکسِ روشن/خاموش + کادرِ مقدار + ثبت */
+    function SettingsRow(props) {
+      const row = props.row;
+      const st = props.st;
+      const eff = effectiveOf(st.layers, row.key, fallbackOf(row));
+      const [draft, setDraft] = React.useState(null);
+      const [level, setLevel] = React.useState('global');
+      const meaning = typeof MEANING[row.key] === 'function' ? MEANING[row.key](eff.value) : '';
+      const isBool = row.type === 'bool' || typeof fallbackOf(row) === 'boolean';
+      const save = (value) => settingsSave(level, row.key, value);
+      const control = isBool
+        ? h(Switch, { checked: !!eff.value, label: row.label, onToggle: () => save(!eff.value) })
+        : h('input', {
+          type: 'text',
+          dir: 'ltr',
+          className: 'dsh-rtl-row-value',
+          value: draft === null ? (eff.value === undefined ? '' : String(eff.value)) : draft,
+          onChange: (e) => setDraft(e.target.value),
+        });
+      const register = isBool
+        ? null
+        : h('button', { type: 'button', className: 'dsh-rtl-save', onClick: () => { save(draft === null ? eff.value : draft); setDraft(null); } }, 'ثبت');
+      return h('div', { className: 'dsh-rtl-row', key: row.key, 'data-row': row.key },
+        h('div', { className: 'dsh-rtl-row-text' },
+          h('span', { className: 'dsh-rtl-row-title' }, row.label),
+          h('span', { className: 'dsh-rtl-row-hint' }, row.hint),
+          h('span', { className: 'dsh-rtl-row-now' }, nowLine({ level: eff.level, value: eff.value, meaning: meaning })),
+          h('span', { className: 'dsh-rtl-badges' },
+            SETTINGS_LEVELS.map((lvl) => h('button', {
+              type: 'button',
+              key: lvl,
+              className: 'dsh-rtl-level' + (eff.level === lvl ? ' dsh-rtl-level-on' : '') + (valueAt(st.layers, lvl, row.key) !== undefined ? ' dsh-rtl-level-set' : ''),
+              'data-level': lvl,
+              'data-set': valueAt(st.layers, lvl, row.key) !== undefined ? '1' : '0',
+              title: valueAt(st.layers, lvl, row.key) === undefined ? 'در این سطح مقداری نیست' : 'در «' + levelName(lvl) + '» مقدار دارد — کلیک = پاک کردن',
+              onClick: () => settingsSave(lvl, row.key, undefined),
+            }, levelName(lvl))))),
+        h('span', { className: 'dsh-rtl-row-control' },
+          h('select', { className: 'dsh-rtl-row-level', value: level, onChange: (e) => setLevel(e.target.value), 'aria-label': 'کجا ذخیره شود' },
+            SETTINGS_LEVELS.map((lvl) => h('option', { key: lvl, value: lvl }, levelName(lvl)))),
+          control,
+          register));
+    }
+
+    /** پیش‌فرضِ یک ردیف: کلیدهای شناخته‌شده از SETTINGS_DEFAULTS، بقیه از fallback ِ خودِ ردیف. */
+    function fallbackOf(row) {
+      return Object.prototype.hasOwnProperty.call(SETTINGS_DEFAULTS, row.key) ? SETTINGS_DEFAULTS[row.key] : row.fallback;
+    }
+
     function RtlSection() {
       const [snapshot, setSnapshot] = React.useState(prefs);
       React.useEffect(() => {
@@ -870,40 +2210,63 @@ html[data-dsh-rtl="on"] a[href] {
         };
       }, []);
 
-      const rows = ROWS.map((row) =>
-        h(
-          'div',
-          { className: 'dsh-rtl-row', key: row.key },
-          h(
-            'div',
-            { className: 'dsh-rtl-row-text' },
-            h('span', { className: 'dsh-rtl-row-title' }, row.title),
-            h('span', { className: 'dsh-rtl-row-hint' }, row.hint),
-          ),
-          h(Switch, {
-            checked: !!snapshot[row.key],
-            label: row.title,
-            onToggle: () => writePrefs({ [row.key]: !snapshot[row.key] }),
-          }),
-        ),
-      );
+      /* سه سطح: سراسری/پروژه/چت — پرونده‌ها را نیمهٔ host می‌خواند و می‌نویسد */
+      const st = useSettingsStore(true);
+      const app = useAppSettings();
 
-      return h(
+      /* جست‌وجو: ردیف‌هایی که واژه‌ای در برچسب/شرح/کلید/مقدارشان نیست پنهان می‌شوند */
+      const filterOn = !!st.query.trim();
+      const valueOf = (row) => effectiveOf(st.layers, row.key, fallbackOf(row)).value;
+      const keep = (row, value) => !filterOn || matchesQuery([
+        { label: row.label, hint: row.hint, key: row.key, value: value === undefined ? '' : String(value) },
+      ], st.query);
+
+      const sections = SECTION_SPECS.map((spec) => {
+        const rows = spec.rows.filter((row) => keep(row, valueOf(row)));
+        if (!rows.length) return null;
+        return h('section', { className: 'dsh-rtl-section', key: spec.id, 'data-section': spec.id },
+          h('h3', null, spec.title),
+          h('p', { className: 'dsh-rtl-section-hint' }, spec.hint),
+          rows.map((row) => h(SettingsRow, { key: row.key, row: row, st: st })));
+      }).filter(Boolean);
+
+      const appRows = app.rows.filter((row) => !filterOn || matchesQuery([{ label: row.label, hint: row.hint, key: row.ns + '.' + row.key }], st.query));
+      const appSection = appRows.length ? h('section', { className: 'dsh-rtl-section', key: 'app', 'data-section': 'app' },
+        h('h3', null, 'تنظیم‌های خودِ اپ'),
+        h('p', { className: 'dsh-rtl-section-hint' }, 'همان تنظیم‌هایی که در Settings ← General هم هست. فقط «سراسری»اند — برای پروژه یا چت جدا نمی‌شوند.'),
+        h('div', { className: 'dsh-rtl-only-global' }, 'این‌ها فقط سراسری‌اند'),
+        app.ready
+          ? appRows.map((row) => h(AppRow, { row: row, app: app, key: row.ns + '.' + row.key }))
+          : h('p', { className: 'dsh-rtl-note' }, app.error ? 'خواندنِ تنظیم‌های برنامه نشد: ' + app.error : 'در حال خواندنِ تنظیم‌های برنامه…')) : null;
+
+      const body = h(
         'div',
         { className: 'dsh-rtl-page' },
-        h(
-          'p',
-          { className: 'dsh-rtl-lead' },
-          'همان کارهایی که اکستنشنِ راست‌به‌چپِ کلود کد برایت می‌کرد، این‌جا هم انجام می‌شود. هر تغییر همان لحظه روی همین صفحه اثر می‌گذارد و در همین مرورگر می‌ماند.',
-        ),
-        rows,
-        h(
-          'div',
-          { className: 'dsh-rtl-note' },
-          'اگر جایی چیدمان به‌هم ریخت، اول «راست‌به‌چپ» را خاموش کن؛ بعد یکی‌یکی روشن کن تا معلوم شود کدام گزینه آن صفحه را به‌هم می‌زند. گزینه‌ها فقط روی همین مرورگر ذخیره می‌شوند.',
-        ),
+        h('input', {
+          type: 'search',
+          className: 'dsh-rtl-search',
+          placeholder: 'جست‌وجو در تنظیمات…',
+          value: st.query,
+          onChange: (e) => settingsSearch(String(e.target.value)),
+          'aria-label': 'جست‌وجو در تنظیمات',
+        }),
+        st.host === 'missing'
+          ? h('p', { className: 'dsh-rtl-note dsh-rtl-host-note', 'data-host': 'missing' },
+            'برای ذخیره در پرونده، اپ یک بار بسته و باز شود')
+          : st.note
+            ? h('p', { className: 'dsh-rtl-note dsh-rtl-host-note', 'data-host': st.host }, st.note)
+            : null,
+        h('p', { className: 'dsh-rtl-note' }, 'مقدارِ مؤثر = چت ← پروژه ← سراسری ← پیش‌فرض. اگر یک تنظیم در چند جا باشد، «چت» برنده است.'),
+        sections,
+        appSection,
+        st.query.trim() && !sections.length && !appSection
+          ? h('p', { className: 'dsh-rtl-empty' }, 'چیزی با «' + st.query + '» پیدا نشد.')
+          : null,
+        h('div', { className: 'dsh-rtl-note' },
+          'اگر جایی چیدمان به‌هم ریخت، اول «راست‌به‌چپ» را خاموش کن؛ بعد یکی‌یکی روشن کن تا معلوم شود کدام گزینه آن صفحه را به‌هم می‌زند.'),
         h(PlusPanel, { inSettings: true }),
       );
+      return body;
     }
 
     /* ------------------------------------------------------------------ *
@@ -1628,6 +2991,7 @@ html[data-dsh-rtl="on"] a[href] {
     return {
       inject: ['slots'],
       apply(ctx) {
+        clientCtx = ctx;
         applyDom();
         if (typeof window !== 'undefined') {
           window.addEventListener('storage', (event) => {
@@ -1670,6 +3034,66 @@ html[data-dsh-rtl="on"] a[href] {
             clearAlignPass();
           };
         }, 'dsh-rtl:alignment');
+
+/* --- پنجرهٔ سؤال: جهتِ هر متن از خودِ حرف‌هایش -------------------------- *
+ * «direction: rtl» کلِ صفحه متنِ انگلیسیِ سؤال/گزینه/توضیح را هم وارونه می‌کند
+ * («How do we do it?» را «?How do we do it» نشان می‌دهد، پرانتز آخرِ جمله به
+ * اول می‌رود — با کرومِ واقعی سنجیده شد). کلاس‌ها موقعِ اجرا «<هش>_<نام>»‌اند و
+ * card/body/title بینِ ماژول‌های دیگر مشترک، پس فقط داخلِ [data-question-key] (ظرفِ
+ * آخرین پرسشِ در انتظار) و با نامِ کلاس‌هایی که فقط در ماژولِ سؤال‌اند. متنِ
+ * فارسیِ کامل rtl می‌گیرد، متنِ لاتینِ کامل ltr (ترتیبش درست می‌شود و از لبهٔ
+ * راست شروع می‌شود)، و متنِ آمیخته دست‌نخورده می‌ماند تا مرورگر با unicode-bidi
+ * خودش جور کند. هر تغییرِ DOM دوباره می‌سنجد (پاسخ‌ها که برمی‌گردند). */
+        function startQuestionTextDir() {
+          const SEL = [
+            '[data-question-key] [class*="_titlePreview"]',
+            '[data-question-key] [class*="_optionLabel"]',
+            '[data-question-key] [class*="_description"]',
+          ].join(',');
+          const PERSIAN = /[\u0600-\u06FF]/;
+          const LATIN = /[A-Za-z]/;
+          const isPersian = (text) => PERSIAN.test(text) && !LATIN.test(text);
+          const isLatin = (text) => LATIN.test(text) && !PERSIAN.test(text);
+          const mark = () => {
+            let nodes;
+            try {
+              nodes = document.querySelectorAll(SEL);
+            } catch (err) {
+              return; // موتورِ قدیمی: انتخابگرِ نامعتبر ⇒ بی‌آسیب رها می‌شود
+            }
+            for (let i = 0; i < nodes.length; i++) {
+              const el = nodes[i];
+              let text = '';
+              for (let n = el.firstChild; n; n = n.nextSibling) {
+                if (n.nodeType === 3) text += n.nodeValue;
+              }
+              const want = isPersian(text) ? 'rtl' : isLatin(text) ? 'ltr' : '';
+              const have = el.getAttribute('dir') || '';
+              if (!want) {
+                if (have) el.removeAttribute('dir');
+              } else if (have !== want) {
+                el.setAttribute('dir', want);
+              }
+            }
+          };
+          let timer = 0;
+          const schedule = () => {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(mark, 300);
+          };
+          mark();
+          const observer = new MutationObserver(schedule);
+          observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+          return () => {
+            window.clearTimeout(timer);
+            observer.disconnect();
+          };
+        }
+
+        ctx.effect(() => startQuestionTextDir(), 'dsh-rtl:question-dir');
+
+        /* جدول/پررنگ/کد در متنِ پنجرهٔ سؤال (region ask-md بالای فایل) */
+        ctx.effect(() => startAskMarkdown(window), 'dsh-rtl:ask-md');
 
         ctx.effect(() => startPlusDom(), 'dsh-rtl:plus-dom');
 

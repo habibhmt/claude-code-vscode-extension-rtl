@@ -6,6 +6,7 @@
  *
  *   GET /plugins/side-panel/cost → {limit, usage, remaining, daily, ts}   (کلِ کلید)
  *   GET /plugins/side-panel/session-cost?sessionId=… → خرجِ دقیقِ همین چت (cost-log.js)
+ *   GET /plugins/side-panel/raw-log?sessionId=…&from=&limit=&q=&download=1 → خط‌های خامِ لاگِ همین چت
  *   POST /plugins/side-panel/diag → یک خط در diag.log (تشخیص)
  */
 
@@ -13,7 +14,8 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createAnthropicPrices, createLogCache, createPriceBook, summarizeChatCost } from './cost-log.js'
+import { collectDescendants, createAnthropicPrices, createLogCache, createPriceBook, decompressAsync, findSessionLog, summarizeChatCost, summarizeSubagents } from './cost-log.js'
+import { sliceRawLines, splitLogLines } from './raw-log.js'
 
 const OPENROUTER = 'https://openrouter.ai/api/v1'
 const ENV_PATH = path.join(os.homedir(), '.dsh', '.env')
@@ -110,6 +112,7 @@ const anthropicPrices = createAnthropicPrices()
 
 /**
  * خرجِ دقیقِ یک چت: لاگِ سشن + قیمتِ هر gen-… از OpenRouter.
+ * فرزندان (ساب‌ایجنت‌ها) هم حساب می‌شوند: هر کدام سشنِ خودش را دارد.
  * @param sessionId - شناسهٔ سشن.
  * @returns خلاصهٔ هزینه یا { found: false }.
  */
@@ -117,10 +120,80 @@ export async function chatCost(sessionId, deps = { readChatLog, priceBook, anthr
   const parsed = await deps.readChatLog(sessionId)
   if (!parsed) return { sessionId, found: false }
   const anth = deps.anthropicPrices
-  const summary = summarizeChatCost(parsed, id => deps.priceBook.priceOf(id), id => (typeof deps.priceBook.detailOf === 'function' ? deps.priceBook.detailOf(id) : null),
-    model => (anth ? anth.priceOf(model) : null))
+  const price = {
+    priceOf: id => deps.priceBook.priceOf(id),
+    detailOf: id => (typeof deps.priceBook.detailOf === 'function' ? deps.priceBook.detailOf(id) : null),
+    anthropic: model => (anth ? anth.priceOf(model) : null),
+  }
+  const summary = summarizeChatCost(parsed, price.priceOf, price.detailOf, price.anthropic)
+  // ساب‌ایجنت‌ها: هر فرزند لاگِ خودش را دارد؛ تودرتو هم دنبال می‌شود (با سدِ دور و عمق).
+  const children = await collectDescendants(async (childId) => {
+    const childParsed = await deps.readChatLog(childId)
+    if (!childParsed) return null
+    // subagents لازم است: تا فرزندانِ خودِ این فرزند هم پیدا شوند (تودرتو).
+    return {
+      ...summarizeChatCost(childParsed, price.priceOf, price.detailOf, price.anthropic),
+      subagents: Array.isArray(childParsed.subagents) ? childParsed.subagents : [],
+    }
+  }, Array.isArray(parsed.subagents) ? parsed.subagents : [])
+  const kids = summarizeSubagents(children, summary.total)
+  // صفِ قیمت یک بار برای همه (خودِ چت و همهٔ فرزندان).
   deps.priceBook.flush()
-  return { sessionId, found: true, ts: Date.now(), ...summary, anthropicSource: anth ? anth.source() : null }
+  return {
+    sessionId,
+    found: true,
+    ts: Date.now(),
+    ...summary,
+    subagents: kids.subagents,
+    subagentTotal: kids.subagentTotal,
+    subagentPending: kids.subagentPending,
+    subagentModels: kids.subagentModels,
+    grandTotal: kids.grandTotal,
+    anthropicSource: anth ? anth.source() : null,
+  }
+}
+
+/** متنِ باز‌شدهٔ لاگ‌ها در حافظه: هر سشن فقط تا وقتی فایل عوض نشده. */
+const rawTextCache = new Map()
+const RAW_CACHE_MAX = 4
+
+/**
+ * متنِ خامِ لاگِ یک سشن (کلِ فایل، بی هیچ دست‌کاری).
+ * @param sessionId - شناسهٔ سشن.
+ * @returns {{ file: string, text: string } | null}
+ */
+export async function rawLogText(sessionId) {
+  const file = findSessionLog(sessionId)
+  if (!file) return null
+  const stat = await fs.promises.stat(file)
+  const stamp = `${stat.mtimeMs}:${stat.size}`
+  const hit = rawTextCache.get(file)
+  if (hit && hit.stamp === stamp) return { file, text: hit.text }
+  const text = await decompressAsync(await fs.promises.readFile(file))
+  rawTextCache.delete(file)
+  rawTextCache.set(file, { stamp, text })
+  // فقط چند چتِ آخر بماند (هر لاگ ده‌ها مگابایت متن است).
+  while (rawTextCache.size > RAW_CACHE_MAX) rawTextCache.delete(rawTextCache.keys().next().value)
+  return { file, text }
+}
+
+/**
+ * جوابِ دادهٔ خامِ همین چت: صفحه‌بندی + جست‌وجو، یا کلِ فایل برای دانلود.
+ * @param url - آدرسِ کاملِ درخواست (یا نسبی).
+ * @returns جوابِ JSON / متن.
+ */
+export async function rawLogAnswer(url) {
+  const params = new URL(url, 'http://localhost').searchParams
+  const sessionId = params.get('sessionId') || ''
+  const found = await rawLogText(sessionId)
+  if (!found) return { kind: 'json', body: { sessionId, found: false } }
+  if (params.get('download') === '1') return { kind: 'download', sessionId, text: found.text }
+  const slice = sliceRawLines(splitLogLines(found.text), {
+    from: params.get('from') ?? undefined,
+    limit: params.get('limit') ?? undefined,
+    q: params.get('q') ?? undefined,
+  })
+  return { kind: 'json', body: { sessionId, found: true, ...slice } }
 }
 
 /** آخرین وضعیتِ کلید؛ حداکثر هر ۱.۵ ثانیه یک درخواست. */
@@ -221,6 +294,30 @@ export function apply(ctx) {
           res.end(JSON.stringify(await chatCost(sessionId)))
         } catch (err) {
           res.statusCode = 500
+          res.end(JSON.stringify({ error: String(err && err.message ? err.message : err) }))
+        }
+      },
+    }))
+
+    web.effect(() => server.register({
+      kind: 'exact',
+      path: '/plugins/side-panel/raw-log',
+      handler: async (req, res) => {
+        res.setHeader('cache-control', 'no-store')
+        if (refuse(req, res)) return
+        try {
+          const answer = await rawLogAnswer(req.url)
+          if (answer.kind === 'download') {
+            res.setHeader('content-type', 'application/x-ndjson; charset=utf-8')
+            res.setHeader('content-disposition', `attachment; filename="${String(answer.sessionId).replace(/[^A-Za-z0-9_-]/g, '')}.jsonl"`)
+            res.end(answer.text)
+            return
+          }
+          res.setHeader('content-type', 'application/json; charset=utf-8')
+          res.end(JSON.stringify(answer.body))
+        } catch (err) {
+          res.statusCode = 500
+          res.setHeader('content-type', 'application/json; charset=utf-8')
           res.end(JSON.stringify({ error: String(err && err.message ? err.message : err) }))
         }
       },

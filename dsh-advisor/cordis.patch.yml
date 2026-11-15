@@ -1,0 +1,3 @@
+- insert:
+    - id: advisor
+      name: '@local/dsh-advisor'

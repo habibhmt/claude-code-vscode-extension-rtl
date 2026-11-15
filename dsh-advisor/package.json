@@ -1,0 +1,43 @@
+{
+  "name": "@local/dsh-advisor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "دستیار: تنظیمات و کلِ چت را می‌بیند و می‌گوید کجا خرج بی‌مصرف بوده و تنظیمِ بهتری هست (فقط پیشنهاد)",
+  "scripts": {
+    "test": "node --test test/*.mjs"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./pure": "./advisor-pure.js",
+    "./input": "./advisor-input.js",
+    "./select": "./advisor-select.js",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "advisor-pure.js",
+    "advisor-input.js",
+    "advisor-select.js",
+    "advisor-prompt.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  }
+}

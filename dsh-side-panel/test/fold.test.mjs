@@ -4,6 +4,7 @@ import {
   normalizeUsage, requestDurationMs, requestModel, requestCost, summarizeRequest,
   compareRequests, summarizeEvents, formatMoney, usagePercent, summarizeSession, summarizeStats,
   splitTracks, swapMiddleTracks, firstTrackPx, faNum, faMoney, explainCost, preferredPanelWidth,
+  mergeOrder, moveId, maxPanelWidth, clampPanelWidth, PANEL_MIN_WIDTH, PANEL_CHAT_MIN,
 } from '../panel-fold.js'
 
 const req = (over = {}) => ({
@@ -136,4 +137,55 @@ assert.match(explainCost({ input: 100, cached: 1000, output: 9000 }), /جواب�
 assert.equal(preferredPanelWidth(1600, 280), 520)
 assert.equal(preferredPanelWidth(1300, 280), 340, 'chat keeps 680')
 
-console.log('fold OK: همهٔ ۱۳ گروه آزمون سبز')
+// ۱۴) ترتیبِ کارت‌ها: ذخیره‌شده + پیش‌فرض ⇒ فهرستِ کامل، بی‌تکرار، شناسه‌های تازه ته
+const CARDS = ['waste', 'spend', 'now', 'raw']
+assert.deepEqual(mergeOrder(null, CARDS), CARDS, 'بی حافظه ⇒ همان ترتیبِ پیش‌فرض')
+assert.deepEqual(mergeOrder(undefined, CARDS), CARDS)
+assert.deepEqual(mergeOrder([], CARDS), CARDS, 'فهرستِ خالی ⇒ پیش‌فرض')
+assert.deepEqual(mergeOrder('زباله', CARDS), CARDS, 'رشتهٔ زباله ⇒ پیش‌فرض، بی خطا')
+assert.deepEqual(mergeOrder({ a: 1 }, CARDS), CARDS, 'شیءِ زباله ⇒ پیش‌فرض')
+assert.deepEqual(mergeOrder(['now', 'waste'], CARDS), ['now', 'waste', 'spend', 'raw'], 'بقیه به ترتیبِ پیش‌فرض ته می‌چسبند')
+assert.deepEqual(mergeOrder(['now', 'ghost', 'now'], CARDS), ['now', 'waste', 'spend', 'raw'], 'شناسهٔ ناشناخته و تکراری دور می‌رود')
+assert.deepEqual(mergeOrder(['raw', 'bundle'], ['spend', 'raw', 'bundle']), ['raw', 'bundle', 'spend'], 'کارتِ تازه (bundle) شناخته‌شده است، ته می‌آید')
+assert.deepEqual(mergeOrder(['x'], []), [], 'بی پیش‌فرض ⇒ فهرستِ خالی')
+assert.deepEqual(mergeOrder(['a'], [1, 'a', null]), ['a'], 'پیش‌فرضِ خراب فیلتر می‌شود')
+
+// ۱۵) بالا/پایین‌بردنِ کارت
+const base = ['waste', 'spend', 'top', 'all']
+assert.deepEqual(moveId(base, 'top', -1), ['waste', 'top', 'spend', 'all'], '▲')
+assert.deepEqual(moveId(base, 'top', 1), ['waste', 'spend', 'all', 'top'], '▼')
+assert.deepEqual(moveId(base, 'waste', -1), base, 'اولی ▲ ⇒ بی‌تغییر')
+assert.deepEqual(moveId(base, 'all', 1), base, 'آخری ▼ ⇒ بی‌تغییر')
+assert.deepEqual(moveId(base, 'ghost', 1), base, 'شناسهٔ ناموجود ⇒ بی‌تغییر')
+assert.deepEqual(moveId(base, 'top', 0), base, 'delta صفر ⇒ بی‌تغییر')
+assert.deepEqual(moveId(base, 'waste', -5), base, 'بیشتر از مرز ⇒ بی‌تغییر')
+assert.deepEqual(moveId(null, 'x', 1), [], 'فهرستِ نامعتبر ⇒ فهرستِ خالی')
+assert.deepEqual(base, ['waste', 'spend', 'top', 'all'], 'فهرستِ اصلی دست نمی‌خورد')
+assert.deepEqual(moveId(moveId(base, 'all', -1), 'all', 1), base, '▲ بعد ▼ = جایش')
+
+// ۱۶) پهنای پنل: کمینه/بیشینه و آوردنِ عدد به بازه (کرکرهٔ پهنا)
+assert.equal(PANEL_MIN_WIDTH, 300)
+assert.equal(PANEL_CHAT_MIN, 400)
+assert.equal(maxPanelWidth(1600, 280), 1600 - 280 - 400, 'چت ۴۰۰ پیکسل جا دارد')
+assert.equal(maxPanelWidth(1000, 280), 320, 'قابِ باریک ⇒ سقف کوچک')
+assert.equal(maxPanelWidth(600, 280), PANEL_MIN_WIDTH, 'جا نماند ⇒ سقف هرگز از کمینه کمتر نشود')
+assert.equal(maxPanelWidth(NaN, 280), PANEL_MIN_WIDTH, 'عرضِ نامعلوم ⇒ کمینه')
+assert.equal(maxPanelWidth(1600, NaN), 1200, 'سایدبارِ نامعلوم ⇒ صفر حساب می‌شود')
+// clampPanelWidth: داخل بازه
+assert.equal(clampPanelWidth(520, 1600, 280), 520)
+assert.equal(clampPanelWidth(100, 1600, 280), PANEL_MIN_WIDTH, 'کمتر از کمینه ⇒ کمینه')
+assert.equal(clampPanelWidth(5000, 1600, 280), 920, 'بیشتر از سقف ⇒ سقف')
+assert.equal(clampPanelWidth(520.4, 1600, 280), 520, 'گرد می‌شود')
+assert.equal(clampPanelWidth('x', 1600, 280), PANEL_MIN_WIDTH, 'عددِ نامعتبر ⇒ کمینه')
+assert.equal(clampPanelWidth(undefined, 1600, 280), PANEL_MIN_WIDTH)
+assert.equal(clampPanelWidth(null, 1600, 280), PANEL_MIN_WIDTH)
+assert.equal(clampPanelWidth(Infinity, 1600, 280), 920, 'بی‌نهایت ⇒ سقف')
+// سقف هرگز از کمینه پایین‌تر نمی‌رود، پس خروجی همیشه دستِ‌کمِ کمینه است
+for (const frame of [300, 400, 700, 2000]) {
+  for (const side of [0, 200, 280]) {
+    const v = clampPanelWidth(9999, frame, side)
+    assert.ok(v >= PANEL_MIN_WIDTH && v <= maxPanelWidth(frame, side), 'بازهٔ درست: ' + frame + '/' + side + ' ⇒ ' + v)
+  }
+}
+
+console.log('fold OK: همهٔ ۱۶ گروه آزمون سبز')

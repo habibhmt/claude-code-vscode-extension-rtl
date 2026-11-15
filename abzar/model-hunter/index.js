@@ -163,8 +163,24 @@ function scoreEndpoint(e, slug) {
   }
 }
 
-function taskScore(r, task) {
-  if (task === 'cheap') return -r.priceIn
+/**
+ * هزینهٔ یک درخواست برای رتبه‌بندی، بسته به حالتِ کش (حبیب ۱۵ نوامبر: «شکارچی مدل مقایسش رو بدون کش در نظر بگیره تا ارزون‌ترین در بیاد»).
+ *  'with' (پیش‌فرض): همان رتبه‌بندیِ فعلی — هزینهٔ مورد انتظار با کشِ ۹۷٪.
+ *  'none': حالتِ بی‌کش — کلِ پرامپت به قیمتِ کاملِ ورودی؛ سروری که کشش ارزان است ولی ورودیِ کاملش گران
+ *          (یا کش را نگه نمی‌دارد) این‌جا گران‌تر درمی‌آید.
+ * @param r - یک ردیفِ ارائه‌دهنده.
+ * @param cache - 'with' یا 'none'.
+ * @param calib - الگوی مصرف.
+ * @returns هزینه به دلار.
+ */
+export function rankCost(r, cache = 'with', calib = CALIBRATION) {
+  return cache === 'none' ? missCost(r, calib) : expectedCost(r, calib)
+}
+
+function taskScore(r, task, cache = 'with') {
+  // «cheap»: ارزان‌ترین — در هر دو حالتِ کش، معیار همان هزینهٔ واقعیِ یک درخواست است
+  // (با کشِ ۹۷٪ یا بی‌کش). قبلاً فقط قیمتِ خامِ ورودیِ هر توکن ملاک بود و حالتِ کش را نادیده می‌گرفت.
+  if (task === 'cheap') return -rankCost(r, cache)
   if (task === 'fast') return (r.tier === 'priority' ? 100 : r.tier === 'ultrafast' ? 60 : 0) + r.quality
   if (task === 'long') return r.maxCompletion * 1e-6 + r.quality
   if (task === 'code') return r.quality + (r.quantization === 'fp8' || r.quantization === 'fp16' ? 5 : 0)
@@ -253,12 +269,49 @@ export async function scan(config) {
   return { ts: Date.now(), families, rows: allRows, anthropic, error: null }
 }
 
-function topText(snap, task, limit, familyFilter) {
+/**
+ * رتبه‌بندیِ خالصِ ارائه‌دهنده‌ها — بدونِ شبکه و بدونِ وضعیت؛ هم ابزار و هم مسیرِ HTTP از همین می‌خوانند.
+ * @param snap - اسنپ‌شات (فقط rows لازم است).
+ * @param options - { task, limit, familyFilter, cache: 'with'|'none' }
+ * @returns [{ index, model, provider, providerSlug, quantization, tier, priceIn1m, cacheRead1m, priceOut1m, contextLength, quality, realOffPct, costPerRequest }]
+ */
+export function rankRows(snap, options = {}) {
+  const opt = options && typeof options === 'object' ? options : {}
+  const task = typeof opt.task === 'string' && opt.task ? opt.task : 'balanced'
+  const cache = opt.cache === 'none' ? 'none' : 'with'
+  const limit = Math.min(30, Math.max(1, Number.isFinite(opt.limit) ? opt.limit : 10))
+  const familyFilter = typeof opt.familyFilter === 'string' && opt.familyFilter ? opt.familyFilter : null
+  const all = Array.isArray(snap && snap.rows) ? snap.rows : []
+  const rows = all.filter((r) => r && r.usable && (!familyFilter || String(r.model).includes(familyFilter)))
+  const sorted = [...rows].sort((a, b) => taskScore(b, task, cache) - taskScore(a, task, cache)
+    || rankCost(a, cache) - rankCost(b, cache))
+  return sorted.slice(0, limit).map((r, i) => ({
+    index: i + 1,
+    model: r.model,
+    provider: r.provider,
+    providerSlug: r.slug || null,
+    quantization: r.quantization,
+    tier: r.tier || null,
+    priceIn1m: r.priceIn1m,
+    cacheRead1m: r.cacheRead1m == null ? null : r.cacheRead1m,
+    priceOut1m: r.priceOut1m,
+    contextLength: r.contextLength || r.context || null,
+    quality: r.quality,
+    realOffPct: r.realOffPct == null ? null : r.realOffPct,
+    costPerRequest: Math.round(rankCost(r, cache) * 1e6) / 1e6,
+    cache,
+  }))
+}
+
+function topText(snap, task, limit, familyFilter, cache = 'with') {
   const rows = snap.rows.filter((r) => r.usable && (!familyFilter || r.model.includes(familyFilter)))
-  const sorted = [...rows].sort((a, b) => taskScore(b, task) - taskScore(a, task))
+  const sorted = [...rows].sort((a, b) => taskScore(b, task, cache) - taskScore(a, task, cache)
+    || rankCost(a, cache) - rankCost(b, cache))
+  const label = cache === 'none' ? 'بی‌کش' : 'با کش'
+  const header = `حسابِ هزینه: ${label}`
   const lines = sorted.slice(0, limit).map((r, i) =>
-    `${i + 1}. ${r.model} | ${r.provider} (${r.quantization}${r.tier ? `, ${r.tier}` : ''}) | کیفیت ${r.quality} | آف واقعی ${r.realOffPct == null ? '—' : `${r.realOffPct}%`} | $${r.costCalib}/درخواست | ورودی $${r.priceIn1m}/M`)
-  return lines.join('\n')
+    `${i + 1}. ${r.model} | ${r.provider} (${r.quantization}${r.tier ? `, ${r.tier}` : ''}) | کیفیت ${r.quality} | آف واقعی ${r.realOffPct == null ? '—' : `${r.realOffPct}%`} | $${Math.round(rankCost(r, cache) * 1e6) / 1e6}/درخواست (${label}) | ورودی $${r.priceIn1m}/M`)
+  return header + '\n' + lines.join('\n')
 }
 
 function readEnvKeySync(name) {
@@ -744,6 +797,12 @@ export function apply(ctx, config) {
         limit: { type: 'integer', minimum: 1, maximum: 30, description: 'تعداد ردیف' },
         model: { type: 'string', description: 'شناسهٔ مدل (برای apply) یا مدلِ هدفِ پیشنهاد (برای recommend)' },
         provider: { type: 'string', description: 'نام یا اسلاگِ ارائه‌دهنده برای apply' },
+        cache: {
+          type: 'string',
+          enum: ['with', 'none'],
+          description: 'حالتِ کش در حسابِ هزینه (برای list و suggest): with پیش‌فرض — همان رتبه‌بندیِ همیشگی با کشِ ۹۷٪؛ '
+            + 'none — بی‌کش، کلِ پرامپت به قیمتِ کاملِ ورودی (برای وقتی که هر درخواست تازه است و کش گرم نمی‌شود)',
+        },
         scope: {
           type: 'string',
           enum: ['session', 'project', 'all'],
@@ -784,8 +843,9 @@ export function apply(ctx, config) {
       }
       const task = args?.task || 'balanced'
       const limit = Math.min(30, Math.max(1, args?.limit || 10))
+      const cache = args?.cache === 'none' ? 'none' : 'with'
       const head = `اسنپ‌شات: ${new Date(state.ts).toLocaleString('fa-IR')} | ${state.rows.length} ارائه‌دهنده\n`
-      return { text: head + topText(state, task, limit) }
+      return { text: head + topText(state, task, limit, null, cache) }
     },
   }
   ctx.effect(() => ctx.tools.register(tool))
@@ -837,6 +897,30 @@ export function apply(ctx, config) {
             minSamples: MIN_SAMPLES,
           })
           res.end(JSON.stringify({ ok: true, ts: state.ts, measuredTs: state.measuredTs || 0, tokens, items, best, catalog }))
+        } catch (err) {
+          res.statusCode = 500
+          res.end(JSON.stringify({ ok: false, error: String(err?.message || err) }))
+        }
+      },
+    }))
+
+    // رتبه‌بندیِ خام برای سایر افزونه‌ها (مثلِ «دستیار») — همان سدِ refuse و همان اسنپ‌شاتِ ابزار.
+    // مثال: /plugins/model-hunter/rank?task=cheap&cache=none&limit=10
+    webCtx.effect(() => web.register({
+      kind: 'exact',
+      path: '/plugins/model-hunter/rank',
+      handler: async (req, res) => {
+        if (refuse(req, res)) return
+        res.setHeader('content-type', 'application/json; charset=utf-8')
+        res.setHeader('cache-control', 'no-store')
+        try {
+          const url = new URL(req.url, 'http://localhost')
+          const task = url.searchParams.get('task') || 'balanced'
+          const cache = url.searchParams.get('cache') === 'none' ? 'none' : 'with'
+          const limit = Number.parseInt(url.searchParams.get('limit') || '10', 10)
+          if (!state.ts) await refresh()
+          const rows = rankRows(state, { task, limit, cache })
+          res.end(JSON.stringify({ ok: true, ts: state.ts, task, cache, count: rows.length, rows }))
         } catch (err) {
           res.statusCode = 500
           res.end(JSON.stringify({ ok: false, error: String(err?.message || err) }))

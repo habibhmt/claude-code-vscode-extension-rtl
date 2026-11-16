@@ -44,6 +44,7 @@
       if (d.sid === SESSION.sid && window.__crtl_tarjome_resid) window.__crtl_tarjome_resid(d);
       return;
     }
+    if (d.type === 'crtl-navar') { if (window.__crtl_navar_resid) window.__crtl_navar_resid(d); return; }
     if (d.type === 'crtl-tanzimat-list') { if (d.reqId === TZ.lastList) tz_resid(d); return; }
     if (d.type === 'crtl-tanzimat-sabt') {
       var tzCb = TZ.waiting[d.reqId];
@@ -3333,6 +3334,163 @@
     neshan_tarjome();
   }, 3000);
   window.__crtl_kelid_tarjome = kelid_tarjome;
+
+  /* ---------------- «نوارِ اطلاعات»: this chat's dollars, tokens, messages and context ---------------- */
+  // Habib, 16 Nov 2026 (a picture of the DeepSeek app): «یه کاری کن مثل دیپ سیک که این اطلاعات رو نشون میده توی
+  // کلود کد هم بیاد» · «غیر از مدل و افورت که هستن بقیه بیاد سمت چپ پنل نوشتن» · then «یه چیز کوچولو زشت اومده
+  // که همه اعدادش صفره - … مثل جدول فلوت حدس». So: the same look as the «تماس‌ها» table (#crtl-amar), above it,
+  // movable, a click opens it big. The numbers come from the host (claude-host-hook.js, __crtl_navar), which reads
+  // this chat's transcript: they survive a reload, and the dollars use the real provider price, not the panel's
+  // figure (the panel zeroes it after every message and prices DeepSeek as Opus).
+  var NAVAR = { sid: '', kelid: '', d: null, bozorg: false, matn: '' }, KELID_JA_NAVAR = 'crtl-navar-ja';
+  window.__crtl_navar_resid = function (r) {
+    if (!r || r.sid !== SESSION.sid) return;
+    NAVAR.kelid = r.kelid || ''; NAVAR.d = r.d || null; navar_keshidan();
+  };
+  function navar_porsidan() {
+    if (!SESSION.sid) SESSION.sid = khandan_shenase_chat_az_state();
+    if (NAVAR.sid !== SESSION.sid) { NAVAR.sid = SESSION.sid; NAVAR.kelid = ''; NAVAR.d = null; navar_keshidan(); }
+    var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+    if (api && SESSION.sid) api.postMessage({ type: 'crtl-navar', sid: SESSION.sid, kelid: NAVAR.kelid });
+  }
+  function navar_kutah(n) {
+    if (!Number.isFinite(n)) return 'نامعلوم';
+    if (n >= 1e6) return fa((n / 1e6).toFixed(n >= 1e7 ? 0 : 1)).replace('.', '٫') + 'M';
+    if (n >= 1e3) return fa((n / 1e3).toFixed(n >= 1e4 ? 0 : 1)).replace('.', '٫') + 'k';
+    return fa(n);
+  }
+  function navar_dolar(n) {
+    if (!Number.isFinite(n)) return 'نامعلوم';
+    return '$' + fa(n >= 1 ? n.toFixed(2) : n >= 0.01 ? n.toFixed(3) : n.toFixed(4)).replace('.', '٫');
+  }
+  // a dollar figure is «≈» (a preset may fall back to another provider); with calls still unpriced it says so
+  function navar_hazine(d) {
+    if (!d.tamas) return navar_dolar(0);
+    if (d.bi_gheymat === d.tamas) return 'نامعلوم';
+    return '≈' + navar_dolar(d.usd) + (d.bi_gheymat ? '+?' : '');
+  }
+  function navar_ctx(d) {
+    if (!d.ctx || !Number.isFinite(d.ctx.used)) return 'نامعلوم';
+    if (!Number.isFinite(d.ctx.max) || !d.ctx.max) return navar_kutah(d.ctx.used);
+    return fa(Math.min(100, Math.round(d.ctx.used / d.ctx.max * 100))) + '٪';
+  }
+  function navar_kuchak(d) {
+    var s = [['هزینه', navar_hazine(d)], ['توکن', navar_kutah(d.tokens_kol)], ['پیام', fa(d.payam)], ['کانتکست', navar_ctx(d)]];
+    // one row per number: narrow enough for the empty strip left of the prompt box (seen 16 Nov 16:25: four columns
+    // side by side ran over the box's left edge)
+    return '<table class="crtl-amar-t">' + s.map(function (x) { return '<tr><th>' + x[0] + '</th><td>' + amar_esc(x[1]) + '</td></tr>'; }).join('') + '</table>';
+  }
+  function navar_bozorg(d) {
+    var t = d.tokens || {};
+    var h = '<div class="crtl-amar-sar"><b>همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>';
+    h += '<table class="crtl-amar-t crtl-navar-riz">';
+    [['هزینه', navar_hazine(d)], ['پیامِ تو', fa(d.payam)], ['تماس با مدل', fa(d.tamas)],
+      ['توکنِ ورودی', fa((t['in'] || 0).toLocaleString('en-US'))], ['خواندنِ کش', fa((t.cr || 0).toLocaleString('en-US'))],
+      ['نوشتنِ کش', fa((t.cw || 0).toLocaleString('en-US'))], ['خروجی', fa((t.out || 0).toLocaleString('en-US'))],
+      ['کانتکستِ الان', d.ctx ? navar_kutah(d.ctx.used) + (d.ctx.max ? ' از ' + navar_kutah(d.ctx.max) + ' (' + navar_ctx(d) + ')' : '') : 'نامعلوم'],
+      ['مدلِ این چت', d.model_chat || 'پیش‌فرض']
+    ].forEach(function (r) { h += '<tr><td class="crtl-amar-r">' + r[0] + '</td><td>' + amar_esc(r[1]) + '</td></tr>'; });
+    h += '</table><table class="crtl-amar-riz"><tr><th>مدل</th><th>ارائه‌دهنده</th><th>تماس</th><th>دلار</th><th>قیمتِ هر میلیون (ورودی / خروجی / کش)</th></tr>';
+    (d.models || []).forEach(function (m) {
+      var g = m.gheymat;
+      h += '<tr><td>' + amar_esc(m.model) + '</td><td>' + amar_esc(m.ersal || 'نامعلوم') + '</td><td>' + fa(m.tamas) + '</td><td>' +
+        (m.bi_gheymat === m.tamas ? 'نامعلوم' : navar_dolar(m.usd)) + '</td><td>' +
+        (g ? '$' + [g['in'], g.out, g.cr].map(function (x) { return x === null ? '—' : +x.toFixed(4); }).join(' / ') : 'نامعلوم') + '</td></tr>';
+    });
+    h += '</table><div class="crtl-amar-dolar">دلار = توکن‌ها × قیمتِ OpenRouter برای ارائه‌دهندهٔ همین مدل؛ «≈» چون OpenRouter گاهی به ارائه‌دهندهٔ دیگری می‌رود.</div>';
+    return h;
+  }
+  function navar_bozorgi(bale) {
+    var box = document.getElementById('crtl-navar');
+    if (!box || bale === NAVAR.bozorg) return;
+    if (bale) NAVAR.ja_kuchak = { left: box.style.left, top: box.style.top, bottom: box.style.bottom };
+    else if (NAVAR.ja_kuchak) { box.style.left = NAVAR.ja_kuchak.left; box.style.top = NAVAR.ja_kuchak.top; box.style.bottom = NAVAR.ja_kuchak.bottom; }
+    NAVAR.bozorg = bale; NAVAR.matn = ''; navar_keshidan();
+  }
+  document.addEventListener('pointerdown', function (e) {
+    if (NAVAR.bozorg && !(e.target.closest && e.target.closest('#crtl-navar'))) navar_bozorgi(false);
+  }, true);
+  function navar_jabe() {
+    var box = document.getElementById('crtl-navar');
+    if (box) return box;
+    box = document.createElement('div');
+    box.id = 'crtl-navar';
+    try { var ja = JSON.parse(localStorage.getItem(KELID_JA_NAVAR) || 'null'); if (ja) { box.style.left = ja.x + 'px'; box.style.top = ja.y + 'px'; box.style.bottom = 'auto'; box.dataset.ja = '1'; } } catch (e) {}
+    // the same hand as the «تماس‌ها» table: a press that does not move opens or closes it, one that moves drags it
+    box.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      if (NAVAR.bozorg && !(e.target.closest && e.target.closest('.crtl-amar-sar'))) return;
+      var r = box.getBoundingClientRect(), x0 = e.clientX, y0 = e.clientY, raft = false;
+      function harekat(m) {
+        if (!raft && Math.abs(m.clientX - x0) + Math.abs(m.clientY - y0) < 4) return;
+        raft = true; box.dataset.ja = '1';
+        box.style.left = Math.max(0, Math.min(window.innerWidth - 40, r.left + m.clientX - x0)) + 'px';
+        box.style.top = Math.max(0, Math.min(window.innerHeight - 20, r.top + m.clientY - y0)) + 'px';
+        box.style.bottom = 'auto';
+      }
+      function vel() {
+        document.removeEventListener('pointermove', harekat); document.removeEventListener('pointerup', vel);
+        if (raft) { try { localStorage.setItem(KELID_JA_NAVAR, JSON.stringify({ x: parseInt(box.style.left, 10), y: parseInt(box.style.top, 10) })); } catch (e2) {} return; }
+        navar_bozorgi(!NAVAR.bozorg);
+      }
+      document.addEventListener('pointermove', harekat); document.addEventListener('pointerup', vel);
+    });
+    document.body.appendChild(box);
+    return box;
+  }
+  // not moved by hand: bottom left, just above the «تماس‌ها» table when it is there; and if that is over the prompt
+  // box (a narrow panel), just above the box
+  function navar_ja_pishfarz(box) {
+    if (box.dataset.ja || NAVAR.bozorg) return;
+    var amar = document.getElementById('crtl-amar'), zir = 8;
+    if (amar && amar.style.display !== 'none' && amar.offsetHeight && !amar.style.top) zir += amar.offsetHeight + 6;
+    box.style.left = '8px'; box.style.top = ''; box.style.bottom = zir + 'px';
+    var k = kadr_tayp(), r = box.getBoundingClientRect(), kr = k && k.getBoundingClientRect();
+    if (kr && kr.width && r.width && r.right > kr.left - 4 && r.bottom > kr.top - 4) box.style.bottom = Math.round(window.innerHeight - kr.top + 40) + 'px';
+  }
+  function navar_keshidan() {
+    var box = document.getElementById('crtl-navar');
+    if (!SESSION.sid || !kadr_tayp()) { if (box) box.style.display = 'none'; return; }
+    box = navar_jabe();
+    box.style.display = '';
+    navar_ja_pishfarz(box);
+    box.classList.toggle('crtl-amar-bozorg', NAVAR.bozorg);
+    var d = NAVAR.d || { tamas: 0, payam: 0, tokens_kol: 0, usd: 0, bi_gheymat: 0, ctx: null, models: [], dar_rah: true };
+    var matn = (NAVAR.bozorg ? 'b' : 'k') + JSON.stringify(d);
+    if (matn === NAVAR.matn) return;
+    NAVAR.matn = matn;
+    box.innerHTML = NAVAR.d ? (NAVAR.bozorg ? navar_bozorg(d) : navar_kuchak(d)) : '<table class="crtl-amar-t"><tr><td>در حالِ خواندن…</td></tr></table>';
+    navar_ja_pishfarz(box);
+    var r = box.getBoundingClientRect();
+    if (r.bottom > window.innerHeight - 4) { box.style.top = Math.max(4, window.innerHeight - r.height - 4) + 'px'; box.style.bottom = 'auto'; }
+    if (r.right > window.innerWidth - 4) box.style.left = Math.max(4, window.innerWidth - r.width - 4) + 'px';
+  }
+  (function () {
+    var st = document.createElement('style');
+    st.id = 'crtl-navar-style';
+    // the «تماس‌ها» table's own look (#crtl-amar), with the numbers a little bigger: they are read, not scanned
+    st.textContent = [
+      '#crtl-navar{position:fixed;left:8px;bottom:8px;z-index:2147483001;direction:rtl;font:10px/1.35 -apple-system,BlinkMacSystemFont,Vazirmatn,sans-serif;color:var(--vscode-foreground);' +
+        'background:color-mix(in srgb,var(--vscode-editorWidget-background,#2c2c2e) 88%,transparent);border:.5px solid rgba(128,128,128,.32);border-radius:6px;padding:2px;' +
+        'box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}',
+      '#crtl-navar table{border-collapse:collapse}',
+      '#crtl-navar td,#crtl-navar th{padding:0 4px;text-align:center;white-space:nowrap;border:.5px solid rgba(128,128,128,.4);font-variant-numeric:tabular-nums}',
+      '#crtl-navar th{font-weight:400;opacity:.7;text-align:right}',
+      '#crtl-navar td{text-align:left}',
+      '#crtl-navar .crtl-amar-r{opacity:.7;text-align:right}',
+      '#crtl-navar .crtl-navar-riz td{text-align:right}',
+      '#crtl-navar.crtl-amar-bozorg{max-width:min(720px,92vw);max-height:65vh;overflow:auto;font-size:11px;padding:6px 8px;cursor:default;user-select:text;-webkit-user-select:text;background:var(--vscode-editorWidget-background,#2c2c2e)}',
+      '#crtl-navar .crtl-amar-sar{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:grab}',
+      '#crtl-navar .crtl-amar-bastan{background:none;border:none;color:inherit;font-size:14px;cursor:pointer}',
+      '#crtl-navar .crtl-amar-dolar{margin:4px 0;opacity:.75;white-space:normal;max-width:60ch}',
+      '#crtl-navar .crtl-amar-riz{margin-top:6px}',
+      '#crtl-navar .crtl-amar-riz th{font-weight:600;opacity:1}',
+      'html:has([class*="questionsContainer_"]) #crtl-navar{display:none!important}'
+    ].join('\n');
+    (document.head || document.documentElement).appendChild(st);
+  })();
+  setInterval(function () { navar_porsidan(); navar_keshidan(); }, 2000);
+  window.__crtl_navar_keshidan = navar_keshidan;
 
   // no give-up: a sign-in or onboarding screen can keep the composer away for minutes (Codex,
   // 31 Oct: the row never came after a login that took longer than the old 30 s limit)

@@ -717,6 +717,11 @@
           });
           return;
         }
+        if (m && m.type === 'crtl-navar') {
+          // «نوارِ اطلاعات»: this chat's numbers from its transcript (the navar block at the end of this file)
+          try { if (globalThis.__crtl_navar) globalThis.__crtl_navar.javab(String(m.sid || ''), m.kelid, function (r) { webview.postMessage(r); }); } catch (e) {}
+          return;
+        }
         if (m && m.type === 'crtl-tarjome') {
           // the «ترجمه» of the hads mod: the page can't read ~/.claude. Sent only when the file changed.
           if (!/^[0-9a-f-]{36}$/.test(String(m.sid || ''))) return;
@@ -926,5 +931,202 @@
     } catch (e) { return messages; }
   };
   globalThis.__crtl_tarikh_shamsi = tarikh_shamsi;
+})();
+
+// «نوارِ اطلاعات»: this chat's dollars, tokens, messages and context, for the small table left of the prompt box
+// (Habib, 16 Nov 2026, with a picture of the DeepSeek app: «یه کاری کن مثل دیپ سیک که این اطلاعات رو نشون میده
+// توی کلود کد هم بیاد» · «غیر از مدل و افورت که هستن بقیه بیاد سمت چپ پنل نوشتن» · «همه اعدادش صفره … مثل جدول
+// فلوت حدس»). Read from the chat's own transcript, not from the panel: the panel zeroes its numbers after every
+// message and after a reload, and its dollar figure prices every non-Claude model as Opus (measured 16 Nov:
+// costBasis "unknown", 6108 DeepSeek tokens ⇒ $0.0308 instead of about $0.001). Dollars here are tokens × the
+// OpenRouter price of the provider the chat's preset pins (a preset may fall back, so the page shows «≈»).
+(function () {
+  try {
+    var fs = require('fs'), path = require('path'), os = require('os');
+    function khane() { return process.env.CRTL_NAVAR_HOME || path.join(os.homedir(), '.claude'); }
+    var HALAT = {};          // sid → what was read of its transcript so far
+    var GHEYMAT = {};        // model base → { t, endpoints:[{provider, tag, ctx, p:{in,out,cr,cw}}] } or { t, khata }
+    var GHEYMAT_NOSKHE = 0;  // goes up when a price arrives, so the page's numbers are redone
+    var MOHLAT_GHEYMAT = 6 * 3600e3;
+
+    function file_chat(sid) {
+      var dir = path.join(khane(), 'projects'), dirs = [];
+      try { dirs = fs.readdirSync(dir); } catch (e) { return ''; }
+      for (var i = 0; i < dirs.length; i++) {
+        var f = path.join(dir, dirs[i], sid + '.jsonl');
+        if (fs.existsSync(f)) return f;
+      }
+      return '';
+    }
+    function halat_taze(file) { return { file: file, offset: 0, rest: '', calls: {}, tartib: [], payam: 0, cwd: '' }; }
+    // a person's message: typed text, not a tool's answer, not a command's echo, not a note the app adds
+    function payam_e_adam(o) {
+      if (o.type !== 'user' || o.isMeta || o.isSidechain || o.isCompactSummary) return false;
+      var c = o.message && o.message.content;
+      var t = typeof c === 'string' ? c : Array.isArray(c) && !c.some(function (x) { return x && x.type === 'tool_result'; })
+        ? c.filter(function (x) { return x && x.type === 'text'; }).map(function (x) { return x.text || ''; }).join('') : '';
+      t = String(t || '').trim();
+      return !!t && !/^<(command-|local-command|task-notification|system-reminder)/.test(t) && t.indexOf('The hads plugin sent a message') !== 0;
+    }
+    function khat(h, line) {
+      if (!line) return;
+      var o; try { o = JSON.parse(line); } catch (e) { return; }
+      if (o.cwd && !h.cwd) h.cwd = o.cwd;
+      if (payam_e_adam(o)) { h.payam++; return; }
+      if (o.type !== 'assistant' || !o.message || !o.message.usage) return;
+      var m = o.message, model = String(m.model || '');
+      if (!model || model === '<synthetic>') return;
+      // one call is written as several lines (one per content block) with the same id and usage: the last wins
+      var id = m.id || o.uuid;
+      if (!h.calls[id]) h.tartib.push(id);
+      h.calls[id] = { model: model, u: m.usage, t: Date.parse(o.timestamp) || 0, sidechain: !!o.isSidechain };
+    }
+    function khandan(h, matn) {
+      var text = h.rest + matn, cut = text.lastIndexOf('\n');
+      h.rest = text.slice(cut + 1);
+      var lines = text.slice(0, cut + 1).split('\n');
+      for (var i = 0; i < lines.length; i++) khat(h, lines[i]);
+    }
+    // only the new bytes are read; a whole chat file (hundreds of MB) streams once, in the background
+    function be_ruz(sid, cb) {
+      var h = HALAT[sid];
+      var f = h && fs.existsSync(h.file) ? h.file : file_chat(sid);
+      if (!f) return cb(null);
+      if (!h || h.file !== f) h = HALAT[sid] = halat_taze(f);
+      var size; try { size = fs.statSync(f).size; } catch (e) { return cb(null); }
+      if (size < h.offset) h = HALAT[sid] = halat_taze(f); // rewritten
+      if (size === h.offset) return cb(h, size);
+      if (h.dar_hal) { h.montazer = (h.montazer || []).concat(cb); return; }
+      h.dar_hal = true;
+      var st = fs.createReadStream(f, { start: h.offset, end: size - 1, encoding: 'utf8', highWaterMark: 1 << 20 });
+      st.on('data', function (chunk) { khandan(h, chunk); });
+      function tamam() {
+        h.offset = size; h.dar_hal = false;
+        var m = h.montazer || []; h.montazer = null;
+        cb(h, size); m.forEach(function (fn) { fn(h, size); });
+      }
+      st.on('end', tamam);
+      st.on('error', function () { h.dar_hal = false; cb(null); });
+    }
+
+    /* ---- prices ---- */
+    function anbar_tanzim() { try { return JSON.parse(fs.readFileSync(process.env.CRTL_TANZIMAT || path.join(khane(), 'crtl_tanzimat.json'), 'utf8')) || {}; } catch (e) { return {}; } }
+    function model_e_chat(sid, cwd) {
+      var a = anbar_tanzim();
+      function v(o) { var r = o && o.model; return r && typeof r.v === 'string' ? r.v : ''; }
+      return v((a.chat || {})[sid]) || v((a.poshe || {})[cwd]) || '';
+    }
+    // the OpenRouter name of a model as Claude Code writes it: claude-opus-5-5 ⇒ anthropic/claude-opus-5.5
+    function esm_openrouter(model) {
+      var m = String(model).split('@')[0];
+      if (/^claude-/.test(m)) return 'anthropic/' + m.replace(/-(\d+)-(\d+)$/, '-$1.$2');
+      return m;
+    }
+    // «mh-deepseek-v4-flash-vision-exp-deepinfra» is the model hunter's preset for one provider: the part after
+    // the model's own name. Other presets (cheap-deepseek) sort by price: the cheapest endpoint.
+    function ersal_konande(model_ba_preset, base) {
+      var p = String(model_ba_preset).split('@preset/')[1] || '';
+      var slug = 'mh-' + String(base).split('/').pop().replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-';
+      return p.indexOf(slug) === 0 ? p.slice(slug.length) : '';
+    }
+    function adad(x) { var n = Number(x); return Number.isFinite(n) ? n : null; }
+    function gheymat_baraye(base, model_chat) {
+      var g = GHEYMAT[base];
+      if (!g || !g.endpoints || !g.endpoints.length) return null;
+      var es = g.endpoints, e = null;
+      if (/^anthropic\//.test(base)) e = es.filter(function (x) { return /^anthropic/i.test(x.tag || x.provider); })[0];
+      var pr = model_chat && String(model_chat).split('@')[0] === base ? ersal_konande(model_chat, base) : '';
+      if (!e && pr) {
+        // the provider's plain endpoint (deepinfra/fp8), not its flex or priority one: what the preset asks for
+        e = es.filter(function (x) { return String(x.tag || '').split('/')[0] === pr; })
+          .sort(function (a, b) { return String(a.tag).split('/').length - String(b.tag).split('/').length || a.p['in'] - b.p['in']; })[0];
+      }
+      if (!e) e = es.slice().sort(function (a, b) { return a.p['in'] - b.p['in']; })[0];
+      return e;
+    }
+    function gereftan_gheymat_pishfarz(base, done) {
+      var https = require('https');
+      var url = 'https://openrouter.ai/api/v1/models/' + base + '/endpoints';
+      var req = https.get(url, { timeout: 15000 }, function (res) {
+        var body = '';
+        res.setEncoding('utf8');
+        res.on('data', function (c) { body += c; });
+        res.on('end', function () {
+          try {
+            var d = JSON.parse(body).data;
+            done(null, (d.endpoints || []).map(function (x) {
+              var p = x.pricing || {};
+              return { provider: x.provider_name, tag: x.tag || '', ctx: adad(x.context_length),
+                p: { 'in': adad(p.prompt), out: adad(p.completion), cr: adad(p.input_cache_read), cw: adad(p.input_cache_write) } };
+            }).filter(function (x) { return x.p['in'] !== null && x.p.out !== null; }));
+          } catch (e) { done(e); }
+        });
+      });
+      req.on('timeout', function () { req.destroy(new Error('timeout')); });
+      req.on('error', function (e) { done(e); });
+    }
+    var API = {
+      gereftan_gheymat: gereftan_gheymat_pishfarz,
+      // tests put a price straight in
+      gheymat_bezar: function (base, endpoints) { GHEYMAT[base] = { t: Date.now(), endpoints: endpoints }; GHEYMAT_NOSKHE++; },
+    };
+    function bekhah_gheymat(base) {
+      var g = GHEYMAT[base], now = Date.now();
+      if (g && (g.dar_rah || now - g.t < (g.khata ? 600e3 : MOHLAT_GHEYMAT))) return;
+      GHEYMAT[base] = Object.assign({}, g || {}, { dar_rah: true, t: g ? g.t : 0 });
+      API.gereftan_gheymat(base, function (err, endpoints) {
+        if (err || !endpoints || !endpoints.length) GHEYMAT[base] = Object.assign({}, g || {}, { t: Date.now(), khata: String(err && err.message || 'no price'), dar_rah: false });
+        else GHEYMAT[base] = { t: Date.now(), endpoints: endpoints };
+        GHEYMAT_NOSKHE++;
+      });
+    }
+
+    // the numbers for one chat
+    function hesab(h, sid) {
+      var model_chat = model_e_chat(sid, h.cwd);
+      var jam = { 'in': 0, out: 0, cr: 0, cw: 0 }, usd = 0, bi_gheymat = 0, models = {}, akhar = null;
+      h.tartib.forEach(function (id) {
+        var c = h.calls[id], u = c.u || {};
+        var t = { 'in': u.input_tokens || 0, out: u.output_tokens || 0, cr: u.cache_read_input_tokens || 0, cw: u.cache_creation_input_tokens || 0 };
+        Object.keys(jam).forEach(function (k) { jam[k] += t[k]; });
+        var base = esm_openrouter(c.model);
+        bekhah_gheymat(base);
+        var e = gheymat_baraye(base, model_chat);
+        var m = models[c.model] || (models[c.model] = { model: c.model, tamas: 0, usd: 0, bi_gheymat: 0, ersal: '', gheymat: null });
+        m.tamas++;
+        if (e) {
+          var d = t['in'] * e.p['in'] + t.out * e.p.out + t.cr * (e.p.cr !== null ? e.p.cr : e.p['in']) + t.cw * (e.p.cw !== null ? e.p.cw : e.p['in']);
+          usd += d; m.usd += d; m.ersal = e.provider + (e.tag ? ' (' + e.tag + ')' : '');
+          m.gheymat = { 'in': e.p['in'] * 1e6, out: e.p.out * 1e6, cr: e.p.cr !== null ? e.p.cr * 1e6 : null };
+          m.ctx = e.ctx;
+        } else { bi_gheymat++; m.bi_gheymat++; }
+        if (!c.sidechain) akhar = { t: t, model: c.model, ctx: e ? e.ctx : null };
+      });
+      var ctx = akhar ? { used: akhar.t['in'] + akhar.t.cr + akhar.t.cw + akhar.t.out, max: akhar.ctx } : null;
+      return {
+        payam: h.payam, tamas: h.tartib.length,
+        tokens: jam, tokens_kol: jam['in'] + jam.out + jam.cr + jam.cw,
+        usd: usd, bi_gheymat: bi_gheymat, models: Object.keys(models).map(function (k) { return models[k]; }),
+        ctx: ctx, model_chat: model_chat,
+      };
+    }
+    // the page sends the last key it has; only a changed answer goes back
+    API.javab = function (sid, kelid_safhe, send) {
+      if (!/^[0-9a-f-]{36}$/.test(String(sid || ''))) return;
+      be_ruz(sid, function (h, size) {
+        if (!h) return send({ type: 'crtl-navar', sid: sid, kelid: 'none', d: null });
+        var d = hesab(h, sid);
+        var kelid = size + ':' + GHEYMAT_NOSKHE + ':' + d.model_chat + ':' + d.bi_gheymat;
+        if (kelid === kelid_safhe) return;
+        send({ type: 'crtl-navar', sid: sid, kelid: kelid, d: d });
+      });
+    };
+    API.hesab_file = function (sid, cb) { be_ruz(sid, function (h) { cb(h ? hesab(h, sid) : null); }); };
+    API.payam_e_adam = payam_e_adam;
+    API.ersal_konande = ersal_konande;
+    API.esm_openrouter = esm_openrouter;
+    API.pak = function () { HALAT = {}; GHEYMAT = {}; GHEYMAT_NOSKHE = 0; };
+    globalThis.__crtl_navar = API;
+  } catch (e) {}
 })();
 /* === /CLAUDE-RTL-HOST-HOOK === */

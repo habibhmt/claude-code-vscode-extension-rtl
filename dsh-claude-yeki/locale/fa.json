@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "یکی‌شدن با Claude Code",
+    "description": "تنظیماتِ Claude Code را این‌جا هم می‌آورد: در پروژه‌ها فقط CLAUDE.md و CLAUDE.local.md خوانده می‌شود، نه AGENTS.md (در پریست‌های standard و ptc و cordis که از DSH نسخهٔ 0.2.2-rc.1 کپی شده‌اند)، و هر سرورِ MCP ِ سراسری در ‎~/.claude.json با همان اسم این‌جا ثبت می‌شود و با تغییرِ آن فایل خودش عوض می‌شود. سرورهای MCP ِ مخصوصِ یک پوشه و سرورهای SSE نمی‌آیند. فایلِ دستورهای سراسری با لینکِ ‎~/.dsh/AGENTS.md ⇐ ‎~/.claude/CLAUDE.md یکی است (بیرون از این افزونه). بعد از آپدیتِ DSH در پروژهٔ ۱۳۶ بزن: abzar/dsh_preset_claude_md.cjs --check",
+    "detail": "docs/DETAIL.md"
+  }
+}

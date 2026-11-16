@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Claude Code setup",
+    "description": "Shares Claude Code's setup with DeepSeek Harness: agents read CLAUDE.md and CLAUDE.local.md in projects instead of AGENTS.md (in the standard, ptc and cordis presets, copied from DSH 0.2.2-rc.1), and every global MCP server in ~/.claude.json is registered here under the same name and follows that file. Folder-only MCP servers and SSE servers are not brought in. The global instruction file is shared through the link ~/.dsh/AGENTS.md → ~/.claude/CLAUDE.md, outside this bundle. After a DSH update, run abzar/dsh_preset_claude_md.cjs --check in project 136.",
+    "detail": "docs/DETAIL.md"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@local/dsh-claude-yeki",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One setup for Claude Code and DeepSeek Harness: projects read CLAUDE.md only, and Claude Code's global MCP servers appear here.",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": ["index.js", "cordis.patch.yml", "locale/*.json", "docs", "icon.svg", "README.md"],
+  "scripts": { "test": "node --test test/*.mjs" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

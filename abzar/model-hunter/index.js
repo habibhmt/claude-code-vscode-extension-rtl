@@ -18,7 +18,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { recentLogs, providerStats, createGenerationBook, lastRefOfLog, logPathOf, decompress } from './measure.js'
+import { recentLogsAsync, providerStats, createGenerationBook, lastRefOfLog, logPathOf, readLogFile } from './measure.js'
 import { pickEndpoints, planCatalog, sameList, rowForRef, parseRef, pickerItems, contextTokensOfLog, presetSlug } from './picker.js'
 
 const OPENROUTER = 'https://openrouter.ai/api/v1'
@@ -468,7 +468,7 @@ function sessionTokens(sessionId) {
   const hit = tokenCache.get(file)
   if (hit && hit.mtime === mtime) return hit.tokens
   let tokens = 0
-  try { tokens = contextTokensOfLog(decompress(fs.readFileSync(file))) } catch { tokens = 0 }
+  try { tokens = contextTokensOfLog(readLogFile(file)) } catch { tokens = 0 }
   tokenCache.set(file, { mtime, tokens })
   return tokens
 }
@@ -495,7 +495,7 @@ function pickTargets(rows, scope, currentSessionId) {
 function currentRefOf(sessionId) {
   const file = logPathOf(sessionId)
   if (!file) return null
-  try { return lastRefOfLog(decompress(fs.readFileSync(file))) } catch { return null }
+  try { return lastRefOfLog(readLogFile(file)) } catch { return null }
 }
 
 /**
@@ -744,7 +744,7 @@ export function apply(ctx, config) {
   let measured = []
   const measure = async () => {
     try {
-      const logs = recentLogs({ days: cfg.measureDays || 7 })
+      const logs = await recentLogsAsync({ days: cfg.measureDays || 7 })
       await book.fill(Object.values(logs).flat().map(r => r.id))
       measured = providerStats(logs, book.detailOf)
       if (state.ts) state = applyMeasured(state, measured, cfg.calibration)

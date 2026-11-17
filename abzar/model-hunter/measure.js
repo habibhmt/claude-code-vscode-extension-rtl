@@ -15,19 +15,26 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import zlib from 'node:zlib'
-import { spawnSync } from 'node:child_process'
+import { execFile, spawnSync } from 'node:child_process'
+import { promisify } from 'node:util'
 
 export const SESSIONS_ROOT = path.join(os.homedir(), '.dsh', 'sessions')
 export const CACHE_FILE = path.join(os.homedir(), '.dsh', 'storages', 'model-hunter', 'generations.json')
 const GAP_MS = 5 * 60 * 1000
 const MISS_MIN_PROMPT = 20000
+const zstdCommands = ['/opt/homebrew/bin/zstd', '/usr/local/bin/zstd', 'zstd']
+const decompressOptions = { maxBuffer: 512 * 1024 * 1024, timeout: 20000 }
+const execFileAsync = promisify(execFile)
 
 /** zstd ِ چندقابی (لاگِ زنده) ⇒ متن. */
 export function decompress(buffer) {
-  for (const bin of ['/opt/homebrew/bin/zstd', '/usr/local/bin/zstd', 'zstd']) {
-    const out = spawnSync(bin, ['-dc'], { input: buffer, maxBuffer: 512 * 1024 * 1024 })
+  for (const bin of zstdCommands) {
+    const out = spawnSync(bin, ['-dc'], { ...decompressOptions, input: buffer })
     if (out.stdout && out.stdout.length > 0) return out.stdout.toString('utf8')
   }
+  return decompressFrames(buffer)
+}
+function decompressFrames(buffer) {
   if (typeof zlib.zstdDecompressSync === 'function') {
     const magic = Buffer.from([0x28, 0xb5, 0x2f, 0xfd])
     const parts = []
@@ -40,6 +47,23 @@ export function decompress(buffer) {
     return parts.join('')
   }
   return ''
+}
+
+// A file argument lets zstd read at its own pace. Sending a multi-megabyte log
+// through spawnSync's stdin can stall Electron's host and every open chat.
+export function readLogFile(file) {
+  for (const command of zstdCommands) {
+    const result = spawnSync(command, ['-dc', '--', file], { ...decompressOptions, encoding:'utf8' })
+    if (result.stdout) return result.stdout
+  }
+  return decompressFrames(fs.readFileSync(file))
+}
+async function readLogFileAsync(file) {
+  for (const command of zstdCommands) {
+    try { return (await execFileAsync(command, ['-dc', '--', file], decompressOptions)).stdout }
+    catch (error) { if (error.stdout) return error.stdout } // live log's final frame can be incomplete
+  }
+  return decompressFrames(await fs.promises.readFile(file))
 }
 
 /**
@@ -80,10 +104,9 @@ export function lastRefOfLog(text) {
 }
 
 /** همهٔ لاگ‌های چند روزِ اخیر ⇒ { sessionId: rows } */
-export function recentLogs({ root = SESSIONS_ROOT, days = 7, now = Date.now() } = {}) {
-  const out = {}
+function* recentLogFiles({ root = SESSIONS_ROOT, days = 7, now = Date.now() } = {}) {
   let dirs = []
-  try { dirs = fs.readdirSync(root) } catch { return out }
+  try { dirs = fs.readdirSync(root) } catch { return }
   for (const dir of dirs) {
     let sessions = []
     try { sessions = fs.readdirSync(path.join(root, dir)) } catch { continue }
@@ -92,9 +115,23 @@ export function recentLogs({ root = SESSIONS_ROOT, days = 7, now = Date.now() } 
       let stat
       try { stat = fs.statSync(file) } catch { continue }
       if (now - stat.mtimeMs > days * 86400000) continue
-      const rows = requestsOfLog(decompress(fs.readFileSync(file)))
-      if (rows.length > 0) out[session] = rows
+      yield {file,session}
     }
+  }
+}
+export function recentLogs(options) {
+  const out = {}
+  for (const {file,session} of recentLogFiles(options)) {
+    const rows = requestsOfLog(readLogFile(file))
+    if (rows.length) out[session] = rows
+  }
+  return out
+}
+export async function recentLogsAsync(options) {
+  const out = {}
+  for (const {file,session} of recentLogFiles(options)) {
+    const rows = requestsOfLog(await readLogFileAsync(file))
+    if (rows.length) out[session] = rows
   }
   return out
 }

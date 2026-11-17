@@ -38,8 +38,12 @@ SHEMA_RE = [
 def pish_az_shema(desc):
     for p in SHEMA_RE:
         m = re.search(p, desc or '')
-        if m:
-            return be_maghdar(m.group(1))
+        if not m:
+            continue
+        # «Default: the system time zone» متنِ توضیح است، نه مقدار — دنبالِ الگوی بعدی برو
+        if m.group(1).lower() in ('the', 'a', 'an'):
+            continue
+        return be_maghdar(m.group(1))
     return None
 
 

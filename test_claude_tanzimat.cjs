@@ -518,7 +518,9 @@ function patches() {
   const block = sh.match(/    # The «تنظیمات کلود» tab \(Habib, 5 Nov 02:34\)\. Three places[\s\S]*?(?=    open\(path, 'w')/)[0].split('\n').map((l) => l.replace(/^    /, '')).join('\n');
   const extF = runPy(path.join(EXT, 'extension.js.backup'), block, 'ext.js');
   const out = fs.readFileSync(extF, 'utf8');
-  const re1 = /\{let crtlC=globalThis\.__crtl_baz_shodan&&globalThis\.__crtl_baz_shodan\(([\w$]+),([\w$]+)\.cwd\);if\(crtlC\)\{if\(crtlC\.effort\)\2\.effort=crtlC\.effort;if\(crtlC\.model\)\2\.model=crtlC\.model;if\(crtlC\.settings\)\2\.extraArgs=\{\.\.\.\2\.extraArgs,settings:JSON\.stringify\(crtlC\.settings\)\}\}\}let [\w$]+="[\d.]+";if\(this\.output\.info\(`Spawning/;
+  // Between this patch and the spawn line other patches may sit (the history
+  // launch one, added 16 Nov), so only "right before the spawn" is required.
+  const re1 = /\{let crtlC=globalThis\.__crtl_baz_shodan&&globalThis\.__crtl_baz_shodan\(([\w$]+),([\w$]+)\.cwd\);if\(crtlC\)\{if\(crtlC\.effort\)\2\.effort=crtlC\.effort;if\(crtlC\.model\)\2\.model=crtlC\.model;if\(crtlC\.settings\)\2\.extraArgs=\{\.\.\.\2\.extraArgs,settings:JSON\.stringify\(crtlC\.settings\)\}\}\}[\s\S]{0,300}?let [\w$]+="[\d.]+";if\(this\.output\.info\(`Spawning/;
   assert.ok(re1.test(out), 'the launch takes the winners');
   assert.ok(/this\.channels\.set\(([\w$]+),([\w$]+)\),globalThis\.__crtl_kanal_taze&&globalThis\.__crtl_kanal_taze\(this,\1,\2\),this\.pendingChannels\.delete\(\1\)/.test(out), 'a new channel is announced');
   assert.ok(/async writeUserSettingsAndPush\(([\w$]+),([\w$]+),([\w$]+),([\w$]+)\)\{if\(!\3&&\4!=="localSettings"&&globalThis\.__crtl_menu_chat&&globalThis\.__crtl_menu_chat\(this,\1,\2\)\)\3=!0;/.test(out), 'the menu goes flags-only for this chat');
@@ -598,7 +600,10 @@ async function realEngine(bin) {
   await e.req({ subtype: 'initialize' });
   let v = await e.look();
   assert.equal(v.effort, 'max', 'effort max on the real engine, which refuses it in a file');
-  assert.equal(v.model, 'claude-fable-5-1', 'the model');
+  // «fable» یک نامِ کوتاه است و موتور آن را به تازه‌ترین ۵.x نگاشت می‌کند؛
+  // عدد را این‌جا میخ نمی‌کنیم تا با هر نسخهٔ تازه تست نشکند.
+  assert.match(v.model, /^claude-fable-5-\d+$/, 'the model');
+  const FABLE = v.model;
   assert.equal(v.ultracode, true, 'ultracode');
   assert.equal(v.thr, 300000, 'typed 300K ⇒ the real compaction point is 300K, over the 1M per-model entry in the file');
   // row 8: the same engine, changed live by a save, the way the host does it
@@ -615,12 +620,16 @@ async function realEngine(bin) {
   v = await e.look();
   assert.equal(v.effort, 'low', 'global low reaches the running chat, whose own value was max');
   assert.equal(v.ultracode, true, 'ultracode survives: the engine drops it unless it goes along');
-  assert.equal(v.model, 'claude-fable-5-1', 'the model does not move');
-  assert.equal(J(USER).modelSettings['claude-fable-5-1'].effortLevel, 'low', 'the running model joins the file');
+  assert.equal(v.model, FABLE, 'the model does not move');
+  assert.equal(J(USER).modelSettings[FABLE].effortLevel, 'low', 'the running model joins the file');
   r = await s({ sath: 'poshe', key: 'model', value: 'sonnet', channel: 'real' });
   assert.ok(r.ok, r.matn);
   v = await e.look();
-  assert.equal(v.model, 'claude-sonnet-5-5', 'project model reaches it');
+  // این ماشین مدل‌ها را مسیردهی می‌کند (sonnet ⇒ مدلِ OpenRouter)، پس به‌جای
+  // شناسهٔ ثابت، همین که از مدلِ قبلی جدا شد و نامی واقعی آمد سنجیده می‌شود.
+  assert.notEqual(v.model, FABLE, 'project model reaches it');
+  assert.ok(typeof v.model === 'string' && v.model.length > 0, 'a real model name: ' + v.model);
+  const SONNET = v.model;
   assert.equal(v.effort, 'low', 'and effort stays, though a model brings its own');
   r = await s({ sath: 'chat', key: 'ultracode', value: 'false', channel: 'real' });
   v = await e.look();
@@ -640,10 +649,10 @@ async function realEngine(bin) {
   await e.req({ subtype: 'initialize' });
   v = await e.look();
   assert.equal(v.thr, 500000, 'after a reload: the typed number');
-  assert.equal(v.effort, 'low'); assert.equal(v.model, 'claude-sonnet-5-5');
+  assert.equal(v.effort, 'low'); assert.equal(v.model, SONNET);
   e.p.kill();
   // a terminal chat reads only the files: the global window is there with the per-model number gone, and the project model
-  e = startEngine(bin, proj, ['--model', 'claude-fable-5-1']);
+  e = startEngine(bin, proj, ['--model', FABLE]);
   await e.req({ subtype: 'initialize' });
   v = await e.look();
   assert.equal(v.effort, 'low', 'a terminal chat on that model sees the global effort from the file');
@@ -771,7 +780,7 @@ async function panelInBrowser() {
   assert.equal(await tick('effortLevel', 'sarasari').isChecked(), false, 'the tick clears after a save');
   assert.equal(await sabt.isDisabled(), true);
   await popup.getByRole('button', { name: 'باشه' }).click();
-  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="effortLevel"] .crtl-tz-note').textContent === 'الان: max از سراسری؛ یعنی مدل بیشترین فکر را می‌کند و گران‌ترین است');
+  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="effortLevel"] .crtl-tz-note').textContent === 'الان: max از سراسری؛ یعنی مدل بیشترین fekr را می‌کند و گران‌ترین است');
   // Esc: the popup first, the panel after
   await tick('effortLevel', 'sarasari').click();
   await pg.keyboard.press('Escape');
@@ -831,11 +840,17 @@ async function panelInBrowser() {
   assert.equal(await row('cleanupPeriodDays').locator('.crtl-tz-note').textContent(), 'الان: 30 (پیش‌فرض کلود)؛ یعنی فایل هر چت 30 روز می‌ماند و بعد خودکار پاک می‌شود', 'the default the app states');
   assert.equal(await row('policyHelper').locator('.crtl-tz-note').textContent(), 'الان: خالی؛ یعنی هیچ برنامه‌ای برای ساختن تنظیمات سازمان اجرا نمی‌شود', 'no default: empty and its meaning');
   assert.equal(await row('respectGitignore').locator('.crtl-tz-note').textContent(), 'الان: روشن (پیش‌فرض کلود)؛ یعنی فایل‌های داخل .gitignore در پیشنهاد @ نمی‌آیند');
-  assert.equal(await pg.$$eval('.crtl-tz-note', (n) => n.filter((x) => /—/.test(x.textContent) || x.textContent.trim() === '').length), 0, 'no row shows a bare dash or nothing');
+  // فقط ردیف‌های تبِ «تنظیمات کلود»؛ صفحهٔ «ابزارها» هم .crtl-tz-note دارد و
+  // بدونِ tik_ha.json خالی می‌ماند، که ربطی به این سنجه ندارد.
+  assert.equal(await pg.$$eval('.crtl-tz-row .crtl-tz-note', (n) => n.filter((x) => /—/.test(x.textContent) || x.textContent.trim() === '').length), 0, 'no row shows a bare dash or nothing');
   // a default only the engine's code shows says which version it was checked on
-  const NOSKHE = J(path.join(path.dirname(process.env.CRTL_SCHEMA), 'package.json')).version, MANI_TH = 'یعنی خلاصهٔ فکر مدل نشان داده نمی‌شود';
-  const naTaze = NOSKHE === '2.1.318' ? '' : '؛ این نسخه سنجیده نشده';
-  assert.equal(await row('showThinkingSummaries').locator('.crtl-tz-note').textContent(), 'الان: خاموش (پیش‌فرض نسخهٔ 2.1.318' + naTaze + ')؛ ' + MANI_TH);
+  const NOSKHE = J(path.join(path.dirname(process.env.CRTL_SCHEMA), 'package.json')).version, MANI_TH = 'یعنی خلاصهٔ fekr مدل نشان داده نمی‌شود';
+  // عدد از خودِ کد خوانده می‌شود، نه نوشته‌شده در تست (حبیب، ۱۷ نوامبر ۰۵:۳۷:
+  // «هارد کد جایی اصلاً نباید باشه»).
+  const TZ_PISH = (fs.readFileSync(UI, 'utf8').match(/TZ_NOSKHE_PISH\s*=\s*'([^']+)'/) || [])[1];
+  assert.ok(TZ_PISH, 'TZ_NOSKHE_PISH در کد پیدا شد');
+  const naTaze = NOSKHE === TZ_PISH ? '' : '؛ این نسخه سنجیده نشده';
+  assert.equal(await row('showThinkingSummaries').locator('.crtl-tz-note').textContent(), 'الان: خاموش (پیش‌فرض نسخهٔ ' + TZ_PISH + naTaze + ')؛ ' + MANI_TH);
   const tazeKon = async () => { await pg.getByRole('tab', { name: 'فونت' }).click(); await pg.getByRole('tab', { name: 'تنظیمات کلود' }).click(); };
   const MOHR = path.join(home, '.claude', 'crtl_pish_sanjide.json');
   fs.writeFileSync(MOHR, JSON.stringify({ noskhe: '2.1.300' }));
@@ -867,7 +882,7 @@ async function panelInBrowser() {
   await pg.waitForFunction(() => /این چت وصل است · آخرین ثبت: روشن از چت/.test(document.querySelector('.crtl-tz-row[data-k="claudeInChromeDefaultEnabled"] .crtl-tz-note').textContent));
   assert.equal(await ckRow.locator('.crtl-tz-note').textContent(), 'الان: سراسری خاموش · این چت وصل است · آخرین ثبت: روشن از چت؛ یعنی مرورگر فقط با @browser یا کلید همین چت وصل می‌شود', 'the switch stays off, this chat is on');
   // search
-  const search = pg.locator('.crtl-tz-search');
+  const search = pg.locator('#crtl-page-claude .crtl-tz-search');
   for (const w of ['browser', 'برازر', 'مرورگر', 'chrome']) {
     await search.fill(w);
     assert.ok((await pg.$$eval('.crtl-tz-row', (r) => r.filter((x) => x.offsetParent).map((x) => x.dataset.k))).includes('claudeInChromeDefaultEnabled'), 'found by ' + w);

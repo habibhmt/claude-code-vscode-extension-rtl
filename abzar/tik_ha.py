@@ -399,6 +399,19 @@ def exec_chat(cwd, argv):
     return [argv[0]] + args
 
 
+def ultracode_dar_args(args):
+    """آیا همین اجرا در --settings خودش ultracode:true دارد؟ (برای وقتی انبار خوانده نمی‌شود)"""
+    for i, a in enumerate(args):
+        if a == "--settings" and i + 1 < len(args):
+            try:
+                v = json.loads(args[i + 1])
+            except ValueError:
+                continue
+            if isinstance(v, dict) and v.get("ultracode") is True:
+                return True
+    return False
+
+
 def main(argv):
     if not argv:
         print(__doc__)
@@ -410,7 +423,10 @@ def main(argv):
             nv = exec_chat(rest[0], rest[1:])
         except Exception as e:
             print("tik_ha: %s ⇒ قفلِ قدیمی" % e, file=sys.stderr)
-            nv = rest[1:] + ["--disallowedTools", "Agent,Workflow"]
+            # The lock stays even here, except when the launch itself asks for
+            # ultracode — that promise lives in the wrapper's header (Habib, 5 Nov:
+            # «اولتراکد که میشه ایجنت و ورک فلو») and must not depend on the store.
+            nv = rest[1:] + ([] if ultracode_dar_args(rest[1:]) else ["--disallowedTools", "Agent,Workflow"])
         os.execv(nv[0], nv)
     if cmd == "sabt":
         print(json.dumps(sabt(json.loads(sys.stdin.read() or "{}")), ensure_ascii=False))

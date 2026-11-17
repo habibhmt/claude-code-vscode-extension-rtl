@@ -368,6 +368,8 @@
         var m = PISH_RE[i].exec(String(desc || ''));
         if (!m) continue;
         var x = m[1];
+        // "Default: the system time zone" is prose, not a value — keep looking.
+        if (/^(the|a|an)$/i.test(x)) continue;
         if (x === 'true' || x === 'on') return true;
         if (x === 'false' || x === 'off') return false;
         return /^\d+(\.\d+)?$/.test(x) ? Number(x) : x;

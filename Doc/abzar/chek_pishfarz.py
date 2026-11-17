@@ -50,11 +50,13 @@ def pish_az_shema(desc):
 def dar_motor(bin_bytes, k, v):
     """The engine's minified code spells a default in a few ways; each is a literal search."""
     if v is True:
-        la = [k + '??!0', k + ':!0', k + '!==!1', k + '===!1', k + '!==void 0)return e.' + k + ';return!0', 'gi("' + k + '",!0)']
+        la = [k + '??!0', k + ':!0', k + '!==!1', k + '===!1', k + '!==void 0)return e.' + k + ';return!0',
+              '("' + k + '",!0)']   # Hi("key",!0) — the minifier's function name changes per build
     elif v is False:
-        la = [k + '??!1', k + ':!1', k + '===!0', k + ')===!0', 'gi("' + k + '",!1)']
+        la = [k + '??!1', k + ':!1', k + '===!0', k + ')===!0', '("' + k + '",!1)']
     else:
-        la = [k + ':"' + str(v) + '"', k + '??"' + str(v) + '"']
+        la = [k + ':"' + str(v) + '"', k + '??"' + str(v) + '"',
+              '["' + k + '"],restrictive:"' + str(v) + '"']   # the policy table's own value
     return any(x.encode() in bin_bytes for x in la)
 
 

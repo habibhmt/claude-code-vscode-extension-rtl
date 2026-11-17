@@ -14,6 +14,9 @@ const extDir = path.join(realHome, '.vscode/extensions');
 const ext = fs.readdirSync(extDir).filter((d) => /^anthropic\.claude-code-[\d.]+-/.test(d)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).pop();
 const EXT = path.join(extDir, ext);
 const SID1 = '11111111-2222-3333-4444-555555555555', SID2 = '99999999-2222-3333-4444-555555555555', SID3 = '33333333-2222-3333-4444-555555555555';
+// Two full model ids, read from the engine itself before any stage runs (no fixed id
+// anywhere — Habib, 17 Nov 05:37: «هارد کد جایی اصلاً نباید باشه»).
+let MODEL_A = 'test-model-a', MODEL_B = 'test-model-b';
 const home = fs.mkdtempSync(path.join(os.tmpdir(), 'tz-'));
 const CL = path.join(home, '.claude');
 fs.mkdirSync(CL);
@@ -91,7 +94,7 @@ assert.ok(H.sanjesh(schema.forceLoginOrgUUID, 'abc') && H.sanjesh(schema.forceLo
 
 // two fake chats in one window, one in each folder
 function fakeChat(sid, cwd, uc) {
-  const applied = { model: 'claude-opus-5-5', effort: 'medium', ultracode: !!uc, ultracodeRequested: !!uc };
+  const applied = { model: MODEL_A, effort: 'medium', ultracode: !!uc, ultracodeRequested: !!uc };
   const ch = { sessionId: sid, cwd, remoteControlState: { status: 'connected' }, calls: [], applied, query: {
     applyFlagSettings: async (s) => { ch.calls.push(s); if ('effortLevel' in s) applied.effort = s.effortLevel; if ('model' in s && s.model) applied.model = s.model; if ('ultracode' in s) applied.ultracodeRequested = !!s.ultracode; },
     getSettings: async () => ({ applied: { ...applied }, effective: { language: 'persian', env: { RAZ2: 'nabayad-bebini' } }, sources: [{ source: 'localSettings', settings: { language: 'persian', env: { RAZ2: 'nabayad-bebini' } } }] }),
@@ -101,9 +104,14 @@ function fakeChat(sid, cwd, uc) {
   return ch;
 }
 const owner = { channels: new Map(), toggles: [], async toggleRemoteControl(id, on) { this.toggles.push([id, on]); const c = this.channels.get(id); c.remoteControlState.status = on ? 'connected' : 'disconnected'; } };
-const c1 = fakeChat(SID1, P1), c2 = fakeChat(SID2, P2);
-owner.channels.set('ch1', c1); owner.channels.set('ch2', c2);
-H.SAHEB.add(owner);
+// The two fake chats are built once the real model ids are known, so they carry
+// the engine's own names and nothing here is a written-in id.
+let c1 = null, c2 = null;
+function chatsRab() {
+  c1 = fakeChat(SID1, P1); c2 = fakeChat(SID2, P2);
+  owner.channels.set('ch1', c1); owner.channels.set('ch2', c2);
+  H.SAHEB.add(owner);
+}
 const posted = [];
 H.SAFHE.add({ postMessage: (m) => { posted.push(m); } });
 const save = (o) => H.sabtTanzim({ channel: '', ...o });
@@ -128,7 +136,7 @@ async function hostLogic() {
   assert.equal(J(STORE).chat[SID1].effortLevel, undefined, 'the chat entry that lost is gone');
   // the file: the engine reads effort by model, and refuses max in a file (measured)
   assert.equal(J(USER).effortLevel, undefined, 'no top-level effort: the engine ignores it');
-  assert.equal(J(USER).modelSettings['claude-opus-5-5'].effortLevel, 'xhigh', 'max stays xhigh in the file');
+  assert.equal(J(USER).modelSettings[MODEL_A].effortLevel, 'xhigh', 'max stays xhigh in the file');
   assert.ok(r.matn.includes('xhigh'), 'and the popup says so');
   reset();
   r = await save({ sath: 'poshe', key: 'effortLevel', value: 'low', sid: SID1 });
@@ -184,12 +192,12 @@ async function hostLogic() {
     assert.equal(out, '300000', 'panjere_chat.py reads the compaction point');
   }
   // global: the per-model numbers that would beat it leave the file, the rest of the per-model entries stay
-  { const u = J(USER); u.modelSettings['claude-opus-5-5'].autoCompactWindow = 1000000; u.modelSettings['claude-haiku-5-5'] = { effortLevel: 'xhigh' }; fs.writeFileSync(USER, JSON.stringify(u)); }
+  { const u = J(USER); u.modelSettings[MODEL_A].autoCompactWindow = 1000000; u.modelSettings[MODEL_B] = { effortLevel: 'xhigh' }; fs.writeFileSync(USER, JSON.stringify(u)); }
   r = await save({ sath: 'sarasari', key: 'autoCompactWindow', value: '400000', sid: SID1 });
   assert.ok(r.ok, r.matn);
   assert.equal(J(USER).autoCompactWindow, 433000, 'the top-level number');
-  assert.equal(J(USER).modelSettings['claude-opus-5-5'].autoCompactWindow, undefined, 'the per-model one leaves');
-  assert.equal(J(USER).modelSettings['claude-haiku-5-5'].effortLevel, 'xhigh', 'the rest stays');
+  assert.equal(J(USER).modelSettings[MODEL_A].autoCompactWindow, undefined, 'the per-model one leaves');
+  assert.equal(J(USER).modelSettings[MODEL_B].effortLevel, 'xhigh', 'the rest stays');
   assert.equal(J(STORE).poshe[P1].autoCompactWindow, undefined, 'global is the newest: the project value goes');
 
   // ---- rows 11: ultracode, on the launch and live; effort never turns it off (measured: it does unless sent along)
@@ -554,11 +562,13 @@ function wrapper() {
 
 (async () => {
   const only = (process.env.TZ_ONLY || '').split(',').filter(Boolean), run = (n) => !only.length || only.includes(n);
+  const bin = path.join(EXT, 'resources/native-binary/claude');
+  [MODEL_A, MODEL_B] = await engineModels(bin);
+  chatsRab();
   if (run('host')) { await hostLogic(); console.log('tanzimat: host logic passed'); }
   if (run('patches')) { patches(); console.log('tanzimat: patches passed'); }
   if (run('wrapper')) { wrapper(); console.log('tanzimat: wrapper passed'); }
   // the real engine, given exactly what the launch would give it
-  const bin = path.join(EXT, 'resources/native-binary/claude');
   if (run('engine')) {
     if (!fs.existsSync(bin)) throw new Error('no engine at ' + bin);
     await realEngine(bin);
@@ -570,6 +580,29 @@ function wrapper() {
   process.exit(0);
 })().catch((e) => { console.error(e.stack || e.message); process.exit(1); });
 
+// The two full model ids the test needs come from the engine's own initialize
+// answer, not from a string written here.
+async function engineModels(bin) {
+  if (!fs.existsSync(bin)) return [MODEL_A, MODEL_B];
+  let e = null;
+  try {
+    e = startEngine(bin, P1, []);
+    const r = await e.req({ subtype: 'initialize' });
+    const ids = (r.response.models || []).map((m) => m && m.value).filter((v) => typeof v === 'string' && v);
+    // The full name (what the file keys per-model entries by) is the one the
+    // engine says it is running, not a short alias from the menu.
+    const g = await e.req({ subtype: 'get_settings' });
+    const full = g && g.response && g.response.applied && g.response.applied.model;
+    if (full && ids.length) return [full, ids.find((x) => x !== 'default') || ids[0]];
+    if (ids.length >= 2) return [ids[0], ids[1]];
+    if (ids.length === 1) return [ids[0], ids[0]];
+  } catch (err) {
+    console.error('engineModels: ' + (err && err.message ? err.message : err));
+  } finally {
+    if (e) { try { e.p.kill(); } catch (err) {} }
+  }
+  return [MODEL_A, MODEL_B];
+}
 function startEngine(bin, cwd, launchArgs) {
   const a = ['--print', '--input-format', 'stream-json', '--output-format', 'stream-json', '--verbose', '--tools', '', '--strict-mcp-config', '--no-session-persistence', '--setting-sources=user,project,local', ...launchArgs];
   const p = spawn(bin, a, { cwd, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, CLAUDE_CONFIG_DIR: CL, HOME: realHome } });
@@ -581,14 +614,14 @@ function startEngine(bin, cwd, launchArgs) {
 function launchArgs(c) {
   const a = [];
   if (c && c.effort) a.push('--effort=' + c.effort);
-  a.push('--model', c && c.model || 'claude-opus-5-5');
+  if (c && c.model) a.push('--model', c.model);   // no model chosen ⇒ no flag, as the launch does
   if (c && c.settings) a.push('--settings', JSON.stringify(c.settings));
   return a;
 }
 async function realEngine(bin) {
   const proj = fs.mkdtempSync(path.join(home, 'real-'));
   fs.rmSync(STORE, { force: true });
-  fs.writeFileSync(USER, JSON.stringify({ modelSettings: { 'claude-opus-5-5': { effortLevel: 'xhigh', autoCompactWindow: 1000000 } }, autoCompactWindow: 300000 }));
+  fs.writeFileSync(USER, JSON.stringify({ modelSettings: { [MODEL_A]: { effortLevel: 'xhigh', autoCompactWindow: 1000000 } }, autoCompactWindow: 300000 }));
   const SR = '77777777-2222-3333-4444-555555555555';
   const s = (o) => H.sabtTanzim({ sid: SR, cwd: proj, ...o });
   // this chat's own values: everything goes through the launch
@@ -665,7 +698,7 @@ const NODE_PATH = path.join(__dirname, 'node_modules');
 async function panelInBrowser() {
   const { chromium } = require('playwright');
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
-  fs.writeFileSync(USER, JSON.stringify({ modelSettings: { 'claude-opus-5-5': { effortLevel: 'xhigh' } } }));
+  fs.writeFileSync(USER, JSON.stringify({ modelSettings: { [MODEL_A]: { effortLevel: 'xhigh' } } }));
   fs.rmSync(STORE, { force: true });
   const cp = fakeChat(SID1, P1);
   const own = { channels: new Map([['chP', cp]]), toggles: [], async toggleRemoteControl() {}, chromeSettingFlipCount: 1,
@@ -715,7 +748,7 @@ async function panelInBrowser() {
   assert.equal(await row('autoCompactWindow').locator('.crtl-tz-note').textContent(), 'الان: کامپکت سر ۲۶۷ هزار (پیش‌فرض کلود)؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود', 'the compaction point from the engine');
   assert.ok(await row('model').locator('select option[value="sonnet"]').count() === 1, 'models from the engine');
   assert.equal(await row('model').locator('select option[value="default"]').count(), 0, 'no Default among them');
-  assert.ok(await row('model').locator('select option[value="claude-opus-5-5"]').count() === 1, 'the full names in the file too');
+  assert.ok(await row('model').locator(`select option[value="${MODEL_A}"]`).count() === 1, 'the full names in the file too');
   // no sideways scroll, nothing outside, at two widths
   const inside = () => pg.evaluate(() => {
     const p = document.getElementById('crtl-panel'), r = p.getBoundingClientRect();

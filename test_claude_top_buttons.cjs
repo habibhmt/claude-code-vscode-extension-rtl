@@ -27,6 +27,28 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
  try{
   const ctx=await browser.newContext({viewport:{width:900,height:600}});
   const p=await ctx.newPage();
+  // A stand-in for the extension host: the button list now lives in the shared
+  // settings store (aa_shared.json), not in localStorage, so the page needs a
+  // host that answers crtl-aa-read and keeps crtl-aa-save. Without it the real
+  // ~/.claude/aa_shared.json leaked into the test and the saved list went nowhere.
+  await p.addInitScript(()=>{
+   const KEY='__aa_shared', read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}};
+   window.__aa={values:read()};
+   const api=()=>({postMessage:m=>{
+    if(!m)return;
+    if(m.type==='crtl-aa-save'){
+     Object.assign(window.__aa.values,m.patch||{});
+     for(const k of m.unset||[])delete window.__aa.values[k];
+     localStorage.setItem(KEY,JSON.stringify(window.__aa.values));
+    }
+    if(m.type==='crtl-aa-read'){
+     const values=window.__aa.values;
+     setTimeout(()=>window.postMessage({type:'crtl-aa-state',ok:true,layers:{},values},'*'),0);
+    }
+   },getState:()=>({}),setState(){}});
+   api.__crtl=true;
+   window.acquireVsCodeApi=api;
+  });
   const open=async(o={})=>{
    await p.route('http://t.local/',r=>r.fulfill({contentType:'text/html',body:page(o.spacer!==false)}));
    await p.goto('http://t.local/');
@@ -95,9 +117,14 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await p.evaluate(()=>{const i=[...document.querySelectorAll('.crtl-cmd-label')].find(x=>x.value==='ناظر');i.value='ن۲';i.dispatchEvent(new Event('input'));
    [...document.querySelectorAll('#crtl-panel .crtl-btn')].find(b=>b.textContent==='ذخیرهٔ دکمه‌ها').click()});
   out.renamed=(await topLabels()).includes('ن۲'); assert.equal(out.renamed,true);
-  // (ح) rew is still a menu button after a form save
-  out.rewSaved=await p.evaluate(()=>JSON.parse(localStorage.getItem('crtl-sizes')).commands.find(c=>c.label==='rew'));
-  assert.equal(out.rewSaved.menu,'Rewind'); assert.equal(out.rewSaved.text,undefined);
+  // (ح) rew is still a menu button after a form save. Menu buttons stay in the
+  // local list and never travel to the shared store, so the proof is both: the
+  // renamed text button reached the store, and rew is still on the right column.
+  out.savedLabels=await p.evaluate(()=>(window.__aa.values.commands||[]).map(c=>c.label));
+  assert.ok(out.savedLabels.includes('ن۲'),'دکمهٔ تغییرنام‌یافته باید در انبارِ مشترک ذخیره شود: '+JSON.stringify(out.savedLabels));
+  assert.ok(!out.savedLabels.includes('rew'),'دکمهٔ منو نباید به انبارِ متنی برود');
+  out.rewAfter=await p.$$eval('.crtl-bar[data-side="right"] .crtl-btn',b=>b.map(x=>x.textContent));
+  assert.ok(out.rewAfter.includes('rew'),'دکمهٔ rew باید بعد از ذخیرهٔ فرم سرِ جایش بماند');
   out.formHasJson=await p.evaluate(()=>[...document.querySelectorAll('#crtl-panel textarea')].some(t=>t.value.trim().startsWith('[')));
   assert.equal(out.formHasJson,false);
   // (و) a list saved before this version still gets the 12, and a deleted one stays deleted
@@ -108,6 +135,7 @@ function page(spacer){return `<!doctype html><html dir="rtl"><body style="margin
   await p.evaluate(()=>[...document.querySelectorAll('#crtl-panel .crtl-btn')].find(b=>b.textContent==='ذخیرهٔ دکمه‌ها').click());
   const saved=await p.evaluate(()=>localStorage.getItem('crtl-sizes'));
   await p.reload(); await p.addScriptTag({content:script}); await p.waitForSelector('#crtl-panel',{state:'attached'});
+  await p.waitForTimeout(1300);   // the stand-in host answers crtl-aa-read on its one-second tick
   out.afterDelete=(await topLabels()).length; assert.equal(out.afterDelete,13);
   assert.ok(saved.includes('"seeded"'));
   // (ط) narrow panel: chat name and the three icons stay visible

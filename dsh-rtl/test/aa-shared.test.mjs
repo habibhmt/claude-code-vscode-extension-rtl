@@ -35,3 +35,18 @@ test('real Python tick adapter↔DSH: حافظه in folder, other folders and bu
  saveTik({home,sath:'poshe',cwd,changes:[{kind:'mcp',name:'hafeze',on:true},{kind:'abzar_dsh',name:'web_search',on:false}]});
  const a=python('print(json.dumps(t.anbar()))');assert.equal(a.poshe[cwd].mcp.hafeze,true);assert.equal(a.sarasari.abzar.Bash,true);assert.equal(a.poshe['/other'],undefined);
 });
+// حبیب ۱۷ نوامبر ۰۴:۳۰: «تنظیمات رو درست کن که خودم هر جا خواستم بگذارمشون» — پیش از این
+// «جا»ی هر دکمه هنگامِ ذخیرهٔ مشترک حذف می‌شد و همه بی‌صدا به ستونِ چپ می‌افتادند.
+test('جای دکمه (بالا/چپ/راست) در انبار مشترک می‌ماند',t=>{
+ const home=box(t),cwd=path.join(home,'work');fs.mkdirSync(cwd);
+ shared.save(home,'prefs','sarasari',cwd,'',{commands:[
+  {label:'بالایی',text:'متن',send:false,side:'top'},
+  {label:'راستی',text:'متن',send:true,side:'right'},
+  {label:'بی‌جا',text:'متن',send:false},
+  {label:'خراب',text:'متن',send:false,side:'چپ‌وراست'}
+ ]});
+ const by=Object.fromEntries(shared.view(home,'prefs',cwd,'').values.commands.map(c=>[c.label,c.side]));
+ assert.equal(by['بالایی'],'top');assert.equal(by['راستی'],'right');
+ assert.equal(by['بی‌جا'],undefined,'جای حدسی نباید به انبار اضافه شود');
+ assert.equal(by['خراب'],undefined,'مقدارِ ناشناخته باید رد شود');
+});

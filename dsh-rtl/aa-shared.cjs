@@ -9,7 +9,9 @@ function cleanPref(k,v) {
  if(ranges[k]){if(typeof v!=='number'||!Number.isFinite(v))throw Error('عدد نامعتبر');return Math.max(ranges[k][0],Math.min(ranges[k][1],Math.round(v)));}
  if(['tableScroll','counter','quoteMenu','aaTaze','buttons'].includes(k)){if(typeof v!=='boolean')throw Error('تیک نامعتبر');return v;}
  if(['accent','textColor'].includes(k)){if(typeof v!=='string'||(v!==''&&!/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(v)))throw Error('رنگ نامعتبر');return v;}
- if(k==='commands'){if(v===null)return null;if(!Array.isArray(v)||v.length>200)throw Error('فهرست نامعتبر');return v.filter(c=>c&&typeof c.label==='string'&&typeof c.text==='string'&&c.text.trim()).map(c=>({label:c.label.slice(0,24),text:c.text.slice(0,20000),send:c.send===true}));}
+ // «جا»ی هر دکمه (بالا/چپ/راست) هم ذخیره می‌شود؛ پیش از این حذف می‌شد و همهٔ
+ // دکمه‌ها بعد از یک‌بار ذخیرهٔ مشترک، بی‌صدا به ستونِ چپ می‌افتادند.
+ if(k==='commands'){if(v===null)return null;if(!Array.isArray(v)||v.length>200)throw Error('فهرست نامعتبر');return v.filter(c=>c&&typeof c.label==='string'&&typeof c.text==='string'&&c.text.trim()).map(c=>{const o={label:c.label.slice(0,24),text:c.text.slice(0,20000),send:c.send===true};if(c.side==='top'||c.side==='left'||c.side==='right')o.side=c.side;return o;});}
  if(k==='extras'){if(!Array.isArray(v)||v.length>200)throw Error('متن ویژه نامعتبر');return v.filter(c=>c&&typeof c.text==='string').map(c=>({text:c.text.slice(0,20000),on:c.on!==false,pos:c.pos==='start'?'start':'end',btn:c.btn===true}));}
  if(k==='profiles'){if(!v||typeof v!=='object'||Array.isArray(v)||JSON.stringify(v).length>200000)throw Error('پروفایل نامعتبر');return v;}
  return v;

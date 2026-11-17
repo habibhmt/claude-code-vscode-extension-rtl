@@ -158,14 +158,27 @@
   var AA_KEYS = ['lines','tableScroll','accent','textColor','lh','opacity','counter','quoteMenu','aaTaze','commands','extras','profiles'];
   function aaCanonical(s) {
     var out={}; AA_KEYS.forEach(function(k){out[k]=s[k];}); out.btnSize=s.btn;out.buttons=!s.hidden;
-    // Native-only menu actions and column locations stay local.
-    if(Array.isArray(out.commands)) out.commands=out.commands.filter(function(c){return c && c.text;}).map(function(c){return {label:c.label,text:c.text,send:c.send===true};});
+    // Native-only menu actions stay local, but the place the user picked for a
+    // button (بالا/چپ/راست) travels with it — dropping it here made every button
+    // come back from the shared store as «چپ» (Habib, 17 Nov 04:30).
+    if(Array.isArray(out.commands)) out.commands=out.commands.filter(function(c){return c && c.text;}).map(function(c){var o={label:c.label,text:c.text,send:c.send===true};if(c.side==='top'||c.side==='left'||c.side==='right')o.side=c.side;return o;});
     return out;
   }
   function aaOverlay(s) {
     Object.keys(AA.values).forEach(function(k){if(k==='btnSize')s.btn=AA.values[k];else if(k==='buttons')s.hidden=!AA.values[k];else if(k==='commands' && Array.isArray(AA.values[k])) {
       var native=(s.commands||DEFAULT_COMMANDS).filter(function(c){return c && c.menu;});
-      s.commands=native.concat(AA.values[k].map(function(c){return Object.assign({side:'left'},c);}));
+      // The shared store wins over the local list, but it only carries the place
+      // the user chose. A list saved before places were kept has no `side`; those
+      // entries take the place of the same label in the local list, and otherwise
+      // the header row — never a silent «چپ» (Habib, 17 Nov 04:30: «تنظیمات رو
+      // درست کن که خودم هر جا خواستم بگذارمشون»).
+      var ja_mahal={};
+      (s.commands||DEFAULT_COMMANDS).forEach(function(c){if(c && c.label)ja_mahal[c.label]=c.side;});
+      s.commands=native.concat(AA.values[k].map(function(c){
+        var o=Object.assign({},c);
+        if(o.side!=='top'&&o.side!=='left'&&o.side!=='right')o.side=ja_mahal[o.label]||'top';
+        return o;
+      }));
     } else if(AA_KEYS.indexOf(k)>=0)s[k]=AA.values[k];});return s;
   }
   function aaSend(type,extra) { try { var api=window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi():null; if(api)api.postMessage(Object.assign({type:type,sid:tik_sid(tik_session())||SESSION.sid||tik_kelid(tik_session())||SESSION.channel||'',scope:AA.scope},extra||{})); } catch(e) {} }
@@ -1514,9 +1527,11 @@
 
   /* ---------------- rendering ---------------- */
   function samt_dokme(cmd, s) {
+    // جای هر دکمه همان است که خودت برایش انتخاب کرده‌ای؛ تنظیمِ سراسریِ قدیمی
+    // («همه چپ/همه راست») دیگر روی رندر اثر ندارد — به‌جایش دکمه‌های «همه → چپ»
+    // جای همه را یک‌جا عوض می‌کنند (حبیب، ۱۷ نوامبر ۰۴:۳۷: «تکلیف این رو هم روشن کن»).
     if (cmd.side === 'top') return 'top';
-    if (s.side === 'left' || s.side === 'right') return s.side;
-    return cmd.side || 'right';
+    return cmd.side === 'left' ? 'left' : 'right';
   }
 
   // The empty stretch of the header between the chat name and its icons.
@@ -1902,18 +1917,22 @@
     lineSel.addEventListener('change', function () { set('lines', parseInt(lineSel.value, 10)); });
     panel.appendChild(sakht_radif('پیام خودت', lineSel));
 
-    // button placement
-    var sideSel = document.createElement('select');
-    [['هر دو طرف', 'both'], ['همه چپ', 'left'], ['همه راست', 'right']].forEach(function (o) {
-      var opt = document.createElement('option');
-      opt.textContent = o[0]; opt.value = o[1];
-      if (s.side === o[1]) opt.selected = true;
-      sideSel.appendChild(opt);
+    // جای دکمه‌ها: هر دکمه جای خودش را دارد (ستونِ «جا» در فهرستِ پایین). این سه
+    // دکمه فقط یک‌جا همه را جابه‌جا می‌کنند و همان لحظه ذخیره می‌شوند — دیگر هیچ
+    // تنظیمِ سراسری‌ای روی انتخابِ تک‌تکِ تو نمی‌پرد (حبیب، ۱۷ نوامبر ۰۴:۳۷).
+    var jayeHame = document.createElement('div');
+    jayeHame.className = 'crtl-actions';
+    [['همه → بالا', 'top'], ['همه → چپ', 'left'], ['همه → راست', 'right']].forEach(function (o) {
+      jayeHame.appendChild(sakht_dokme(o[0], 'جای همهٔ دکمه‌ها را «' + o[0].replace('همه → ', '') + '» کن', function () {
+        var cur = khandan_tanzim();
+        cur.commands = dokme_ha(cur).map(function (c) { return Object.assign({}, c, { side: o[1] }); });
+        cur.pos = {};            // جای کشیده‌شدهٔ ستون‌ها دیگر معنا ندارد
+        draftCommands = null;    // پنل از فهرستِ تازه ساخته شود
+        zakhire_tanzim(cur);
+        sakht_dobare();
+      }));
     });
-    sideSel.addEventListener('change', function () {
-      var cur = khandan_tanzim(); cur.side = sideSel.value; cur.pos = {}; zakhire_tanzim(cur); sakht_dobare();
-    });
-    panel.appendChild(sakht_radif('جای دکمه‌ها', sideSel));
+    panel.appendChild(sakht_radif('جای دکمه‌ها', jayeHame));
 
     // toggles
     var toggles = document.createElement('div');

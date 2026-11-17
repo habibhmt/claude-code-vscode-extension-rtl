@@ -138,7 +138,11 @@ export function normalizeCommand(c) {
   const label = String(c.label == null ? '' : c.label).trim().slice(0, 24)
   const text = typeof c.text === 'string' ? c.text : ''
   if (!label || !text.trim()) return null
-  return { label, text, send: c.send === true }
+  const out = { label, text, send: c.send === true }
+  // جای دکمه (بالا/چپ/راست) اگر آمده باشد، دست‌نخورده می‌ماند؛ همین فهرست
+  // با Claude Code مشترک است و بی این، «جا» هنگامِ ذخیره گم می‌شد.
+  if (c.side === 'top' || c.side === 'left' || c.side === 'right') out.side = c.side
+  return out
 }
 
 /** فهرستِ دکمه‌ها؛ فهرستِ خالی یا خراب ⇒ کپیِ فهرستِ پیش‌فرض. */

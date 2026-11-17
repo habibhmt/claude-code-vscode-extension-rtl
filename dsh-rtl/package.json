@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-rtl",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
   "description": "Right-to-left Persian typography and a three-level (global/project/chat) settings page for the DSH Web UI",
@@ -23,8 +23,11 @@
     "docs",
     "icon.svg",
     "plus-pure.js",
+    "tik-pure.js",
     "settings-pure.js",
-    "tools"
+    "tools",
+    "aa-shared.cjs",
+    "tool-help.cjs"
   ],
   "dsh": {
     "bundle": {

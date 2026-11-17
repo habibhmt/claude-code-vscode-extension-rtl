@@ -140,6 +140,8 @@
         delete p.effortLevel;
         if (typeof p.model === 'string' && p.model) out.model = p.model;
         delete p.model;
+        // a new chat restarted by the «ابزارها» tab: its own ticks go by name to claude_abzar_kam.sh, which takes the name out
+        try { var kt = tikBarayeLaunch(resume, cwd); if (kt) p[TIK_NESHANE] = kt; } catch (e) {}
         if (Object.keys(p).length) out.settings = p;
         return out;
       } catch (e) { return null; }
@@ -276,7 +278,13 @@
     globalThis.__crtl_kanal_taze = function (o, id, ch) {
       try {
         SAHEB.add(o);
+        globalThis.__crtlHistoryWatchChannel?.(o, id, ch);
         var a = anbarKhan(), sid = ch.sessionId || '', cwd = ch.cwd || '';
+        if (TIK_AKHAR && Date.now() < TIK_AKHAR.ta && !SID_RE.test(String(sid))) {
+          ch.__crtlTik = TIK_AKHAR.kelid;
+          TIK_AKHAR = null;
+          tikBeSid(o, id, ch, ch.__crtlTik);
+        }
         ch.__crtlZende = parchamha(a, sid, cwd);
         var w = barande(a, sid, cwd, 'remoteControlAtStartup');
         ch.__crtlRemote = w ? JSON.stringify(w.v) : '';
@@ -629,7 +637,106 @@
       });
     }
 
-    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { pishAzShema: pishAzShema, ref: ref, card: card, sessionRecord: sessionRecord, vaghtEffortGhadimi: vaghtEffortGhadimi, anbarKhan: anbarKhan, barande: barande, parchamha: parchamha, radifha: radifha, sanjesh: sanjesh, khamBeMaghdar: khamBeMaghdar, sabtTanzim: sabtTanzim, fehrestTanzim: fehrestTanzim, pushHame: pushHame, SAHEB: SAHEB, SAFHE: SAFHE, tanzimRemoteSabr: function (ms) { REMOTE_ON_SABR = ms; } }; return; }
+    /* ---------------- the «ابزارها» tab (Habib, 16 Nov 2026) ---------------- */
+    // «توی Aa ... برای ام سی پی و پلاگین و اسکیل و ابزارهای خود اپ»; three levels «این چت-این پوشه -سراسری»; only a new
+    // chat changes. The list and its rules live in abzar/tik_ha.py (one list for VS Code, terminal, WezTerm and DSH);
+    // here: ask it, and carry a new chat's own ticks to its launch. The launch itself goes through
+    // ~/.claude/claude_abzar_kam.sh, which calls the same file with the chat's name taken out of --settings.
+    var TIK_PY = process.env.CRTL_TIK_PY || '/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/abzar/tik_ha.py';
+    var TIK_NESHANE = '__crtl_tik_chat';
+    var TIK_BADI = null;    // {kelid, cwd, ta}: the page restarts its new chat; the next fresh launch in cwd is that chat
+    var TIK_AKHAR = null;   // {kelid, ta}: the launch that just took a chat's ticks, for its channel when it is born
+    function tikPy(args, voroodi) {
+      return new Promise(function (ok, rad) {
+        var cp = require('child_process');
+        var p = cp.execFile('python3', [TIK_PY].concat(args), { timeout: 8000, maxBuffer: 4 << 20 }, function (e, out, stderr) {
+          if (e) {
+            var reason = String(stderr || '').trim().split(/\r?\n/).pop();
+            return rad(new Error(reason ? reason.slice(0, 220) : 'اجرای ابزار تیک‌ها ناموفق بود'));
+          }
+          try { ok(JSON.parse(out)); } catch (x) { rad(x); }
+        });
+        if (voroodi !== undefined) { p.stdin.write(JSON.stringify(voroodi)); }
+        p.stdin.end();
+      });
+    }
+    function tikCwd(m) {
+      var yaft = kanalBaraye(SID_RE.test(String(m.sid || '')) ? m.sid : '', m.channel), ch = yaft && yaft.ch;
+      var c = (typeof m.cwd === 'string' && m.cwd) || (ch && ch.cwd) || sessionRecord(String(m.sid || '')).cwd || poshePishfarzTik();
+      return c ? path.resolve(c) : '';
+    }
+    function poshePishfarzTik() {
+      try { var f = require('vscode').workspace.workspaceFolders; return f && f[0] ? f[0].uri.fsPath : ''; } catch (e) { return ''; }
+    }
+    function tikKelid(m) {
+      var k = String(m.kelid || '');
+      return SID_RE.test(k) || /^kanal-[a-z0-9]{6,20}$/.test(k) ? k : '';
+    }
+    function tikFehrest(m) {
+      var cwd = tikCwd(m), kelid = tikKelid(m);
+      return tikPy(['fehrest', cwd].concat(kelid ? ['--chat', kelid] : []).concat(m.sid ? ['--scope-chat', String(m.sid)] : []).concat(m.sath ? ['--view-scope', m.sath] : [])).then(function (r) {
+        try {
+          var help = require(path.join(path.dirname(TIK_PY), '..', 'dsh-rtl', 'tool-help.cjs'));
+          r.scopeSessionId = String(m.sid || kelid || '');
+          r = help.enrichClaude(r);
+        } catch (e) { /* list remains available if help metadata is missing */ }
+        return Object.assign({ type: 'crtl-tik-list', reqId: m.reqId, kelid: kelid }, r);
+      });
+    }
+    function tikSabt(m) {
+      var cwd = tikCwd(m), kelid = tikKelid(m);
+      return tikPy(['sabt'], { sath: m.sath, cwd: cwd, chat: kelid, taghir: Array.isArray(m.taghir) ? m.taghir : [] }).then(function (r) {
+        logKhat('tik ' + m.sath + ' ' + (r.ok ? 'ok' : 'na') + ' ' + (m.taghir || []).map(function (t) { return t.kind + ':' + t.name + '=' + t.on; }).join(' ') + ' ' + cwd + (kelid ? ' ' + kelid : ''));
+        return r;
+      });
+    }
+    // the page is about to restart its new chat (no message yet): the next fresh launch in that folder takes its ticks
+    function tikBadi(m) {
+      var cwd = tikCwd(m), kelid = tikKelid(m);
+      TIK_BADI = cwd ? { kelid: kelid, cwd: cwd, ta: Date.now() + 15000 } : null;
+      return { ok: !!cwd };
+    }
+    function tikBarayeLaunch(resume, cwd) {
+      var b = TIK_BADI;
+      if (!b || resume || Date.now() > b.ta || path.resolve(cwd || '') !== b.cwd) return '';
+      TIK_BADI = null;
+      if (b.kelid) TIK_AKHAR = { kelid: b.kelid, ta: Date.now() + 20000 };
+      return b.kelid;
+    }
+    // a new chat's own ticks belong to its id from its first message, so a reload or `claude --resume <id>` keeps them
+    function tikBeSid(o, id, ch, kelid) {
+      var n = 0, tick = setInterval(function () {
+        try {
+          var sid = String(ch.sessionId || '');
+          if (SID_RE.test(sid)) {
+            clearInterval(tick);
+            tikPy(['chat-be-sid', kelid, sid]).then(function (r) { logKhat('tik chat ' + kelid + ' => ' + sid + ' ' + (r.ok ? 'ok' : 'na')); }, function () {});
+          } else if (++n > 1800 || o.channels.get(id) !== ch) clearInterval(tick);
+        } catch (e) { clearInterval(tick); }
+      }, 2000);
+      if (tick.unref) tick.unref();
+    }
+    // what the engine offers, from each chat's first message: a tool ticked off still shows in the list
+    var TIK_DIDE_TA = 0;
+    globalThis.__crtl_tik_dide = function (m) {
+      try {
+        if (!m || m.type !== 'system' || m.subtype !== 'init' || Date.now() < TIK_DIDE_TA) return;
+        TIK_DIDE_TA = Date.now() + 60000;
+        var f = process.env.TIK_HA_DIDE || path.join(HOME, 'tik_ha_dide.json'), d = jsonKhan(f), taze = false;
+        function afzoodan(k, list) {
+          var s = Array.isArray(d[k]) ? d[k] : [];
+          list.forEach(function (x) { if (typeof x === 'string' && x && s.indexOf(x) === -1) { s.push(x); taze = true; } });
+          d[k] = s;
+        }
+        afzoodan('abzar', (m.tools || []).filter(function (t) { return typeof t === 'string' && t.indexOf('mcp__') !== 0; }));
+        afzoodan('mcp', (m.mcp_servers || []).map(function (x) { return x && x.name; }));
+        afzoodan('afzune', (m.plugins || []).map(function (x) { return x && x.source; }));
+        afzoodan('eskil', m.skills || []);
+        if (taze) atomi(f, JSON.stringify(d, null, 1) + '\n');
+      } catch (e) {}
+    };
+
+    if (process.env.CRTL_HOST_TEST) { global.__crtlHost = { aaPrefs: aaPrefs, tikFehrest: tikFehrest, tikSabt: tikSabt, tikBadi: tikBadi, tikBarayeLaunch: tikBarayeLaunch, pishAzShema: pishAzShema, ref: ref, card: card, sessionRecord: sessionRecord, vaghtEffortGhadimi: vaghtEffortGhadimi, anbarKhan: anbarKhan, barande: barande, parchamha: parchamha, radifha: radifha, sanjesh: sanjesh, khamBeMaghdar: khamBeMaghdar, sabtTanzim: sabtTanzim, fehrestTanzim: fehrestTanzim, pushHame: pushHame, SAHEB: SAHEB, SAFHE: SAFHE, tanzimRemoteSabr: function (ms) { REMOTE_ON_SABR = ms; } }; return; }
     try { vaghtEffortGhadimi(); } catch (e) {}
     var vscode = require('vscode');
     function poshePishfarz() {
@@ -698,11 +805,31 @@
       fullTitle(f, function (full) { CACHE[key] = full; cb(full, false); });
     }
 
+    function aaPrefs(m, cwd) {
+      var helper = require(process.env.CRTL_AA_MODULE || '/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/dsh-rtl/aa-shared.cjs');
+      if (!path.isAbsolute(cwd || '')) throw Error('پوشه معلوم نیست');
+      return m.type === 'crtl-aa-save' ? helper.save(os.homedir(), 'prefs', m.scope, cwd, m.sid || '', m.patch, m.unset || []) : helper.view(os.homedir(), 'prefs', cwd, m.sid || '');
+    }
     function wire(webview) {
       if (!webview || webview.__crtlHost) return;
       webview.__crtlHost = true;
       SAFHE.add(webview);
       webview.onDidReceiveMessage(function (m) {
+        if (m && (m.type === 'crtl-aa-read' || m.type === 'crtl-aa-save')) {
+          try { webview.postMessage(Object.assign({type:'crtl-aa-state', ok:true}, aaPrefs(m,poshePishfarz()))); }
+          catch(e) { webview.postMessage({type:'crtl-aa-state',ok:false,error:String(e.message)}); }
+          return;
+        }
+
+        if (m && (m.type === 'crtl-tik-list' || m.type === 'crtl-tik-sabt' || m.type === 'crtl-tik-badi')) {
+          var kar = m.type === 'crtl-tik-list' ? tikFehrest(m) : m.type === 'crtl-tik-sabt' ? tikSabt(m) : Promise.resolve(tikBadi(m));
+          kar.then(function (r) {
+            webview.postMessage(Object.assign({}, r, { type: m.type, reqId: m.reqId }));
+          }, function (e) {
+            webview.postMessage({ type: m.type, reqId: m.reqId, ok: false, khata: String(e && e.message || e) });
+          });
+          return;
+        }
         if (m && m.type === 'crtl-tanzimat-list') {
           Promise.resolve().then(function () { return fehrestTanzim(Object.assign({}, m, { cwd: poshePishfarz() })); }).then(function (r) { webview.postMessage(r); }, function (e) {
             webview.postMessage({ type: 'crtl-tanzimat-list', reqId: m.reqId, khata: String(e && e.message || e) });
@@ -844,6 +971,7 @@
   }
   globalThis.__crtl_khat_hook = function (m, now) {
     try {
+      if (m && m.subtype === 'init' && globalThis.__crtl_tik_dide) globalThis.__crtl_tik_dide(m);   // the «ابزارها» list
       if (!m || m.type !== 'system' || m.subtype !== 'hook_response') return m;
       var r = khana_baraye_habib(m.output || m.stdout);
       if (!r) return m;
@@ -1130,3 +1258,15 @@
   } catch (e) {}
 })();
 /* === /CLAUDE-RTL-HOST-HOOK === */
+
+/* === DSH-CLAUDE-HISTORY-HOST-V1 === */
+// Independent of Aa: observe only the transcript registered by this webview.
+try {
+  if (!process.env.CRTL_HOST_TEST) {
+    var historyHost = require('/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/dsh-claude-yeki/history-host.cjs');
+    globalThis.__crtlHistoryLaunch = historyHost.launch;
+    globalThis.__crtlHistoryWatchChannel = historyHost.watchToolChannel;
+    historyHost.install(require('vscode'));
+  }
+} catch (error) { console.warn('DSH history host unavailable:', String(error.message)); }
+/* === /DSH-CLAUDE-HISTORY-HOST-V1 === */

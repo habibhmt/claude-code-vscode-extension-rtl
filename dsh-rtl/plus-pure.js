@@ -104,6 +104,7 @@ export const PLUS_DEFAULTS = {
   noJump: true,       // با فرستادن، صفحه به پایین نپرد (اگر بالاتر را می‌خواندی)
   quoteMenu: true,    // کلیکِ راست روی متنِ انتخاب‌شده ⇒ منوی نقل‌قول
   counter: true,      // شمارندهٔ نویسه‌های کادرِ نوشتن
+  aaTaze: true,       // در چتِ تازه، aA خودش روی تبِ «ابزارها» باز شود (حبیب، ۱۶ نوامبر)
   commands: null,     // null = DEFAULT_COMMANDS
   extras: [],         // متن‌های ویژه: [{ text, on, pos: 'start'|'end', btn }]
   profiles: {},       // { نام: تنظیمات }

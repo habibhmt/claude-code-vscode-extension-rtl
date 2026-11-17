@@ -44,6 +44,18 @@
       if (d.sid === SESSION.sid && window.__crtl_tarjome_resid) window.__crtl_tarjome_resid(d);
       return;
     }
+    if(d.type==='crtl-aa-state') {
+      if(!d.ok){AA.error=d.error;return;}
+      var stamp=JSON.stringify(d.values||{});AA.values=d.values||{};AA.layers=d.layers||{};AA.ready=true;
+      if (stamp !== AA.stamp) {
+        AA.stamp = stamp;
+        // An early host reply can arrive before Claude mounts its composer.
+        // Only the initial mount installs the styles and event handlers.
+        if (document.getElementById('crtl-panel')) sakht_dobare();
+        else sakht_hame();
+      }
+      return;
+    }
     if (d.type === 'crtl-navar') { if (window.__crtl_navar_resid) window.__crtl_navar_resid(d); return; }
     if (d.type === 'crtl-tanzimat-list') { if (d.reqId === TZ.lastList) tz_resid(d); return; }
     if (d.type === 'crtl-tanzimat-sabt') {
@@ -52,6 +64,12 @@
       return;
     }
     if (d.type === 'crtl-tanzimat-taze') { tz_taze_shod(d.channelId); return; }
+    if (d.type === 'crtl-tik-list') { if (d.reqId === TIK.last) tik_resid(d); return; }
+    if (d.type === 'crtl-tik-sabt' || d.type === 'crtl-tik-badi') {
+      var tikCb = TZ.waiting['tik' + d.reqId];
+      if (tikCb) { delete TZ.waiting['tik' + d.reqId]; tikCb(d); }
+      return;
+    }
     if (d.type === 'crtl-session-info') {
       if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; neshan_shenase_chat(); }
       return;
@@ -136,6 +154,21 @@
   ];
 
   /* ---------------- settings ---------------- */
+  var AA = {started:Date.now(),scope:'poshe',values:{},layers:{},stamp:'',ready:false};
+  var AA_KEYS = ['lines','tableScroll','accent','textColor','lh','opacity','counter','quoteMenu','aaTaze','commands','extras','profiles'];
+  function aaCanonical(s) {
+    var out={}; AA_KEYS.forEach(function(k){out[k]=s[k];}); out.btnSize=s.btn;out.buttons=!s.hidden;
+    // Native-only menu actions and column locations stay local.
+    if(Array.isArray(out.commands)) out.commands=out.commands.filter(function(c){return c && c.text;}).map(function(c){return {label:c.label,text:c.text,send:c.send===true};});
+    return out;
+  }
+  function aaOverlay(s) {
+    Object.keys(AA.values).forEach(function(k){if(k==='btnSize')s.btn=AA.values[k];else if(k==='buttons')s.hidden=!AA.values[k];else if(k==='commands' && Array.isArray(AA.values[k])) {
+      var native=(s.commands||DEFAULT_COMMANDS).filter(function(c){return c && c.menu;});
+      s.commands=native.concat(AA.values[k].map(function(c){return Object.assign({side:'left'},c);}));
+    } else if(AA_KEYS.indexOf(k)>=0)s[k]=AA.values[k];});return s;
+  }
+  function aaSend(type,extra) { try { var api=window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi():null; if(api)api.postMessage(Object.assign({type:type,sid:tik_sid(tik_session())||SESSION.sid||tik_kelid(tik_session())||SESSION.channel||'',scope:AA.scope},extra||{})); } catch(e) {} }
   var KEY = 'crtl-sizes';
   var DEF = {
     chat: 15, code: 12, chrome: 10, btn: 10,
@@ -156,6 +189,7 @@
     opacity: 65,       // resting opacity of the buttons, in percent
     profiles: {},      // { name: settings snapshot }
     counter: true,     // show the composer character counter
+    aaTaze: true,      // a new chat opens Aa on «ابزارها» by itself (Habib, 16 Nov); same key name as DSH
     quoteMenu: true,   // right-click a selection to quote it into the composer
     // ready texts glued on by "copy with extra text": [{ text, on, pos, btn }]
     // on = ticked · pos = 'start' | 'end' · btn = also on the copy button
@@ -219,7 +253,7 @@
       s.extraText = '';
     }
     gozashtan_dokme_pishfarz_bala(s);
-    return s;
+    return aaOverlay(s);
   }
   // A list saved before the top row existed never reads DEFAULT_COMMANDS
   // again, so each default top button is appended to it once. `seeded`
@@ -246,7 +280,18 @@
   function esm_profile_moshtarak() {
     return (DEF.profiles && typeof DEF.profiles === 'object') ? Object.keys(DEF.profiles) : [];
   }
-  function zakhire_tanzim(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
+  function zakhire_tanzim(s) {
+    var before=aaCanonical(khandan_tanzim()), after=aaCanonical(s), patch={};
+    Object.keys(after).forEach(function(k){if(JSON.stringify(before[k])!==JSON.stringify(after[k]))patch[k]=after[k];});
+    try {
+      var native=JSON.parse(localStorage.getItem(KEY)||'{}');
+      Object.keys(s).forEach(function(k){if(AA_KEYS.indexOf(k)<0 && k!=='btn' && k!=='hidden')native[k]=s[k];});
+      localStorage.setItem(KEY,JSON.stringify(native));
+    } catch(e) {}
+    Object.assign(AA.values,patch);
+    if(Object.keys(patch).length) aaSend('crtl-aa-save',{patch:patch});
+  }
+  setInterval(function(){aaSend('crtl-aa-read');},1000);
   function dokme_ha(s) {
     if (Array.isArray(s.commands) && s.commands.length) return s.commands;
     return DEFAULT_COMMANDS;
@@ -384,6 +429,22 @@
     'html.crtl-tab-claude.crtl-panel-left [class*="chatContainer_"]>[class*="inputContainer_"]{margin-left:580px!important;margin-right:8px!important}',
     'html.crtl-tab-claude.crtl-panel-right [class*="chatContainer_"]>[class*="inputContainer_"]{margin-right:580px!important;margin-left:8px!important}}',
     '#crtl-page-claude{flex-direction:column;gap:4px;min-width:0}',
+    /* the «ابزارها» tab */
+    '.crtl-tik-sath{display:flex;gap:4px}',
+    '.crtl-tik-sath button,.crtl-tik-dokme{flex:1;padding:2px 6px;background:rgba(127,127,127,.12);border:1px solid rgba(127,127,127,.3);border-radius:4px;color:inherit;font:inherit;cursor:pointer}',
+    '.crtl-tik-dokme{flex:none}',
+    '.crtl-tik-dokme:disabled{opacity:.45;cursor:default}',
+    '.crtl-tik-sath button[aria-selected="true"],.crtl-tik-dokme:not(:disabled){background:var(--vscode-button-background,#0a84ff);color:var(--vscode-button-foreground,#fff);border-color:transparent}',
+    '.crtl-tik-head{margin-top:8px;font-weight:600}',
+    '.crtl-tik-row{display:grid;grid-template-columns:16px minmax(70px,1fr) minmax(110px,2fr) minmax(42px,.6fr);align-items:start;gap:6px;padding:2px 0;border-bottom:1px solid rgba(127,127,127,.15);cursor:pointer;min-width:0}',
+    '.crtl-tik-row input{margin:0;flex:none}',
+    '.crtl-tik-row .crtl-tik-esm{white-space:normal;overflow:visible;overflow-wrap:anywhere;min-width:0}',
+    '.crtl-tik-usage{min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.8;direction:rtl;text-align:right}',
+    '.crtl-tik-row .crtl-tik-az{white-space:normal;overflow-wrap:anywhere}',
+    '@media(max-width:420px){.crtl-tik-row{grid-template-columns:16px minmax(60px,1fr) minmax(100px,1.6fr)}.crtl-tik-row .crtl-tik-az{grid-column:2 / 4;font-size:10px}}',
+    '.crtl-tik-esm{flex:1;min-width:0;direction:ltr;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
+    '.crtl-tik-az{flex:none;opacity:.5;font-size:10px}',
+    '.crtl-tik-avaz{background:rgba(255,200,0,.14)}',
     '.crtl-tz-head-baz{cursor:pointer}' +
     '.crtl-tz-head-baz .crtl-tz-fa::after{content:" ؟";opacity:.55}' +
     '.crtl-tz-tozih{font-size:.92em;line-height:1.7;padding:6px 8px;margin:4px 0;background:rgba(127,127,127,.14);border-radius:6px;user-select:text;overflow-wrap:anywhere}' +
@@ -1385,7 +1446,7 @@
              lines: cur.lines, side: cur.side, collapse: cur.collapse,
              tableScroll: cur.tableScroll, accent: cur.accent,
              textColor: cur.textColor, lh: cur.lh,
-             opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu,
+             opacity: cur.opacity, counter: cur.counter, quoteMenu: cur.quoteMenu, aaTaze: cur.aaTaze,
              extras: cur.extras,
              profiles: cur.profiles, commands: cur.commands };
   }
@@ -1712,6 +1773,12 @@
     // the find bar borrows the .crtl-panel look, so the settings panel is
     // addressed by id — a class lookup could hand back the wrong element
     panel.id = 'crtl-panel';
+    var scopeSelect=document.createElement('select');scopeSelect.className='crtl-aa-scope';
+    [['chat','این چت'],['poshe','این پوشه'],['sarasari','سراسری']].forEach(function(pair){var op=document.createElement('option');op.value=pair[0];op.textContent=pair[1];scopeSelect.appendChild(op);});
+    scopeSelect.value=AA.scope;scopeSelect.onchange=function(){AA.scope=scopeSelect.value;};panel.appendChild(scopeSelect);
+    var inherited=document.createElement('span');inherited.textContent=' مشترک با DSH · چت ← پوشه ← سراسری';panel.appendChild(inherited);
+    var inheritButton=document.createElement('button');inheritButton.textContent='برگشت به مقدار بالاتر';inheritButton.onclick=function(){aaSend('crtl-aa-save',{patch:{},unset:Object.keys(AA.layers[AA.scope==='sarasari'?'global':AA.scope==='poshe'?'project':'chat']||{})});};panel.appendChild(inheritButton);
+
     panel.dataset.side = s.side === 'left' ? 'right' : 'left';
 
     var note = document.createElement('div');
@@ -1952,6 +2019,7 @@
       'شمارندهٔ نویسه و مصرف کانتکست', function () {
         var cur = khandan_tanzim(); cur.counter = !cur.counter; zakhire_tanzim(cur); sakht_dobare();
       }));
+    tools.appendChild(sakht_dokme(s.aaTaze ? 'Aa در چت تازه: روشن' : 'Aa در چت تازه: خاموش', 'خودبازشدن تب ابزارها پیش از پیام اول', function(){var cur=khandan_tanzim();cur.aaTaze=!cur.aaTaze;zakhire_tanzim(cur);sakht_dobare();}));
     panel.appendChild(tools);
 
     // ready texts for "copy with extra text". Only this box is rebuilt on a
@@ -2224,7 +2292,9 @@
     strip.className = 'crtl-tabs';
     strip.setAttribute('role', 'tablist');
     var dokme = {};
-    [['font', 'فونت'], ['claude', 'تنظیمات کلود']].forEach(function (f) {
+    var tikPage = document.createElement('div');
+    tikPage.id = 'crtl-page-tik';
+    [['font', 'فونت'], ['abzar', 'ابزارها'], ['claude', 'تنظیمات کلود']].forEach(function (f) {
       var b = document.createElement('button');
       b.type = 'button';
       b.textContent = f[1];
@@ -2235,22 +2305,266 @@
       strip.appendChild(b);
     });
     function neshan() {
-      var ro = TZ.tab === 'claude';
-      fontPage.style.display = ro ? 'none' : 'flex';
-      claudePage.style.display = ro ? 'flex' : 'none';
-      dokme.font.setAttribute('aria-selected', ro ? 'false' : 'true');
-      dokme.claude.setAttribute('aria-selected', ro ? 'true' : 'false');
-      panel.classList.toggle('crtl-panel-pahn', ro);
-      document.documentElement.classList.toggle('crtl-tab-claude', ro);
-      if (ro) tz_porsidan();
+      var tab = TZ.tab === 'claude' || TZ.tab === 'abzar' ? TZ.tab : 'font', pahn = tab !== 'font';
+      fontPage.style.display = tab === 'font' ? 'flex' : 'none';
+      tikPage.style.display = tab === 'abzar' ? 'flex' : 'none';
+      claudePage.style.display = tab === 'claude' ? 'flex' : 'none';
+      Object.keys(dokme).forEach(function (k) { dokme[k].setAttribute('aria-selected', k === tab ? 'true' : 'false'); });
+      panel.classList.toggle('crtl-panel-pahn', pahn);
+      document.documentElement.classList.toggle('crtl-tab-claude', pahn);
+      if (tab === 'claude') tz_porsidan();
+      if (tab === 'abzar') tik_porsidan();
     }
+    TZ.neshan = neshan;
     panel.appendChild(strip);
     panel.appendChild(fontPage);
+    panel.appendChild(tikPage);
     panel.appendChild(claudePage);
     TZ.rows = null;
+    tik_sakht_safhe(tikPage);
     tz_sakht_safhe(claudePage);
     neshan();
   }
+
+  /* ---------------- the «ابزارها» tab ---------------- */
+  // Habib, 16 Nov 2026: «توی Aa ... برای ام سی پی و پلاگین و اسکیل و ابزارهای خود اپ» — a tick for each, per new chat;
+  // levels «این چت-این پوشه -سراسری»; only a new chat changes; the tab opens by itself on every new chat; one list shared
+  // with the terminal, WezTerm and DSH (abzar/tik_ha.py). A save on a new chat restarts its engine before its first message,
+  // because a running engine keeps the tools and MCPs it started with (measured).
+  var TIK = { req: 0, last: 0, data: null, sath: 'poshe', taghir: {}, session: null, didam: null, khali: 0 };
+  var TIK_GOROOH = [['abzar', 'ابزارهای خودِ کلود'], ['mcp', 'MCP'], ['afzune', 'افزونه‌ها'], ['eskil', 'اسکیل‌ها']];
+  var TIK_ESM_SATH = { paye: 'پیش‌فرض', sarasari: 'سراسری', poshe: 'پوشه', chat: 'چت' };
+
+  // this page's chat: the session object whose engine channel the page last heard from, else the newest one
+  function tik_session() {
+    var ss = window.__crtl_sessions, arr = [];
+    if (!ss) return null;
+    ss.forEach(function (s) { arr.push(s); });
+    for (var i = arr.length - 1; i >= 0; i--) if (SESSION.channel && arr[i].claudeChannelId === SESSION.channel) return arr[i];
+    return arr.length ? arr[arr.length - 1] : null;
+  }
+  // «no conversation yet», not the app's isUnusedBlankChat: that one also says no while Remote Control is connected,
+  // and Habib's chats connect it at start (checked in 2.1.325)
+  function tik_taze_ast(s) {
+    try {
+      if (s && typeof s.holdsNoConversation === 'function') return !!s.holdsNoConversation();
+      return !!(s && typeof s.isUnusedBlankChat === 'function' && s.isUnusedBlankChat());
+    } catch (e) { return false; }
+  }
+  function tik_sid(s) {
+    var v = s && s.sessionId && s.sessionId.value;
+    return typeof v === 'string' && /^[0-9a-f-]{36}$/.test(v) ? v : '';
+  }
+  // a new chat has no id until its first message: its own ticks go under a name kept on its session object
+  function tik_kelid(s) {
+    var sid = tik_sid(s) || SESSION.sid;
+    if (sid && !tik_taze_ast(s)) return sid;
+    if (tik_sid(s)) return tik_sid(s);
+    if (!s) return '';
+    if (!s.__crtlTikKelid) s.__crtlTikKelid = 'kanal-' + Math.random().toString(36).slice(2, 12).replace(/[^a-z0-9]/g, 'x');
+    return s.__crtlTikKelid;
+  }
+  function tik_cwd(s) {
+    var v = s && s.cwd && s.cwd.value;
+    return typeof v === 'string' ? v : '';
+  }
+
+  function tik_sakht_safhe(page) {
+    page.style.cssText = 'display:none;flex-direction:column;gap:4px;min-width:0';
+    var sathBar = document.createElement('div');
+    sathBar.className = 'crtl-tik-sath';
+    [['chat', 'این چت'], ['poshe', 'این پوشه'], ['sarasari', 'سراسری']].forEach(function (f) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = f[1];
+      b.dataset.sath = f[0];
+      b.addEventListener('click', function () { TIK.sath = f[0]; tik_neshan_sath(); });
+      sathBar.appendChild(b);
+    });
+    page.appendChild(sathBar);
+    var hal = document.createElement('div');
+    hal.id = 'crtl-tik-hal';
+    hal.className = 'crtl-tz-note';
+    page.appendChild(hal);
+    var bar = document.createElement('div');
+    bar.className = 'crtl-tz-line';
+    var q = document.createElement('input');
+    q.type = 'text';
+    q.className = 'crtl-tz-search';
+    q.style.flex = '1';
+    q.placeholder = 'جست‌وجو در ابزارها…';
+    q.addEventListener('input', function () { tik_filter(q.value); });
+    bar.appendChild(q);
+    var sabt = document.createElement('button');
+    sabt.type = 'button';
+    sabt.id = 'crtl-tik-sabt';
+    sabt.className = 'crtl-tik-dokme';
+    sabt.addEventListener('click', tik_sabt_click);
+    bar.appendChild(sabt);
+    page.appendChild(bar);
+    var natije = document.createElement('div');
+    natije.id = 'crtl-tik-natije';
+    natije.className = 'crtl-tz-note';
+    page.appendChild(natije);
+    var list = document.createElement('div');
+    list.id = 'crtl-tik-list';
+    list.style.cssText = 'display:flex;flex-direction:column;min-width:0';
+    list.textContent = 'در حال خواندن فهرست…';
+    page.appendChild(list);
+    tik_neshan_sath();
+  }
+  function tik_neshan_sath() {
+    document.querySelectorAll('.crtl-tik-sath button').forEach(function (b) {
+      b.setAttribute('aria-selected', b.dataset.sath === TIK.sath ? 'true' : 'false');
+    });
+    tik_neshan_dokme();
+  }
+  function tik_neshan_dokme() {
+    var b = document.getElementById('crtl-tik-sabt');
+    if (!b) return;
+    var n = Object.keys(TIK.taghir).length;
+    b.disabled = !n;
+    b.textContent = n ? 'ثبت ' + tz_adad_fa(n) + ' تغییر در «' + { chat: 'این چت', poshe: 'این پوشه', sarasari: 'سراسری' }[TIK.sath] + '»' : 'ثبت';
+  }
+  function tik_filter(t) {
+    t = String(t || '').trim().toLowerCase();
+    document.querySelectorAll('#crtl-tik-list label.crtl-tik-row').forEach(function (r) {
+      r.style.display = !t || r.dataset.jost.indexOf(t) !== -1 ? '' : 'none';
+    });
+  }
+
+  function tik_porsidan() {
+    var api = api_safhe();
+    if (!api) return;
+    var s = tik_session();
+    TIK.session = s;
+    TIK.last = ++TIK.req;
+    api.postMessage({ type: 'crtl-tik-list', reqId: TIK.last, sath: TIK.sath, kelid: tik_kelid(s), sid: tik_sid(s) || SESSION.sid, channel: SESSION.channel || '', cwd: tik_cwd(s) });
+  }
+
+  setInterval(function(){var el=document.getElementById('crtl-page-tik');if(el && !el.hidden && TIK && !Object.keys(TIK.taghir).length)tik_porsidan();},1500);
+  function tik_resid(d) {
+    var list = document.getElementById('crtl-tik-list'), hal = document.getElementById('crtl-tik-hal');
+    if (!list) return;
+    if (d.khata) { list.textContent = 'خوانده نشد: ' + d.khata; return; }
+    TIK.data = d;
+    TIK.taghir = {};
+    var taze = tik_taze_ast(TIK.session);
+    if (hal) {
+      hal.textContent = (taze ? 'چتِ تازه: تیک بعد از ثبت همین الان روی همین چت اثر می‌کند. '
+        : 'چتِ قدیمی: این چت عوض نمی‌شود؛ تیک روی چت‌های تازه اثر می‌کند. ') +
+        'فهرستِ ' + (d.poshe ? 'پوشهٔ ' + d.poshe.split('/').pop() : 'سراسری (این پوشه هنوز فهرستِ خودش را ندارد)') +
+        (d.chat_dard ? ' + تیک‌های خودِ این چت' : '');
+    }
+    list.textContent = '';
+    var titles = document.createElement('div'); titles.className='crtl-tik-row crtl-tik-columns'; titles.setAttribute('aria-hidden','true');
+    ['', 'نام ابزار', 'کاربرد', 'سطح / منبع'].forEach(function(t){ var el=document.createElement('span');el.textContent=t;titles.appendChild(el); });list.appendChild(titles);
+    TIK_GOROOH.forEach(function (g) {
+      var rows = (d.ghalam || {})[g[0]] || [];
+      var head = document.createElement('div');
+      head.className = 'crtl-note crtl-tik-head';
+      var roshan = rows.filter(function (r) { return r.on; }).length;
+      head.textContent = g[1] + ' — ' + tz_adad_fa(roshan) + ' روشن از ' + tz_adad_fa(rows.length);
+      list.appendChild(head);
+      rows.forEach(function (r) { list.appendChild(tik_sakht_radif(g[0], r)); });
+    });
+    var q = document.querySelector('#crtl-page-tik .crtl-tz-search');
+    if (q && q.value) tik_filter(q.value);
+    tik_neshan_dokme();
+  }
+
+  function tik_sakht_radif(kind, r) {
+    var row = document.createElement('label');
+    row.className = 'crtl-tik-row';
+    row.dataset.jost = (kind + ' ' + r.n + ' ' + (r.usage || '') + ' ' + (r.origin || '') + ' ' + (TIK_ESM_SATH[r.sath] || '')).toLowerCase();
+    var c = document.createElement('input');
+    c.type = 'checkbox';
+    c.checked = !!r.on;
+    var esm = document.createElement('span');
+    esm.className = 'crtl-tik-esm';
+    esm.textContent = r.n;
+    var az = document.createElement('span');
+    az.className = 'crtl-tik-az';
+    az.textContent = [TIK_ESM_SATH[r.sath] || '', r.origin || ''].filter(Boolean).join(' · ');
+    var usage = document.createElement('span');
+    usage.className = 'crtl-tik-usage';
+    usage.textContent = r.usage || 'توضیحِ معتبرِ این مورد هنوز در دسترس نیست';
+    usage.title = r.definitionSource || '';
+    c.setAttribute('aria-label', r.n + ' — ' + usage.textContent);
+    c.addEventListener('change', function () {
+      var k = kind + '\u0000' + r.n;
+      if (c.checked === !!r.on) delete TIK.taghir[k];
+      else TIK.taghir[k] = { kind: kind, name: r.n, on: c.checked };
+      row.classList.toggle('crtl-tik-avaz', k in TIK.taghir);
+      tik_neshan_dokme();
+    });
+    row.appendChild(c);
+    row.appendChild(esm);
+    row.appendChild(usage);
+    row.appendChild(az);
+    return row;
+  }
+
+  function tik_sabt_click() {
+    var taghir = Object.keys(TIK.taghir).map(function (k) { return TIK.taghir[k]; });
+    if (!taghir.length) return;
+    if (TIK.sath === 'sarasari') {
+      tz_popup('مطمئنی می‌خواهی این ' + tz_adad_fa(taghir.length) + ' تیک سراسری باشد؟ فقط پوشه‌هایی که هنوز فهرستِ خودشان را ندارند و چت‌های تازه‌شان این را می‌گیرند؛ چت‌های قدیمی عوض نمی‌شوند.',
+        [['بله، سراسری ثبت کن', function () { tik_sabt(taghir); }], ['نه', null]]);
+      return;
+    }
+    tik_sabt(taghir);
+  }
+
+  function tik_sabt(taghir) {
+    var api = api_safhe(), natije = document.getElementById('crtl-tik-natije');
+    if (!api) return;
+    var s = TIK.session || tik_session(), id = ++TIK.req;
+    if (natije) natije.textContent = 'در حال ثبت…';
+    TZ.waiting['tik' + id] = function (d) {
+      if (!d.ok) { if (natije) natije.textContent = 'ثبت نشد: ' + (d.matn || d.khata || ''); return; }
+      if (!tik_taze_ast(s) || typeof s.restartClaude !== 'function') {
+        if (natije) natije.textContent = d.matn + '؛ این چت عوض نشد (چتِ قدیمی)، چت‌های تازه می‌گیرند';
+        tik_porsidan();
+        return;
+      }
+      // the new chat starts again with the new ticks; the host gives the next fresh launch of this folder this chat's name
+      var id2 = ++TIK.req;
+      TZ.waiting['tik' + id2] = function () {
+        try {
+          Promise.resolve(s.restartClaude()).then(function () {
+            if (natije) natije.textContent = d.matn + '؛ همین چتِ تازه با تیک‌های تازه دوباره راه افتاد';
+            setTimeout(tik_porsidan, 800);
+          }, function (e) { if (natije) natije.textContent = d.matn + '؛ ولی چت دوباره راه نیفتاد: ' + (e && e.message || e); });
+        } catch (e) { if (natije) natije.textContent = d.matn + '؛ ولی چت دوباره راه نیفتاد: ' + (e && e.message || e); }
+      };
+      api.postMessage({ type: 'crtl-tik-badi', reqId: id2, kelid: tik_kelid(s), sid: tik_sid(s), channel: SESSION.channel || '', cwd: tik_cwd(s) });
+    };
+    api.postMessage({ type: 'crtl-tik-sabt', reqId: id, sath: TIK.sath, taghir: taghir, kelid: tik_kelid(s), sid: tik_sid(s) || SESSION.sid, channel: SESSION.channel || '', cwd: tik_cwd(s) });
+  }
+
+  // a new chat opens Aa on «ابزارها» by itself (Habib: «تب Aa در هر چتِ تازه خودش باز شود»)
+  function tik_chat_taze_payesh() {
+    if(!AA.ready && Date.now()-AA.started<3000)return;
+    // خاموش‌کردنی از پنل: کلیدِ «aaTaze» در تنظیم‌های خودِ اکستنشن (همان نام در DSH)
+    try { if (khandan_tanzim().aaTaze === false) return; } catch (e) {}
+    var s = tik_session();
+    if (!s || s === TIK.didam) { TIK.khali = 0; return; }
+    if (!tik_taze_ast(s)) { TIK.khali = 0; if (tik_sid(s)) TIK.didam = s; return; }
+    if (++TIK.khali < 2) return;   // twice in a row: a reloaded old chat is blank for a moment while it loads
+    TIK.didam = s;
+    TIK.khali = 0;
+    var p = document.getElementById('crtl-panel');
+    if (!p) return;
+    TZ.tab = 'abzar';
+    if (!p.classList.contains('crtl-open')) {
+      p.classList.add('crtl-open');
+      porsidan_shenase_chat();
+      ja_baz_kardan_baraye_panel(p);
+    }
+    if (TZ.neshan) TZ.neshan();
+  }
+  setInterval(function () { try { tik_chat_taze_payesh(); } catch (e) {} }, 1500);
 
   function tz_sakht_safhe(page) {
     var q = document.createElement('input');

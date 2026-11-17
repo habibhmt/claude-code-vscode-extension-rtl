@@ -11,7 +11,7 @@
     "./icon": "./icon.svg",
     "./package.json": "./package.json"
   },
-  "files": ["index.js", "cordis.patch.yml", "locale/*.json", "docs", "icon.svg", "README.md"],
+  "files": ["index.js", "tools-*.mjs", "tools-*.cjs", "history-*.mjs", "cordis.patch.yml", "locale/*.json", "docs", "icon.svg", "README.md"],
   "scripts": { "test": "node --test test/*.mjs" },
   "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
 }

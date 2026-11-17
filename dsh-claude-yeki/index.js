@@ -16,6 +16,8 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { mountSharedHistory } from './history-sync.mjs'
+import { mountToolBridge } from './tools-plugin.mjs'
 
 export const name = 'claude-yeki-mcp'
 export const inject = ['mcpManager']
@@ -56,6 +58,8 @@ export function az_claude(json) {
 }
 
 export function apply(ctx, config) {
+  ctx.inject?.(['tools', 'agents', 'workingDirectory'], scoped => { mountToolBridge(scoped, config?.tools) })
+  ctx.inject?.(['sessionPersistence', 'sessions', 'agents', 'workspaceRegistry'], mountSharedHistory)
   const file = (config && config.file) || path.join(os.homedir(), '.claude.json')
   const pollMs = Math.max(1000, Number(config && config.pollMs) || 3000)
   const live = new Map() // name → { key, dispose }
@@ -92,7 +96,11 @@ export function apply(ctx, config) {
     hamahang()
     const listener = () => hamahang()
     fs.watchFile(file, { interval: pollMs, persistent: false }, listener)
+    // watchFile takes its initial stat asynchronously. Reconcile edits made in that window.
+    const firstPoll = setTimeout(listener, pollMs)
+    firstPoll.unref?.()
     return () => {
+      clearTimeout(firstPoll)
       fs.unwatchFile(file, listener)
       for (const r of live.values()) { try { r.dispose() } catch {} }
       live.clear()

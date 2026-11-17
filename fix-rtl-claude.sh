@@ -477,8 +477,11 @@ if m:
     #  · the launch takes the winning values: effort as --effort, model as --model, the rest as --settings
     #  · a new channel is announced, so the host can follow it when a save changes something
     #  · Claude's own effort and model menu changes this chat only, and never writes ~/.claude/settings.json
+    # A scoped tool server may join only a trusted native workspace.
+    trust = re.search(r'settingSources:\[\.\.\.([\w$]+)\.kind==="trusted"\?[^\]]+\],\.\.\.\1\.kind==="trusted"', out)
+    trusted_tools = (trust.group(1) + '.kind==="trusted"') if trust else 'false'
     out = re.sub(r'(let [\w$]+="[\d.]+";if\(this\.output\.info\(`Spawning Claude with SDK query function - cwd: \$\{([\w$]+)\.cwd\}[^`]*?resume: \$\{([\w$]+)\}`\))',
-                 lambda m: '{let crtlC=globalThis.__crtl_baz_shodan&&globalThis.__crtl_baz_shodan(' + m.group(3) + ',' + m.group(2) + '.cwd);if(crtlC){if(crtlC.effort)' + m.group(2) + '.effort=crtlC.effort;if(crtlC.model)' + m.group(2) + '.model=crtlC.model;if(crtlC.settings)' + m.group(2) + '.extraArgs={...' + m.group(2) + '.extraArgs,settings:JSON.stringify(crtlC.settings)}}}' + m.group(1), out, count=1)
+                 lambda m: '{let crtlC=globalThis.__crtl_baz_shodan&&globalThis.__crtl_baz_shodan(' + m.group(3) + ',' + m.group(2) + '.cwd);if(crtlC){if(crtlC.effort)' + m.group(2) + '.effort=crtlC.effort;if(crtlC.model)' + m.group(2) + '.model=crtlC.model;if(crtlC.settings)' + m.group(2) + '.extraArgs={...' + m.group(2) + '.extraArgs,settings:JSON.stringify(crtlC.settings)}}}globalThis.__crtlHistoryLaunch?.(' + m.group(3) + ',' + m.group(2) + ',undefined,' + trusted_tools + ');' + m.group(1), out, count=1)
     out = re.sub(r'this\.channels\.set\(([\w$]+),([\w$]+)\),this\.pendingChannels\.delete\(\1\)',
                  lambda m: 'this.channels.set(' + m.group(1) + ',' + m.group(2) + '),globalThis.__crtl_kanal_taze&&globalThis.__crtl_kanal_taze(this,' + m.group(1) + ',' + m.group(2) + '),this.pendingChannels.delete(' + m.group(1) + ')', out, count=1)
     out = re.sub(r'async writeUserSettingsAndPush\(([\w$]+),([\w$]+),([\w$]+),([\w$]+)\)\{',
@@ -545,6 +548,15 @@ if _mm:
         s = _t
 open(path, 'w', encoding='utf-8').write(s)
 PYEOF
+                if [ "$ide_name" = "VSCode" ] && [ -f "$HOME/.claude/dsh-history/workspaces.json" ]; then
+                    history_node="$(command -v node || true)"
+                    for candidate in /opt/homebrew/bin/node /usr/local/bin/node; do
+                        if [ -z "$history_node" ] && [ -x "$candidate" ]; then history_node="$candidate"; fi
+                    done
+                    if [ -n "$history_node" ]; then
+                        "$history_node" "$REPO_DIR/dsh-claude-yeki/history-webview.mjs" "$ext_dir/index.js" || echo "[WARN] Claude history refresh is unavailable for $ext_dir" >&2
+                    fi
+                fi
             fi
 
             # Self-test: a broken injection would take the whole panel down,

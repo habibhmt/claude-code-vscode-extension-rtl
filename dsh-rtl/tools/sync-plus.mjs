@@ -6,6 +6,7 @@
  *
  *   plus-pure.js     ⇒ منطقهٔ plus-inline     (دکمه‌ها، aA، نقل‌قول، …)
  *   settings-pure.js ⇒ منطقهٔ settings-inline (سه سطحِ تنظیم، امنیتِ مسیر و شناسه، جست‌وجو)
+ *   tik-pure.js      ⇒ منطقهٔ tik-inline      (تبِ ابزارها: چهار دسته، سه سطح، پیش‌فرضِ چتِ تازه)
  *
  * اجرا: node tools/sync-plus.mjs          (می‌نویسد)
  *       node tools/sync-plus.mjs --check  (فقط بررسی؛ اختلاف ⇒ خروج با کدِ ۱)
@@ -43,6 +44,12 @@ export function inlinePlus() {
   const m = markers('plus-inline')
   return m.begin + ' — تولیدِ خودکار از plus-pure.js (tools/sync-plus.mjs) */\n'
     + inlineModule(new URL('../plus-pure.js', HERE)) + '\n' + m.end
+}
+
+export function inlineTik() {
+  const m = markers('tik-inline')
+  return m.begin + ' — تولیدِ خودکار از tik-pure.js (tools/sync-plus.mjs) */\n'
+    + inlineModule(new URL('../tik-pure.js', HERE)) + '\n' + m.end
 }
 
 export function inlineSettings() {
@@ -86,7 +93,7 @@ export function withInlinedPlus(clientSource = readFileSync(CLIENT, 'utf8')) {
 
 /** هر سه منطقه: plus، settings و برچسب‌های فارسی */
 export function withInlined(clientSource = readFileSync(CLIENT, 'utf8')) {
-  return replaceRegion(replaceRegion(replaceRegion(clientSource, 'plus-inline', inlinePlus()), 'settings-inline', inlineSettings()), 'app-locale-inline', inlineLocale())
+  return replaceRegion(replaceRegion(replaceRegion(replaceRegion(clientSource, 'plus-inline', inlinePlus()), 'settings-inline', inlineSettings()), 'tik-inline', inlineTik()), 'app-locale-inline', inlineLocale())
 }
 
 const isMain = process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href
@@ -94,7 +101,7 @@ if (isMain) {
   const current = readFileSync(CLIENT, 'utf8')
   const next = withInlined(current)
   if (process.argv.includes('--check')) {
-    if (current !== next) { console.error('sync-plus: client.js با plus-pure.js/settings-pure.js یکی نیست — node tools/sync-plus.mjs را بزن'); process.exit(1) }
+    if (current !== next) { console.error('sync-plus: client.js با plus-pure.js/settings-pure.js/tik-pure.js یکی نیست — node tools/sync-plus.mjs را بزن'); process.exit(1) }
     console.log('sync-plus: هم‌خوان است')
   } else if (current === next) console.log('sync-plus: از قبل هم‌خوان بود')
   else { writeFileSync(CLIENT, next); console.log('sync-plus: ' + (next.length - current.length) + ' کاراکتر تغییر کرد') }

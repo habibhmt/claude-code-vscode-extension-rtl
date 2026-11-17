@@ -7,6 +7,27 @@ window.__ModuleLoader__.load({
     /* ctx ِ نیمهٔ کلاینت (برای پرسیدنِ پوشهٔ کار و تنظیم‌های خودِ برنامه) */
     let clientCtx = null;
 
+    // DSH's generic tool card shows the first recorded result, even after an
+    // append-only history repair. Claude's ToolSearch returns names to display.
+    function ClaudeToolSearchResult({ block, callId, phase, searchHistory, inspect }) {
+      const subscribe = React.useCallback(listener => searchHistory?.subscribe(listener) || (() => {}), [searchHistory]);
+      const read = React.useCallback(() => {
+        if (phase !== 'result') return null;
+        const repair = searchHistory?.getSnapshot().entries.findLast(({ event }) =>
+          event.type === 'tool/result' && event.surfaceOp?.op === 'replace' &&
+          event.surfaceOp.startSeq === block.seq && event.data.message.toolCallId === callId &&
+          event.data.message.id?.startsWith('claude-history:'));
+        return repair?.event.data.message.content || block.content;
+      }, [block, callId, phase, searchHistory]);
+      const content = React.useSyncExternalStore(subscribe, read);
+      const text = (content || []).filter(item => item.type === 'text').map(item => item.text).join('\n');
+      return h('details', null,
+        h('summary', null, h('bdi', null, 'ToolSearch'), ' · جست‌وجوی ابزار'),
+        h('div', { dir: 'auto' }, block.args?.text?.('query') || ''),
+        text && h('pre', { dir: 'auto', style: { whiteSpace: 'pre-wrap' } }, text),
+        inspect && h('button', { type: 'button', onClick: inspect }, 'جزئیات اجرا'));
+    }
+
     /* #region plus-inline — تولیدِ خودکار از plus-pure.js (tools/sync-plus.mjs) */
 
     /* فهرستِ پیش‌فرضِ دکمه‌ها: همان dokme_ha.json ِ اکستنشن (نسخهٔ ۲)، منهای فرمان‌هایی که فقط در
@@ -109,6 +130,7 @@ window.__ModuleLoader__.load({
       noJump: true,       // با فرستادن، صفحه به پایین نپرد (اگر بالاتر را می‌خواندی)
       quoteMenu: true,    // کلیکِ راست روی متنِ انتخاب‌شده ⇒ منوی نقل‌قول
       counter: true,      // شمارندهٔ نویسه‌های کادرِ نوشتن
+      aaTaze: true,       // در چتِ تازه، aA خودش روی تبِ «ابزارها» باز شود (حبیب، ۱۶ نوامبر)
       commands: null,     // null = DEFAULT_COMMANDS
       extras: [],         // متن‌های ویژه: [{ text, on, pos: 'start'|'end', btn }]
       profiles: {},       // { نام: تنظیمات }
@@ -676,6 +698,300 @@ window.__ModuleLoader__.load({
       return 'الان: ' + text + ' از ' + levelName(info.level) + meaning
     }
     /* #endregion settings-inline */
+    /* #region tik-inline — تولیدِ خودکار از tik-pure.js (tools/sync-plus.mjs) */
+
+    /** دسته‌های چهارگانه، به همان ترتیبی که در تب می‌آیند. */
+    const TIK_KIND = ['abzar_dsh', 'mcp', 'afzune', 'eskil']
+
+    /** سه سطح. */
+    const TIK_SATH = ['chat', 'poshe', 'sarasari']
+
+    /** نامِ فارسیِ هر دسته، برای سرصفحهٔ تب. */
+    const TIK_KIND_LABEL = {
+      abzar_dsh: 'ابزارهای خودِ DSH',
+      mcp: 'MCP (سرورهای ابزارِ بیرونی)',
+      afzune: 'افزونه‌ها',
+      eskil: 'اسکیل‌ها',
+    }
+
+    /** @returns {boolean} آیا این نام یک دستهٔ شناخته‌شده است. */
+    function isKind(kind) {
+      return TIK_KIND.includes(kind)
+    }
+
+    /** @returns {boolean} آیا این نام یک سطحِ شناخته‌شده است. */
+    function isSath(sath) {
+      return TIK_SATH.includes(sath)
+    }
+
+    /**
+     * فهرستِ خالیِ چهار دسته.
+     * @returns {Record<string, Record<string, boolean>>}
+     */
+    function emptyList() {
+      const out = {}
+      for (const k of TIK_KIND) out[k] = {}
+      return out
+    }
+
+    /**
+     * یک فهرست را از هر شکلِ ورودی، سالم و کامل می‌کند (بی‌آنکه چیزی را حذف کند).
+     * ورودیِ خراب ⇒ فهرستِ خالی؛ هرگز خطا نمی‌دهد، چون در فایلِ کاربر ممکن است
+     * هر چیزی باشد و ما باید همیشه بتوانیم ادامه بدهیم.
+     * @param value هر چیزی که خوانده‌ایم.
+     * @returns {Record<string, Record<string, boolean>>}
+     */
+    function cleanList(value) {
+      const out = emptyList()
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return out
+      for (const kind of TIK_KIND) {
+        const part = value[kind]
+        if (!part || typeof part !== 'object' || Array.isArray(part)) continue
+        for (const [name, on] of Object.entries(part)) {
+          const n = String(name || '').trim()
+          if (!n) continue
+          if (typeof on === 'boolean') out[kind][n] = on
+        }
+      }
+      return out
+    }
+
+    /**
+     * دو فهرست را روی هم می‌گذارد: هرچه `over` دارد، برنده است.
+     * @param base فهرستِ پایه.
+     * @param over فهرستِ رو.
+     * @returns فهرستِ تازه (هر دو دست‌نخورده می‌مانند).
+     */
+    function mergeList(base, over) {
+      const a = cleanList(base)
+      const b = cleanList(over)
+      const out = emptyList()
+      for (const kind of TIK_KIND) Object.assign(out[kind], a[kind], b[kind])
+      return out
+    }
+
+    /**
+     * عمیق‌ترین پوشه‌ای که برای این مسیر فهرست دارد.
+     * «عمیق‌تر» یعنی مسیرِ طولانی‌تر که پیشوندِ مسیرِ چت باشد؛ مرزِ اسلش رعایت می‌شود
+     * تا «/a/bc» با «/a/b» قاطی نشود.
+     * @param cwd پوشهٔ چت.
+     * @param poshe‌ها نقشهٔ «مسیرِ پوشه ⇒ فهرست».
+     * @returns {string|null} مسیرِ برنده، یا null.
+     */
+    function deepestFolder(cwd, folders) {
+      const path = normPath(cwd)
+      if (!path || !folders || typeof folders !== 'object') return null
+      let best = null
+      for (const key of Object.keys(folders)) {
+        const p = normPath(key)
+        if (!p) continue
+        if (path !== p && !path.startsWith(p + '/')) continue
+        if (best === null || p.split('/').length > normPath(best).split('/').length) best = key
+      }
+      return best
+    }
+
+    /** آیا این فهرست دستِ‌کم یک تیک دارد؟ */
+    function hasAny(list) {
+      const c = cleanList(list)
+      for (const kind of TIK_KIND) if (Object.keys(c[kind]).length > 0) return true
+      return false
+    }
+
+    /** مسیر را برای مقایسه یکدست می‌کند: اسلشِ آخر برداشته، چند اسلشِ پشتِ‌هم یکی. */
+    function normPath(p) {
+      return String(p || '').trim().replace(/\/{2,}/g, '/').replace(/\/+$/, '')
+    }
+
+    /**
+     * فهرستِ موثرِ یک چت. ترتیب: چت ⇒ عمیق‌ترین پوشه ⇒ سراسری ⇒ پایه.
+     * @param opts { chat, cwd, chatList, folderLists, globalList, baseList }
+     * @returns {{ list: Record<string, Record<string, boolean>>, az: string, folder: string|null }}
+     *   `az` می‌گوید این تصمیم از کدام سطح آمده (برای نمایش در تب).
+     */
+    function effectiveList(opts) {
+      const o = opts || {}
+      const chatKey = String(o.chat || '').trim()
+      const chatList = chatKey && o.chatLists && o.chatLists[chatKey] ? o.chatLists[chatKey] : null
+      const folder = deepestFolder(o.cwd, o.folderLists)
+      const folderList = folder ? o.folderLists[folder] : null
+      let list = cleanList(o.baseList)
+      let az = 'paye'
+      // فقط اگر فهرستِ سراسری واقعاً چیزی داشته باشد، در گزارش «سراسری» می‌شود؛
+      // وگرنه مشتی صفر نشان داده می‌شد که دروغ است (سنجیده شد: با پروندهٔ نبوده «sarasari» می‌داد).
+      if (o.globalList && hasAny(o.globalList)) { list = mergeList(list, o.globalList); az = 'sarasari' }
+      if (folderList) { list = mergeList(list, folderList); az = 'poshe' }
+      if (chatList) { list = mergeList(list, chatList); az = 'chat' }
+      return { list: list, az: az, folder: folder }
+    }
+
+    /**
+     * ابزارهایی که باید از فهرستِ مدل برداشته شوند (برای `agent.ctx.tools.restrict`).
+     * فقط ابزارهایی که «خاموش» شده‌اند برمی‌گردند؛ نام‌هایی که در فهرستِ موجود نیستند
+     * دور ریخته می‌شوند تا `restrict` خطای «unknown global tool» ندهد.
+     * دو راهِ خاموشی: تیکِ ابزارِ خودِ DSH (`abzar_dsh`)، و تیکِ سرورِ MCP که ابزارهای
+     * «mcp__سرور__ابزار» را با خودش می‌برد.
+     * @param opts همان ورودیِ `effectiveList` به‌علاوهٔ `known` (نام‌های موجود).
+     * @returns {string[]}
+     */
+    function deniedTools(opts) {
+      const o = opts || {}
+      const known = Array.isArray(o.known) ? o.known : []
+      const { list } = effectiveList(o)
+      const off = list.abzar_dsh || {}
+      const out = new Set(known.filter((name) => off[name] === false))
+      // MCP ِ خاموش، ابزارهایش را هم می‌برد («mcp__سرور__ابزار»)، وگرنه تیکِ مکپ بی‌اثر می‌ماند.
+      const offMcp = list.mcp || {}
+      for (const name of known) {
+        if (!name.startsWith('mcp__')) continue
+        const rest = name.slice('mcp__'.length)
+        const at = rest.indexOf('__')
+        const server = at > 0 ? rest.slice(0, at) : rest
+        if (offMcp[server] === false) out.add(name)
+      }
+      return [...out]
+    }
+
+    /**
+     * نامِ گروهِ یک چیز: ابزارِ افزونه یا MCP ِ یک افزونه، زیرِ همان افزونه می‌رود.
+     * (همان کاری که در کلود کد کردیم: افزونه‌ای که خاموش است، اسکیل و MCP ِ خودش را هم می‌برد.)
+     * @param opts { name, kind, plugins, isPluginChild }
+     * @returns {string} نامِ گروه.
+     */
+    function groupOf(opts) {
+      const o = opts || {}
+      const name = String(o.name || '')
+      if (o.kind === 'afzune') return name
+      const plug = pluginOwner(o, name)
+      return plug || name
+    }
+
+    /**
+     * اگر این نام به افزونه‌ای تعلق دارد، نامِ آن افزونه را برمی‌گرداند.
+     * @param opts { name, kind, plugins }
+     * @returns {string|null}
+     */
+    function pluginOwner(opts) {
+      const o = opts || {}
+      if (o.kind === 'afzune') return null
+      const plugins = Array.isArray(o.plugins) ? o.plugins : []
+      const name = String(o.name || '')
+      if (!name) return null
+      // «plugin:server» برای MCP و «plugin:skill» یا پیشوندِ افزونه برای اسکیل
+      const colon = name.indexOf(':')
+      if (colon > 0) {
+        const head = name.slice(0, colon)
+        if (plugins.includes(head)) return head
+      }
+      for (const p of plugins) {
+        if (!p || p === name) continue
+        if (name.startsWith(p + ':') || name.startsWith(p + '-') || name.startsWith(p + '/')) return p
+      }
+      return null
+    }
+
+    /**
+     * یک تغییر را روی فهرستِ یک سطح اعمال می‌کند و همان فهرستِ تازه را می‌دهد.
+     * @param list فهرستِ آن سطح.
+     * @param change { kind, name, on }.
+     * @returns فهرستِ تازه.
+     */
+    function applyChange(list, change) {
+      const out = cleanList(list)
+      const c = change || {}
+      if (!isKind(c.kind)) return out
+      const name = String(c.name || '').trim()
+      if (!name) return out
+      out[c.kind][name] = c.on !== false
+      return out
+    }
+
+    /**
+     * تغییرها را یکی‌یکی روی یک فهرست اعمال می‌کند.
+     * @param list فهرستِ پایه.
+     * @param changes فهرستِ تغییرها.
+     * @returns فهرستِ تازه.
+     */
+    function applyChanges(list, changes) {
+      let out = cleanList(list)
+      for (const c of Array.isArray(changes) ? changes : []) out = applyChange(out, c)
+      return out
+    }
+
+    /**
+     * نمودارِ چهار دسته برای نمایش در تب، به‌ترتیبِ حبیب و با شمارش.
+     * @param opts { available, list, query }
+     *   available = { abzar_dsh:[نام…], mcp:[…], afzune:[…], eskil:[…] }
+     *   list = فهرستِ موثر.
+     *   query = متنِ جست‌وجو.
+     * @returns Array<{ kind, label, items: Array<{ name, on, owner }>, onCount, total }>
+     */
+    function buildRows(opts) {
+      const o = opts || {}
+      const avail = o.available || {}
+      const list = cleanList(o.list)
+      const q = String(o.query || '').trim().toLowerCase()
+      const plugins = Array.isArray(avail.afzune) ? avail.afzune : []
+      const rows = []
+      for (const kind of TIK_KIND) {
+        const names = Array.isArray(avail[kind]) ? avail[kind].slice() : []
+        const seen = new Set()
+        const items = []
+        for (const raw of names) {
+          const name = String(raw || '').trim()
+          if (!name || seen.has(name)) continue
+          seen.add(name)
+          const owner = kind === 'afzune' ? null : pluginOwner({ name: name, kind: kind, plugins: plugins })
+          if (q && !name.toLowerCase().includes(q) && !(owner && owner.toLowerCase().includes(q))) continue
+          // خاموشیِ افزونه، اسکیل و MCP ِ خودش را هم خاموش نشان می‌دهد
+          const selfOff = list[kind][name] === false
+          const ownerOff = owner ? list.afzune[owner] === false : false
+          items.push({ name: name, on: !selfOff && !ownerOff, owner: owner, by: ownerOff ? owner : '' })
+        }
+        const total = items.length
+        const onCount = items.filter((i) => i.on).length
+        rows.push({ kind: kind, label: TIK_KIND_LABEL[kind], items: items, onCount: onCount, total: total })
+      }
+      return rows
+    }
+
+    /**
+     * چکیدهٔ یک ثبت: چه چیزی عوض می‌شود، برای پرسشِ «مطمئنی؟» و پیامِ نتیجه.
+     * @param changes فهرستِ تغییرها.
+     * @returns { on: string[], off: string[], matn: string }
+     */
+    function summarize(changes) {
+      const on = []
+      const off = []
+      for (const c of Array.isArray(changes) ? changes : []) {
+        const name = String((c && c.name) || '').trim()
+        if (!name) continue
+        if (c.on === false) off.push(name)
+        else on.push(name)
+      }
+      const fa = (n) => String(n).replace(/[0-9]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)])
+      const parts = []
+      if (off.length) parts.push(fa(off.length) + ' تیک برداشته')
+      if (on.length) parts.push(fa(on.length) + ' تیک زده')
+      return { on: on, off: off, matn: parts.length ? parts.join(' · ') : 'تغییری نبود' }
+    }
+
+    /**
+     * آیا این چت «تازه» است (پیش از ثبت دست‌نخورده، و هنوز پیامی ندارد)؟
+     * دو شرط با هم: پیامی نفرستاده باشد، و زمانِ ثبتِ تیک‌ها بعد از بازشدنش باشد.
+     * شرطِ دوم همان «چتِ بازِ قدیمی دست نمی‌خورد» ِ حبیب است.
+     * @param opts { hasMessages, openedAt, savedAt }
+     * @returns {boolean}
+     */
+    function isFreshChat(opts) {
+      const o = opts || {}
+      if (o.hasMessages !== false) return false
+      const opened = Number(o.openedAt)
+      const saved = Number(o.savedAt)
+      if (!Number.isFinite(opened) || !Number.isFinite(saved)) return false
+      return opened >= saved
+    }
+    /* #endregion tik-inline */
     /* #region app-locale-inline — تولیدِ خودکار از locale/app-settings-fa.json (tools/sync-plus.mjs) */
     const APP_SETTINGS_LOCALE = {
       "meta": {
@@ -1804,6 +2120,7 @@ html[data-dsh-rtl="on"] a[href] {
           { key: 'noJump', label: 'با فرستادن، صفحه به پایین نپرد', hint: 'اگر بالاتر را می‌خواندی و Enter زدی، صفحه سرِ جایش می‌ماند.' },
           { key: 'quoteMenu', label: 'کلیکِ راست روی متنِ انتخاب‌شده ⇒ منوی نقل‌قول (Ctrl+Alt+Q)', hint: 'متنِ انتخاب‌شده را به‌صورتِ نقل‌قول در کادر می‌گذارد.' },
           { key: 'counter', label: 'شمارندهٔ نویسه‌های کادر', hint: 'زیرِ کادر می‌گوید چند نویسه نوشته‌ای.' },
+          { key: 'aaTaze', type: 'bool', label: 'در چتِ تازه، تبِ «ابزارها» خودش باز شود', hint: 'وقتی چت هنوز پیامی ندارد، پنلِ aA خودش روی تبِ «ابزارها» باز می‌شود تا تیک‌های همان چت را بگذاری. خاموش کنی، aA بسته می‌ماند.', fallback: true },
         ],
       },
       {
@@ -1833,6 +2150,7 @@ html[data-dsh-rtl="on"] a[href] {
       noJump: (v) => (v ? 'صفحه وقتی Enter می‌زنی نمی‌پرد' : 'بعد از فرستادن، صفحه به آخر می‌رود'),
       quoteMenu: (v) => (v ? 'کلیکِ راست منوی نقل‌قول می‌دهد' : 'کلیکِ راست منوی خودِ مرورگر است'),
       counter: (v) => (v ? 'زیرِ کادر تعدادِ نویسه‌ها نوشته می‌شود' : 'شمارنده خاموش است'),
+      aaTaze: (v) => (v ? 'در چتِ تازه، تبِ «ابزارها» خودش باز می‌شود' : 'aA در چتِ تازه بسته می‌ماند'),
       soalPahn: (v) => (v ? 'پنجرهٔ سؤال پهن و تمام‌قد است' : 'پنجرهٔ سؤال مثلِ حالتِ عادیِ برنامه است'),
       chatFit: (v) => (v ? 'پیام‌ها و کادرِ نوشتن تمامِ عرضِ پنلِ چت را می‌گیرند' : 'چت مثلِ حالتِ عادیِ برنامه وسطِ پنل باریک می‌ماند'),
     };
@@ -1905,9 +2223,7 @@ html[data-dsh-rtl="on"] a[href] {
      * پوشهٔ کارِ همین چت را از خودِ برنامه می‌پرسیم (نه از پوشهٔ کدِ افزونه).
      * ctx.sessions.list snapshot هر چت یک cwd دارد؛ همین است که برنامه هم استفاده می‌کند.
      */
-    async function probeWorkspace() {
-      if (workspaceCwd) return workspaceCwd;
-      const sid = currentSessionId();
+    async function probeWorkspace(sid = currentSessionId()) {
       const ctx = clientCtx;
       const sessions = ctx && typeof ctx.get === 'function' ? ctx.get('sessions') : null;
       if (!sessions || !sessions.list || typeof sessions.list.getSnapshot !== 'function') return '';
@@ -1915,7 +2231,10 @@ html[data-dsh-rtl="on"] a[href] {
         const snap = sessions.list.getSnapshot();
         if (!snap || !snap.byId) return '';
         const row = sid ? snap.byId[sid] : null;
-        if (row && typeof row.cwd === 'string') return row.cwd;
+        if (row && typeof row.cwd === 'string' && row.cwd) return row.cwd;
+        const workspaces = ctx.get('workspaces')?.list?.getSnapshot?.();
+        const owner = workspaces?.items?.find?.(w => w.sessionIds?.includes(sid));
+        if (owner?.path) return owner.path;
         // چتِ تازه در فهرست نیست: اگر فقط یک پوشه در فهرست است، همان پوشهٔ کار است.
         const dirs = new Set();
         for (const id of (Array.isArray(snap.ids) ? snap.ids : [])) {
@@ -2279,6 +2598,7 @@ html[data-dsh-rtl="on"] a[href] {
     const plusListeners = new Set();
     let plus = readPlus(null);
     try { plus = readPlus(window.localStorage.getItem(PLUS_KEY)); } catch (err) { /* حالتِ خصوصی */ }
+    const aaNativePlus=JSON.parse(JSON.stringify(plus));
     let ReactDOM = null;
     try { ReactDOM = require('react-dom'); } catch (err) { ReactDOM = null; }
 
@@ -2286,9 +2606,44 @@ html[data-dsh-rtl="on"] a[href] {
     function applyPlusCss() {
       if (plusStyle) plusStyle.textContent = PLUS_BASE_CSS + '\n' + plusCss(plus);
     }
+    const AA_KEYS = ['lines','tableScroll','accent','textColor','lh','opacity','counter','quoteMenu','aaTaze','btnSize','buttons','commands','extras','profiles'];
+    let aaReady=false, aaScope='poshe', aaLayers={}, aaApplying=false, aaStamp='';
+    let aaQueue=Promise.resolve(), aaPending=0, aaVersion=0, aaResolved=false;
+    function aaRequest(patch, unset) {
+      const write=!!(patch || unset), sid=currentSessionId(), scope=aaScope;
+      if (!write && aaPending) return aaQueue;
+      if (write) aaVersion++;
+      const revision=aaVersion;
+      aaPending++;
+      aaQueue=aaQueue.then(async () => {
+        const cwd=await probeWorkspace(sid);
+        if(!cwd || (!write && sid!==currentSessionId())) return;
+        const url='/plugins/rtl/aa-shared?sessionId='+encodeURIComponent(sid)+'&cwd='+encodeURIComponent(cwd);
+        const opts=write?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({scope,sessionId:sid,cwd,patch:patch||{},unset:unset||[]})}:{};
+        const response=await fetch(url,opts);
+        const got=await response.json();
+        if(!got.ok || !got.layers || sid!==currentSessionId() || revision!==aaVersion) return;
+        aaReady=true;
+        aaLayers=got.layers;
+        const stamp=JSON.stringify([sid,cwd,got.values]);
+        if(stamp!==aaStamp){
+          aaStamp=stamp;aaApplying=true;
+          try { savePlus(Object.assign({},aaNativePlus,got.values)); } finally { aaApplying=false; }
+        }
+      }).catch(() => { if(sid===currentSessionId()) aaReady=false; }).finally(() => {
+        aaPending--;
+        if(!aaResolved){aaResolved=true;plus={...plus};plusListeners.forEach(fn=>fn());}
+      });
+      return aaQueue;
+    }
     function savePlus(next) {
+      next=readPlus(next);
+      if(!aaApplying){const patch={};for(const k of AA_KEYS)if(JSON.stringify(next[k])!==JSON.stringify(plus[k]))patch[k]=next[k];if(Object.keys(patch).length)aaRequest(patch);}
       plus = readPlus(next);
-      try { window.localStorage.setItem(PLUS_KEY, JSON.stringify(plus)); } catch (err) { /* بی‌جا */ }
+      if(!aaApplying){
+        for(const k of Object.keys(plus))if(!aaReady || !AA_KEYS.includes(k))aaNativePlus[k]=plus[k];
+        try { window.localStorage.setItem(PLUS_KEY, JSON.stringify(aaNativePlus)); } catch (err) {}
+      }
       applyPlusCss();
       plusListeners.forEach((fn) => { try { fn(); } catch (err) { /* بقیه بمانند */ } });
     }
@@ -2327,6 +2682,28 @@ html[data-dsh-rtl="on"] a[href] {
       '.dsh-plus-panel h4{margin:8px 0 2px;font-size:12px;color:var(--dsw-alias-label-secondary);font-weight:600}',
       '.dsh-plus-head{display:flex;justify-content:space-between;align-items:center;gap:8px}',
       '.dsh-plus-head b{font-size:13px}',
+      '.dsh-tik-tabs{display:flex;gap:4px;border-bottom:1px solid var(--dsw-alias-border-l1,rgba(127,127,127,.25));padding-bottom:4px}',
+      '.dsh-tik-tabs button{font:inherit;color:inherit;background:none;border:0;border-radius:6px 6px 0 0;padding:2px 10px;cursor:pointer;opacity:.7}',
+      '.dsh-tik-tabs button[data-on="1"]{opacity:1;font-weight:700;background:rgba(127,127,127,.16)}',
+      '.dsh-tik{display:flex;flex-direction:column;gap:6px}',
+      '.dsh-tik-sath{display:flex;gap:4px}',
+      '.dsh-tik-sath button{flex:1 1 0;font:inherit;color:inherit;background:rgba(127,127,127,.1);border:1px solid var(--dsw-alias-border-l2,rgba(127,127,127,.35));border-radius:6px;padding:3px 6px;cursor:pointer;opacity:.8}',
+      '.dsh-tik-sath button[data-on="1"]{opacity:1;font-weight:700;background:rgba(127,127,127,.28)}',
+      '.dsh-tik-search{width:100%;box-sizing:border-box;background:rgba(127,127,127,.12);border:1px solid var(--dsw-alias-border-l2,rgba(127,127,127,.35));border-radius:6px;color:inherit;font:inherit;padding:2px 8px}',
+      '.dsh-tik-group h4{margin:6px 0 2px;font-size:12px;color:var(--dsw-alias-label-secondary);font-weight:600}',
+      '.dsh-tik-row{display:grid;grid-template-columns:16px minmax(65px,1fr) minmax(105px,2fr) minmax(40px,.6fr);align-items:start;gap:6px;padding:1px 2px;border-radius:5px;cursor:pointer}',
+      '.dsh-tik-row:hover{background:rgba(127,127,127,.1)}',
+      '.dsh-tik-esm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:left;font:11px/1.6 ui-monospace,monospace}',
+      '.dsh-tik-usage{min-width:0;white-space:normal;overflow-wrap:anywhere;direction:rtl;line-height:1.8}',
+      '.dsh-tik-row .dsh-tik-esm{white-space:normal;overflow:visible;overflow-wrap:anywhere}',
+      '@media(max-width:420px){.dsh-tik-row{grid-template-columns:16px minmax(60px,1fr) minmax(100px,1.6fr)}.dsh-tik-az{grid-column:2 / 4}}',
+      '.dsh-tik-az{flex:0 0 auto;font-size:10px;color:var(--dsw-alias-label-tertiary,var(--dsw-alias-label-secondary))}',
+      '.dsh-tik-actions{display:flex;gap:4px;margin-top:4px}',
+      '.dsh-tik-actions button{font:inherit;color:inherit;background:rgba(127,127,127,.16);border:1px solid var(--dsw-alias-border-l2,rgba(127,127,127,.35));border-radius:6px;padding:2px 10px;cursor:pointer}',
+      '.dsh-tik-actions button:disabled{opacity:.45;cursor:default}',
+      '.dsh-tik-note{color:var(--dsw-alias-label-secondary);font-size:10.5px;line-height:1.7;margin:0}',
+      '.dsh-tik-ask{border:1px solid rgba(200,120,0,.5);border-radius:8px;padding:6px;background:rgba(200,120,0,.08)}',
+      '.dsh-tik-ask p{margin:0 0 4px;font-size:11px}',
       '.dsh-plus-line{display:flex;align-items:center;gap:6px;justify-content:space-between;min-width:0}',
       '.dsh-plus-line>label{flex:0 0 auto;color:var(--dsw-alias-label-secondary)}',
       '.dsh-plus-line input[type=range]{flex:1;min-width:0;direction:ltr}',
@@ -2462,7 +2839,33 @@ html[data-dsh-rtl="on"] a[href] {
       const actions = props.inputActions;
       const [open, setOpen] = React.useState(false);
       const [flash, setFlash] = React.useState('');
+      const [tab, setTab] = React.useState('look');
       const aaRef = React.useRef(null);
+      /* چتِ تازه: Aa خودش روی تبِ «ابزارها» باز می‌شود — ولی هر چت فقط یک‌بار،
+         و فقط وقتی کاملاً خالی است (بی‌پیام و بی‌نمایشِ گفتگو). */
+      const openedOnce = React.useRef('');
+      React.useEffect(() => {
+        if ((!aaReady && !aaResolved) || !s.aaTaze || where !== 'dock' || !sid || open) return undefined;
+        if (openedOnce.current === sid) return undefined;
+        let tries = 0;
+        let alive = true;
+        const tick = () => {
+          if (!alive) return;
+          const scroll = document.querySelector('[data-conversation-scroll]');
+          const hollow = !scroll || !scroll.textContent || !scroll.textContent.trim();
+          const raw = typeof draft === 'string' ? draft.trim() : '';
+          if (hollow && raw === '') {
+            openedOnce.current = sid;
+            setTab('abzar');
+            setOpen(true);
+            return;
+          }
+          tries += 1;
+          if (tries < 20) window.setTimeout(tick, 400);
+        };
+        const t = window.setTimeout(tick, 300);
+        return () => { alive = false; window.clearTimeout(t); };
+      }, [sid, where, s.aaTaze, aaReady, aaResolved, open, draft]);
       React.useEffect(() => {
         if (where === 'dock' && sid) composers.set(sid, { sid: sid, actions: actions, draft: draft });
       });
@@ -2495,9 +2898,9 @@ html[data-dsh-rtl="on"] a[href] {
           title: 'تنظیماتِ ابزارها (aA) — Ctrl+Alt+B دکمه‌ها را پنهان/پیدا می‌کند',
           'aria-expanded': open ? 'true' : 'false',
           onMouseDown: (e) => e.preventDefault(),
-          onClick: () => setOpen(!open),
+          onClick: () => { if (open) { setOpen(false); } else { setTab('look'); setOpen(true); } },
         }, 'aA'),
-        open ? renderFloating(h(PlusPanel, { onClose: () => setOpen(false) }), aaRef.current) : null);
+        open ? renderFloating(h(PlusPanel, { onClose: () => setOpen(false), startTab: tab, sessionId: sid, cwd: (workspaceCwd || '') }), aaRef.current) : null);
     }
 
     function CounterPill(props) {
@@ -2612,9 +3015,137 @@ html[data-dsh-rtl="on"] a[href] {
           h('button', { type: 'button', title: 'برگشت به پیش‌فرض (پروفایل‌ها می‌مانند)', onClick: () => { savePlus({ profiles: plus.profiles }); toast('به پیش‌فرض برگشت'); } }, 'rst')));
     }
 
+    /* --- تبِ «ابزارها»: چهار دسته، سه سطح، پیش‌فرضِ چتِ تازه ---------------
+     * منبعِ راستین: /plugins/rtl/tik (نیمهٔ host). تصمیم در tik-inline است.
+     */
+    const TIK_ROUTE = '/plugins/rtl/tik';
+    const TIK_SATHA = [['chat', 'این چت'], ['poshe', 'این پوشه'], ['sarasari', 'سراسری']];
+
+    function TikPanel(props) {
+      const [state, setState] = React.useState({ loading: true, rows: [], az: '', folder: null, error: '' });
+      const [sath, setSath] = React.useState('chat');
+      const [q, setQ] = React.useState('');
+      const [draft, setDraft] = React.useState({});   // "kind:name" -> bool
+      const [ask, setAsk] = React.useState(null);     // تغییرهایی که باید برای «سراسری» تأیید شوند
+      const [busy, setBusy] = React.useState(false);
+
+      const sid = String(props.sessionId == null ? '' : props.sessionId);
+      const cwdProp = String(props.cwd || '');
+      // پوشهٔ کار را هنگامِ نیاز از خودِ برنامه می‌پرسیم؛ مقدارِ آغازین ممکن است هنوز نرسیده باشد
+      // (در آزمونِ صفحه دیده شد: cwd خالی می‌رفت و ثبت رد می‌شد).
+      const cwdRef = React.useRef(cwdProp);
+      const cwdNow = React.useCallback(async () => {
+        if (cwdRef.current) return cwdRef.current;
+        try { cwdRef.current = (await probeWorkspace()) || cwdProp; } catch (err) { cwdRef.current = cwdProp; }
+        return cwdRef.current;
+      }, [cwdProp]);
+      const cwd = cwdProp;
+
+      const dirtyRef=React.useRef(false); dirtyRef.current=Object.keys(draft).length>0 || busy;
+      React.useEffect(() => {
+        let active = true;
+        const refresh=()=>{if(dirtyRef.current)return;return cwdNow().then((dir) => {
+          const url = TIK_ROUTE + '?sessionId=' + encodeURIComponent(sid) + '&cwd=' + encodeURIComponent(dir || '') + '&sath=' + sath;
+          return fetch(url, { headers: { accept: 'application/json' }, credentials: 'same-origin' })
+            .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+            .then((d) => active && setState({ loading: false, rows: d.rows || [], az: d.az || '', folder: d.folder || null, chatLocked: d.chatLocked, error: '' }));
+        }).catch((err) => active && setState({ loading: false, rows: [], az: '', folder: null, error: String(err && err.message ? err.message : err) }));
+        };refresh();const poll=setInterval(refresh,1500);
+        return () => { active = false; clearInterval(poll); };
+      }, [sid, cwdNow, sath]);
+
+      const key = (kind, name) => kind + ':' + name;
+      const shown = (kind, name, original) => {
+        const k = key(kind, name);
+        return Object.prototype.hasOwnProperty.call(draft, k) ? draft[k] : original;
+      };
+      const toggle = (kind, name, original) => {
+        const k = key(kind, name);
+        setDraft((d) => {
+          const n = Object.assign({}, d);
+          const cur = Object.prototype.hasOwnProperty.call(d, k) ? d[k] : original;
+          const next = !cur;
+          // اگر همان مقدارِ اصلی شد، از فهرستِ تغییرها برو
+          if (next === original) delete n[k]; else n[k] = next;
+          return n;
+        });
+      };
+      const changes = () => Object.keys(draft).map((k) => {
+        const i = k.indexOf(':');
+        return { kind: k.slice(0, i), name: k.slice(i + 1), on: draft[k] };
+      });
+      const n = changes().length;
+
+      const submit = (list) => {
+        if (!list.length) { toast('تغییری نکرده'); return; }
+        setBusy(true);
+        cwdNow().then((dir) => fetch(TIK_ROUTE, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ sessionId: sid, cwd: dir || '', sath: sath, taghir: list }),
+        }))
+          .then((r) => r.json())
+          .then((d) => {
+            setBusy(false);
+            if (!d || d.ok !== true) { toast('ثبت نشد: ' + ((d && d.error) || 'نامعلوم') + (sath === 'poshe' && !cwdRef.current ? ' — پوشهٔ کار پیدا نشد' : '')); return; }
+            setDraft({});
+            setState({ loading: false, rows: d.rows || [], az: d.az || '', folder: d.folder || null, chatLocked: d.chatLocked, error: '' });
+            toast((d.matn || 'ثبت شد') + ' — روی چت‌های تازه اثر دارد');
+          })
+          .catch((err) => { setBusy(false); toast('ثبت نشد'); });
+      };
+      const onSave = () => {
+        const list = changes();
+        if (!list.length) { toast('تغییری نکرده'); return; }
+        if (sath === 'sarasari') { setAsk(list); return; }
+        submit(list);
+      };
+
+      const azLabel = state.az === 'chat' ? 'تیک‌های همین چت' : state.az === 'poshe' ? 'تیک‌های این پوشه' : state.az === 'sarasari' ? 'تیک‌های سراسری' : 'پیش‌فرضِ برنامه';
+      return h('div', { className: 'dsh-tik' },
+        h('div', { className: 'dsh-tik-sath' },
+          TIK_SATHA.map(([v, label]) => h('button', {
+            key: v, type: 'button', 'data-on': sath === v ? '1' : undefined,
+            title: v === 'chat' ? 'فقط همین چت (اگر تازه باشد)' : v === 'poshe' ? 'این پوشه و چت‌های تازهٔ بعدی‌اش' : 'همهٔ پوشه‌هایی که فهرستِ خودشان را ندارند',
+            disabled: busy,
+            onClick: () => { if (v !== sath) { setDraft({}); setAsk(null); setSath(v); } },
+          }, label))),
+        h('div', { className: 'dsh-tik-note' }, azLabel + (state.folder ? ' · ' + state.folder : '')),
+        h('input', { type: 'text', className: 'dsh-tik-search', placeholder: 'جست‌وجو…', value: q, onChange: (e) => setQ(e.target.value) }),
+        state.error ? h('p', { className: 'dsh-tik-note', style: { color: 'crimson' } }, 'فهرست نیامد: ' + state.error) : null,
+        state.loading ? h('p', { className: 'dsh-tik-note' }, 'خواندن…') : null,
+        h('div', { className:'dsh-tik-row dsh-tik-columns', 'aria-hidden':'true' }, ['', 'نام ابزار', 'کاربرد', 'سطح / منبع'].map((t,i)=>h('span',{key:i},t))),
+        buildRows({ available: {}, list: {}, query: '' }).length && state.rows.map((row) => {
+          const ql = q.trim().toLowerCase();
+          const items = row.items.filter((i) => !ql || [i.name,i.usage,i.origin,i.owner,azLabel].join(' ').toLowerCase().includes(ql));
+          if (!items.length) return null;
+          return h('div', { key: row.kind, className: 'dsh-tik-group' },
+            h('h4', null, row.label + ' (' + faDigits(items.length) + ')'),
+            items.map((i) => {
+              const on = shown(row.kind, i.name, i.on);
+              return h('label', { key: i.name, className: 'dsh-tik-row', title: i.by ? 'خاموش با افزونهٔ ' + i.by : i.name },
+                h('input', { type: 'checkbox', 'aria-label': i.name + ' — ' + (i.usage || ''), checked: on, disabled: sath === 'chat' && state.chatLocked, onChange: () => toggle(row.kind, i.name, i.on) }),
+                h('span', { className: 'dsh-tik-esm' }, i.name),
+                h('span', { className: 'dsh-tik-usage', title: i.definitionSource || '' }, i.usage || 'توضیحِ معتبرِ این مورد هنوز در دسترس نیست'),
+                h('span', { className: 'dsh-tik-az' }, [i.by ? 'از ' + i.by : azLabel, i.origin || ''].filter(Boolean).join(' · ')));
+            }));
+        }),
+        h('div', { className: 'dsh-tik-actions' },
+          h('button', { type: 'button', disabled: busy || n === 0 || (sath === 'chat' && state.chatLocked), onClick: onSave }, n ? 'ثبت (' + faDigits(n) + ')' : 'ثبت'),
+          n ? h('button', { type: 'button', onClick: () => setDraft({}) }, 'ردِ تغییرها') : null),
+        h('p', { className: 'dsh-tik-note' }, sath === 'chat' && state.chatLocked ? 'این چت با همین تیک‌ها ادامه می‌یابد. برای چت‌های تازه «این پوشه» یا «سراسری» را انتخاب کن.' : 'تیک‌ها برای چت‌های تازه‌اند.'),
+        ask ? h('div', { className: 'dsh-tik-ask' },
+          h('p', null, 'این تغییر روی همهٔ پوشه‌هایی اثر می‌کند که فهرستِ خودشان را ندارند. مطمئنی؟'),
+          h('div', { className: 'dsh-tik-actions' },
+            h('button', { type: 'button', onClick: () => { const l = ask; setAsk(null); submit(l); } }, 'بله، سراسری ثبت کن'),
+            h('button', { type: 'button', onClick: () => setAsk(null) }, 'نه'))) : null);
+    }
+
     function PlusPanel(props) {
       const s = usePlus();
       const onClose = props.onClose;
+      const [tab, setTab] = React.useState(props.startTab === 'abzar' ? 'abzar' : 'look');
       React.useEffect(() => {
         if (!onClose) return undefined;
         const onKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -2626,9 +3157,18 @@ html[data-dsh-rtl="on"] a[href] {
         copyText(sessionIdentity(titleFromDocument(document.title), c && c.sid), 'شناسهٔ چت کپی شد');
       };
       return h('div', { className: 'dsh-plus-panel' + (props.inSettings ? ' dsh-plus-settings' : '') },
+        h('div', {className:'dsh-plus-line'},
+          h('select',{className:'dsh-aa-scope',defaultValue:aaScope,onChange:e=>{aaScope=e.target.value;}},
+            h('option',{value:'chat'},'این چت'),h('option',{value:'poshe'},'این پوشه'),h('option',{value:'sarasari'},'سراسری')),
+          h('span',null,'مشترک با کلود · چت ← پوشه ← سراسری'),
+          h('button',{type:'button',onClick:()=>aaRequest({},Object.keys(aaLayers[aaScope==='sarasari'?'global':aaScope==='poshe'?'project':'chat']||{}))},'برگشت به مقدار بالاتر')),
         h('div', { className: 'dsh-plus-head' },
           h('b', null, 'ابزارهای اکستنشن (aA)'),
           onClose ? h('button', { type: 'button', onClick: onClose, title: 'بستن (Esc)' }, '✕') : null),
+        h('div', { className: 'dsh-tik-tabs' },
+          h('button', { type: 'button', 'data-on': tab === 'look' ? '1' : undefined, onClick: () => setTab('look') }, 'ظاهر'),
+          h('button', { type: 'button', 'data-on': tab === 'abzar' ? '1' : undefined, onClick: () => setTab('abzar') }, 'ابزارها')),
+        tab === 'abzar' ? h(TikPanel, { sessionId: props.sessionId, cwd: props.cwd }) : h('div', null,
         h('div', { className: 'dsh-plus-actions' },
           h('button', { type: 'button', onClick: () => savePlus(applyPreset(plus, 'compact')) }, 'فشرده'),
           h('button', { type: 'button', onClick: () => savePlus(applyPreset(plus, 'normal')) }, 'معمولی'),
@@ -2653,6 +3193,7 @@ html[data-dsh-rtl="on"] a[href] {
         ToggleLine('با فرستادن، صفحه به پایین نپرد', 'noJump', s, 'اگر بالاتر را می‌خواندی و Enter زدی، صفحه سرِ جایش می‌ماند؛ خودت پایین بروی، دوباره دنبالِ متنِ تازه می‌رود'),
         ToggleLine('کلیکِ راست روی متنِ انتخاب‌شده ⇒ منوی نقل‌قول (Ctrl+Alt+Q)', 'quoteMenu', s),
         ToggleLine('شمارندهٔ نویسه‌های کادر', 'counter', s),
+        ToggleLine('در چتِ تازه، تبِ «ابزارها» خودش باز شود', 'aaTaze', s, 'وقتی چت هنوز پیامی ندارد، پنلِ aA خودش روی تبِ «ابزارها» باز می‌شود.'),
         h('div', { className: 'dsh-plus-actions' },
           h('button', { type: 'button', onClick: () => openFind('') }, '🔍 جست‌وجو در گفتگو (Ctrl+Alt+F)'),
           h('button', { type: 'button', title: 'خطِ آماده برای session_send از چتِ دیگر', onClick: identity }, 'کپیِ شناسهٔ چت')),
@@ -2665,7 +3206,7 @@ html[data-dsh-rtl="on"] a[href] {
         h('h4', null, 'انتقالِ تنظیمات'),
         h(TransferEditor, null),
         h('p', { className: 'dsh-plus-note' },
-          'اندازهٔ فونتِ متن و کد را خودِ DSH دارد: Settings ← General ← Appearance. نقل‌قولِ یک‌کلیکی هم از خودِ DSH است (دکمهٔ Quote روی متنِ انتخاب‌شده)؛ این منو گزینه‌های بیشتری اضافه می‌کند. همه‌چیز در همین مرورگر ذخیره می‌شود.'));
+          'اندازهٔ فونتِ متن و کد را خودِ DSH دارد: Settings ← General ← Appearance. نقل‌قولِ یک‌کلیکی هم از خودِ DSH است (دکمهٔ Quote روی متنِ انتخاب‌شده)؛ این منو گزینه‌های بیشتری اضافه می‌کند. همه‌چیز در همین مرورگر ذخیره می‌شود.')));
     }
 
     /* --- جست‌وجو در گفتگو (بی‌دست‌زدن به DOM ِ React: CSS Highlight API) --- */
@@ -2992,6 +3533,12 @@ html[data-dsh-rtl="on"] a[href] {
       inject: ['slots'],
       apply(ctx) {
         clientCtx = ctx;
+        aaRequest();
+        ctx.effect(() => {
+          const timer=setInterval(()=>aaRequest(),1000);
+          timer.unref?.();
+          return ()=>clearInterval(timer);
+        });
         applyDom();
         if (typeof window !== 'undefined') {
           window.addEventListener('storage', (event) => {
@@ -3096,6 +3643,13 @@ html[data-dsh-rtl="on"] a[href] {
         ctx.effect(() => startAskMarkdown(window), 'dsh-rtl:ask-md');
 
         ctx.effect(() => startPlusDom(), 'dsh-rtl:plus-dom');
+
+        ctx.inject?.(['slots', 'sessions'], sessionCtx => {
+          sessionCtx.slots.inject('tool.call.toolview', () => sessionCtx.slots.register({
+            name: 'tool.call.toolview', key: 'ToolSearch',
+            inject: sessionId => ({ searchHistory: sessionCtx.sessions.binding(sessionId)?.eventSource }),
+          }, ClaudeToolSearchResult));
+        });
 
         /* دکمه‌های فرمانِ سریع: بالای کادرِ نوشتن و/یا سربرگِ چت */
         try {

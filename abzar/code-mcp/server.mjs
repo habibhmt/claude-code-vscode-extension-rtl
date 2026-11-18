@@ -25,7 +25,8 @@ const OUTCOME_CMDS = /\b(grep|rg|egrep|fgrep|find|diff|test|\[|git diff|git grep
 
 class ShellError extends Error {
   constructor(out) {
-    super(`ShellError: exit ${out.exitCode}`);
+    const detail = (out.stderr || out.stdout || "").trim().split("\n").slice(-3).join("\n");
+    super(`exit ${out.exitCode}${detail ? `\n${detail}` : ""}`);
     this.name = "ShellError";
     this.stdout = out.stdout;
     this.stderr = out.stderr;

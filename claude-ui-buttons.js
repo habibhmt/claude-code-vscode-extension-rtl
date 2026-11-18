@@ -64,6 +64,7 @@
       return;
     }
     if (d.type === 'crtl-tanzimat-taze') { tz_taze_shod(d.channelId); return; }
+    if (d.type === 'crtl-provider-list' || d.type === 'crtl-provider-sabt') { prv_resid(d); return; }
     if (d.type === 'crtl-tik-list') { if (d.reqId === TIK.last) tik_resid(d); return; }
     if (d.type === 'crtl-tik-sabt' || d.type === 'crtl-tik-badi') {
       var tikCb = TZ.waiting['tik' + d.reqId];
@@ -2313,7 +2314,9 @@
     var dokme = {};
     var tikPage = document.createElement('div');
     tikPage.id = 'crtl-page-tik';
-    [['font', 'فونت'], ['abzar', 'ابزارها'], ['claude', 'تنظیمات کلود']].forEach(function (f) {
+    var providerPage = document.createElement('div');
+    providerPage.id = 'crtl-page-provider';
+    [['font', 'فونت'], ['abzar', 'ابزارها'], ['claude', 'تنظیمات کلود'], ['provider', 'پرووایدرها']].forEach(function (f) {
       var b = document.createElement('button');
       b.type = 'button';
       b.textContent = f[1];
@@ -2324,25 +2327,154 @@
       strip.appendChild(b);
     });
     function neshan() {
-      var tab = TZ.tab === 'claude' || TZ.tab === 'abzar' ? TZ.tab : 'font', pahn = tab !== 'font';
+      var tab = TZ.tab === 'claude' || TZ.tab === 'abzar' || TZ.tab === 'provider' ? TZ.tab : 'font', pahn = tab !== 'font';
       fontPage.style.display = tab === 'font' ? 'flex' : 'none';
       tikPage.style.display = tab === 'abzar' ? 'flex' : 'none';
       claudePage.style.display = tab === 'claude' ? 'flex' : 'none';
+      providerPage.style.display = tab === 'provider' ? 'flex' : 'none';
       Object.keys(dokme).forEach(function (k) { dokme[k].setAttribute('aria-selected', k === tab ? 'true' : 'false'); });
       panel.classList.toggle('crtl-panel-pahn', pahn);
       document.documentElement.classList.toggle('crtl-tab-claude', pahn);
       if (tab === 'claude') tz_porsidan();
       if (tab === 'abzar') tik_porsidan();
+      if (tab === 'provider') prv_porsidan();
     }
     TZ.neshan = neshan;
     panel.appendChild(strip);
     panel.appendChild(fontPage);
     panel.appendChild(tikPage);
     panel.appendChild(claudePage);
+    panel.appendChild(providerPage);
     TZ.rows = null;
     tik_sakht_safhe(tikPage);
     tz_sakht_safhe(claudePage);
+    prv_sakht_safhe(providerPage);
     neshan();
+  }
+
+  /* ---------------- the «پرووایدرها» tab ---------------- */
+  // Habib, 18 Nov 2026: «پرووایدر به پرووایدر باید لیست جدا باشه … یه تب پرووایدرها توی Aa
+  // که انتخاب کنم کدوم خانواده مدل توی لیست باشن اصلا». A tick here rewrites
+  // claude-api/model-filter.json; the model menu is rebuilt from that file, so the
+  // list changes without touching the extension bundle. The page cannot read disk,
+  // so every read and write goes through the host hook.
+  var PRV = { req: 0, last: 0, data: null, filter: { providers: [], hiddenFamilies: [] }, el: null, baz: '' };
+
+  function prv_api() {
+    return window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+  }
+  function prv_porsidan() {
+    var api = prv_api(); if (!api) return;
+    PRV.last = ++PRV.req;
+    api.postMessage({ type: 'crtl-provider-list', reqId: PRV.last });
+  }
+  function prv_sabt() {
+    var api = prv_api(); if (!api) return;
+    PRV.baz = 'ذخیره…';
+    prv_navari();
+    api.postMessage({ type: 'crtl-provider-sabt', reqId: ++PRV.req, filter: PRV.filter });
+  }
+  function prv_resid(d) {
+    if (!d.ok) { PRV.baz = 'خطا: ' + (d.khata || 'نامعلوم'); prv_navari(); return; }
+    PRV.data = d.groups || [];
+    PRV.filter = { providers: (d.filter && d.filter.providers) || [], hiddenFamilies: (d.filter && d.filter.hiddenFamilies) || [] };
+    PRV.baz = d.type === 'crtl-provider-sabt' ? 'ذخیره شد' : '';
+    prv_navari();
+  }
+  function prv_hast(f) { return PRV.filter.hiddenFamilies.indexOf(f) < 0; }
+  function prv_tik(f, on) {
+    var list = PRV.filter.hiddenFamilies.filter(function (x) { return x !== f; });
+    if (!on) list.push(f);
+    PRV.filter.hiddenFamilies = list;
+    prv_sabt();
+  }
+  function prv_provider(g, on) {
+    var slug = g.key.indexOf('openrouter:') === 0 ? g.key.slice(11) : '';
+    if (slug) {
+      var list = PRV.filter.providers.filter(function (x) { return x !== slug; });
+      if (on) list.push(slug);
+      PRV.filter.providers = list.sort();
+    } else {
+      // A curated block has no switch of its own: on/off is its families' ticks.
+      var hidden = PRV.filter.hiddenFamilies.filter(function (x) {
+        return !g.families.some(function (f) { return f.key === x; });
+      });
+      if (!on) g.families.forEach(function (f) { hidden.push(f.key); });
+      PRV.filter.hiddenFamilies = hidden;
+    }
+    prv_sabt();
+  }
+  function prv_keshidan(g) {
+    var box = document.createElement('div');
+    box.style.cssText = 'display:flex;flex-direction:column;gap:1px;border-bottom:1px solid rgba(128,128,128,.2);padding:2px 0 4px';
+    var head = document.createElement('label');
+    head.style.cssText = 'display:flex;align-items:center;gap:6px;font-weight:600;padding:2px 4px;cursor:pointer';
+    var box1 = document.createElement('input');
+    box1.type = 'checkbox';
+    box1.checked = g.curated ? g.families.some(function (f) { return prv_hast(f.key); }) : !!g.on;
+    box1.addEventListener('change', function () { prv_provider(g, box1.checked); });
+    var name = document.createElement('span');
+    name.textContent = g.label;
+    var count = document.createElement('span');
+    count.style.cssText = 'opacity:.55;font-weight:400;font-size:.9em';
+    count.textContent = g.count + ' مدل';
+    head.appendChild(box1); head.appendChild(name); head.appendChild(count);
+    box.appendChild(head);
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:2px 10px;padding:0 4px 2px 22px';
+    g.families.forEach(function (f) {
+      var lab = document.createElement('label');
+      lab.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:.92em;cursor:pointer';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = prv_hast(f.key);
+      cb.addEventListener('change', function () { prv_tik(f.key, cb.checked); });
+      var t = document.createElement('span');
+      t.textContent = f.label + ' ';
+      var c = document.createElement('span');
+      c.style.cssText = 'opacity:.5;font-size:.9em';
+      c.textContent = f.count;
+      lab.appendChild(cb); lab.appendChild(t); lab.appendChild(c);
+      lab.dataset.search = (g.label + ' ' + f.label).toLowerCase();
+      wrap.appendChild(lab);
+    });
+    box.appendChild(wrap);
+    box.dataset.search = (g.label + ' ' + g.families.map(function (f) { return f.label; }).join(' ')).toLowerCase();
+    return box;
+  }
+  function prv_navari() {
+    if (!PRV.el) return;
+    var list = PRV.el.list;
+    list.innerHTML = '';
+    if (!PRV.data) { list.textContent = 'در حال خواندن…'; return; }
+    var q = (PRV.el.q.value || '').trim().toLowerCase();
+    var shown = 0;
+    PRV.data.forEach(function (g) {
+      var box = prv_keshidan(g);
+      if (q && box.dataset.search.indexOf(q) < 0) box.style.display = 'none';
+      else shown++;
+      list.appendChild(box);
+    });
+    PRV.el.matn.textContent = shown + ' از ' + PRV.data.length + ' پرووایدر' + (PRV.baz ? ' · ' + PRV.baz : '');
+  }
+  function prv_sakht_safhe(page) {
+    page.id = 'crtl-page-provider';
+    page.style.cssText = 'display:none;flex-direction:column;gap:4px;min-width:0';
+    var bar = document.createElement('div');
+    bar.style.cssText = 'display:flex;gap:6px;align-items:center';
+    var q = document.createElement('input');
+    q.type = 'search';
+    q.placeholder = 'جست‌وجو در پرووایدرها…';
+    q.style.cssText = 'flex:1;min-width:0';
+    q.addEventListener('input', prv_navari);
+    var matn = document.createElement('span');
+    matn.style.cssText = 'opacity:.6;font-size:.85em;white-space:nowrap';
+    bar.appendChild(q); bar.appendChild(matn);
+    var list = document.createElement('div');
+    list.style.cssText = 'display:flex;flex-direction:column;overflow:auto;max-height:52vh;min-height:60px';
+    page.appendChild(bar);
+    page.appendChild(list);
+    PRV.el = { q: q, matn: matn, list: list };
   }
 
   /* ---------------- the «ابزارها» tab ---------------- */
@@ -3698,6 +3830,9 @@
   }
   // a dollar figure is «≈» (a preset may fall back to another provider); with calls still unpriced it says so
   function navar_hazine(d) {
+    // «هزینه» (کلِ چت) هم از منبعِ حقیقتِ اپ می‌آید تا هیچ‌وقت از «هزینهٔ امروز»
+    // کوچک‌تر درنیاید؛ محاسبهٔ محلیِ پنل با قیمتِ کش‌شده ۵ برابر کم می‌آورد.
+    if (d.emrooz && Number.isFinite(d.emrooz.omr)) return '≈' + navar_dolar(d.emrooz.omr);
     if (!d.tamas) return navar_dolar(0);
     if (d.bi_gheymat === d.tamas) return 'نامعلوم';
     return '≈' + navar_dolar(d.usd) + (d.bi_gheymat ? '+?' : '');

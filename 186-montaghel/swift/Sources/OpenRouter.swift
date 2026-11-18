@@ -235,6 +235,9 @@ struct ChatInfo: Codable {
     var last: String
     var live: Bool
     var children: [ChildInfo]
+    /// Whole-chat cost at list price; the panel shows it as «هزینه» so that
+    /// figure can never be smaller than the same chat's «هزینهٔ امروز».
+    var lifetime: Double?
 }
 struct FolderInfo: Codable {
     var id: String
@@ -315,10 +318,15 @@ struct TranscriptEntry {
     /// input + output + cache read + cache write, for the token-share fallback
     /// used when the trace log is missing.
     var tokens: Int = 0
+    /// The same message priced at the model's list price, so a chat's lifetime
+    /// figure comes from one formula and can never fall below its day figure.
+    var usd: Double = 0
 }
 
 struct IndexedFile {
     private(set) var offset: UInt64 = 0
+    /// mtime of the last full read; a file that did not move is not re-read.
+    private var lastMtime: Double = -1
     var entries: [TranscriptEntry] = []
     var customTitle = ""
     var aiTitle = ""
@@ -329,9 +337,19 @@ struct IndexedFile {
     private static let customMark = Data(#""type":"custom-title""#.utf8)
     private static let aiMark = Data(#""type":"ai-title""#.utf8)
 
-    mutating func read(path: String, size: Int, chat: String) {
-        if size < Int(offset) { self = IndexedFile() }   // rewritten: read from the top
-        guard size > Int(offset), let fh = FileHandle(forReadingAtPath: path) else { return }
+    mutating func read(path: String, size: Int, mtime: Double, chat: String) {
+        // The CLI compacts a transcript by rewriting it in place, and the new
+        // file can be *larger* than the old offset. Any incremental read after
+        // that lands mid-record and double-counts (seen 18 Nov: $1.45 for a
+        // chat that costs $1.33). A changed mtime therefore means "start over";
+        // only a file nobody touched is skipped outright.
+        if mtime != lastMtime {
+            self = IndexedFile()
+            lastMtime = mtime
+        } else {
+            return
+        }
+        guard size > 0, let fh = FileHandle(forReadingAtPath: path) else { return }
         defer { try? fh.close() }
         try? fh.seek(toOffset: offset)
         var consumed = offset
@@ -380,9 +398,12 @@ struct IndexedFile {
         func n(_ k: String) -> Int { (u[k] as? NSNumber)?.intValue ?? 0 }
         let tokens = n("input_tokens") + n("output_tokens")
             + n("cache_read_input_tokens") + n("cache_creation_input_tokens")
+        let usd = Double(n("input_tokens")) * HadsLog.pIn + Double(n("output_tokens")) * HadsLog.pOut
+            + Double(n("cache_read_input_tokens")) * HadsLog.pCr
+            + Double(n("cache_creation_input_tokens")) * HadsLog.pCw
         entries.append(TranscriptEntry(ts: d.timeIntervalSince1970, chat: chat,
                                        sidechain: (e["isSidechain"] as? Bool) ?? false,
-                                       tokens: tokens))
+                                       tokens: tokens, usd: usd))
     }
 }
 
@@ -494,6 +515,10 @@ struct FolderIndex {
     private(set) var tokensBySide: [String: Int] = [:]
     private(set) var lastByChat: [String: TimeInterval] = [:]
     private(set) var messagesByChat: [String: Int] = [:]
+    /// Every token the chat ever wrote, so the panel's lifetime figure can come
+    /// from the same source as its "today" figure and can never be smaller.
+    private(set) var tokensAllByChat: [String: Int] = [:]
+    private(set) var costAllByChat: [String: Double] = [:]
     /// `since` limits which files are opened; `dayStart` limits which entries
     /// count, so the day's spend is split by today's tokens only.
     private var since: TimeInterval = 0
@@ -514,7 +539,8 @@ struct FolderIndex {
             // A file last written before the oldest request cannot hold its message.
             if mtime < since { continue }
             var f = files[name] ?? IndexedFile()
-            f.read(path: path, size: Int(st.st_size), chat: (name as NSString).deletingPathExtension)
+            f.read(path: path, size: Int(st.st_size), mtime: mtime,
+                   chat: (name as NSString).deletingPathExtension)
             files[name] = f
         }
         finish()
@@ -526,6 +552,12 @@ struct FolderIndex {
         tokensBySide = [:]
         lastByChat = [:]
         messagesByChat = [:]
+        tokensAllByChat = [:]
+        costAllByChat = [:]
+        for e in sorted {
+            tokensAllByChat[e.chat, default: 0] += e.tokens
+            costAllByChat[e.chat, default: 0] += e.usd
+        }
         for e in sorted where e.ts >= dayStart {
             tokensByChat[e.chat, default: 0] += e.tokens
             if e.sidechain { tokensBySide[e.chat, default: 0] += e.tokens }
@@ -866,6 +898,7 @@ actor UsageCollector {
             var last: TimeInterval = 0; var subCost = 0.0; var subCount = 0
             var hadsCost = 0.0; var hadsCount = 0
             var remCost = 0.0; var remCount = 0
+            var lifetime = 0.0
         }
         struct FolderAgg {
             var id: String; var name: String; var cost = 0.0; var requests = 0
@@ -918,6 +951,7 @@ actor UsageCollector {
                         c.cost = budget * Double(tk) / Double(total)
                         c.last = idx.lastByChat[chat] ?? 0
                         c.count = idx.messagesByChat[chat] ?? 0
+                        c.lifetime = idx.costAllByChat[chat] ?? 0
                         let side = idx.tokensBySide[chat] ?? 0
                         if side > 0, tk > 0 {
                             c.subCost = c.cost * Double(side) / Double(tk)
@@ -962,7 +996,8 @@ actor UsageCollector {
             }
             return ChatInfo(id: c.id, title: c.title, cost: c.cost,
                             last: ORTime.string(Date(timeIntervalSince1970: c.last)),
-                            live: nowTs - c.last < 180, children: children)
+                            live: nowTs - c.last < 180, children: children,
+                            lifetime: c.lifetime > 0 ? c.lifetime : nil)
         }
 
         var folders: [FolderInfo] = []
@@ -971,7 +1006,8 @@ actor UsageCollector {
             if f.extCount > 0 {
                 chats.append(ChatInfo(id: "extensions", title: "Extensions", cost: f.extCost,
                                       last: ORTime.string(Date(timeIntervalSince1970: f.extLast)),
-                                      live: nowTs - f.extLast < 180, children: []))
+                                      live: nowTs - f.extLast < 180, children: [],
+                                      lifetime: nil))
             }
             chats.sort { $0.last > $1.last }
             folders.append(FolderInfo(id: f.id, name: f.name, cost: f.cost, requests: f.requests, chats: chats))

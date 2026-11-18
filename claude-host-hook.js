@@ -812,6 +812,21 @@
       if (!path.isAbsolute(cwd || '')) throw Error('پوشه معلوم نیست');
       return m.type === 'crtl-aa-save' ? helper.save(os.homedir(), 'prefs', m.scope, cwd, m.sid || '', m.patch, m.unset || []) : helper.view(os.homedir(), 'prefs', cwd, m.sid || '');
     }
+    /* ---------------- the «پرووایدرها» tab (Habib, 18 Nov 2026) ----------------
+     * «پرووایدر به پرووایدر باید لیست جدا باشه … یه تب پرووایدرها توی Aa که انتخاب کنم
+     * کدوم خانواده مدل توی لیست باشن اصلا». The page cannot read disk, so it asks here.
+     * A tick writes claude-api/model-filter.json; the picker reads that file on every
+     * rebuild, so the menu changes without touching the extension bundle.
+     */
+    var PRV_ROOT = '/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/abzar/216-migration';
+
+    // The tree and the file writing live in a module so they can be tested
+    // without VS Code; this function is only the transport.
+    function providerHandler(m) {
+      var helper = require(path.join(PRV_ROOT, 'scripts/model_providers.cjs'));
+      return Object.assign({ type: m.type, reqId: m.reqId, ok: true }, helper.handle(m));
+    }
+
     function wire(webview) {
       if (!webview || webview.__crtlHost) return;
       webview.__crtlHost = true;
@@ -844,6 +859,11 @@
           }, function (e) {
             webview.postMessage({ type: 'crtl-tanzimat-sabt', reqId: m.reqId, ok: false, matn: String(e && e.message || e) });
           });
+          return;
+        }
+        if (m && (m.type === 'crtl-provider-list' || m.type === 'crtl-provider-sabt')) {
+          try { webview.postMessage(providerHandler(m)); }
+          catch (e) { webview.postMessage({ type: m.type, reqId: m.reqId, ok: false, khata: String(e && e.message || e) }); }
           return;
         }
         if (m && m.type === 'crtl-navar') {
@@ -1253,12 +1273,13 @@
           var j = JSON.parse(fs.readFileSync(p, 'utf8'));
           var map = {};
           (j.folders || []).forEach(function (f) {
-            (f.chats || []).forEach(function (c) { map[c.id] = c.cost; });
+            (f.chats || []).forEach(function (c) { map[c.id] = { emrooz: c.cost, omr: c.lifetime }; });
           });
           EMROOZ = { mtime: mt, map: map, taghribi: j.approximate === true };
         }
         var v = EMROOZ.map[sid];
-        return typeof v === 'number' ? { usd: v, taghribi: EMROOZ.taghribi } : null;
+        if (!v) return null;
+        return { usd: v.emrooz, omr: v.omr, taghribi: EMROOZ.taghribi };
       } catch (e) { return null; }
     }
 

@@ -79,6 +79,22 @@ assert.equal(new Set(withOpenAi.map(m => m.value)).size, withOpenAi.length, 'dup
 assert.deepEqual(modelChoices(catalog, { filter: { ...none, providers: ['openai'] }, used: noUsed }), withOpenAi,
   'a filtered list must be deterministic too');
 
+// Two config files, because the VS Code session and the terminal disagree about
+// where a chat's model is remembered. Missing one leaves half the chats unprotected.
+const { usedModels } = require('./vscode_model_catalog.cjs');
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'used-'));
+try {
+  const first = path.join(scratch, 'a.json');
+  const second = path.join(scratch, 'b.json');
+  fs.writeFileSync(first, JSON.stringify({ clientDataCacheSlots: { one: { model: 'deepseek/a' } } }));
+  fs.writeFileSync(second, JSON.stringify({ clientDataCacheSlots: { two: { model: 'claude-opus-5-5' } } }));
+  assert.deepEqual([...usedModels([first, second])].sort(), ['claude-opus-5-5', 'deepseek/a']);
+  assert.deepEqual([...usedModels([first])], ['deepseek/a']);
+  assert.deepEqual([...usedModels([path.join(scratch, 'missing.json')])], [], 'a missing file must not throw');
+} finally {
+  fs.rmSync(scratch, { recursive: true, force: true });
+}
+
 // A filter file that cannot be read must never take the picker down.
 const fsRead = require('node:fs');
 const realRead = fsRead.readFileSync;

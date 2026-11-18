@@ -67,11 +67,15 @@ function readJson(file) {
  * chat pointing at a row its picker can no longer draw, so the filter never
  * removes them. Missing or unreadable file simply means "nothing to protect".
  */
-function usedModels(file = path.join(os.homedir(), '.claude.json')) {
-  const data = readJson(file);
-  const slots = data?.clientDataCacheSlots;
+function usedModels(files = [path.join(os.homedir(), '.claude.json'),
+                             path.join(os.homedir(), '.claude', '.claude.json')]) {
+  // Two files, not one: the VS Code session runs with CLAUDE_CONFIG_DIR=~/.claude
+  // and records its chats in ~/.claude/.claude.json, while the terminal records
+  // them in ~/.claude.json. Reading only one would protect half the chats.
   const used = new Set();
-  if (slots && typeof slots === 'object') {
+  for (const file of [].concat(files)) {
+    const slots = readJson(file)?.clientDataCacheSlots;
+    if (!slots || typeof slots !== 'object') continue;
     for (const slot of Object.values(slots)) {
       if (slot && typeof slot.model === 'string' && slot.model) used.add(slot.model);
     }

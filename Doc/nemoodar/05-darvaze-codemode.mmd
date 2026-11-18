@@ -1,0 +1,10 @@
+flowchart TD
+  A[CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1] --> B{سطح؟}
+  B -->|پنل افزونه| X[❌ همیشه خاموش]
+  B -->|ترمینال| C{مدل و مسیر؟}
+  C -->|DeepSeek / OpenRouter| Y[❌ فقط API مستقیم Anthropic]
+  C -->|Claude و بدونِ BASE_URL| D{DISABLE_NONESSENTIAL_TRAFFIC}
+  D -->|ست است| Z[❌ فلگ‌ها نمی‌آیند]
+  D -->|برداشته شد| E{حساب مجاز؟}
+  E -->|پرداخت معوق| W[❌ تماس با مدل رد می‌شود]
+  E -->|مجاز| F[✅ Code Mode روشن]

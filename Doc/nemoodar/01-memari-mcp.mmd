@@ -1,0 +1,12 @@
+flowchart LR
+  subgraph Config
+    A[~/.claude.json<br/>127 keys] --> S[mcpServers]
+    B[~/.claude/.claude.json<br/>symlink to A] --> S
+  end
+  S --> M1[hafeze]
+  S --> M2[kompyuter]
+  S --> M3[code]
+  subgraph Sessions
+    T[ترمینال] -->|CLAUDE_CONFIG_DIR برداشته| A
+    V[افزونه] -->|CLAUDE_CONFIG_DIR=~/.claude| B
+  end

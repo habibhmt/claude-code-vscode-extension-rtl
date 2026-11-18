@@ -91,7 +91,12 @@ class AccountChatTests(unittest.TestCase):
                     for index, (choice, endpoint, wire) in enumerate([
                         ('anthropic/claude-opus-5.5', router, 'anthropic/claude-opus-5.5'),
                         ('anthropic-api/claude-opus-5-5', console, 'claude-opus-5-5'),
-                        ('deepseek/deepseek-v4.1-flash-1017', router, 'deepseek/deepseek-v4.1-flash-1017')
+                        ('deepseek/deepseek-v4.1-flash-1017', router, 'deepseek/deepseek-v4.1-flash-1017'),
+                        # A @preset row must reach OpenRouter with the preset intact;
+                        # 38 of the 52 DeepSeek rows use this shape.
+                        ('deepseek/deepseek-v4.1-flash-1017@preset/mh-deepseek-v4-1-flash-1017-stepfun',
+                         router,
+                         'deepseek/deepseek-v4.1-flash-1017@preset/mh-deepseek-v4-1-flash-1017-stepfun')
                     ]):
                         if index:
                             req = 'pick-' + str(index)

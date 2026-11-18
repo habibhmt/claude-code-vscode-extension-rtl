@@ -50,6 +50,12 @@ if [ -n "$NEW" ]; then
       "$BALE" "مدل Stealth تازه آمد: $m" || true
     fi
   done <<< "$NEW"
+  # فهرستِ مشترک هم تازه شود: مدلِ stealth در /v1/models نیست، پس تنها راهِ رسیدنش
+  # به منوی مدل همین تازه‌سازی است. خطا فقط در لاگ می‌نشیند تا آلارم از دست نرود.
+  REFRESH="$HOME/1-MY-WORK/136th-day-fix-rtl-claude/abzar/216-migration/scripts/refresh_openrouter_catalog.py"
+  if [ -f "$REFRESH" ]; then
+    python3 "$REFRESH" >> "$LOG" 2>&1 || echo "$(date '+%F %T') catalogue refresh failed" >> "$LOG"
+  fi
   # baseline = اجتماعِ همهٔ مدل‌های دیده‌شده (پس حذفِ موقت دوباره آلارم نمی‌دهد)
   { cat "$BASE"; cat "$DIR/current.txt"; } | sort -u > "$BASE.tmp" && mv "$BASE.tmp" "$BASE"
 fi

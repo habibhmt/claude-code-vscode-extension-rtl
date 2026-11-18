@@ -46,3 +46,6 @@ archive/
 
 # 216 migration: generated runtime artifacts
 abzar/216-migration/.runtime/
+
+# Pre-edit copies made before touching another session's files
+*.bak-*

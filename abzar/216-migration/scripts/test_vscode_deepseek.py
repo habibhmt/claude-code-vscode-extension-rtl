@@ -11,7 +11,18 @@ import vscode_deepseek as vscode
 import vscode_deepseek_wrapper as wrapper
 from claude_deepseek import MODEL, PilotError
 
-NATIVE = Path.home() / ".vscode/extensions/anthropic.claude-code-2.1.325-darwin-arm64/resources/native-binary/claude"
+def active_extension():
+    """The version VS Code actually runs. A pinned path broke the moment VS Code
+    removed the old copy — and nothing in this test is about a version number."""
+    root = Path.home() / ".vscode/extensions"
+    registered = json.loads((root / "extensions.json").read_text())
+    entry = next(e for e in registered if e["identifier"]["id"].lower() == "anthropic.claude-code")
+    return root / entry["relativeLocation"]
+
+
+EXTENSION = active_extension()
+NATIVE = EXTENSION / "resources/native-binary/claude"
+VERSION = EXTENSION.name.rsplit("-", 2)[0].removeprefix("anthropic.claude-code-")
 
 
 class WrapperTests(unittest.TestCase):
@@ -21,7 +32,7 @@ class WrapperTests(unittest.TestCase):
         run = subprocess.run([sys.executable, str(vscode.WRAPPER), str(NATIVE), "--version"],
                              env=env, capture_output=True, text=True, timeout=10)
         self.assertEqual(run.returncode, 0, run.stderr)
-        self.assertIn("2.1.325", run.stdout)
+        self.assertIn(VERSION, run.stdout, "the wrapper must run the binary VS Code is using")
 
     def test_missing_key_blocks_before_network_and_native_start(self):
         with patch.object(wrapper, "check_remote_key") as remote:

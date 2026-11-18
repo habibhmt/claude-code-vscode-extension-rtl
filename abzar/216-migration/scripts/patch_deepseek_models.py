@@ -22,20 +22,58 @@ MARK='/* project216-deepseek-models */'
 READER = 'require(' + json.dumps(str(ROOT / 'scripts/vscode_model_catalog.cjs')) + ').modelChoices()'
 
 
+# The config schema is a zod object, and zod drops every key it does not know.
+# `group`, `family` and `familyLabel` would vanish on the cached path, so the
+# picker would draw its provider headers only on a fresh window. One anchored
+# addition, proved by the fields being present exactly once afterwards.
+MODEL_SCHEMA = re.compile(r'(\{value:(\w+)\(\),resolvedModel:\w+\(\)\.optional\(\),displayName:\2\(\)'
+                          r'[^}]*?disabled:\w+\(\)\.optional\(\))')
+
+
+def install_model_fields(text):
+    if re.search(r'\{value:(\w+)\(\),resolvedModel:\w+\(\)\.optional\(\),displayName:\1\(\)'
+                 r'[^}]*?group:\1\(\)\.optional\(\)', text):
+        return text
+    found = MODEL_SCHEMA.findall(text)
+    if len(found) != 1:
+        raise ValueError(f'model schema anchor changed (matched {len(found)})')
+    match = MODEL_SCHEMA.search(text)
+    string = match.group(2)
+    # The capture stops before the object's closing brace, so the new fields go
+    # right after `disabled:` and the brace the caller still holds stays put.
+    extra = (',group:' + string + '().optional(),family:' + string + '().optional(),familyLabel:'
+             + string + '().optional()')
+    patched = text[:match.start(1)] + match.group(1) + extra + text[match.end(1):]
+    if patched.count(extra) != 1:
+        raise ValueError('model schema overlay damaged')
+    return patched
+
+
 def patch_text(text):
     import re
+    text = install_model_fields(text)
     # Upgrade already-running patch versions from 2.1.323–326. The legacy
     # catalog stays readable by windows that have not reloaded yet.
-    expr = 'JSON.parse(require("fs").readFileSync(' + json.dumps(str(CATALOG)) + ',"utf8"))'
+    #
+    # The path is matched as a wildcard on purpose: 2.1.326 still carries the
+    # absolute path of the folder this migration deleted, so an exact-path
+    # match skipped it and left that version reading a file that no longer
+    # exists. Only the wrapper is replaced, never the bare read — the wrapper's
+    # own "deepseek/ only" check would reject the Claude rows.
+    expr = re.compile(r'JSON\.parse\(require\("fs"\)\.readFileSync\("[^"]*deepseek-models\.json","utf8"\)\)')
     if MARK in text:
         for check in (
             'x.value.startsWith("deepseek/")',
             '(x.value.startsWith("deepseek/")||x.value.startsWith("claude-"))',
         ):
             for message in ('invalid DeepSeek-only catalog', 'invalid model catalog'):
-                legacy = '(()=>{const m=' + expr + ';if(!Array.isArray(m)||!m.length||!m.every(x=>x&&typeof x.value==="string"&&' + check + '&&!x.value.includes(":")))throw Error("' + message + '");return m})()'
-                text = text.replace(legacy, READER)
-        text = text.replace(expr, READER)
+                legacy = re.compile(
+                    r'\(\(\)=>\{const (\w+)=' + expr.pattern + r';if\(!Array\.isArray\(\1\)\|\|!\1\.length'
+                    r'\|\|!\1\.every\(x=>x&&typeof x\.value==="string"&&' + re.escape(check)
+                    + r'&&!x\.value\.includes\(":"\)\)\)throw Error\("' + re.escape(message)
+                    + r'"\);return \1\}\)\(\)')
+                text = legacy.sub(lambda m: READER, text)
+        text = expr.sub(lambda m: READER, text)
 
     def install(pattern, replacement, proof):
         nonlocal text

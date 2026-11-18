@@ -557,6 +557,19 @@ PYEOF
                         "$history_node" "$REPO_DIR/dsh-claude-yeki/history-webview.mjs" "$ext_dir/index.js" || echo "[WARN] Claude history refresh is unavailable for $ext_dir" >&2
                     fi
                 fi
+                # Provider and family headers in the model picker. index.js is
+                # rebuilt from its backup on every run, so this must come after
+                # the rebuild. A drifted anchor only costs the headers — the
+                # picker itself keeps working — hence a warning, not a failure.
+                MODEL_GROUPS_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_model_groups.py"
+                if [ -f "$MODEL_GROUPS_PATCH" ] && command -v python3 >/dev/null 2>&1; then
+                    python3 "$MODEL_GROUPS_PATCH" "$ext_dir/index.js" \
+                        || echo "[WARN] Model picker headers were not installed in $ext_dir" >&2
+                fi
+                # Verify, don't assume: a run of an older copy of this script
+                # rebuilt index.js once and quietly dropped the headers.
+                grep -q 'ccgh' "$ext_dir/index.js" 2>/dev/null \
+                    || echo "[WARN] Model picker headers are missing from $ext_dir/index.js" >&2
             fi
 
             # Self-test: a broken injection would take the whole panel down,

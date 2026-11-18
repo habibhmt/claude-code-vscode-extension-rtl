@@ -11,10 +11,12 @@ import http.server
 import json
 import os
 from pathlib import Path
+import queue
 import re
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import uuid
 from zoneinfo import ZoneInfo
@@ -43,6 +45,40 @@ def safe_error(text):
     return text[:300]
 
 
+ATTRIBUTION_DELAYS = (2, 3, 5, 8)
+
+
+def provider_of(base, generation_id, key, opener):
+    """Which upstream actually served this generation.
+
+    The picker's label says «DeepSeek V4.1 Flash 1017 · DeepInfra» because that
+    is the preset we asked for; OpenRouter may have fallen back elsewhere. This
+    asks OpenRouter what really ran. It is OpenRouter's own word, not a
+    cryptographic proof — that research prototype is not callable yet — but it
+    turns «Morph said, InferenceNet answered» from invisible into recorded.
+    """
+    request = urllib.request.Request(base + '/generation?id=' + urllib.parse.quote(generation_id),
+                                     headers={'Authorization': 'Bearer ' + key})
+    try:
+        with opener.open(request, timeout=15) as response:
+            data = json.loads(response.read()).get('data') or {}
+    except urllib.error.HTTPError as error:
+        # OpenRouter answers 404 until it has indexed the generation.
+        error.close()
+        return None
+    except (OSError, ValueError, urllib.error.URLError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    provider = data.get('provider_name')
+    if not isinstance(provider, str) or not provider.strip():
+        return None
+    cost = data.get('total_cost')
+    return {'provider': provider.strip()[:80],
+            'model': data.get('model') if isinstance(data.get('model'), str) else None,
+            'cost': cost if isinstance(cost, (int, float)) and not isinstance(cost, bool) else None}
+
+
 def account_model(model, catalog):
     if not isinstance(model, str) or not model:
         raise ValueError('Missing model')
@@ -56,13 +92,28 @@ def account_model(model, catalog):
 
 class TraceServer(http.server.ThreadingHTTPServer):
     daemon_threads = True
-    def __init__(self, log_path, token, *, test_upstream=None, credential=None, trace_enabled=None):
+    def __init__(self, log_path, token, *, test_upstream=None, credential=None, trace_enabled=None,
+                 attribution_base='auto'):
         if len(token) < 24: raise ValueError('local token too short')
         upstream = 'https://openrouter.ai/api'
         if test_upstream is not None:
             if not re.fullmatch(r'http://127\.0\.0\.1:[0-9]+',test_upstream):
                 raise ValueError('test upstream must be loopback')
             upstream=test_upstream
+        # Off in the isolated tests unless asked for: a fixture server has no
+        # /generation route, and a background retry would outlive the test.
+        self.attribution_base = (upstream if test_upstream is None else None) \
+            if attribution_base == 'auto' else attribution_base
+        self.attribution_log = None
+        self.pending = None
+        if self.attribution_base:
+            self.pending = queue.Queue()
+            p = Path(log_path).with_name('provider-attribution.jsonl')
+            p.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            fd = os.open(p, os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW, 0o600)
+            os.fchmod(fd, 0o600)
+            self.attribution_log = os.fdopen(fd, 'a', encoding='utf8')
+            threading.Thread(target=self.attribute, daemon=True).start()
         self.upstream=upstream
         self.anthropic_upstream = test_upstream or 'https://api.anthropic.com'
         self.credential = credential
@@ -81,8 +132,38 @@ class TraceServer(http.server.ThreadingHTTPServer):
         assert set(row)<=FIELDS
         with self.lock:
             self.log.write(json.dumps(row,ensure_ascii=False)+'\n');self.log.flush()
+    def ask_provider(self, generation, key, model, project):
+        """Runs off the request path: OpenRouter needs a few seconds to index."""
+        for delay in ATTRIBUTION_DELAYS:
+            time.sleep(delay)
+            found = provider_of(self.attribution_base, generation, key, self.opener)
+            if not found:
+                continue
+            with self.lock:
+                self.attribution_log.write(json.dumps({
+                    'time_utc': dt.datetime.now(dt.timezone.utc).isoformat(),
+                    'generation': generation, 'requested_model': model,
+                    'project': project, **found}, ensure_ascii=False) + '\n')
+                self.attribution_log.flush()
+            return
+    def attribute(self):
+        while True:
+            item = self.pending.get()
+            if item is None:
+                return
+            try:
+                self.ask_provider(*item)
+            except Exception:
+                # A failed attribution must never take the gateway down; the
+                # request it belongs to has already been answered.
+                pass
     def server_close(self):
-        super().server_close(); self.log.close()
+        super().server_close()
+        if self.pending is not None:
+            self.pending.put(None)
+        self.log.close()
+        if self.attribution_log is not None:
+            self.attribution_log.close()
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs): return None
@@ -137,6 +218,8 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
         headers={k:v for k,v in self.headers.items() if k.lower() in
                  {'authorization','x-api-key','anthropic-version','anthropic-beta','content-type','accept','user-agent','x-app','http-referer','x-title','x-openrouter-title','x-openrouter-app-visibility','x-session-id','x-openrouter-session-id'}}
         upstream = self.server.upstream
+        account = None
+        key = None
         if self.server.credential is not None:
             try:
                 account, model = account_model(body.get('model'), catalog)
@@ -206,6 +289,11 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
             row['error']='transport_error'
             if not started:self.reply(502)
         finally:
+            # Only OpenRouter can name the upstream that served a generation, and
+            # only once it has indexed it — so this never blocks the answer.
+            if (self.server.pending is not None and account == 'openrouter' and row['status'] == 200
+                    and isinstance(row['response_id'], str) and row['response_id'].startswith('gen-')):
+                self.server.pending.put((row['response_id'], key, row['model'], row['project']))
             self.close_connection=True
             row['duration_ms']=round((time.monotonic()-start)*1000)
             self.server.record(row)

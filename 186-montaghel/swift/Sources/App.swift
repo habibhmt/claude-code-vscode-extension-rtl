@@ -10,6 +10,8 @@ let kBundleID = "com.habib.ClaudeUsage.v5"
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let collector = UsageCollector()
     var item: NSStatusItem!
+    var popover: NSPopover!
+    var panel: PanelView!
     var truth: SourceOfTruth?
     var blocked = false
     var creditAt: Date?
@@ -19,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var collectBusy = false
     let alarms = Alarms()
     var alarmTimer: Timer?
+    var lastClosedAt = Date.distantPast
 
     static let creditInterval: TimeInterval = 60
     static let collectInterval: TimeInterval = 20
@@ -43,65 +46,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         b.attributedTitle = NSAttributedString(string: text, attributes: [.font: font, .foregroundColor: color])
     }
 
-    // MARK: menu
+    // MARK: popover
 
-    private func money(_ v: Double) -> String { String(format: "$%.2f", v) }
-
-    private func disabled(_ title: String) -> NSMenuItem {
-        let i = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        i.isEnabled = false
-        return i
-    }
-
-    /// A folder/chat row that only opens a submenu must stay enabled; AppKit
-    /// refuses to open the submenu of a disabled item.
-    private func node(_ title: String) -> NSMenuItem {
-        let i = NSMenuItem(title: title, action: nil, keyEquivalent: "")
-        i.isEnabled = true
-        return i
-    }
-
-    private func rebuildMenu() {
-        let m = NSMenu()
-        m.autoenablesItems = false
-        if blocked {
-            m.addItem(disabled("⛔ VPN — OpenRouter unreachable"))
-        } else if let t = truth {
-            m.addItem(disabled("OpenRouter credit  \(t.credit.map { money($0.remaining) } ?? "$—")"))
-            let approx = t.approximate == true ? "  (approx)" : ""
-            m.addItem(disabled("Today  \(money(t.today.spend)) · \(t.today.requests) requests\(approx)"))
-            m.addItem(.separator())
-            for f in t.folders {
-                let folderItem = node("\(f.name)  \(money(f.cost))")
-                let folderMenu = NSMenu()
-                folderMenu.autoenablesItems = false
-                for c in f.chats {
-                    if c.children.isEmpty {
-                        folderMenu.addItem(disabled((c.live ? "● " : "") + "\(c.title)  \(money(c.cost))"))
-                        continue
-                    }
-                    let chatItem = node((c.live ? "● " : "") + "\(c.title)  \(money(c.cost))")
-                    let chatMenu = NSMenu()
-                    chatMenu.autoenablesItems = false
-                    for ch in c.children {
-                        let calls = ch.count > 0 ? " · \(ch.count)" : ""
-                        chatMenu.addItem(disabled("\(ch.label)  \(money(ch.cost))\(calls)"))
-                    }
-                    chatItem.submenu = chatMenu
-                    folderMenu.addItem(chatItem)
-                }
-                folderItem.submenu = folderMenu
-                m.addItem(folderItem)
-            }
-        } else {
-            m.addItem(disabled("Loading…"))
+    @objc private func togglePopover() {
+        guard let button = item.button else { return }
+        if popover.isShown {
+            popover.performClose(nil)
+            return
         }
-        m.addItem(.separator())
-        let refresh = NSMenuItem(title: "Refresh", action: #selector(refreshNow), keyEquivalent: "r")
-        refresh.target = self
-        m.addItem(refresh)
-        m.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        item.menu = m
+        // A transient popover closes on the same click that lands on the status
+        // button; without this guard the action would immediately reopen it.
+        if Date().timeIntervalSince(lastClosedAt) < 0.25 { return }
+        panel.render(truth: truth)
+        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
     }
 
     // MARK: data
@@ -115,7 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         blocked = (r.state == .blockedNoVPN)
         if let c = r.creditAt { creditAt = c }
         renderTitle()
-        rebuildMenu()
+        panel?.render(truth: truth)
     }
 
     private func refreshAll() async {
@@ -169,8 +126,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         killOtherInstances()
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.font = .monospacedDigitSystemFont(ofSize: 11, weight: .medium)
+        item.button?.target = self
+        item.button?.action = #selector(togglePopover)
         renderTitle()
-        rebuildMenu()
+
+        panel = PanelView(frame: NSRect(x: 0, y: 0, width: PanelView.width, height: 220))
+        panel.onRefresh = { [weak self] in self?.refreshNow() }
+        panel.onQuit = { NSApp.terminate(nil) }
+        panel.onResize = { [weak self] size in self?.popover.contentSize = size }
+
+        let controller = NSViewController()
+        controller.view = panel
+        popover = NSPopover()
+        popover.behavior = .transient
+        popover.appearance = NSAppearance(named: .darkAqua)
+        popover.animates = true
+        popover.delegate = self
+        popover.contentViewController = controller
+        popover.contentSize = panel.preferredSize
+
+        panel.render(truth: truth)
         startTimers()
 
         // Without a delegate macOS files notifications silently whenever it
@@ -203,5 +178,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     nonisolated func userNotificationCenter(_ c: UNUserNotificationCenter, willPresent n: UNNotification,
                                             withCompletionHandler done: @escaping (UNNotificationPresentationOptions) -> Void) {
         done([.banner, .list, .sound])
+    }
+}
+
+extension AppDelegate: NSPopoverDelegate {
+    nonisolated func popoverDidClose(_ notification: Notification) {
+        MainActor.assumeIsolated { lastClosedAt = Date() }
     }
 }

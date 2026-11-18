@@ -8,7 +8,7 @@ BUILD="$(mktemp -d)/ClaudeUsage.app"
 mkdir -p "$BUILD/Contents/MacOS" "$BUILD/Contents/Resources"
 
 swiftc -O -parse-as-library -o "$BUILD/Contents/MacOS/ClaudeUsage" \
-  Sources/OpenRouter.swift Sources/Transcript.swift Sources/Rules.swift Sources/Alarms.swift Sources/App.swift \
+  Sources/OpenRouter.swift Sources/Transcript.swift Sources/Rules.swift Sources/Alarms.swift Sources/App.swift Sources/Panel.swift \
   -framework AppKit -framework UserNotifications \
   -target arm64-apple-macos14.0
 

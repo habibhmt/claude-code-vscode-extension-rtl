@@ -386,6 +386,104 @@ struct IndexedFile {
     }
 }
 
+/// «حدس» (mods/hads) forks the chat itself, so its calls never reach the
+/// transcript and the trace cannot see them. It does keep its own per-session
+/// usage log (`~/.claude/hads-log/<sid>.usage.jsonl`), which is the only place
+/// the extra cost can be separated out. Priced at the model's list price.
+enum HadsLog {
+    static let dir = CUPaths.home.appendingPathComponent(".claude/hads-log")
+    static let pIn = 36e-9, pOut = 500e-9, pCr = 10e-9, pCw = 36e-9
+
+    /// Session id → (cost, calls) for calls at or after `since`.
+    static func load(since: TimeInterval) -> [String: (cost: Double, calls: Int)] {
+        var out: [String: (cost: Double, calls: Int)] = [:]
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+        for name in names where name.hasSuffix(".usage.jsonl") {
+            let sid = String(name.prefix { $0 != "." })
+            guard let text = try? String(contentsOf: dir.appendingPathComponent(name), encoding: .utf8)
+            else { continue }
+            var cost = 0.0, calls = 0
+            for line in text.split(whereSeparator: \.isNewline) {
+                guard let d = line.data(using: .utf8),
+                      let e = try? JSONSerialization.jsonObject(with: d) as? [String: Any],
+                      let t = (e["t"] as? NSNumber)?.doubleValue, t / 1000 >= since,
+                      let u = e["usage"] as? [String: Any] else { continue }
+                func n(_ k: String) -> Double { (u[k] as? NSNumber)?.doubleValue ?? 0 }
+                cost += n("input_tokens") * pIn + n("output_tokens") * pOut
+                    + n("cache_read_input_tokens") * pCr + n("cache_creation_input_tokens") * pCw
+                calls += 1
+            }
+            if calls > 0 { out[sid] = (cost, calls) }
+        }
+        return out
+    }
+}
+
+/// remember writes `<project>/.remember/logs/memory-YYYY-MM-DD.log` and logs
+/// `HH:MM:SS [part] tokens: IN+NNNcache->OUTout ($x)` per call. The dollar
+/// figure in that line is priced for Anthropic's models — 100x too high for
+/// DeepSeek — so only the token counts are used here and priced with the real
+/// model price. There is no session id, so the folder is exact and the chat is
+/// guessed from the timestamp.
+enum RememberLog {
+    static let pIn = 36e-9, pOut = 500e-9, pCr = 10e-9
+    private static let timeFmt: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "HH:mm:ss"
+        return f
+    }()
+
+    /// folder name → [(timestamp, cost)] for the given UTC day.
+    static func load(dayStart: TimeInterval) -> [String: [(ts: TimeInterval, cost: Double)]] {
+        var out: [String: [(ts: TimeInterval, cost: Double)]] = [:]
+        let day = ORTime.utcDay(Date(timeIntervalSince1970: dayStart))
+        var roots = [CUPaths.work]
+        roots.append(CUPaths.home.appendingPathComponent(".remember/logs"))
+        var files: [(String, URL)] = []
+        for name in (try? FileManager.default.contentsOfDirectory(atPath: CUPaths.work.path)) ?? [] {
+            let f = CUPaths.work.appendingPathComponent(name)
+                .appendingPathComponent(".remember/logs/memory-\(day).log")
+            if FileManager.default.fileExists(atPath: f.path) { files.append((name, f)) }
+        }
+        // The global `~/.remember/logs` file is legacy: it carries no project,
+        // so it cannot be attributed and is left out rather than unbalancing
+        // the day's total.
+        _ = roots
+
+        var base = Calendar.current.dateComponents([.year, .month, .day], from: Date(timeIntervalSince1970: dayStart))
+        base.timeZone = TimeZone.current
+        for (folder, url) in files {
+            guard let text = try? String(contentsOf: url, encoding: .utf8) else { continue }
+            var rows: [(TimeInterval, Double)] = []
+            for line in text.split(whereSeparator: \.isNewline) {
+                guard let r = line.range(of: "tokens: ") else { continue }
+                let rest = line[r.upperBound...]
+                // `15383+0cache->403out`
+                let parts = rest.split(separator: " ")
+                guard let head = parts.first else { continue }
+                let nums = head.split(whereSeparator: { "+-<>cacheout".contains($0) }).compactMap { Int($0) }
+                guard nums.count >= 3 else { continue }
+                let cost = Double(nums[0]) * pIn + Double(nums[1]) * pCr + Double(nums[2]) * pOut
+                var comps = base
+                if let t = line.split(separator: " ").first,
+                   let d = timeFmt.date(from: String(t)) {
+                    let c = Calendar.current.dateComponents([.hour, .minute, .second], from: d)
+                    comps.hour = c.hour; comps.minute = c.minute; comps.second = c.second
+                }
+                let ts = Calendar.current.date(from: comps)?.timeIntervalSince1970 ?? dayStart
+                rows.append((ts, cost))
+            }
+            if !rows.isEmpty {
+                var list = out[folder] ?? []
+                list.append(contentsOf: rows)
+                out[folder] = list
+            }
+        }
+        return out
+    }
+}
+
 struct FolderIndex {
     var files: [String: IndexedFile] = [:]
     private(set) var sorted: [TranscriptEntry] = []
@@ -572,7 +670,10 @@ actor UsageCollector {
                 catch { FetchLog.write("openrouter: key \(error)") }
             }
             if let d = daySpend {
-                today = TodayInfo(spend: d.spend, requests: d.requests)
+                // In approximate mode `publish()` counts the assistant messages
+                // written today; the trace count here is 0 and would wipe it.
+                let keep = current?.approximate == true ? (current?.today.requests ?? 0) : d.requests
+                today = TodayInfo(spend: d.spend, requests: max(d.requests, keep))
             }
         } else {
             FetchLog.write("openrouter: OPENROUTER_API_KEY not found")
@@ -763,6 +864,8 @@ actor UsageCollector {
         struct ChatAgg {
             var id: String; var title: String; var cost = 0.0; var count = 0
             var last: TimeInterval = 0; var subCost = 0.0; var subCount = 0
+            var hadsCost = 0.0; var hadsCount = 0
+            var remCost = 0.0; var remCount = 0
         }
         struct FolderAgg {
             var id: String; var name: String; var cost = 0.0; var requests = 0
@@ -796,16 +899,23 @@ actor UsageCollector {
         // each chat's share of the tokens actually written today.
         if approximate {
             let spend = current?.today.spend ?? 0
+            // «حدس» is priced from its own log and taken out of the budget
+            // first; the rest is split by the tokens the transcripts recorded.
+            let hads = HadsLog.load(since: todayStart)
+            let hadsTotal = hads.values.reduce(0) { $0 + $1.cost }
+            let remember = RememberLog.load(dayStart: todayStart)
+            let rememberTotal = remember.values.reduce(0) { $0 + $1.reduce(0) { $0 + $1.cost } }
+            let budget = max(0, spend - hadsTotal - rememberTotal)
             let total = folderIdx.values.reduce(0) { $0 + $1.tokensByChat.values.reduce(0, +) }
             if total > 0 {
                 for (proj, idx) in folderIdx {
                     let projTokens = idx.tokensByChat.values.reduce(0, +)
                     guard projTokens > 0 else { continue }
                     var f = FolderAgg(id: proj, name: folderName(for: proj))
-                    f.cost = spend * Double(projTokens) / Double(total)
+                    f.cost = budget * Double(projTokens) / Double(total)
                     for (chat, tk) in idx.tokensByChat {
                         var c = ChatAgg(id: chat, title: idx.titles[chat] ?? String(chat.prefix(8)))
-                        c.cost = spend * Double(tk) / Double(total)
+                        c.cost = budget * Double(tk) / Double(total)
                         c.last = idx.lastByChat[chat] ?? 0
                         c.count = idx.messagesByChat[chat] ?? 0
                         let side = idx.tokensBySide[chat] ?? 0
@@ -813,7 +923,26 @@ actor UsageCollector {
                             c.subCost = c.cost * Double(side) / Double(tk)
                             c.subCount = 0
                         }
+                        if let h = hads[chat] {
+                            c.hadsCost = h.cost
+                            c.hadsCount = h.calls
+                            c.cost += h.cost
+                            f.cost += h.cost
+                        }
                         f.chats[chat] = c
+                    }
+                    // remember's log has no session id: attach each call to the
+                    // chat that was writing around that moment, else the most
+                    // recent one before it.
+                    for (ts, cost) in remember[f.name] ?? [] {
+                        let chat = idx.nearest(to: ts)?.chat
+                            ?? idx.lastByChat.filter { $0.value <= ts + 120 }.max { $0.value < $1.value }?.key
+                        guard let chat, var c = f.chats[chat] else { continue }
+                        c.remCost += cost
+                        c.remCount += 1
+                        c.cost += cost
+                        f.chats[chat] = c
+                        f.cost += cost
                     }
                     agg[proj] = f
                 }
@@ -824,6 +953,12 @@ actor UsageCollector {
             var children: [ChildInfo] = []
             if c.subCost > 0 {
                 children.append(ChildInfo(kind: "subagent", label: "Subagents", cost: c.subCost, count: c.subCount))
+            }
+            if c.hadsCost > 0 {
+                children.append(ChildInfo(kind: "hads", label: "Hads", cost: c.hadsCost, count: c.hadsCount))
+            }
+            if c.remCost > 0 {
+                children.append(ChildInfo(kind: "remember", label: "Remember", cost: c.remCost, count: c.remCount))
             }
             return ChatInfo(id: c.id, title: c.title, cost: c.cost,
                             last: ORTime.string(Date(timeIntervalSince1970: c.last)),

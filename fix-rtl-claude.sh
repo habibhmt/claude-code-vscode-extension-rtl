@@ -602,16 +602,18 @@ patch_ide "Devin" "$HOME/.devin/extensions/anthropic.claude-code-*/webview"
 # after every RTL rebuild, including a stamp-only run. Anchor drift fails this install.
 DEEPSEEK_MODEL_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_deepseek_models.py"
 if [ -f "$DEEPSEEK_MODEL_PATCH" ] && [ "$HAVE_PYTHON" = true ]; then
-    selector_failed=false
+    selector_ok=0
     for deepseek_ext in "$HOME"/.vscode/extensions/anthropic.claude-code-*/extension.js; do
         [ -f "$deepseek_ext" ] || continue
-        if ! python3 "$DEEPSEEK_MODEL_PATCH" "$deepseek_ext"; then
+        if python3 "$DEEPSEEK_MODEL_PATCH" "$deepseek_ext"; then
+            selector_ok=$((selector_ok + 1))
+        else
+            # An obsolete copy must not stop the installer; the active one still counts.
             echo "[WARN] Could not install the model list in $deepseek_ext" >&2
-            selector_failed=true
         fi
     done
-    # An obsolete copy must not stop the installer before it reaches the active version.
-    if [ "$selector_failed" = true ]; then exit 1; fi
+    # Only a total failure means no installed extension got the model list.
+    if [ "$selector_ok" -eq 0 ]; then exit 1; fi
 fi
 
 if [ $patched -eq 0 ] && [ $skipped -gt 0 ]; then

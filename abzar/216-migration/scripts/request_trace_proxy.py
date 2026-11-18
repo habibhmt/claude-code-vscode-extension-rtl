@@ -20,9 +20,11 @@ import uuid
 from zoneinfo import ZoneInfo
 from claude_deepseek import PilotError
 
-MODELS = frozenset({'deepseek/deepseek-v4.1-flash-1017',
-                    'deepseek/deepseek-v4.1-flash-20261017', 'claude-haiku-5-5',
-                    'anthropic/claude-haiku-5.5', 'anthropic/claude-haiku-5-5'})
+# One source of truth: the catalog. This shape check only keeps the log useful
+# when the catalog cannot be read, so a model id is never hardcoded here.
+MODEL_SHAPE = re.compile(r'(?:deepseek|anthropic)/[A-Za-z0-9._@/-]{1,120}'
+                         r'|anthropic-api/[A-Za-z0-9._-]{1,120}'
+                         r'|claude-[A-Za-z0-9._-]{1,120}')
 PATHS = frozenset({'/v1/messages', '/v1/messages?beta=true'})
 TOKEN_PATHS = frozenset({'/v1/messages/count_tokens', '/v1/messages/count_tokens?beta=true'})
 CATALOG = Path(__file__).resolve().parents[1] / 'claude-api/deepseek-models.json'
@@ -110,7 +112,7 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
         with self.server.lock:
             self.server.counter+=1; number=self.server.counter
         now=dt.datetime.now(dt.timezone.utc); start=time.monotonic()
-        allowed = set(MODELS)
+        allowed = set()
         catalog = []
         try:
             catalog = json.loads(CATALOG.read_text())
@@ -121,9 +123,12 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
         except (OSError,ValueError,KeyError,TypeError):pass
         project = self.headers.get('X-Trace-Project','')
         sender = self.headers.get('X-Trace-Run','')
+        model = body.get('model')
+        if not (isinstance(model,str) and (model in allowed or MODEL_SHAPE.fullmatch(model))):
+            model = 'unknown'
         row={'time_utc':now.isoformat(),'time_tehran':now.astimezone(ZoneInfo('Asia/Tehran')).isoformat(),
              'run_id':self.server.run_id,'request_number':number,
-             'model':body.get('model') if isinstance(body.get('model'),str) and body.get('model') in allowed else 'unknown',
+             'model':model,
              'project':project if re.fullmatch(r'[0-9]{1,6}',project) else 'unknown',
              'sender_run':sender if re.fullmatch(r'[a-f0-9-]{36}',sender) else 'unknown',
              'work_type':'unknown','status':None,'response_id':None,'error':None}

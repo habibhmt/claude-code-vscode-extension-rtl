@@ -2,10 +2,20 @@
 """Reversible, version-anchored DeepSeek selector overlay; never reloads VS Code."""
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 ROOT=Path(__file__).resolve().parents[1]
-TARGET=Path.home()/'.vscode/extensions/anthropic.claude-code-2.1.323-darwin-arm64/extension.js'
+
+def _newest_target():
+    """Newest installed Claude extension, so no version is pinned here."""
+    found = sorted(
+        (p for p in (Path.home()/'.vscode/extensions').glob('anthropic.claude-code-*/extension.js') if p.is_file()),
+        key=lambda p: [int(n) for n in re.findall(r'\d+', p.parent.name)] or [0],
+    )
+    return found[-1] if found else Path.home()/'.vscode/extensions/anthropic.claude-code-missing/extension.js'
+
+TARGET=_newest_target()
 CATALOG=ROOT/'claude-api/deepseek-models.json'
 BACKUP=ROOT/'.runtime/controls-nov14/extension.before-model-selector.js'
 MARK='/* project216-deepseek-models */'

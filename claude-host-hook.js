@@ -1237,16 +1237,40 @@
         payam: h.payam, tamas: h.tartib.length,
         tokens: jam, tokens_kol: jam['in'] + jam.out + jam.cr + jam.cw,
         usd: usd, bi_gheymat: bi_gheymat, models: Object.keys(models).map(function (k) { return models[k]; }),
-        ctx: ctx, model_chat: model_chat,
+        ctx: ctx, model_chat: model_chat, emrooz: emrooz(sid),
       };
     }
+    // «هزینهٔ امروز» از منبعِ حقیقتِ اپِ ClaudeUsage (۱۸ نوامبر). اپ تنها جایی است
+    // که قیمتِ دقیقِ هر تماس را دارد؛ این‌جا فقط خوانده می‌شود، هیچ محاسبه‌ای نیست.
+    // فایل با mtime کش می‌شود تا هر تیک، ۵۰ کیلوبایت JSON دوباره پارس نشود.
+    var EMROOZ = { mtime: 0, map: {}, taghribi: false };
+    function emrooz(sid) {
+      try {
+        var fs = require('fs'), os = require('os'), path = require('path');
+        var p = path.join(os.homedir(), 'Library/Application Support/ClaudeUsage/source-of-truth.json');
+        var mt = fs.statSync(p).mtimeMs;
+        if (mt !== EMROOZ.mtime) {
+          var j = JSON.parse(fs.readFileSync(p, 'utf8'));
+          var map = {};
+          (j.folders || []).forEach(function (f) {
+            (f.chats || []).forEach(function (c) { map[c.id] = c.cost; });
+          });
+          EMROOZ = { mtime: mt, map: map, taghribi: j.approximate === true };
+        }
+        var v = EMROOZ.map[sid];
+        return typeof v === 'number' ? { usd: v, taghribi: EMROOZ.taghribi } : null;
+      } catch (e) { return null; }
+    }
+
     // the page sends the last key it has; only a changed answer goes back
     API.javab = function (sid, kelid_safhe, send) {
       if (!/^[0-9a-f-]{36}$/.test(String(sid || ''))) return;
       be_ruz(sid, function (h, size) {
         if (!h) return send({ type: 'crtl-navar', sid: sid, kelid: 'none', d: null });
         var d = hesab(h, sid);
-        var kelid = size + ':' + GHEYMAT_NOSKHE + ':' + d.model_chat + ':' + d.bi_gheymat;
+        // عددِ «امروز» هم در کلید هست، وگرنه تغییرش تا وقتی فایلِ چت عوض نشود دیده نمی‌شود.
+        var kelid = size + ':' + GHEYMAT_NOSKHE + ':' + d.model_chat + ':' + d.bi_gheymat +
+                    ':' + (d.emrooz ? d.emrooz.usd.toFixed(6) + (d.emrooz.taghribi ? 't' : '') : '-');
         if (kelid === kelid_safhe) return;
         send({ type: 'crtl-navar', sid: sid, kelid: kelid, d: d });
       });

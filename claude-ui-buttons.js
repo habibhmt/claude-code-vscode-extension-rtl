@@ -3707,8 +3707,15 @@
     if (!Number.isFinite(d.ctx.max) || !d.ctx.max) return navar_kutah(d.ctx.used);
     return fa(Math.min(100, Math.round(d.ctx.used / d.ctx.max * 100))) + '٪';
   }
+  // هزینهٔ امروز از منبعِ حقیقتِ اپِ ClaudeUsage می‌آید (۱۸ نوامبر)؛ خودِ پنل هیچ
+  // محاسبه‌ای نمی‌کند. اگر اپ هنوز این چت را ندیده، خط تیره.
+  function navar_emrooz(d) {
+    var e = d.emrooz;
+    if (!e || !Number.isFinite(e.usd)) return '—';
+    return '≈' + navar_dolar(e.usd) + (e.taghribi ? ' تقریبی' : '');
+  }
   function navar_kuchak(d) {
-    var s = [['هزینه', navar_hazine(d)], ['توکن', navar_kutah(d.tokens_kol)], ['پیام', fa(d.payam)], ['کانتکست', navar_ctx(d)]];
+    var s = [['هزینه', navar_hazine(d)], ['هزینهٔ امروز', navar_emrooz(d)], ['توکن', navar_kutah(d.tokens_kol)], ['پیام', fa(d.payam)], ['کانتکست', navar_ctx(d)]];
     // one row per number: narrow enough for the empty strip left of the prompt box (seen 16 Nov 16:25: four columns
     // side by side ran over the box's left edge)
     return '<table class="crtl-amar-t">' + s.map(function (x) { return '<tr><th>' + x[0] + '</th><td>' + amar_esc(x[1]) + '</td></tr>'; }).join('') + '</table>';
@@ -3717,7 +3724,7 @@
     var t = d.tokens || {};
     var h = '<div class="crtl-amar-sar"><b>همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>';
     h += '<table class="crtl-amar-t crtl-navar-riz">';
-    [['هزینه', navar_hazine(d)], ['پیامِ تو', fa(d.payam)], ['تماس با مدل', fa(d.tamas)],
+    [['هزینه', navar_hazine(d)], ['هزینهٔ امروز', navar_emrooz(d)], ['پیامِ تو', fa(d.payam)], ['تماس با مدل', fa(d.tamas)],
       ['توکنِ ورودی', fa((t['in'] || 0).toLocaleString('en-US'))], ['خواندنِ کش', fa((t.cr || 0).toLocaleString('en-US'))],
       ['نوشتنِ کش', fa((t.cw || 0).toLocaleString('en-US'))], ['خروجی', fa((t.out || 0).toLocaleString('en-US'))],
       ['کانتکستِ الان', d.ctx ? navar_kutah(d.ctx.used) + (d.ctx.max ? ' از ' + navar_kutah(d.ctx.max) + ' (' + navar_ctx(d) + ')' : '') : 'نامعلوم'],

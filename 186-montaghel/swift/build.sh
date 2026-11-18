@@ -8,7 +8,7 @@ BUILD="$(mktemp -d)/ClaudeUsage.app"
 mkdir -p "$BUILD/Contents/MacOS" "$BUILD/Contents/Resources"
 
 swiftc -O -parse-as-library -o "$BUILD/Contents/MacOS/ClaudeUsage" \
-  Sources/Usage.swift Sources/Transcript.swift Sources/Rules.swift Sources/Alarms.swift Sources/App.swift \
+  Sources/OpenRouter.swift Sources/Transcript.swift Sources/Rules.swift Sources/Alarms.swift Sources/App.swift \
   -framework AppKit -framework UserNotifications \
   -target arm64-apple-macos14.0
 
@@ -20,8 +20,8 @@ cat > "$BUILD/Contents/Info.plist" <<'PLIST'
   <key>CFBundleIdentifier</key><string>com.habib.ClaudeUsage.v5</string>
   <key>CFBundleName</key><string>ClaudeUsage</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>2.0.0</string>
-  <key>CFBundleVersion</key><string>2.0.0</string>
+  <key>CFBundleShortVersionString</key><string>3.0.0</string>
+  <key>CFBundleVersion</key><string>3.0.0</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>LSUIElement</key><true/>
   <key>LSMinimumSystemVersion</key><string>14.0</string>

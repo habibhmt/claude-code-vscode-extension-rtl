@@ -1,0 +1,1177 @@
+{
+  "checked_date_tehran": "2026-11-13",
+  "scope": "nonhidden direct directories; not active project count; no recursive code audit",
+  "count": 189,
+  "directories": [
+    {
+      "directory": "0-Chest-penotomorax",
+      "root_markers": []
+    },
+    {
+      "directory": "0-app-commander",
+      "root_markers": [
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "000-BRAIN",
+      "root_markers": []
+    },
+    {
+      "directory": "0000-discord-scrapper-by-mcp-chrome",
+      "root_markers": []
+    },
+    {
+      "directory": "0000-telegram-scrapper-by-mcp-chrome",
+      "root_markers": []
+    },
+    {
+      "directory": "0000-twitter-scrapper-by-mcp-chrome",
+      "root_markers": []
+    },
+    {
+      "directory": "000000-DATAAAAAAA",
+      "root_markers": []
+    },
+    {
+      "directory": "000000-research-by-mcp",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "0000000-app",
+      "root_markers": []
+    },
+    {
+      "directory": "00000000-imac",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "0th-day-salamat",
+      "root_markers": [
+        ".git",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "0th-day-secreter-director-from-all-sources",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "1.th-day",
+      "root_markers": []
+    },
+    {
+      "directory": "104th-day-wallet-contract-checker",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "105th-day-project-line-visualizer",
+      "root_markers": []
+    },
+    {
+      "directory": "106th-day-project-line-visualizer-jules",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "107th-day-apple-mcp",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".claude",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "108the-day-apple-watch-health-data",
+      "root_markers": []
+    },
+    {
+      "directory": "109th-day-free-deep-research",
+      "root_markers": []
+    },
+    {
+      "directory": "10th-day-ell-prompt",
+      "root_markers": []
+    },
+    {
+      "directory": "110th-day-ios-crypto-price-app-notif",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "111th-day-handy-voice-to-text-fork-repo",
+      "root_markers": []
+    },
+    {
+      "directory": "112th-day-extension-for-cow-swap",
+      "root_markers": []
+    },
+    {
+      "directory": "113th-day-cowswap-ui-app-localhost",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "114th-day-gemini-computer-use",
+      "root_markers": [
+        ".git",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "115th-day-ctscan-photo",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "116th-day-dexalot_browser_extension",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "117th-day-Browser_Automation_MCP_AI",
+      "root_markers": []
+    },
+    {
+      "directory": "118th-day-sentient-crypto-ai-project",
+      "root_markers": []
+    },
+    {
+      "directory": "119th-day-prep-dex-api-trader",
+      "root_markers": [
+        ".git",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "11th-day-aider",
+      "root_markers": []
+    },
+    {
+      "directory": "120th-day-nof1-copy-trading-to-telegram",
+      "root_markers": [
+        ".git",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "121th-day-browseros-git-setting",
+      "root_markers": []
+    },
+    {
+      "directory": "122th-day-rotki-git-wallet-asset-manager",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".claude",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "directory": "123th-day-extension-crypton-telegram",
+      "root_markers": []
+    },
+    {
+      "directory": "124th-day-rag-memory-chatbot-idea",
+      "root_markers": []
+    },
+    {
+      "directory": "125th-day-telegram-chat-bot-clone",
+      "root_markers": []
+    },
+    {
+      "directory": "126th-day-rtl-menubar",
+      "root_markers": [
+        ".git",
+        ".remember"
+      ]
+    },
+    {
+      "directory": "127th-day-brain-storm",
+      "root_markers": []
+    },
+    {
+      "directory": "128th-day-hackerone-metamask",
+      "root_markers": []
+    },
+    {
+      "directory": "129th-day-prompt-git",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "12th-day-dexscreener-monitor-alarm",
+      "root_markers": []
+    },
+    {
+      "directory": "130th-day-public-apis-git",
+      "root_markers": []
+    },
+    {
+      "directory": "131th-day-poetiq-git",
+      "root_markers": [
+        ".git",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "132th-day-web3",
+      "root_markers": []
+    },
+    {
+      "directory": "133th-day-K-Dense-AI-git",
+      "root_markers": []
+    },
+    {
+      "directory": "134th-day-smartcontracts",
+      "root_markers": []
+    },
+    {
+      "directory": "135th-day-p2p-usdt-irt",
+      "root_markers": [
+        ".git",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "136th-day-fix-rtl-claude",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "137th-day-the-eyes-of-market",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".remember",
+        ".claude",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "138th-day-apple-developer-mode-iphone",
+      "root_markers": [
+        ".claude"
+      ]
+    },
+    {
+      "directory": "139th-day-new-work",
+      "root_markers": []
+    },
+    {
+      "directory": "13th-day-arbitrage-basescan",
+      "root_markers": []
+    },
+    {
+      "directory": "140th-day-partner-shop",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "141th-day-modem-huawei",
+      "root_markers": [
+        ".claude"
+      ]
+    },
+    {
+      "directory": "142th-day-ai-agent-dao",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "143th-day-dao-agent-ai-battle",
+      "root_markers": [
+        ".git",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "143th-day-dao-agent-ai-battle-v2",
+      "root_markers": [
+        ".git",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "147th-day-paradex-prep-auto",
+      "root_markers": [
+        ".git",
+        ".claude",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "directory": "14th-day-tenderly",
+      "root_markers": []
+    },
+    {
+      "directory": "15-the-new-openwebui",
+      "root_markers": []
+    },
+    {
+      "directory": "153th-day-ai-assistant-tools",
+      "root_markers": [
+        ".git",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "154th-day-scraper-suite",
+      "root_markers": [
+        ".git",
+        "pyproject.toml",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "155th-day-screenpipe-dashboard",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "156th-day-persian-processor",
+      "root_markers": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "directory": "157th-day-screenpipe-webui-bridge",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "158th-day-devops-toolkit",
+      "root_markers": [
+        ".git",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "directory": "159th-day-react-vite-app",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "160th-day-fullstack-app",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "161th-day-browser-extension",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "162th-day-llms-nextjs",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "163th-day-personal-branding",
+      "root_markers": []
+    },
+    {
+      "directory": "164th-day-wallet-sign-data-analyze",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "165th-day-be-a-specialist",
+      "root_markers": [
+        ".claude"
+      ]
+    },
+    {
+      "directory": "166th-day-brain-note-app",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "167th-day-openclow",
+      "root_markers": []
+    },
+    {
+      "directory": "168th-day-vpn-masterhttprelay",
+      "root_markers": []
+    },
+    {
+      "directory": "169th-day-vpn-masterhttprelay-2",
+      "root_markers": []
+    },
+    {
+      "directory": "16th-day-TREE-OF-CODE-GIT-APP",
+      "root_markers": []
+    },
+    {
+      "directory": "170th-day-vpn-git-flowdriver",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "171th-day-lmstudio-ollama-same-directory",
+      "root_markers": []
+    },
+    {
+      "directory": "172th-day-project-airdrop",
+      "root_markers": []
+    },
+    {
+      "directory": "173th-day-new-2-airdrop-project",
+      "root_markers": []
+    },
+    {
+      "directory": "174th-day-llmfit",
+      "root_markers": []
+    },
+    {
+      "directory": "175th-day-prep-position-balance",
+      "root_markers": [
+        ".git",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "176th-day-defi-mcp-herd",
+      "root_markers": [
+        ".claude"
+      ]
+    },
+    {
+      "directory": "177th-day-time-zoone-extension-chrome",
+      "root_markers": [
+        ".git",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "178th-day-execise-guide",
+      "root_markers": []
+    },
+    {
+      "directory": "179th-day-claude-cowork-airdrop-estimator",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "17th-day-anthropic-computer-use",
+      "root_markers": []
+    },
+    {
+      "directory": "180th-day-akhavan-poem",
+      "root_markers": []
+    },
+    {
+      "directory": "181th-day-rtl-claude-desktop-app-git",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "182th-day-text-to-jpg",
+      "root_markers": []
+    },
+    {
+      "directory": "183th-day-what-could-i-do-now",
+      "root_markers": []
+    },
+    {
+      "directory": "184th-day-hesabdar-shakhsi",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "185th-day-claude-deepseek-desktop-app",
+      "root_markers": []
+    },
+    {
+      "directory": "186-claude-subscription-usage",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "187th-day-macbook-price-research",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "188th-day-smart-contracts-auditing",
+      "root_markers": [
+        ".git",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "189th-day-hermes-agent-airdrop",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "18th-day-CryptoTrade-github",
+      "root_markers": []
+    },
+    {
+      "directory": "190th-day-rtl-claude-code-cli",
+      "root_markers": [
+        ".git",
+        ".remember"
+      ]
+    },
+    {
+      "directory": "191th-day-claude-code-brain",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "192th-day-claude-chat-brain-idea",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "193th-day-voice-to-text-api-speechmatics",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "194th-day-bourse-iran-sahm-avaliye",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "194th-day-car-shahin",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "196th-day-ghabz-khalafi",
+      "root_markers": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "197th-day-nezam-mohandesi",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "199th-day-claude-to-gpt",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "19th-tripleAi-claud",
+      "root_markers": []
+    },
+    {
+      "directory": "1th-day-todo-app",
+      "root_markers": []
+    },
+    {
+      "directory": "200th-day-madarek-api-call-anthropic",
+      "root_markers": [
+        ".git",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "201th-day-maliat",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "203th-day-imac-cpu-tracker",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "204th-day-learning",
+      "root_markers": [
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "205th-day-mother-of-all-agent",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "206th-day-architecture-project",
+      "root_markers": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "207th-day-aws-account",
+      "root_markers": [
+        "CLAUDE.md",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "208th-day-amlaki",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "209th-day-shoping-diy-kharid-irani",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "20th-tripleAi-O1",
+      "root_markers": []
+    },
+    {
+      "directory": "210th-day-flowchart",
+      "root_markers": [
+        "CLAUDE.md",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "211th-day-iphone-agent",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "212th-day-vpn",
+      "root_markers": [
+        ".git",
+        "AGENTS.md",
+        ".remember"
+      ]
+    },
+    {
+      "directory": "213th-day-google-tv-launcher",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "214th-day-duet-pre-release-claude",
+      "root_markers": [
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember"
+      ]
+    },
+    {
+      "directory": "215th-day-diy",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "216th-day-migration-to-open-source-model",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "21th-tripleAi-ANTHROPIC",
+      "root_markers": []
+    },
+    {
+      "directory": "22th-day-chat-exporter-extension",
+      "root_markers": []
+    },
+    {
+      "directory": "23th-openwebui-anthropic-api-panel",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "2th-day-csv-address-searcher",
+      "root_markers": [
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "3.th-day-universal-scraper",
+      "root_markers": [
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "30th-day-anthropic-course",
+      "root_markers": []
+    },
+    {
+      "directory": "31th-day-whisper-server",
+      "root_markers": [
+        ".git",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "3th-day-twitter-scraper",
+      "root_markers": [
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "45th-day-potpie",
+      "root_markers": []
+    },
+    {
+      "directory": "4th-day-screenpipe-OPENWEBUI",
+      "root_markers": []
+    },
+    {
+      "directory": "50th-day-json-reduce-size",
+      "root_markers": []
+    },
+    {
+      "directory": "51th-day-ollama-pm2",
+      "root_markers": []
+    },
+    {
+      "directory": "5th-day-discord-scraper",
+      "root_markers": [
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "69th-day-defi-price-extension",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "69th-day-defi-price-extension copy",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "6th-day-screenpipe-build-from-source",
+      "root_markers": []
+    },
+    {
+      "directory": "71th-day-menu-bar-price",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".remember",
+        ".claude",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "7th-day-openwebui",
+      "root_markers": []
+    },
+    {
+      "directory": "85th-day-extension-dexalot-auto-fill",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "87th-day-gpt-research-git",
+      "root_markers": [
+        ".git",
+        "pyproject.toml",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "88th-day-llm-conversation",
+      "root_markers": [
+        ".git",
+        "pyproject.toml"
+      ]
+    },
+    {
+      "directory": "88th-day-price-action-deeplearning",
+      "root_markers": [
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "8th-day-discord-scraper",
+      "root_markers": []
+    },
+    {
+      "directory": "91th-day-new",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex",
+        "pyproject.toml",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "91th-day-new-farzi",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex"
+      ]
+    },
+    {
+      "directory": "91th-day-new-farzi-laghv",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".claude"
+      ]
+    },
+    {
+      "directory": "91th-day-onchain-new",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "91th-minimal",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".claude",
+        "pyproject.toml",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "91th-minimal-2",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        ".remember",
+        ".claude",
+        ".codex",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "91th-refactor",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".remember",
+        ".claude",
+        "pyproject.toml",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "91th-research",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".claude",
+        "pyproject.toml",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "91th-seed-jamavar",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        "AGENTS.md",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "92th-day-new-java",
+      "root_markers": [
+        ".git",
+        "package.json"
+      ]
+    },
+    {
+      "directory": "93th-day-new",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "94th-day-new",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "99th-day-cognee-clone-repo-backup",
+      "root_markers": [
+        ".remember"
+      ]
+    },
+    {
+      "directory": "9th-day-wireshark",
+      "root_markers": []
+    },
+    {
+      "directory": "CODE",
+      "root_markers": []
+    },
+    {
+      "directory": "PROFILES",
+      "root_markers": []
+    },
+    {
+      "directory": "RASPBERRY-PI",
+      "root_markers": []
+    },
+    {
+      "directory": "REPOOOOOOOOOOO",
+      "root_markers": []
+    },
+    {
+      "directory": "ai",
+      "root_markers": []
+    },
+    {
+      "directory": "all_packages-x86-7.15.3",
+      "root_markers": []
+    },
+    {
+      "directory": "anthropic",
+      "root_markers": []
+    },
+    {
+      "directory": "assistant-app",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "base-builder-app",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "bot1-ayine",
+      "root_markers": [
+        ".git",
+        "CLAUDE.md",
+        ".claude",
+        "requirements.txt"
+      ]
+    },
+    {
+      "directory": "bot1-bayegani",
+      "root_markers": []
+    },
+    {
+      "directory": "habib",
+      "root_markers": []
+    },
+    {
+      "directory": "negahban_chat",
+      "root_markers": []
+    },
+    {
+      "directory": "owner-app",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "project-visualizer",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "scratchpad-backup-1022-1746",
+      "root_markers": []
+    },
+    {
+      "directory": "scratchpad-backup-1022-1748",
+      "root_markers": []
+    },
+    {
+      "directory": "speedrun-tokenization",
+      "root_markers": [
+        ".git"
+      ]
+    },
+    {
+      "directory": "system-owner-app",
+      "root_markers": []
+    },
+    {
+      "directory": "tmp",
+      "root_markers": []
+    },
+    {
+      "directory": "vazir-code-font-master",
+      "root_markers": [
+        "package.json"
+      ]
+    },
+    {
+      "directory": "windscribe-speed-test",
+      "root_markers": []
+    },
+    {
+      "directory": "x-day-mcp",
+      "root_markers": []
+    }
+  ]
+}

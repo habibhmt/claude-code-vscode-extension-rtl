@@ -43,3 +43,6 @@ abzar/openrouter-deepseek/khoroji/
 
 # Archive (flowchart data retired 2026-11-15)
 archive/
+
+# 216 migration: generated runtime artifacts
+abzar/216-migration/.runtime/

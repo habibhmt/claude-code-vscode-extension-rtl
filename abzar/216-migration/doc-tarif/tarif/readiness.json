@@ -1,0 +1,15 @@
+{
+  "scope": "api_only",
+  "acceptance_confirmed_by_habib": true,
+  "migration_executed": false,
+  "gates": [
+    {"id": "iran", "status": "not_run", "evidence": []},
+    {"id": "protocol", "status": "not_run", "evidence": []},
+    {"id": "memory", "status": "not_run", "evidence": []},
+    {"id": "rules", "status": "not_run", "evidence": []},
+    {"id": "tools", "status": "not_run", "evidence": []},
+    {"id": "routing", "status": "not_run", "evidence": []},
+    {"id": "quality_cost", "status": "not_run", "evidence": []},
+    {"id": "recovery", "status": "not_run", "evidence": []}
+  ]
+}

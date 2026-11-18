@@ -1,0 +1,220 @@
+#!/usr/bin/env python3
+"""Opt-in loopback request trace. Not wired into the live launcher.
+Use a separate X-Trace-Token header; never log headers, bodies or exception text.
+The one exception is a short upstream error message on 4xx/5xx: without it a
+failed request is undiagnosable. It is capped, flattened, and dropped entirely
+if it looks like it contains a credential.
+"""
+import datetime as dt
+import hmac
+import http.server
+import json
+import os
+from pathlib import Path
+import re
+import threading
+import time
+import urllib.error
+import urllib.request
+import uuid
+from zoneinfo import ZoneInfo
+from claude_deepseek import PilotError
+
+MODELS = frozenset({'deepseek/deepseek-v4.1-flash-1017',
+                    'deepseek/deepseek-v4.1-flash-20261017', 'claude-haiku-5-5',
+                    'anthropic/claude-haiku-5.5', 'anthropic/claude-haiku-5-5'})
+PATHS = frozenset({'/v1/messages', '/v1/messages?beta=true'})
+TOKEN_PATHS = frozenset({'/v1/messages/count_tokens', '/v1/messages/count_tokens?beta=true'})
+CATALOG = Path(__file__).resolve().parents[1] / 'claude-api/deepseek-models.json'
+FIELDS = frozenset({'time_utc','time_tehran','run_id','request_number','model',
+                    'work_type','status','duration_ms','response_id','error','project','sender_run'})
+
+def safe_id(value):
+    return value if isinstance(value,str) and re.fullmatch(r'(?:gen|msg)-[A-Za-z0-9-]{1,110}|msg_[A-Za-z0-9]{1,110}', value) else None
+
+
+def safe_error(text):
+    """Short upstream error text only; never a credential, never the prompt."""
+    text = re.sub(r'\s+', ' ', str(text or '')).strip()
+    if not text or re.search(r'sk-[A-Za-z0-9_-]{8,}', text):
+        return None
+    return text[:300]
+
+
+def account_model(model, catalog):
+    if not isinstance(model, str) or not model:
+        raise ValueError('Missing model')
+    paired = {row['value']: row['openRouterModel'] for row in catalog if row.get('openRouterModel')}
+    if model.startswith('anthropic-api/'):
+        native = model.removeprefix('anthropic-api/')
+        if native not in paired:
+            raise ValueError('Unknown Anthropic API model')
+        return 'anthropic', native
+    return 'openrouter', paired.get(model, model)
+
+class TraceServer(http.server.ThreadingHTTPServer):
+    daemon_threads = True
+    def __init__(self, log_path, token, *, test_upstream=None, credential=None, trace_enabled=None):
+        if len(token) < 24: raise ValueError('local token too short')
+        upstream = 'https://openrouter.ai/api'
+        if test_upstream is not None:
+            if not re.fullmatch(r'http://127\.0\.0\.1:[0-9]+',test_upstream):
+                raise ValueError('test upstream must be loopback')
+            upstream=test_upstream
+        self.upstream=upstream
+        self.anthropic_upstream = test_upstream or 'https://api.anthropic.com'
+        self.credential = credential
+        self.trace_enabled = trace_enabled
+        # Proxy environment variables must not redirect this transport.
+        self.opener=urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+        self.token=token; self.run_id=str(uuid.uuid4()); self.counter=0
+        self.lock=threading.Lock()
+        p=Path(log_path); p.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+        fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW,0o600)
+        os.fchmod(fd,0o600); self.log=os.fdopen(fd,'a',encoding='utf8')
+        super().__init__(('127.0.0.1',0),TraceHandler)
+    def record(self,row):
+        if self.trace_enabled is not None and not self.trace_enabled():
+            return
+        assert set(row)<=FIELDS
+        with self.lock:
+            self.log.write(json.dumps(row,ensure_ascii=False)+'\n');self.log.flush()
+    def server_close(self):
+        super().server_close(); self.log.close()
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self,*args,**kwargs): return None
+
+class TraceHandler(http.server.BaseHTTPRequestHandler):
+    protocol_version='HTTP/1.1'
+    def log_message(self,*args): pass
+    def reply(self,status):
+        self.send_response(status);self.send_header('Content-Length','0')
+        self.send_header('Connection','close');self.end_headers();self.close_connection=True
+    def do_GET(self):
+        self.reply(204 if self.path == '/health' and hmac.compare_digest(self.headers.get('X-Trace-Token',''),self.server.token) else 403)
+    def do_POST(self):
+        if not hmac.compare_digest(self.headers.get('X-Trace-Token',''),self.server.token):
+            return self.reply(403)
+        if self.path not in PATHS and not (self.server.credential and self.path in TOKEN_PATHS):
+            return self.reply(404)
+        if self.headers.get('Transfer-Encoding'):return self.reply(400)
+        try:
+            size=int(self.headers.get('Content-Length','-1'))
+            if not 0<=size<=32*1024*1024: return self.reply(413)
+            raw=self.rfile.read(size)
+            if len(raw)!=size:return self.reply(400)
+            body=json.loads(raw)
+            if not isinstance(body,dict):return self.reply(400)
+        except (ValueError,OSError):return self.reply(400)
+        with self.server.lock:
+            self.server.counter+=1; number=self.server.counter
+        now=dt.datetime.now(dt.timezone.utc); start=time.monotonic()
+        allowed = set(MODELS)
+        catalog = []
+        try:
+            catalog = json.loads(CATALOG.read_text())
+            allowed.update(m['value'] for m in catalog)
+            for m in catalog:
+                if m.get('openRouterModel'):
+                    allowed.update((m['openRouterModel'], 'anthropic-api/'+m['value']))
+        except (OSError,ValueError,KeyError,TypeError):pass
+        project = self.headers.get('X-Trace-Project','')
+        sender = self.headers.get('X-Trace-Run','')
+        row={'time_utc':now.isoformat(),'time_tehran':now.astimezone(ZoneInfo('Asia/Tehran')).isoformat(),
+             'run_id':self.server.run_id,'request_number':number,
+             'model':body.get('model') if isinstance(body.get('model'),str) and body.get('model') in allowed else 'unknown',
+             'project':project if re.fullmatch(r'[0-9]{1,6}',project) else 'unknown',
+             'sender_run':sender if re.fullmatch(r'[a-f0-9-]{36}',sender) else 'unknown',
+             'work_type':'unknown','status':None,'response_id':None,'error':None}
+        # Do not infer work type from private prompt text. No verified explicit
+        # sender marker is currently available, so attribution remains unknown.
+        headers={k:v for k,v in self.headers.items() if k.lower() in
+                 {'authorization','x-api-key','anthropic-version','anthropic-beta','content-type','accept','user-agent','x-app','http-referer','x-title','x-openrouter-title','x-openrouter-app-visibility','x-session-id','x-openrouter-session-id'}}
+        upstream = self.server.upstream
+        if self.server.credential is not None:
+            try:
+                account, model = account_model(body.get('model'), catalog)
+                key = self.server.credential(account)
+            except (PilotError, OSError):
+                return self.api_error(401, 'The API key for this model is unavailable in Keychain.')
+            except ValueError:
+                return self.api_error(400, 'Unknown model for this API account.')
+            # Neither the local token nor an incoming vendor credential may leave the Mac.
+            headers = {k:v for k,v in headers.items() if k.lower() not in ('authorization','x-api-key')}
+            if account == 'anthropic':
+                upstream = self.server.anthropic_upstream
+                headers = {k:v for k,v in headers.items() if k.lower() in
+                           ('anthropic-version','anthropic-beta','content-type','accept','user-agent')}
+                headers['x-api-key'] = key
+            else:
+                headers['Authorization'] = 'Bearer ' + key
+            if model != body['model']:
+                body['model'] = model
+                raw = json.dumps(body, ensure_ascii=False).encode()
+        request=urllib.request.Request(upstream+self.path,data=raw,headers=headers,method='POST')
+        started=False
+        try:
+            try: response=self.server.opener.open(request,timeout=45)
+            except urllib.error.HTTPError as e: response=e
+            with response:
+                row['status']=response.status
+                # Fixed metadata only; arbitrary upstream headers never enter logs.
+                row['response_id']=safe_id(response.headers.get('x-generation-id'))
+                self.send_response(response.status)
+                self.send_header('Content-Type',response.headers.get('Content-Type','application/octet-stream'))
+                self.send_header('Connection','close');self.end_headers();started=True
+                # Chunked upstream transfer is decoded by urllib; downstream is
+                # close-delimited. Application bytes and SSE boundaries survive.
+                pending=b''
+                error_body=b''
+                while True:
+                    chunk=response.read1(65536)
+                    if not chunk:break
+                    if row['status'] >= 400 and len(error_body) < 8192:
+                        error_body += chunk[:8192-len(error_body)]
+                    self.wfile.write(chunk);self.wfile.flush()
+                    if row['response_id'] is None:
+                        pending += chunk
+                        if len(pending)>1024*1024:pending=b''
+                        while b'\n' in pending:
+                            line,pending=pending.split(b'\n',1)
+                            if line.startswith(b'data:'):
+                                try:
+                                    event=json.loads(line[5:])
+                                    row['response_id']=safe_id(event.get('id')) or safe_id(event.get('message',{}).get('id'))
+                                except (ValueError,AttributeError):pass
+                        # Non-streaming JSON is parsed only in memory.
+                if row['response_id'] is None and pending:
+                    try:row['response_id']=safe_id(json.loads(pending).get('id'))
+                    except (ValueError,AttributeError):pass
+                if row['status'] >= 400 and error_body:
+                    text=error_body.decode('utf-8','replace')
+                    try:
+                        payload=json.loads(text)
+                        detail=payload.get('error')
+                        if isinstance(detail,dict):detail=detail.get('message') or detail.get('code')
+                        text=str(detail or payload.get('message') or text)
+                    except (ValueError,AttributeError):pass
+                    row['error']=safe_error(text)
+        except (OSError,urllib.error.URLError,ValueError):
+            row['error']='transport_error'
+            if not started:self.reply(502)
+        finally:
+            self.close_connection=True
+            row['duration_ms']=round((time.monotonic()-start)*1000)
+            self.server.record(row)
+
+    def api_error(self, status, message):
+        data = json.dumps({'type':'error','error':{'type':'authentication_error' if status == 401 else 'invalid_request_error',
+                                                   'message':message}}).encode()
+        self.send_response(status)
+        self.send_header('Content-Type','application/json')
+        self.send_header('Content-Length',str(len(data)))
+        self.send_header('Connection','close')
+        self.end_headers()
+        self.wfile.write(data)
+        self.close_connection=True
+
+if __name__=='__main__':
+    raise SystemExit('Not activated. Import only for isolated tests; live launcher unchanged.')

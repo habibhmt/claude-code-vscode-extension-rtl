@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""VS Code's claudeProcessWrapper contract: native binary, then CLI arguments."""
+import json
+import os
+from pathlib import Path
+import sys
+
+from openrouter_attribution import apply_project_attribution
+
+from claude_deepseek import ROOT, SETTINGS, RUNTIME, MODEL, PilotError, validate_settings, check_remote_key
+
+
+MODEL_CATALOG = ROOT / "claude-api/deepseek-models.json"
+
+
+def selected_model(args, default_model=MODEL):
+    catalog = json.loads(MODEL_CATALOG.read_text())
+    if not isinstance(catalog, list) or not catalog or any(
+            not isinstance(m, dict) or not isinstance(m.get("value"), str)
+            or not m["value"].startswith("deepseek/") or ":" in m["value"] for m in catalog):
+        raise PilotError("فهرست مدل DeepSeek معتبر نیست.")
+    allowed = {m["value"] for m in catalog}
+    requested = None
+    for i, arg in enumerate(args):
+        if arg == "--model" and i + 1 < len(args):
+            requested = args[i + 1]
+        elif arg.startswith("--model="):
+            requested = arg.split("=", 1)[1]
+    if requested in allowed:
+        return requested
+    if requested and requested.startswith("deepseek/"):
+        raise PilotError("مدل DeepSeek در فهرست تأییدشده نیست.")
+    if default_model not in allowed:
+        raise PilotError("مدل پیش‌فرض در فهرست تأییدشده نیست.")
+    return default_model
+
+
+def is_readonly_helper(args):
+    # Exact helper shapes used by the installed extension, allowing its root
+    # setting-sources prefix. Do not classify a prompt containing these words.
+    rest = list(args)
+    if rest[:1] == ["--setting-sources"] and len(rest) >= 2:
+        rest = rest[2:]
+    elif rest and rest[0].startswith("--setting-sources="):
+        rest = rest[1:]
+    return rest in (["workspace-trust", "--json"], ["auth", "status", "--json"])
+
+
+def prepare(binary, args, key):
+    native = Path(binary).resolve()
+    extensions = (Path.home() / ".vscode/extensions").resolve()
+    if not native.is_relative_to(extensions) or native.name != "claude" or not native.is_file():
+        raise PilotError("باینری Claude افزونهٔ VS Code معتبر نیست.")
+    if args in (["--version"], ["-v"], ["--help"], ["-h"]):
+        return [str(native), *args], None
+    if is_readonly_helper(args):
+        env = os.environ.copy()
+        env["CLAUDE_CONFIG_DIR"] = str(Path.home() / ".claude")
+        # Helpers are local inspection: no model flags or remote key check.
+        return [str(native), *args], env
+    if not key or not key.startswith("sk-or-") or any(c.isspace() for c in key):
+        raise PilotError("کلید آزمایش آماده نیست. پنجرهٔ آزمایشی را بعداً از راه‌انداز همین پروژه باز کنید.")
+    settings = validate_settings(json.loads(SETTINGS.read_text()))
+    check_remote_key(key)
+    # Preserve the extension's tools, permissions, resume and settings arguments.
+    # Only model selection belongs to this provider adapter.
+    replaced = {"--model", "--fallback-model"}
+    cleaned = []
+    skip = False
+    for arg in args:
+        if skip:
+            skip = False
+            continue
+        if arg in replaced:
+            skip = True
+        elif arg.split("=", 1)[0] not in replaced:
+            cleaned.append(arg)
+    model = selected_model(args, settings["model"])
+    cleaned += ["--model", model, "--fallback-model", model]
+    env = os.environ.copy()
+    env.update({k: v for k, v in settings["env"].items()
+                if k.startswith("ANTHROPIC_")
+                or k in ("CLAUDE_CODE_SUBAGENT_MODEL", "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC")})
+    for name in ("ANTHROPIC_MODEL", "ANTHROPIC_DEFAULT_OPUS_MODEL", "ANTHROPIC_DEFAULT_SONNET_MODEL",
+                 "ANTHROPIC_DEFAULT_HAIKU_MODEL", "ANTHROPIC_SMALL_FAST_MODEL", "CLAUDE_CODE_SUBAGENT_MODEL"):
+        env[name] = model
+    env["ANTHROPIC_AUTH_TOKEN"] = key
+    env["CLAUDE_CONFIG_DIR"] = str(Path.home() / ".claude")
+    env["CLAUDE_CODE_ENTRYPOINT"] = "claude-vscode"
+    env = apply_project_attribution(env, Path.cwd())
+    from live_request_trace import apply_trace
+    try:
+        env = apply_trace(env, Path.cwd())
+    except RuntimeError as exc:
+        raise PilotError("ثبت‌کنندهٔ محلی آماده نیست؛ اتصال متوقف شد.") from exc
+    return [str(native), *cleaned], env
+
+
+def main():
+    try:
+        if len(sys.argv) < 2:
+            raise PilotError("این فایل را افزونهٔ VS Code باید با مسیر Claude اجرا کند.")
+        argv, env = prepare(sys.argv[1], sys.argv[2:], os.environ.get("ANTHROPIC_AUTH_TOKEN", ""))
+        if env is not None:
+            os.execve(argv[0], argv, env)
+        os.execv(argv[0], argv)
+    except (PilotError, OSError, ValueError):
+        print("Claude آزمایشی اجرا نشد؛ کلید یا تنظیم اتصال آماده نیست. راهنما: claude-api/README.md", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

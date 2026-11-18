@@ -1,0 +1,14 @@
+{
+  "model": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
+    "ANTHROPIC_API_KEY": "",
+    "ANTHROPIC_MODEL": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+    "ANTHROPIC_SMALL_FAST_MODEL": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "deepseek/deepseek-v4.1-flash-1017@preset/cheap-deepseek",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  }
+}

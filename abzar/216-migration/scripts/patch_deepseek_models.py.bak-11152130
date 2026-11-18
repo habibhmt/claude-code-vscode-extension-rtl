@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Reversible, version-anchored DeepSeek selector overlay; never reloads VS Code."""
+import json
+from pathlib import Path
+import subprocess
+import sys
+ROOT=Path(__file__).resolve().parents[1]
+TARGET=Path.home()/'.vscode/extensions/anthropic.claude-code-2.1.323-darwin-arm64/extension.js'
+CATALOG=ROOT/'claude-api/deepseek-models.json'
+BACKUP=ROOT/'.runtime/controls-nov14/extension.before-model-selector.js'
+MARK='/* project216-deepseek-models */'
+def patch_text(text):
+    models=json.loads(CATALOG.read_text())
+    if not isinstance(models,list) or not models or any(not isinstance(m,dict) or not isinstance(m.get("value"),str) or not m["value"].startswith("deepseek/") or ":" in m["value"] for m in models):
+        raise ValueError("invalid DeepSeek-only catalog")
+    expr='require("fs").readFileSync('+json.dumps(str(CATALOG))+',"utf8")'
+    raw='JSON.parse('+expr+')'
+    read='(()=>{const m='+raw+';if(!Array.isArray(m)||!m.length||!m.every(x=>x&&typeof x.value==="string"&&x.value.startsWith("deepseek/")&&!x.value.includes(":")))throw Error("invalid DeepSeek-only catalog");return m})()'
+    # Upgrade earlier overlays without changing unrelated extension code.
+    if MARK in text and raw in text and read not in text:
+        text=text.replace(raw,read)
+    anchors={
+      'async supportedModels(){return(await this.initialization).models}': 'async supportedModels(){await this.initialization;return '+read+'}',
+      'models:ne.models,unavailable_models:ne.unavailable_models': 'models:'+read+',unavailable_models:[]',
+      'let r=(await n).response;': 'let r=(await n).response;r={...r,models:'+read+',unavailable_models:[]};',
+      'return{...r.data,agents:[],account:{}}': 'return{...r.data,agents:[],account:{},models:'+read+',unavailable_models:[]}',
+      'this.config=Promise.resolve(t.config),this.settledConfig=t.config': 't.config={...t.config,models:'+read+',unavailable_models:[]};this.config=Promise.resolve(t.config),this.settledConfig=t.config'
+    }
+    # Upgrade the v1 overlay in place; each route must be either original or
+    # exactly our replacement. A marker alone never proves installation.
+    had_marker = MARK in text
+    for old,new in anchors.items():
+        if new in text:
+            continue
+        if text.count(old)!=1:raise ValueError('selector anchor changed: '+old)
+        text=text.replace(old,new)
+    if text.count(str(CATALOG)) != 5:
+        raise ValueError("selector overlay damaged")
+    if had_marker:return text
+    return MARK+'\n'+text
+
+def main():
+    target=Path(sys.argv[1]).expanduser().resolve() if len(sys.argv)>1 else TARGET
+    if target.name != "extension.js" or "anthropic.claude-code-" not in str(target.parent):
+        raise ValueError("not a Claude extension target")
+    text=target.read_text();out=patch_text(text)
+    if out==text:print('already patched');return
+    BACKUP.parent.mkdir(parents=True,exist_ok=True)
+    if not BACKUP.exists():BACKUP.write_text(text)
+    temp=BACKUP.parent/'extension.selector-check.js';temp.write_text(out)
+    subprocess.run(['node','--check',str(temp)],check=True,capture_output=True)
+    target.write_text(out)
+    print('patched selector; no reload; models='+str(len(json.loads(CATALOG.read_text()))))
+if __name__=='__main__':main()

@@ -4,8 +4,16 @@
 const {chromium}=require('playwright');
 const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
 const assert=require('node:assert/strict');
-const ext=process.env.CODEX_TEST_EXTENSION||path.join(process.env.HOME,'.vscode/extensions/openai.chatgpt-26.1021.22027-darwin-arm64');
+const ext=process.env.CODEX_TEST_EXTENSION||(() => {
+  const base=path.join(process.env.HOME,'.vscode/extensions');
+  const dirs=fs.readdirSync(base).filter(n=>n.startsWith('openai.chatgpt-')).sort();
+  return path.join(base,dirs[dirs.length-1]||'openai.chatgpt-26.1021.22027-darwin-arm64');
+})();
 const assets=path.join(ext,'webview/assets');
+if (!fs.readdirSync(assets).some(n=>/^app-server-manager-hooks-.*\.js$/.test(n))) {
+  console.log('SKIP: installed ChatGPT layout has no app-server-manager-hooks-*.js; folder filter needs a new adapter');
+  process.exit(77);
+}
 const prepared=JSON.parse(execFileSync('python3',['-c',`
 import importlib.util,json
 from pathlib import Path

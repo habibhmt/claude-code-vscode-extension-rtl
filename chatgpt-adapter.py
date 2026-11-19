@@ -38,7 +38,7 @@ def _one(s, old, new):
 
 def codex_tanzimat(s):
     # «ابزارها» is a Claude-only page (it reads tik_ha.py), so Codex keeps the two tabs it had
-    s = _one(s, "[['font', 'فونت'], ['abzar', 'ابزارها'], ['claude', 'تنظیمات کلود']]", "[['font', 'فونت'], ['claude', 'تنظیمات Codex']]")
+    s = _one(s, "[['font', 'فونت'], ['abzar', 'ابزارها'], ['claude', 'تنظیمات کلود'], ['provider', 'پرووایدرها']]", "[['font', 'فونت'], ['claude', 'تنظیمات Codex']]")
     s = _one(s, "var TZ_BALA = ['effortLevel', 'model', 'remoteControlAtStartup', 'ultracode', 'autoCompactWindow', TZ_CHROME];",
              "var TZ_BALA = ['model', 'model_reasoning_effort', 'approval_policy', 'sandbox_mode', 'service_tier', 'model_reasoning_summary', 'personality', 'model_auto_compact_token_limit', 'web_search'];")
     s = _one(s, "    return window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;\n  }\n  function tz_adad_fa",

@@ -78,10 +78,15 @@ def serve(*, accounts=False):
         if account == 'anthropic':
             return read_key('habib-claude-code-anthropic', 'sk-ant-')
         return read_key()
-    server=TraceServer(DIRECTORY/'requests.jsonl',secrets.token_hex(32),
-                       credential=credential if accounts else None,
-                       trace_enabled=ENABLED.exists if accounts else None)
     state_file = DIRECTORY / 'vscode-accounts-v1.json' if accounts else STATE
+    try: previous=json.loads(state_file.read_text())
+    except (OSError,ValueError): previous={}
+    token=previous.get('token') if isinstance(previous.get('token'),str) and len(previous['token'])>=24 else secrets.token_hex(32)
+    port=previous.get('port') if isinstance(previous.get('port'),int) and 1<=previous['port']<=65535 else 0
+    server=TraceServer(DIRECTORY/'requests.jsonl',token,
+                       credential=credential if accounts else None,
+                       trace_enabled=ENABLED.exists if accounts else None,
+                       port=port)
     tmp=state_file.with_suffix('.tmp')
     tmp.write_text(json.dumps({'port':server.server_port,'token':server.token,'pid':os.getpid()}))
     tmp.replace(state_file)

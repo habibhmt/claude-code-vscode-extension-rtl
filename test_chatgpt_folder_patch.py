@@ -66,6 +66,8 @@ class FolderPatchTests(unittest.TestCase):
         if not candidates:
             self.skipTest('Installed VS Code extension unavailable')
         live = candidates[-1].parent.parent
+        if not list((live / 'webview/assets').glob('app-server-manager-hooks-*.js')):
+            self.skipTest('Installed ChatGPT layout has no app-server-manager-hooks-*.js; folder filter needs a new adapter')
         with tempfile.TemporaryDirectory(prefix='crtl-installed-copy-') as tmp:
             ext = Path(tmp)
             root = ext / 'webview/assets'

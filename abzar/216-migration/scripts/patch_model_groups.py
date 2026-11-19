@@ -54,7 +54,7 @@ replacement.css = 'kl'
 
 
 def patch_text(text):
-    if MARK in text:
+    if MARK in text or ('__ccg1=' in text and '"ccgh"+' in text and '"ccgf"+' in text):
         return text, 'already patched'
     section = SECTION.search(text)
     if section is None:

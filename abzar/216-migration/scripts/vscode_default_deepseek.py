@@ -34,7 +34,11 @@ def main():
         argv,env=prepare(sys.argv[1],args,'',picker_accounts=True)
         # Keep the previous default profile's tool selection behavior.
         if not PREVIOUS.is_file():raise PilotError('Previous tool-policy wrapper unavailable')
-        os.execve(str(PREVIOUS),[str(PREVIOUS),*argv],os.environ.copy() if env is None else env)
+        # The shell's Anthropic API key is the extra credential that makes
+        # Claude Code warn on every refresh; the gateway token is in env.
+        child_env=dict(os.environ if env is None else env)
+        child_env.pop('ANTHROPIC_API_KEY',None)
+        os.execve(str(PREVIOUS),[str(PREVIOUS),*argv],child_env)
     except (OSError,ValueError,subprocess.TimeoutExpired,PilotError):
         print('اتصال DeepSeek آماده نیست؛ برای جلوگیری از برگشت ناخواسته به Claude، اجرا متوقف شد.',file=sys.stderr)
         return 1

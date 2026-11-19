@@ -1,27 +1,10 @@
 {
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/opt/homebrew/bin/python3 -I \"$HOME/1-MY-WORK/210th-day-flowchart/akharin_harekat.py\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/opt/homebrew/bin/python3 -I \"$HOME/1-MY-WORK/210th-day-flowchart/payam_hook.py\"",
-            "timeout": 5
-          }
-        ]
-      }
+  "permissions": {
+    "allow": [
+      "Bash(echo \"exit=$?\")",
+      "Bash(git -C /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/186-montaghel/app status --short)",
+      "Bash(git -C /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/186-montaghel/app log --oneline -5)",
+      "Bash(python3 -I -)"
     ]
   }
 }

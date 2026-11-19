@@ -147,8 +147,10 @@ def main():
     args = parser.parse_args()
     defaults_path = Path.home() / '.chatgpt-rtl-sizes.json'
     defaults = json.loads(defaults_path.read_text()) if defaults_path.exists() else {}
-    ui = adapter.build_ui(REPO, defaults)
-    css = (REPO / 'chatgpt-rtl.css').read_text()
+    # --revert must reach the files even when claude-ui-buttons.js changed; building
+    # the UI before this check made revert die on the very error it was meant to undo.
+    ui = None if args.revert else adapter.build_ui(REPO, defaults)
+    css = '' if args.revert else (REPO / 'chatgpt-rtl.css').read_text()
     dirs = args.extension_dir or [p for ide in ['.vscode','.vscode-insiders','.cursor','.windsurf','.windsurf-next','.devin'] for p in (Path.home() / ide / 'extensions').glob('openai.chatgpt-*')]
     if not dirs:
         parser.exit(1, 'No installed openai.chatgpt extension found.\n')

@@ -31,7 +31,8 @@ PATHS = frozenset({'/v1/messages', '/v1/messages?beta=true'})
 TOKEN_PATHS = frozenset({'/v1/messages/count_tokens', '/v1/messages/count_tokens?beta=true'})
 CATALOG = Path(__file__).resolve().parents[1] / 'claude-api/deepseek-models.json'
 FIELDS = frozenset({'time_utc','time_tehran','run_id','request_number','model',
-                    'work_type','status','duration_ms','response_id','error','project','sender_run'})
+                    'work_type','status','duration_ms','response_id','error','project','sender_run',
+                    'input_tokens','output_tokens','cache_read_input_tokens','cache_creation_input_tokens'})
 
 def safe_id(value):
     return value if isinstance(value,str) and re.fullmatch(r'(?:gen|msg)-[A-Za-z0-9-]{1,110}|msg_[A-Za-z0-9]{1,110}', value) else None
@@ -43,6 +44,19 @@ def safe_error(text):
     if not text or re.search(r'sk-[A-Za-z0-9_-]{8,}', text):
         return None
     return text[:300]
+
+
+def safe_count(value):
+    return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
+
+
+def merge_usage(row, usage):
+    if not isinstance(usage, dict):
+        return
+    for key in ('input_tokens', 'output_tokens', 'cache_read_input_tokens', 'cache_creation_input_tokens'):
+        value = safe_count(usage.get(key))
+        if value is not None:
+            row[key] = value
 
 
 ATTRIBUTION_DELAYS = (2, 3, 5, 8)
@@ -93,7 +107,7 @@ def account_model(model, catalog):
 class TraceServer(http.server.ThreadingHTTPServer):
     daemon_threads = True
     def __init__(self, log_path, token, *, test_upstream=None, credential=None, trace_enabled=None,
-                 attribution_base='auto'):
+                 attribution_base='auto', port=0):
         if len(token) < 24: raise ValueError('local token too short')
         upstream = 'https://openrouter.ai/api'
         if test_upstream is not None:
@@ -102,7 +116,7 @@ class TraceServer(http.server.ThreadingHTTPServer):
             upstream=test_upstream
         # Off in the isolated tests unless asked for: a fixture server has no
         # /generation route, and a background retry would outlive the test.
-        self.attribution_base = (upstream if test_upstream is None else None) \
+        self.attribution_base = ((upstream + '/v1') if test_upstream is None else None) \
             if attribution_base == 'auto' else attribution_base
         self.attribution_log = None
         self.pending = None
@@ -125,7 +139,7 @@ class TraceServer(http.server.ThreadingHTTPServer):
         p=Path(log_path); p.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
         fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_APPEND|os.O_NOFOLLOW,0o600)
         os.fchmod(fd,0o600); self.log=os.fdopen(fd,'a',encoding='utf8')
-        super().__init__(('127.0.0.1',0),TraceHandler)
+        super().__init__(('127.0.0.1',port),TraceHandler)
     def record(self,row):
         if self.trace_enabled is not None and not self.trace_enabled():
             return
@@ -212,7 +226,9 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
              'model':model,
              'project':project if re.fullmatch(r'[0-9]{1,6}',project) else 'unknown',
              'sender_run':sender if re.fullmatch(r'[a-f0-9-]{36}',sender) else 'unknown',
-             'work_type':'unknown','status':None,'response_id':None,'error':None}
+             'work_type':'unknown','status':None,'response_id':None,'error':None,
+             'input_tokens':None,'output_tokens':None,
+             'cache_read_input_tokens':None,'cache_creation_input_tokens':None}
         # Do not infer work type from private prompt text. No verified explicit
         # sender marker is currently available, so attribution remains unknown.
         headers={k:v for k,v in self.headers.items() if k.lower() in
@@ -262,19 +278,27 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
                     if row['status'] >= 400 and len(error_body) < 8192:
                         error_body += chunk[:8192-len(error_body)]
                     self.wfile.write(chunk);self.wfile.flush()
-                    if row['response_id'] is None:
-                        pending += chunk
-                        if len(pending)>1024*1024:pending=b''
-                        while b'\n' in pending:
-                            line,pending=pending.split(b'\n',1)
-                            if line.startswith(b'data:'):
-                                try:
-                                    event=json.loads(line[5:])
-                                    row['response_id']=safe_id(event.get('id')) or safe_id(event.get('message',{}).get('id'))
-                                except (ValueError,AttributeError):pass
-                        # Non-streaming JSON is parsed only in memory.
+                    pending += chunk
+                    if len(pending)>1024*1024:pending=b''
+                    while b'\n' in pending:
+                        line,pending=pending.split(b'\n',1)
+                        if not line.startswith(b'data:'):continue
+                        try:
+                            event=json.loads(line[5:])
+                        except (ValueError,AttributeError):continue
+                        if row['response_id'] is None:
+                            row['response_id']=safe_id(event.get('id')) or safe_id(event.get('message',{}).get('id'))
+                        typ=event.get('type')
+                        if typ=='message_start':
+                            merge_usage(row,event.get('message',{}).get('usage',{}))
+                        elif typ=='message_delta':
+                            merge_usage(row,event.get('usage',{}))
+                # Non-streaming JSON is parsed only in memory.
                 if row['response_id'] is None and pending:
-                    try:row['response_id']=safe_id(json.loads(pending).get('id'))
+                    try:
+                        payload=json.loads(pending)
+                        row['response_id']=safe_id(payload.get('id'))
+                        merge_usage(row,payload.get('usage',{}))
                     except (ValueError,AttributeError):pass
                 if row['status'] >= 400 and error_body:
                     text=error_body.decode('utf-8','replace')

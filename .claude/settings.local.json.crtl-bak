@@ -1,9 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/fix-rtl-claude.sh)"
+      "Bash(bash /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/fix-rtl-claude.sh)",
+      "Bash(cd /Users/habib/.claude && ls && echo ---- && grep -rIl -E \"anthropic|ANTHROPIC|openrouter|OPENROUTER\" . --exclude-dir=node_modules --exclude-dir=projects --exclude-dir=shell-snapshots --exclude-dir=statsig 2>/dev/null | head -60)",
+      "Read(//Users/habib/.claude/**)",
+      "Bash(python3 -I -c ' *)",
+      "Bash(cd /Users/habib/.claude && grep -rIn -E \"openrouter|OPENROUTER\" --include=*.json --include=*.md --include=*.js --include=*.mjs --include=*.sh --include=*.py plugins-local ~/.claude.json 2>/dev/null | head -40)",
+      "Read(//Users/habib/**)",
+      "Bash(env)"
     ]
   },
-  "autoCompactWindow": 200000,
-  "remoteControlAtStartup": true
+  "autoCompactWindow": 933000
 }

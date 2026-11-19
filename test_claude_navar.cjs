@@ -86,7 +86,9 @@ function javab(kelid) { return new Promise((res) => { let r = null; N.javab(sid,
       return { heads: [...b.querySelectorAll('th')].map((x) => x.textContent).join(' '), vals: [...b.querySelectorAll('td')].map((x) => x.textContent).join(' | '),
         clear: r.right < document.querySelector('[aria-label="Message input"]').getBoundingClientRect().left || r.bottom < document.querySelector('[aria-label="Message input"]').getBoundingClientRect().top,
         left: r.left < 20, lines: getComputedStyle(b.querySelector('td')).borderTopStyle, zero: /\$۰٫۰۰(?![۰-۹])/.test(b.textContent) } })
-    assert.deepEqual(out.small, { heads: 'هزینه توکن پیام کانتکست', vals: '≈$۰٫۰۰۰۳ | ۳٫۳k | ۲ | ۰٪', clear: true, left: true, lines: 'solid', zero: false })
+    assert.equal(out.small.heads, 'هزینه هزینهٔ امروز هزینهٔ کل امروز توکن پیام کانتکست')
+    assert.match(out.small.vals, /^≈\$۰٫۰۰۰۳ \| — \| ≈\$[۰-۹٫]+ \| ۳٫۳k \| ۲ \| ۰٪$/)
+    assert.deepEqual({ clear: out.small.clear, left: out.small.left, lines: out.small.lines, zero: out.small.zero }, { clear: true, left: true, lines: 'solid', zero: false })
     // a narrow panel: the prompt box starts at the left edge ⇒ the table goes above it, never over it
     await p.evaluate(() => { document.querySelector('[aria-label="Message input"]').style.left = '30px'; window.__crtl_navar_keshidan() })
     out.narrow = await p.evaluate(() => document.getElementById('crtl-navar').getBoundingClientRect().bottom <= document.querySelector('[aria-label="Message input"]').getBoundingClientRect().top)

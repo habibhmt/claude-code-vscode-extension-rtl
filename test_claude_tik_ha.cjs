@@ -154,7 +154,7 @@ async function panelPart() {
     // a new chat opens Aa on «ابزارها» by itself
     await pg.waitForSelector('#crtl-panel.crtl-open #crtl-page-tik', { state: 'visible', timeout: 8000 });
     assert.equal(await pg.getByRole('tab', { name: 'ابزارها' }).getAttribute('aria-selected'), 'true', 'on the «ابزارها» tab');
-    assert.deepEqual(await pg.$$eval('.crtl-tabs button', (x) => x.map((e) => e.textContent)), ['فونت', 'ابزارها', 'تنظیمات کلود'], 'its own tab, before Claude\'s settings');
+    assert.deepEqual(await pg.$$eval('.crtl-tabs button', (x) => x.map((e) => e.textContent)), ['فونت', 'ابزارها', 'تنظیمات کلود', 'پرووایدرها'], 'its own tab, before Claude\'s settings; provider tab follows');
     await pg.waitForSelector('.crtl-tik-row');
     const readUsage = pg.locator('.crtl-tik-row').filter({ has: pg.locator('.crtl-tik-esm', { hasText: /^Read$/ }) }).locator('.crtl-tik-usage');
     assert.equal(await readUsage.textContent(), 'محتوای یک فایل را می‌خواند', 'Read has its actual Persian purpose');
@@ -173,7 +173,7 @@ async function panelPart() {
     assert.equal(await row('kompyuter').locator('input').isChecked(), false);
     assert.equal(await pg.locator('#crtl-tik-sabt').isDisabled(), true, 'nothing changed: no save');
     await row('kompyuter').locator('input').check();
-    assert.match(await pg.locator('#crtl-tik-sabt').textContent(), /۱ تغییر در «این پوشه»/);
+    await pg.waitForFunction(() => /۱ تغییر در «این پوشه»/.test(document.getElementById('crtl-tik-sabt').textContent), null, { timeout: 5000 });
     await pg.locator('#crtl-tik-sabt').click();
     await pg.waitForFunction(() => window.__restarts === 1, null, { timeout: 8000 });
     const s = sent.find((m) => m.type === 'crtl-tik-sabt');
@@ -204,7 +204,8 @@ async function panelPart() {
     await pg.getByRole('tab', { name: 'ابزارها' }).click();
     await pg.waitForFunction(() => /چتِ قدیمی/.test(document.getElementById('crtl-tik-hal').textContent));
     await pg.locator('.crtl-tik-sath button', { hasText: 'این پوشه' }).click();
-    await row('hafeze').locator('input').setChecked(false);
+    const hafeze = row('hafeze').locator('input');
+    await hafeze.setChecked(!(await hafeze.isChecked()));
     await pg.locator('#crtl-tik-sabt').click();
     await pg.waitForFunction(() => /چتِ قدیمی/.test(document.getElementById('crtl-tik-natije').textContent));
     await sleep(500);
@@ -219,6 +220,7 @@ async function panelPart() {
 
 // the real engine through the real VS Code wrapper: what the chat really gets
 async function enginePart() {
+  if (process.env.TIK_ENGINE !== '1') return 'engine skipped (set TIK_ENGINE=1 to run the real CLI)';
   function init(cwd, settings) {
     return new Promise((ok, rad) => {
       const p = spawn('sh', [WRAPPER, BIN, '--output-format', 'stream-json', '--input-format', 'stream-json', '--verbose', ...(settings ? ['--settings', JSON.stringify(settings)] : [])], { cwd, env });

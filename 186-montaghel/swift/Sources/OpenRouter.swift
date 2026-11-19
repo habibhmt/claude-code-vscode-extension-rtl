@@ -46,6 +46,23 @@ enum ORTime {
         cal.timeZone = TimeZone(secondsFromGMT: 0)!
         return cal.startOfDay(for: d).timeIntervalSince1970
     }
+
+    /// The user's local day (Tehran, UTC+03:30) as UTC ISO bounds. The
+    /// analytics API has no timezone parameter; off-midnight bounds read raw
+    /// generations, which the docs allow for a short range with one dimension.
+    static func tehranDayRange(_ d: Date = Date()) -> (String, String) {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: 3 * 3600 + 30 * 60)!
+        let start = cal.startOfDay(for: d)
+        let end = cal.date(byAdding: .day, value: 1, to: start) ?? start.addingTimeInterval(86_400)
+        return (string(start), string(end))
+    }
+
+    static func tehranDayStart(_ d: Date = Date()) -> TimeInterval {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(secondsFromGMT: 3 * 3600 + 30 * 60)!
+        return cal.startOfDay(for: d).timeIntervalSince1970
+    }
 }
 
 // MARK: - Keys
@@ -102,6 +119,20 @@ enum ORHTTP {
         let (data, resp) = try await URLSession.shared.data(for: r)
         return (data, (resp as? HTTPURLResponse)?.statusCode ?? -1)
     }
+
+    static func post(_ s: String, bearer: String?, body: Data, timeout: TimeInterval = 30) async throws -> (Data, Int) {
+        guard let url = URL(string: s) else { throw ORError.badURL }
+        var r = URLRequest(url: url)
+        r.httpMethod = "POST"
+        r.httpBody = body
+        r.timeoutInterval = timeout
+        r.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+        r.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        r.setValue("Mozilla/5.0", forHTTPHeaderField: "User-Agent")
+        if let bearer { r.setValue("Bearer \(bearer)", forHTTPHeaderField: "Authorization") }
+        let (data, resp) = try await URLSession.shared.data(for: r)
+        return (data, (resp as? HTTPURLResponse)?.statusCode ?? -1)
+    }
 }
 
 // MARK: - OpenRouter API
@@ -145,6 +176,33 @@ enum ORClient {
             out.spend += (r["usage"] as? NSNumber)?.doubleValue ?? 0
             out.requests += (r["requests"] as? NSNumber)?.intValue ?? 0
         }
+        return out
+    }
+
+    /// Exact spend for the whole account (all keys), not only the current key.
+    /// `/activity` is finalized-only and `/key` sees one key, so Kimi and other
+    /// keys disappeared from today's figure. This asks the Management API.
+    static func analyticsToday(_ key: String) async throws -> DaySpend {
+        let (start, end) = ORTime.tehranDayRange()
+        let body: [String: Any] = [
+            "metrics": ["request_count", "total_usage"],
+            "dimensions": ["model"],
+            "time_range": ["start": start, "end": end],
+            "order_by": ["field": "total_usage", "direction": "desc"],
+            "limit": 5000,
+        ]
+        let data = try JSONSerialization.data(withJSONObject: body)
+        let (d, code) = try await ORHTTP.post(base + "/analytics/query", bearer: key, body: data)
+        guard code == 200 else { throw ORError.http(code) }
+        guard let j = try JSONSerialization.jsonObject(with: d) as? [String: Any],
+              let dataObj = j["data"] as? [String: Any],
+              let rows = dataObj["data"] as? [[String: Any]] else { throw ORError.shape }
+        var out = DaySpend()
+        for r in rows {
+            out.spend += (r["total_usage"] as? NSNumber)?.doubleValue ?? 0
+            out.requests += (r["request_count"] as? NSNumber)?.intValue ?? 0
+        }
+        out.found = !rows.isEmpty
         return out
     }
 
@@ -690,13 +748,15 @@ actor UsageCollector {
 
             let day = ORTime.utcDay()
             var daySpend: DaySpend?
-            if let mgmt = ORKeys.value("OPENROUTER_MANAGEMENT_KEY") {
-                do { daySpend = try await ORClient.activityToday(mgmt, day: day) }
-                catch { FetchLog.write("openrouter: activity \(error)") }
+            let mgmt = ORKeys.value("OPENROUTER_MANAGEMENT_KEY")
+            if let mgmt {
+                do { daySpend = try await ORClient.analyticsToday(mgmt) }
+                catch { FetchLog.write("openrouter: analytics \(error)") }
             }
-            // `/activity` only carries finalized days; before its first row for
-            // today, `/key`'s usage_daily is the only live figure.
-            if daySpend?.found != true {
+            // Only without a management key is the one-key daily figure the
+            // best available number; with one, a failed exact query must keep
+            // the last exact value instead of overwriting it with a smaller one.
+            if daySpend?.found != true && mgmt == nil {
                 do { daySpend = DaySpend(spend: try await ORClient.usageDaily(apiKey),
                                          requests: Self.traceCountToday(day: day), found: true) }
                 catch { FetchLog.write("openrouter: key \(error)") }
@@ -877,7 +937,7 @@ actor UsageCollector {
         let nowTs = now.timeIntervalSince1970
         // generations.jsonl keeps every day; the panel is "today", so the
         // aggregation must not carry yesterday's prices forward.
-        let todayStart = ORTime.utcDayStart(now)
+        let todayStart = ORTime.tehranDayStart(now)
         let values = priced.values.filter { $0.ts >= todayStart }
         // With no priced request the trace is missing or off; fall back to
         // splitting the day's exact spend by tokens read from the transcripts.
@@ -1015,6 +1075,12 @@ actor UsageCollector {
         folders.sort { $0.cost > $1.cost }
 
         var today = current?.today ?? TodayInfo(spend: 0, requests: 0)
+        // The external truth job may have written a newer exact figure while
+        // this process kept an older one in memory; preserve the file's value.
+        if let data = try? Data(contentsOf: CUPaths.truth),
+           let fileTruth = try? JSONDecoder().decode(SourceOfTruth.self, from: data) {
+            today = fileTruth.today
+        }
         if approximate {
             // No trace log: model calls are not counted, so show the number of
             // assistant messages written today — what the panel can prove.

@@ -1257,13 +1257,17 @@
         payam: h.payam, tamas: h.tartib.length,
         tokens: jam, tokens_kol: jam['in'] + jam.out + jam.cr + jam.cw,
         usd: usd, bi_gheymat: bi_gheymat, models: Object.keys(models).map(function (k) { return models[k]; }),
-        ctx: ctx, model_chat: model_chat, emrooz: emrooz(sid),
+        ctx: ctx, model_chat: model_chat, emrooz: emrooz(sid), emrooz_kol: emrooz_kol(),
       };
     }
     // «هزینهٔ امروز» از منبعِ حقیقتِ اپِ ClaudeUsage (۱۸ نوامبر). اپ تنها جایی است
     // که قیمتِ دقیقِ هر تماس را دارد؛ این‌جا فقط خوانده می‌شود، هیچ محاسبه‌ای نیست.
     // فایل با mtime کش می‌شود تا هر تیک، ۵۰ کیلوبایت JSON دوباره پارس نشود.
     var EMROOZ = { mtime: 0, map: {}, taghribi: false };
+    function emrooz_kol() {
+      emrooz('');
+      return EMROOZ.kol;
+    }
     function emrooz(sid) {
       try {
         var fs = require('fs'), os = require('os'), path = require('path');
@@ -1275,7 +1279,8 @@
           (j.folders || []).forEach(function (f) {
             (f.chats || []).forEach(function (c) { map[c.id] = { emrooz: c.cost, omr: c.lifetime }; });
           });
-          EMROOZ = { mtime: mt, map: map, taghribi: j.approximate === true };
+          EMROOZ = { mtime: mt, map: map, taghribi: j.approximate === true,
+                     kol: j.today && Number.isFinite(j.today.spend) ? { usd: j.today.spend, requests: j.today.requests, taghribi: j.approximate === true } : null };
         }
         var v = EMROOZ.map[sid];
         if (!v) return null;

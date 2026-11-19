@@ -291,6 +291,7 @@ fi
 
 # Counter for patched IDEs
 patched=0
+MODEL_GROUPS_FAILED=0
 skipped=0
 # Buffered so a run that changed nothing stays out of the log.
 OUT=""
@@ -563,13 +564,17 @@ PYEOF
                 # picker itself keeps working — hence a warning, not a failure.
                 MODEL_GROUPS_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_model_groups.py"
                 if [ -f "$MODEL_GROUPS_PATCH" ] && command -v python3 >/dev/null 2>&1; then
-                    python3 "$MODEL_GROUPS_PATCH" "$ext_dir/index.js" \
-                        || echo "[WARN] Model picker headers were not installed in $ext_dir" >&2
+                    if ! python3 "$MODEL_GROUPS_PATCH" "$ext_dir/index.js"; then
+                        echo "[WARN] Model picker headers were not installed in $ext_dir" >&2
+                        MODEL_GROUPS_FAILED=1
+                    fi
                 fi
                 # Verify, don't assume: a run of an older copy of this script
                 # rebuilt index.js once and quietly dropped the headers.
-                grep -q 'ccgh' "$ext_dir/index.js" 2>/dev/null \
-                    || echo "[WARN] Model picker headers are missing from $ext_dir/index.js" >&2
+                if ! grep -q 'ccgh' "$ext_dir/index.js" 2>/dev/null; then
+                    echo "[WARN] Model picker headers are missing from $ext_dir/index.js" >&2
+                    MODEL_GROUPS_FAILED=1
+                fi
             fi
 
             # Self-test: a broken injection would take the whole panel down,
@@ -684,5 +689,9 @@ else
         else
             echo -e "${YELLOW}Could not auto-reload $front (needs Accessibility permission). Press Cmd+R.${NC}"
         fi
+    fi
+    if [ "${MODEL_GROUPS_FAILED:-0}" -ne 0 ]; then
+        echo -e "${RED}[FAIL] Model picker headers are missing in at least one IDE.${NC}" >&2
+        exit 1
     fi
 fi

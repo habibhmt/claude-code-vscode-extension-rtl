@@ -597,15 +597,20 @@
       out.push('[class*="messagesContainer_"] pre code{white-space:pre!important}');
     }
 
-    // Thinking / tool-call chatter shrinks out of the way until hovered
+    // Thinking / tool-call chatter shrinks out of the way. Thinking opens by
+    // click/keyboard like the native terminal block (details/summary); tool
+    // calls keep the hover preview. Habib, 19 Nov: «رفتارش مثل این قسمت
+    // ترمینال باشه و با فوکوس focus … پیدا یا ناپیدا باشه».
     if (s.collapse) {
-      // actually fold the block down to a couple of lines; hover or the
-      // per-block toggle opens it again
       var noisy = '[class*="thinking"],[class*="Thinking"],[class*="toolCall"],[class*="ToolCall"]';
+      var hoverNoisy = '[class*="toolCall"],[class*="ToolCall"]';
       out.push(noisy.split(',').map(function (x) { return x + ':not(.crtl-open-block)'; }).join(',') +
         '{max-height:' + (s.chrome * 2.6).toFixed(0) + 'px!important;overflow:hidden!important;opacity:.45!important;' +
         'font-size:' + Math.max(8, s.chrome - 1) + 'px!important;cursor:zoom-in}');
-      out.push(noisy.split(',').map(function (x) { return x + ':not(.crtl-open-block):hover'; }).join(',') +
+      // The native <details open> has to win over the fold; otherwise a click
+      // opens the details while the wrapper stays clipped (the bug Habib saw).
+      out.push('[class*="thinking"][open],[class*="thinking"][open] *{max-height:none!important;overflow:visible!important;opacity:1!important;font-size:inherit!important}');
+      out.push(hoverNoisy.split(',').map(function (x) { return x + ':not(.crtl-open-block):hover'; }).join(',') +
         '{max-height:none!important;opacity:1!important}');
       out.push('.crtl-open-block{max-height:none!important;opacity:1!important}');
     }
@@ -841,17 +846,69 @@
     document.__crtlBlocksWired = true;
     document.addEventListener('click', function (e) {
       if (!khandan_tanzim().collapse) return;
-      var n = e.target;
+      // Thinking is a native <details>: the browser owns its click/keyboard
+      // toggle, and the [open] rule above expands it. Only tool-call blocks
+      // need this manual pin; toggle the outermost one, not the first child.
+      var n = e.target, block = null;
       while (n && n !== document.body) {
         var c = typeof n.className === 'string' ? n.className : '';
-        if (/thinking|Thinking|toolCall|ToolCall/.test(c)) {
-          n.classList.toggle('crtl-open-block');
-          return;
-        }
+        if (/toolCall|ToolCall/.test(c)) block = n;
         n = n.parentNode;
       }
+      if (block) block.classList.toggle('crtl-open-block');
     }, false);
   }
+
+  // Hide the auth-conflict banner: a saved /login key sits next to
+  // ANTHROPIC_AUTH_TOKEN, so the binary warns on every refresh. We use the
+  // token; hiding the banner is safer than deleting the Keychain login.
+  function pak_kardan_ekhtar_auth() {
+    if (document.__crtlAuthWarnWired) return;
+    document.__crtlAuthWarnWired = true;
+    function bad(el) {
+      var t = (el.textContent || '').replace(/\s+/g, ' ');
+      return t.indexOf('ANTHROPIC_AUTH_TOKEN') !== -1 && t.indexOf('(/logout)') !== -1;
+    }
+    function scan(root) {
+      if (!root || root.nodeType !== 1) return;
+      var rc = typeof root.className === 'string' ? root.className : '';
+      if (root !== document.body && bad(root) && /systemMessage|warning|error|alert/i.test(rc)) {
+        root.style.setProperty('display', 'none', 'important');
+      }
+      var all = root.querySelectorAll('[role="alert"],[class*="systemMessage" i],[class*="warning" i],[class*="error" i]');
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        if (!bad(el)) continue;
+        el.style.setProperty('display', 'none', 'important');
+      }
+      // Fallback for a banner without one of those classes: short enough to be
+      // the banner itself, never the whole conversation container.
+      var divs = root.querySelectorAll('div');
+      for (var j = 0; j < divs.length; j++) {
+        var d = divs[j];
+        var t = (d.textContent || '').replace(/\s+/g, ' ');
+        if (t.length < 600 && bad(d) && !/messagesContainer/i.test(typeof d.className === 'string' ? d.className : '')) {
+          d.style.setProperty('display', 'none', 'important');
+        }
+      }
+    }
+    function scanDeep(root) {
+      if (!root || root.nodeType !== 1) return;
+      scan(root);
+      var all = root.querySelectorAll('*');
+      for (var i = 0; i < all.length; i++) if (all[i].shadowRoot) scanDeep(all[i].shadowRoot);
+    }
+    scanDeep(document.body);
+    new MutationObserver(function (ms) {
+      for (var i = 0; i < ms.length; i++) {
+        for (var j = 0; j < ms[i].addedNodes.length; j++) {
+          var node = ms[i].addedNodes[j];
+          scanDeep(node.nodeType === 1 ? node : node.parentElement);
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  window.__crtl_pak_ekhtar_auth = pak_kardan_ekhtar_auth;
 
   /* ---------------- find in conversation ---------------- */
   function navar_jostojo() {
@@ -3149,6 +3206,7 @@
   }
 
   function sakht_hame() {
+    pak_kardan_ekhtar_auth();
     if (document.getElementById('crtl-panel')) return;
     if (!kadr_tayp()) return;
     var style = document.createElement('style');
@@ -3849,8 +3907,13 @@
     if (!e || !Number.isFinite(e.usd)) return '—';
     return '≈' + navar_dolar(e.usd) + (e.taghribi ? ' تقریبی' : '');
   }
+  function navar_kol(d) {
+    var e = d.emrooz_kol;
+    if (!e || !Number.isFinite(e.usd)) return '—';
+    return '≈' + navar_dolar(e.usd) + (e.taghribi ? ' تقریبی' : '');
+  }
   function navar_kuchak(d) {
-    var s = [['هزینه', navar_hazine(d)], ['هزینهٔ امروز', navar_emrooz(d)], ['توکن', navar_kutah(d.tokens_kol)], ['پیام', fa(d.payam)], ['کانتکست', navar_ctx(d)]];
+    var s = [['هزینه', navar_hazine(d)], ['هزینهٔ امروز', navar_emrooz(d)], ['هزینهٔ کل امروز', navar_kol(d)], ['توکن', navar_kutah(d.tokens_kol)], ['پیام', fa(d.payam)], ['کانتکست', navar_ctx(d)]];
     // one row per number: narrow enough for the empty strip left of the prompt box (seen 16 Nov 16:25: four columns
     // side by side ran over the box's left edge)
     return '<table class="crtl-amar-t">' + s.map(function (x) { return '<tr><th>' + x[0] + '</th><td>' + amar_esc(x[1]) + '</td></tr>'; }).join('') + '</table>';
@@ -3859,7 +3922,7 @@
     var t = d.tokens || {};
     var h = '<div class="crtl-amar-sar"><b>همین چت</b><button class="crtl-amar-bastan" title="کوچک کن">×</button></div>';
     h += '<table class="crtl-amar-t crtl-navar-riz">';
-    [['هزینه', navar_hazine(d)], ['هزینهٔ امروز', navar_emrooz(d)], ['پیامِ تو', fa(d.payam)], ['تماس با مدل', fa(d.tamas)],
+    [['هزینه', navar_hazine(d)], ['هزینهٔ امروز', navar_emrooz(d)], ['هزینهٔ کل امروز', navar_kol(d)], ['پیامِ تو', fa(d.payam)], ['تماس با مدل', fa(d.tamas)],
       ['توکنِ ورودی', fa((t['in'] || 0).toLocaleString('en-US'))], ['خواندنِ کش', fa((t.cr || 0).toLocaleString('en-US'))],
       ['نوشتنِ کش', fa((t.cw || 0).toLocaleString('en-US'))], ['خروجی', fa((t.out || 0).toLocaleString('en-US'))],
       ['کانتکستِ الان', d.ctx ? navar_kutah(d.ctx.used) + (d.ctx.max ? ' از ' + navar_kutah(d.ctx.max) + ' (' + navar_ctx(d) + ')' : '') : 'نامعلوم'],

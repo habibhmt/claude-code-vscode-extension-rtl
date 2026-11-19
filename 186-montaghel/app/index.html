@@ -85,6 +85,9 @@
   const stale = document.getElementById('stale'), sortBar = document.getElementById('sort');
 
   const cls = p => p >= 90 ? 'crit' : p >= 70 ? 'warn' : '';
+  // Anything that comes from a chat title, folder, or model is shown as text,
+  // never as HTML. Without this, a title like <img onerror=...> ran code.
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function left(iso) {
     if (!iso) return '';
     const ms = Date.parse(iso) - Date.now();
@@ -107,21 +110,24 @@
         (d.staleSince ? '، ' + ago(d.staleSince) : '');
     }
     for (const el of sortBar.children) el.classList.toggle('on', el.dataset.k === d.sort);
-    bars.innerHTML = d.rows.map(r => `
+    bars.innerHTML = d.rows.map(r => {
+      const pct = Number(r.percent) || 0;
+      return `
       <div class="row">
-        <div class="top"><span class="pct">${r.percent}%</span><span class="reset">${left(r.resets_at)}</span></div>
-        <div class="track"><div class="fill ${cls(r.percent)}" style="width:${Math.min(100, r.percent)}%"></div></div>
-      </div>`).join('');
+        <div class="top"><span class="pct">${esc(pct)}%</span><span class="reset">${esc(left(r.resets_at))}</span></div>
+        <div class="track"><div class="fill ${cls(pct)}" style="width:${Math.min(100, pct)}%"></div></div>
+      </div>`;
+    }).join('');
 
     list.innerHTML = d.sessions.length ? d.sessions.map(s => `
       <div class="chat">
         <div class="h">
           <span class="dot ${s.live ? '' : 'off'}"></span>
-          <span class="folder">${s.folder}</span>
-          <span class="title">${(s.title || '—').split(/\s+/).slice(0, 5).join(' ')}</span>
+          <span class="folder">${esc(s.folder)}</span>
+          <span class="title">${esc((s.title || '—').split(/\s+/).slice(0, 5).join(' '))}</span>
         </div>
         <div class="meta">
-          <span>${(s.model || '?').replace('claude-', '')}</span>
+          <span>${esc((s.model || '?').replace('claude-', ''))}</span>
           <span>ctx <b>${Math.round(s.ctxPct)}%</b></span>
           <span>~<b>${s.share.session.toFixed(1)}</b>/<b>${s.share.weekly.toFixed(1)}</b>/<b>${s.share.fable.toFixed(1)}</b></span>
         </div>

@@ -16,19 +16,19 @@
 | ۹ | قفل رهاشدهٔ `aa-shared` | moalagh ۴ | انجام | PID + heartbeat + قفل کهنه؛ آزمون: قفل مرده آزاد شد، قفل زنده ۳ ثانیه صبر کرد | — |
 | ۱۰ | تیک خاموش (`NaN`) | moalagh ۳ | انجام | `zaman()` در `index.js`/`tools-policy.cjs`/`aa-shared.cjs`؛ `kooch` عددی در `tik_ha.py:361`؛ آزمون ISO PASS | — |
 | ۱۱ | هشدار زودهنگام ریست | moalagh ۵ | انجام | علامت بعد از ارسال؛ آزمون notif خراب: ۰ نشان، notif سالم: ۱ نشان | — |
-| ۱۲ | موفقیت دروغین auto-update | moalagh ۶ | انجام | VS Code autoUpdate=false؛ plistهای auto-update و fix-rtl به `~/.backups/launchagents-disabled/` رفتند؛ `launchctl list` خالی؛ چک دستی ساخته شد | تست دستی |
+| ۱۲ | موفقیت دروغین auto-update | moalagh ۶ | انجام | `extensions.autoUpdate=off`؛ دو label خاص در `launchctl` نیست؛ ۸۱ job دیگر پروژه‌ها؛ چک: installed=marketplace=2.1.328 | — |
 | ۱۳ | `fix-rtl`: VS Code اجباری/`--help`/`--revert` | moalagh ۷/۸ | انجام | `--help`/`--revert` قبل از md-preview/scroll؛ مدل‌سلکتور همهٔ IDEها؛ آزمون HOME جعلی: ۰ فایل | — |
 | ۱۴ | تماس بی‌مورد توییت | moalagh ۹ | انجام | `dide` حتی با خطای یک کاربر ذخیره می‌شود؛ `node --check` OK | — |
 | ۱۵ | ابزار وظیفه (Task tools) | پلان ۸ | انجام | `CLAUDE_CODE_ENABLE_TASKS` و `ENABLE_TODO_TOOLS` در `extension.js` تأیید شد؛ init با ۰/۱ در ۱۳۶ هیچ Task/Todo نداد | — |
 | ۱۶ | «مثل اشتراک»: Fable/اجبار ساب‌ایجنت/لیست مدل/لاگ | پلان ۹ | نیمه | Fable خالی؛ `SUBAGENT_MODEL` ست | تصمیم حبیب |
 | ۱۷ | OpenCode و Ori Eval | چت | نیمه | `opencode` و `ori` نصب‌اند و `--version` جواب می‌دهد؛ اجرای واقعی Eval نشد | اجرای واقعی |
-| ۱۸ | auth سراسری | چت/کارگر | نیمه | wrapper به gateway برگشت؛ توکن از settings حذف؛ API key در wrapper pop؛ init CLI با `/opt/homebrew/bin/claude` سالم | چت تازهٔ UI ۱۳۶/۲۱۲ |
+| ۱۸ | auth سراسری | چت/کارگر | انجام | wrapper به gateway برگشت؛ توکن از settings حذف؛ API key در wrapper pop؛ init CLI تازه سالم؛ عکس ۱۳۶ بی‌هشدار | — |
 | ۱۹ | بازبینی اصولی auth | چت | انجام | ۸ ریسک پایین | اجرای طراحی |
 | ۲۰ | قانون دیده‌شدن کارگر | پلان | معلق | منتظر «بنویس» | نوشتن در `~/.claude/CLAUDE.md` |
 | ۲۱ | دفتر واحد کارهای باز | چت | انجام | همین فایل | به‌روزرسانی هر کار |
 | ۲۲ | بایگانی ۲۰۳ و flowchart | چت | انجام | `~/.backups/flowchart210/136...`؛ ۰ هوک؛ `flowchart/` ریشه نیست | — |
 | ۲۳ | عکس تب پرووایدرها | چت | انجام | `Doc/tarif/23_provider_tab.png` (رندر headless از UI واقعی؛ دادهٔ نمونه) | — |
-| ۲۴ | پچ منوی مدل | چت | نیمه | تشخیص already patched؛ پچ دوباره exit 0؛ VS Code 2.1.328 دارد | تست چشمی |
+| ۲۴ | پچ منوی مدل | چت | انجام | از `index.js.backup` پچ شد؛ اجرای دوباره `already patched`؛ VS Code 2.1.328 دارد | — |
 | ۲۵ | معلق‌های `moalagh.md` | moalagh | معلق | m1,m2,m7,m8,m9,m10,m11 | تصمیم حبیب |
 | ۲۶ | منتقل‌شده از ۱۸۶: فاکتور/کردیت ۲۰۰ دلاری/بک‌لاگ/Ultra | moalagh | باز | کردیت مهلت ۲۰ نوامبر | چک فوری |
 | ۲۷ | untracked/کامیت | پلان | انجام | commit `bd07959` + `efb4713`؛ سه فایل محافظت‌شده، `.ori/` و `model-filter.json` بیرون ماندند | کامیت سوم (XSS test) |

@@ -2703,6 +2703,8 @@
       var k = kind + '\u0000' + r.n;
       if (c.checked === !!r.on) delete TIK.taghir[k];
       else TIK.taghir[k] = { kind: kind, name: r.n, on: c.checked };
+      // A list request that started before this edit must not land now and wipe the unsaved change.
+      TIK.last = ++TIK.req;
       row.classList.toggle('crtl-tik-avaz', k in TIK.taghir);
       tik_neshan_dokme();
     });

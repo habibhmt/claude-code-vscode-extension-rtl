@@ -12,7 +12,8 @@ function captureTickSnapshot({home=os.homedir(),cwd,sessionId,createdAt=Date.now
  if(saved){if(saved.cwd!==cwd)throw Error('stored tool policy project mismatch');return saved.list}
  const native=readJson(path.join(home,'.claude','tik_ha.json'))||{},shared=readJson(process.env.CRTL_AA_SHARED||path.join(home,'.claude','aa_shared.json'))||{}
  // Older stores cannot reconstruct an earlier inherited decision: use their recorded baseline.
- const historical=(store,changed)=>createdAt>=Number(changed||0)?store:(store.beforeSnapshots||{chat:store.chat})
+ const zaman=v=>{const n=Number(v);if(Number.isFinite(n))return n;const t=Date.parse(v);return Number.isFinite(t)?t:0}
+ const historical=(store,changed)=>zaman(createdAt)>=zaman(changed)?store:(store.beforeSnapshots||{chat:store.chat})
  const nativeList=storeList(historical(native,native.kooch),cwd,sid),sharedList=storeList(historical(shared.ticks||{},shared.ticksUpdatedAt),cwd,sid)
  const list=mergeLists(nativeList,sharedList,nativeSnapshot(home,sid)?.list)
  fs.mkdirSync(path.dirname(file),{recursive:true,mode:0o700});const tmp=file+'.'+randomBytes(8).toString('hex')+'.tmp';fs.writeFileSync(tmp,JSON.stringify({cwd,sessionId:sid,list}),{mode:0o600});fs.renameSync(tmp,file);return list

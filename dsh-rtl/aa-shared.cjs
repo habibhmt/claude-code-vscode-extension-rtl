@@ -3,6 +3,7 @@
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os');
 const KEYS = ['lines','tableScroll','accent','textColor','lh','opacity','counter','quoteMenu','aaTaze','btnSize','buttons','commands','extras','profiles'];
 const object = x => x && typeof x === 'object' && !Array.isArray(x) ? x : {};
+const zaman = v => { const n = Number(v); if (Number.isFinite(n)) return n; const t = Date.parse(v); return Number.isFinite(t) ? t : 0; };
 function cleanPref(k,v) {
  const ranges={lines:[0,12],lh:[11,24],opacity:[10,100],btnSize:[8,20]};
  if(k==='lh'&&v===0)return 16;
@@ -36,19 +37,28 @@ function save(home,area,scope,cwd,sid,patch,unset=[]) {
  if(scope==='poshe' && (!path.isAbsolute(cwd)||cwd.includes('\0'))) throw Error('پوشه معلوم نیست');
  if(scope==='chat' && (!/^[\w.-]{1,200}$/.test(sid) || ['__proto__','constructor','prototype'].includes(sid))) throw Error('شناسه چت معلوم نیست');
  const f=file(home); fs.mkdirSync(path.dirname(f),{recursive:true}); const lock=f+'.lock'; const end=Date.now()+3000;
- while(true){try{fs.mkdirSync(lock);break;}catch(e){if(e.code!=='EEXIST'||Date.now()>end)throw e;Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);}}
+ const ownerFile=path.join(lock,'owner.json');
+ const pidZende=pid=>{try{process.kill(pid,0);return true}catch(e){return e.code==='EPERM'}};
+ const ownerKhan=()=>{try{return JSON.parse(fs.readFileSync(ownerFile,'utf8'))}catch(e){return null}};
+ // A lock left by a killed process used to block every later save for 3s and then fail.
+ // Owner PID + heartbeat lets the next writer tell a live lock from a corpse.
+ const stale=()=>{let st;try{st=fs.statSync(lock)}catch(e){return false}const o=ownerKhan();const ts=Math.max(Number(o&&o.ts)||0,Number(st.mtimeMs)||0);const age=Date.now()-ts;const dead=o&&Number.isInteger(o.pid)&&!pidZende(o.pid);const noOwner=!o&&Date.now()-(Number(st.mtimeMs)||0)>10000;return (dead&&age>1000)||noOwner||age>60000};
+ while(true){try{fs.mkdirSync(lock);break;}catch(e){if(e.code!=='EEXIST')throw e;if(stale()){try{fs.rmSync(lock,{recursive:true,force:true})}catch(_){}continue}if(Date.now()>end)throw new Error('قفل فایل تنظیمات آزاد نشد');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10);}}
+ const benevis=()=>{const tmp=ownerFile+'.'+process.pid+'.tmp';fs.writeFileSync(tmp,JSON.stringify({pid:process.pid,ts:Date.now()}));fs.renameSync(tmp,ownerFile)};
+ let tapesh=null;
  try {
+  benevis(); tapesh=setInterval(()=>{try{benevis()}catch(e){}},2000); if(tapesh.unref)tapesh.unref();
   const s=read(home), a=s[area]=object(s[area]); a.sarasari=object(a.sarasari);a.poshe=object(a.poshe);a.chat=object(a.chat);
   const target=scope==='sarasari'?a.sarasari:scope==='poshe'?(a.poshe[cwd]=object(a.poshe[cwd])):(a.chat[sid]=object(a.chat[sid]));
   for(const [k,v] of Object.entries(object(patch))){if(['__proto__','constructor','prototype'].includes(k))throw Error('کلید نامعتبر');if(area==='prefs'&&!KEYS.includes(k))continue;target[k]=area==='ticks'?Object.assign({},object(target[k]),object(v)):cleanPref(k,v);}
   for(const k of unset) delete target[k];
   s.revision=(Number(s.revision)||0)+1;if(area==='ticks')s.ticksUpdatedAt=Date.now();const tmp=f+'.'+process.pid+'.tmp';fs.writeFileSync(tmp,JSON.stringify(s,null,2)+'\n',{mode:0o600});fs.renameSync(tmp,f);
   return view(home,area,cwd,sid);
- } finally {fs.rmdirSync(lock);}
+ } finally {if(tapesh)clearInterval(tapesh);const o=ownerKhan();if(!o||o.pid===process.pid)try{fs.rmSync(lock,{recursive:true,force:true})}catch(e){}}
 }
 function tickOverlay(home,base,nativeKind) {
  const shared=read(home), a=object(shared.ticks); const out=JSON.parse(JSON.stringify(base));
- if(shared.ticksUpdatedAt && shared.ticksUpdatedAt>Number(out.kooch||0)){out.beforeSnapshots ||= JSON.parse(JSON.stringify(base));out.kooch=shared.ticksUpdatedAt;}
+ if(shared.ticksUpdatedAt && zaman(shared.ticksUpdatedAt)>zaman(out.kooch)){out.beforeSnapshots ||= JSON.parse(JSON.stringify(base));out.kooch=zaman(shared.ticksUpdatedAt);}
  function merge(l,r){const v=Object.assign({},object(l));for(const k of ['mcp','afzune','eskil',...(nativeKind?[nativeKind]:[])])v[k]=Object.assign({},object(v[k]),object(object(r)[k]));return v;}
  out.sarasari=merge(out.sarasari,a.sarasari);for(const level of ['poshe','chat']){out[level]=object(out[level]);for(const [k,v]of Object.entries(object(a[level]))){out[level][k]=merge(out[level][k],v);if(level==='chat' && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(k))out.chat['session-'+k]=merge(out.chat['session-'+k],v);}}
  return out;

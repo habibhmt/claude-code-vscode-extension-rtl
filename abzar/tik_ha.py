@@ -358,7 +358,7 @@ def kooch():
         lb = json.loads(json.dumps(a["sarasari"]))
         lb["abzar"].update({"Agent": True, "Workflow": True})
         a["poshe"][os.path.realpath(d)] = lb
-    a["kooch"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+    a["kooch"] = int(time.time() * 1000)
     atomi(masir(), a)
     return {"ok": True, "matn": "سراسری: Agent و Workflow خاموش · ۱۳۶: فقط ۱۱ ابزار · پوشه‌های باز: %d" % len(baz)}
 

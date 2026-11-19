@@ -71,16 +71,6 @@ trap 'rm -rf "$LOCK_DIR" "$TMP_DIR"' EXIT
 # index.css plus the buttons appended to index.js — so warn instead of dying.
 if command -v python3 >/dev/null 2>&1; then HAVE_PYTHON=true; else HAVE_PYTHON=false; fi
 
-# Built-in Markdown preview: RTL style + open .md as preview. Its own script so
-# a failure there never blocks the Claude Code patch.
-"$REPO_DIR/fix-rtl-md-preview.sh" || echo "[WARN] fix-rtl-md-preview.sh failed"
-
-# Stop the chat from jumping to the bottom when a message is sent. Lives in
-# each IDE's settings.json, so it is written here to reach every machine.
-if [ "$HAVE_PYTHON" = true ]; then
-    python3 "$REPO_DIR/ensure-scroll-setting.py" || echo "[WARN] ensure-scroll-setting.py failed"
-fi
-
 # ============================================================
 #  تنظیمات اندازه — این عددها را خودت عوض کن و اسکریپت را دوباره اجرا کن
 # ============================================================
@@ -287,6 +277,18 @@ if [ "$REVERT" = true ]; then
     done
     echo -e "${GREEN}Restored $reverted file(s) from backup.${NC}"
     exit 0
+fi
+
+# Side effects run only after --help/--revert have had their say: a revert used
+# to run the Markdown-preview and scroll patches first and then leave them behind.
+# Built-in Markdown preview: RTL style + open .md as preview. Its own script so
+# a failure there never blocks the Claude Code patch.
+"$REPO_DIR/fix-rtl-md-preview.sh" || echo "[WARN] fix-rtl-md-preview.sh failed"
+
+# Stop the chat from jumping to the bottom when a message is sent. Lives in
+# each IDE's settings.json, so it is written here to reach every machine.
+if [ "$HAVE_PYTHON" = true ]; then
+    python3 "$REPO_DIR/ensure-scroll-setting.py" || echo "[WARN] ensure-scroll-setting.py failed"
 fi
 
 # Counter for patched IDEs
@@ -621,7 +623,12 @@ patch_ide "Devin" "$HOME/.devin/extensions/anthropic.claude-code-*/webview"
 DEEPSEEK_MODEL_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_deepseek_models.py"
 if [ -f "$DEEPSEEK_MODEL_PATCH" ] && [ "$HAVE_PYTHON" = true ]; then
     selector_ok=0
-    for deepseek_ext in "$HOME"/.vscode/extensions/anthropic.claude-code-*/extension.js; do
+    for deepseek_ext in "$HOME"/.vscode/extensions/anthropic.claude-code-*/extension.js \
+                        "$HOME"/.vscode-insiders/extensions/anthropic.claude-code-*/extension.js \
+                        "$HOME"/.cursor/extensions/anthropic.claude-code-*/extension.js \
+                        "$HOME"/.windsurf/extensions/anthropic.claude-code-*/extension.js \
+                        "$HOME"/.windsurf-next/extensions/anthropic.claude-code-*/extension.js \
+                        "$HOME"/.devin/extensions/anthropic.claude-code-*/extension.js; do
         [ -f "$deepseek_ext" ] || continue
         if python3 "$DEEPSEEK_MODEL_PATCH" "$deepseek_ext"; then
             selector_ok=$((selector_ok + 1))

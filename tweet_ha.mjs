@@ -132,7 +132,9 @@ async function asli() {
     appendFileSync(file, `${sar}\n## خوانده‌شده ساعتِ ${ZAMAN.format(new Date())}\n\nتوییتِ تازه‌ای نبود (${fehrest.length - bi_tweet.length} از ${fehrest.length} نفر خوانده شد: ${akhar}).\n`)
     say(`تازه‌ای نبود (${fehrest.length} نفر) ⇐ ${file}`)
     if (!bi_tweet.length) notif('توییت‌های Claude Code', `امروز توییتِ تازه‌ای نبود (${fehrest.length} نفر خوانده شد)`)
-    if (!KHOSHK && !bi_tweet.length) writeFileSync(DIDE, JSON.stringify(dide, null, 1)); return
+    // Persist the successful users even when another user failed; otherwise the next
+    // run treats their already-seen tweets as new and reports them twice.
+    if (!KHOSHK) writeFileSync(DIDE, JSON.stringify(dide, null, 1)); return
   }
   taze.sort((a, b) => Date.parse(b.iso) - Date.parse(a.iso))
   const fa = tarjome(taze)

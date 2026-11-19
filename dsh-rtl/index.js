@@ -49,6 +49,14 @@ const BODY_MAX = 64 * 1024
 
 const LOOPBACK = /^(127\.\d+\.\d+\.\d+|localhost|\[::1\])(:\d+)?$/i
 
+/** زمانِ ذخیره‌شده می‌تواند عددِ epoch یا رشتهٔ ISO باشد؛ هر دو را به میلی‌ثانیه برگردان. */
+const zaman = (v) => {
+  const n = Number(v)
+  if (Number.isFinite(n)) return n
+  const t = Date.parse(v)
+  return Number.isFinite(t) ? t : 0
+}
+
 /**
  * سدِ کمینه برای مسیرهای این افزونه (کپیِ همان سدِ dsh-side-panel).
  * سرورِ وبِ DSH احرازِ هویتِ سراسری ندارد؛ بی این سد هر صفحهٔ وبِ دیگری در مرورگر
@@ -303,12 +311,12 @@ export function loadTik(home) {
   if (safe.chat && typeof safe.chat === 'object' && !Array.isArray(safe.chat)) {
     for (const [k, v] of Object.entries(safe.chat)) if (typeof k === 'string' && k) chats[k] = cleanList(v)
   }
-  const kooch = Number(safe.kooch)
+  const kooch = zaman(safe.kooch)
   return aaShared.tickOverlay(home, {
     sarasari: cleanList(safe.sarasari),
     poshe: folders,
     chat: chats,
-    kooch: Number.isFinite(kooch) ? kooch : 0,
+    kooch,
     // Defaults immediately before the first edit by a snapshot-aware host.
     // A legacy chat first reopened *after* that edit must not inherit it.
     beforeSnapshots: safe.beforeSnapshots || null,
@@ -393,10 +401,11 @@ function readPolicy(home, sid) {
 // For chats from before this feature we have no past revisions. Apply inherited
 // defaults only when they were already saved at birth; retain explicit chat ticks.
 function initialPolicy(store, session, cwd, source) {
-  if (source === 'startup' || session.header?.createdAt >= store.kooch) return policyIn(store, session.id, cwd)
+  const born = zaman(session.header?.createdAt)
+  if (source === 'startup' || born >= store.kooch) return policyIn(store, session.id, cwd)
   const baseline = store.beforeSnapshots || store
-  if (session.header?.createdAt >= baseline.kooch) return policyIn(baseline, session.id, cwd)
-  return policyIn({ chat: baseline.chat, kooch: baseline.kooch }, session.id, cwd)
+  if (born >= zaman(baseline.kooch)) return policyIn(baseline, session.id, cwd)
+  return policyIn({ chat: baseline.chat, kooch: zaman(baseline.kooch) }, session.id, cwd)
 }
 
 /**

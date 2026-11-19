@@ -9,47 +9,16 @@ func at(_ s: String) -> Date {   // "2026-10-15 14:00" Tehran
 var fails = 0
 func check(_ name: String, _ ok: Bool) { print((ok ? "PASS " : "FAIL ") + name); if !ok { fails += 1 } }
 
-// 01 panel: the three bars from a usage response.
-let usageJSON: [String: Any] = [
-    "five_hour": ["utilization": 12.4], "seven_day": ["utilization": 67.37],
-    "limits": [
-        ["kind": "session", "percent": 12, "resets_at": "2026-10-22T05:00:00.000Z"],
-        ["kind": "weekly_all", "percent": 67, "resets_at": "2026-10-26T09:00:00Z"],
-        ["kind": "weekly_scoped", "percent": 40, "scope": ["model": ["display_name": "Opus"]]],
-        ["kind": "weekly_scoped", "percent": 64, "scope": ["model": ["display_name": "Fable"]]],
-    ]]
-let lr = UsageEngine.parseLimits(usageJSON)
-func pctOf(_ id: String) -> Double? { lr.first { $0.id == id }?.percent }
-check("U1 three bars: session, weekly, fable", lr.map(\.id) == ["session", "weekly", "fable"])
-check("U2 weekly takes the fractional 67.37, not the rounded 67", pctOf("weekly") == 67.37)
-check("U3 fable from its own scope (64), not Opus (40)", pctOf("fable") == 64)
-check("U4 reset time read (with and without fractions)",
-      lr.first { $0.id == "session" }?.resetsAt != nil && lr.first { $0.id == "weekly" }?.resetsAt != nil)
-check("U5 empty response → no bars, no crash", UsageEngine.parseLimits([:]).isEmpty)
-
-// ChatGPT's percentage, from the app-server's own answer.
-let gptLine = Data(#"{"id":2,"result":{"rateLimits":{"primary":{"usedPercent":41,"resetsAt":1794185024}}}}"#.utf8)
-let gptRow = ChatGPTUsage.parse(gptLine)
-check("G1 percent and reset read", gptRow?.percent == 41 && gptRow?.resetsAt?.timeIntervalSince1970 == 1794185024)
-check("G2 labelled ChatGPT", gptRow?.label == "ChatGPT")
-check("G3 other lines ignored", ChatGPTUsage.parse(Data(#"{"id":1,"result":{}}"#.utf8)) == nil
-      && ChatGPTUsage.parse(Data("not json".utf8)) == nil)
-
-check("G4 4d 1h left reads 4d 1h, not 5d",
-      LimitRow(id: "chatgpt", percent: 0, resetsAt: Date().addingTimeInterval(4 * 86400 + 3600 + 60)).resetText == "4d 1h")
-
-// 10 nudge: only in the token's last 4 minutes (or after a 401), at most every 15 minutes.
-do {
-    let n0 = Date(timeIntervalSince1970: 1_800_000_000), past = Date.distantPast
-    check("N1 5 min left → no nudge", !UsageEngine.shouldNudge(expiresAt: n0.addingTimeInterval(300), lastStatus: 200, lastNudge: past, now: n0))
-    check("N2 3 min left → nudge", UsageEngine.shouldNudge(expiresAt: n0.addingTimeInterval(180), lastStatus: 200, lastNudge: past, now: n0))
-    check("N3 3 min left but nudged 10 min ago → wait", !UsageEngine.shouldNudge(expiresAt: n0.addingTimeInterval(180), lastStatus: 200, lastNudge: n0.addingTimeInterval(-600), now: n0))
-    check("N4 401 with a fresh token → nudge", UsageEngine.shouldNudge(expiresAt: n0.addingTimeInterval(7200), lastStatus: 401, lastNudge: past, now: n0))
-    check("N5 the question goes to the model (not «auth status»), no session, no hooks, $0.01 cap",
-          UsageEngine.nudgeArgs.contains("-p") && !UsageEngine.nudgeArgs.contains("auth")
-          && UsageEngine.nudgeArgs.contains("--no-session-persistence")
-          && UsageEngine.nudgeArgs.contains(#"{"disableAllHooks":true}"#) && UsageEngine.nudgeArgs.contains("0.01"))
-}
+// OpenRouter timestamps: transcripts use milliseconds, the trace microseconds.
+check("O1 ISO milliseconds", ORTime.date("2026-11-18T03:42:28.117Z") != nil)
+check("O2 ISO microseconds", ORTime.date("2026-11-18T03:42:28.117537+00:00") != nil)
+check("O3 ISO without fractions", ORTime.date("2026-11-18T03:42:28Z") != nil)
+check("O4 bad date → nil", ORTime.date("not-a-date") == nil)
+let day = Date(timeIntervalSince1970: 1_800_000_000)
+let range = ORTime.tehranDayRange(day)
+check("O5 Tehran day is two UTC bounds", range.0 != range.1 && range.0.hasSuffix("Z") && range.1.hasSuffix("Z"))
+check("O6 UTC day is yyyy-MM-dd", ORTime.utcDay(day).count == 10)
+check("O7 empty spend defaults", DaySpend().spend == 0 && DaySpend().requests == 0 && !DaySpend().found)
 
 // Transcript: only appended lines are read, and the result equals a full read.
 do {

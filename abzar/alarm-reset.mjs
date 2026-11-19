@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 const INJA = dirname(fileURLToPath(import.meta.url))
 const DIR = process.env.RESET_ALARM_DIR || join(INJA, 'alarm-reset.d')
 const KHOSHK = !!process.env.RESET_KHOSHK
-const A203 = '/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar'
+const A203 = process.env.RESET_A203 || '/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar'
 const CHAT = 'مجری -۱۳۶- ایمک -نیو'
 const alan = +(process.env.RESET_ALAN || Math.floor(Date.now() / 1000))
 // seconds before the deadline, kind. For a 01:30 deadline: a week before at 10:00, the last day at 10:00,
@@ -23,7 +23,7 @@ export const MARHALE = [[7 * 86400 + 55800, 'banner'], [55800, 'banner'], [19800
 
 mkdirSync(DIR, { recursive: true })
 const say = (s) => KHOSHK ? console.log(s) : appendFileSync(join(DIR, 'log'), `[${new Date().toISOString()}] ${s}\n`)
-const ejra = (f, a) => { try { execFileSync(f, a, { timeout: 60000 }) } catch (e) { say(`❌ ${f.split('/').pop()}: ${String(e.message).slice(0, 160)}`) } }
+const ejra = (f, a) => { try { execFileSync(f, a, { timeout: 60000 }); return true } catch (e) { say(`❌ ${f.split('/').pop()}: ${String(e.message).slice(0, 160)}`); return false } }
 const fa = (n) => String(n).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[d])
 export function mande(s) {
   const r = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.round((s % 3600) / 60)
@@ -46,19 +46,29 @@ for (const f of readdirSync(DIR).filter((x) => x.endsWith('.json')).sort()) {
   let i = -1
   MARHALE.forEach(([pish], j) => { if (alan >= e.mohlat - pish && !existsSync(`${paye}.shod_${j + 1}`)) i = j })
   if (i < 0) continue
-  for (let j = 0; j <= i; j++) writeFileSync(`${paye}.shod_${j + 1}`, '')
   const kind = MARHALE[i][1]
   const matn = `${e.nam}: ${mande(e.mohlat - alan)} مانده، تا ${e.mohlat_fa}.${i === MARHALE.length - 1 ? ' آخرین یادآور.' : ''}`
   say(`مرحلهٔ ${i + 1} (${kind}): ${matn}`)
-  if (KHOSHK) continue
-  ejra('/bin/zsh', [A203 + '/notif.sh', 'ریستِ مجانی', matn, 'KhabarNoskhe', 'reset-alarm', `open ${e.url}`])
-  if (existsSync(join(INJA, 'bale-136.sh')) && i >= 1) ejra('/bin/zsh', [join(INJA, 'bale-136.sh'), `⏰ ${matn}\n${e.url}`])
-  if (kind !== 'panjere') continue
-  spawn('/bin/zsh', [A203 + '/alarm_be_saheb.sh', CHAT, `${matn} حبیب هنوز «زدم» نگفته.`], { detached: true, stdio: 'ignore' }).unref()
-  // the window stays until 5 min before the next stage (the last one: before the deadline) and lives on its
-  // own, so one reset's window never holds back another reset's alarm
-  const ta = i + 1 < MARHALE.length ? e.mohlat - MARHALE[i + 1][0] : e.mohlat
-  const sabr = Math.max(60, ta - alan - 300)
-  spawn('/bin/zsh', ['-c', `j=$("$1" 'ریستِ مجانی' "$2" 'زدم=zadam|بعداً یادم بنداز=bad' "$3" 'صفحهٔ Usage ⇐ دکمهٔ Reset' "ltr:$4" 2>/dev/null); [[ $j == zadam ]] && : > "$5.zadam"; print -r -- "[$(date '+%F %T')] جوابِ پنجرهٔ $3: $j" >> "$6"`,
-    'panjere', A203 + '/panjere_dokme', String(sabr), matn, e.url, paye, join(DIR, 'log')], { detached: true, stdio: 'ignore' }).unref()
+  if (KHOSHK) { for (let j = 0; j <= i; j++) writeFileSync(`${paye}.shod_${j + 1}`, ''); continue }
+  // «علامت بعد از موفقیت»: اگر هیچ کانالی نرفت، مرحله «شده» ثبت نمی‌شود تا نیم‌ساعتِ بعد دوباره تلاش شود.
+  let sent = false
+  if (ejra('/bin/zsh', [A203 + '/notif.sh', 'ریستِ مجانی', matn, 'KhabarNoskhe', 'reset-alarm', `open ${e.url}`])) sent = true
+  if (existsSync(join(INJA, 'bale-136.sh')) && i >= 1 && ejra('/bin/zsh', [join(INJA, 'bale-136.sh'), `⏰ ${matn}\n${e.url}`])) sent = true
+  if (kind === 'panjere') {
+    try {
+      spawn('/bin/zsh', [A203 + '/alarm_be_saheb.sh', CHAT, `${matn} حبیب هنوز «زدم» نگفته.`], { detached: true, stdio: 'ignore' }).unref()
+      sent = true
+    } catch (x) { say(`❌ پنجرهٔ چت: ${String(x.message).slice(0, 160)}`) }
+    // the window stays until 5 min before the next stage (the last one: before the deadline) and lives on its
+    // own, so one reset's window never holds back another reset's alarm
+    const ta = i + 1 < MARHALE.length ? e.mohlat - MARHALE[i + 1][0] : e.mohlat
+    const sabr = Math.max(60, ta - alan - 300)
+    try {
+      spawn('/bin/zsh', ['-c', `j=$("$1" 'ریستِ مجانی' "$2" 'زدم=zadam|بعداً یادم بنداز=bad' "$3" 'صفحهٔ Usage ⇐ دکمهٔ Reset' "ltr:$4" 2>/dev/null); [[ $j == zadam ]] && : > "$5.zadam"; print -r -- "[$(date '+%F %T')] جوابِ پنجرهٔ $3: $j" >> "$6"`,
+        'panjere', A203 + '/panjere_dokme', String(sabr), matn, e.url, paye, join(DIR, 'log')], { detached: true, stdio: 'ignore' }).unref()
+      sent = true
+    } catch (x) { say(`❌ پنجرهٔ دکمه: ${String(x.message).slice(0, 160)}`) }
+  }
+  if (!sent) { say(`❌ ${e.nam}: هیچ کانالی ارسال نشد؛ دفعهٔ بعد دوباره`); continue }
+  for (let j = 0; j <= i; j++) writeFileSync(`${paye}.shod_${j + 1}`, '')
 }

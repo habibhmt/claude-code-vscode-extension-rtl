@@ -54,6 +54,7 @@ run "claude code ink" node test_claude_code_ink.cjs
 run "claude hover open" env NODE_PATH=node_modules node test_claude_hover_baz.cjs
 run "claude ask width" node test_claude_ask_width.cjs
 run "claude tanzimat" env NODE_PATH=node_modules node test_claude_tanzimat.cjs
+run "xss 186" env NODE_PATH=node_modules node test_xss_186.cjs
 
 # Root tests that were outside the old chain.
 run "claude fekr shenavar" env NODE_PATH=node_modules node test_claude_fekr_shenavar.cjs

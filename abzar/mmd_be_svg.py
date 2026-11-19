@@ -9,8 +9,14 @@
 Pele در `abzar/mmd-tool/node_modules` است تا وابستگی به ریشهٔ پروژه نریزد
 (`node_modules/` در .gitignore است، پس در گیت نمی‌رود).
 
-چرا Pele: همگام، بدونِ وابستگی، و متنِ فارسی را راست‌به‌چپ درست می‌کشد —
-با سه نمودارِ آزمایشی چشمی سنجیده شد (۱۸ نوامبر ۲۰۲۶).
+چرا Pele: همگام، بدونِ وابستگی، سبک.
+
+هشدارِ راست‌به‌چپ: Pele هیچ پشتیبانیِ RTL ندارد. این ابزار دو کار می‌کند
+(۱۹ نوامبر ۲۰۲۶، پس از تذکرِ حبیب — با اندازه‌گیریِ عینیِ جای هر کلمه سنجیده شد):
+  ۱) `direction="rtl"` روی هر `<text>`
+  ۲) پیچیدنِ هر تکهٔ لاتین در جداسازِ چپ‌به‌راست (LRI…PDI). بدونِ این، خطِ تیره
+     و عدد، کلمهٔ لاتین را جابه‌جا می‌کنند: «فایلِ ۶ — mmd خطِ ساده» به‌جای
+     «فایلِ mmd — ۶ خطِ ساده».
 """
 
 from __future__ import annotations
@@ -29,7 +35,23 @@ const { render } = require('pele');
 const fs = require('fs');
 try {
   const text = fs.readFileSync(process.argv[1], 'utf8');
-  const { svg } = render(text);
+  const { svg: raw } = render(text);
+  // Pele هیچ کاری برای راست‌به‌چپ نمی‌کند. در خطِ فارسی دو ایراد جدا هست:
+  //  ۱) جهتِ پایه: در SVG پیش‌فرض چپ‌به‌راست است ⇐ direction="rtl" روی هر
+  //     <text> (نه ریشه — ارث نمی‌رسد، آزموده شد).
+  //  ۲) کلمهٔ لاتین داخل جملهٔ فارسی: خطِ تیره و عدد جای آن را عوض می‌کنند
+  //     («فایلِ ۶ — mmd خطِ ساده» به‌جای «فایلِ mmd — ۶ خطِ ساده»). درمان:
+  //     هر تکهٔ لاتین را در جداسازِ چپ‌به‌راست (LRI…PDI، U+2066…U+2069) بپیچ.
+  //     با اندازه‌گیریِ عینیِ جای هر کلمه سنجیده شد (۱۹ نوامبر ۲۰۲۶).
+  const hasFa = /[؀-ۿ]/.test(text);
+  const isolateLatin = (s) =>
+    s.replace(/[A-Za-z][A-Za-z0-9_.\/+-]*/g, (w) => '⁦' + w + '⁩');
+  const svg = hasFa
+    ? raw
+        .split('<text ').join('<text direction="rtl" ')
+        .replace(/(<text\b[^>]*>)([^<]*)(<\/text>)/g,
+                 (m, open, body, close) => open + isolateLatin(body) + close)
+    : raw;
   fs.writeFileSync(process.argv[2], svg);
   process.stdout.write(String(svg.length));
 } catch (e) {

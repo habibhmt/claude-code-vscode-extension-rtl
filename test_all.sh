@@ -32,6 +32,7 @@ run "chatgpt patch" python3 test_chatgpt_patch.py
 run "chatgpt folder patch" python3 test_chatgpt_folder_patch.py
 run "chatgpt folder filter" node test_chatgpt_folder_filter.cjs
 run "chatgpt folder query" node test_chatgpt_folder_query.cjs
+run "chatgpt folder query new" node test_chatgpt_folder_query_new.cjs
 run "chatgpt history click" node test_chatgpt_history_click.cjs
 run "chatgpt panel state" node test_chatgpt_panel_state.cjs
 run "chatgpt font spacing" node test_chatgpt_font_spacing.cjs

@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 
 MARKER = '// CHATGPT-RTL-FOLDER\n'
 
@@ -140,8 +141,67 @@ def remove_recorded_helper(root, name, recorded_sha):
     path.unlink()
 
 
+def patch_new(ext, atomic_write, revert=False):
+    """The 26.1111 bundle moved the provider into out/extension.js; scope thread/list there."""
+    target = ext / 'out/extension.js'
+    if not target.exists():
+        print(f'[SKIP folder filter new] {ext}: no out/extension.js', file=sys.stderr)
+        return
+    backup = ext / 'out/extension.js.chatgpt-folder-backup'
+    manifest = ext / 'out/.chatgpt-folder-filter-new.json'
+    if revert:
+        if not manifest.exists() or not backup.exists():
+            print(f'[SKIP folder revert new] {ext}: no manifest', file=sys.stderr)
+            return
+        record = json.loads(manifest.read_text())
+        if sha(target.read_bytes()) != record.get('patched_sha256'):
+            raise RuntimeError(f'{target}: changed externally; refusing revert')
+        atomic_write(target, backup.read_bytes())
+        manifest.unlink()
+        print(f'[FOLDER RESTORED new] {ext}')
+        return
+    source = target.read_text()
+    marker = 'cwd:crtlCwd()'
+    if marker in source:
+        print(f'[FOLDER FILTER] already patched new: {ext}')
+        return
+    helper = 'function crtlCwd(){try{let w=require("vscode").workspace.workspaceFolders;return w&&w.length?w.map(f=>f.uri.fsPath):void 0}catch(e){return void 0}}'
+    anchor = '"use strict";'
+    if not source.startswith(anchor):
+        print(f'[SKIP folder filter new] {ext}: strict header changed', file=sys.stderr)
+        return
+    source = anchor + helper + source[len(anchor):]
+    first = '{limit:50,cursor:null,sortKey:"created_at",modelProviders:e?[YI]:null,archived:!1,sourceKinds:ug,useStateDbOnly:!0}'
+    second = 'o={limit:e,cursor:null,sortKey:"created_at",modelProviders:[],archived:!1,sourceKinds:ug,useStateDbOnly:!0};'
+    if source.count(first) != 1 or source.count(second) != 1:
+        print(f'[SKIP folder filter new] {ext}: thread/list anchor changed', file=sys.stderr)
+        return
+    source = source.replace(first, '{cwd:crtlCwd(),' + first[1:], 1)
+    source = source.replace(second, 'o={cwd:crtlCwd(),' + second[3:], 1)
+    if backup.exists() and backup.read_bytes() != target.read_bytes():
+        raise RuntimeError(f'{backup}: untracked backup differs')
+    if not backup.exists():
+        atomic_write(backup, target.read_bytes())
+    with tempfile.NamedTemporaryFile('w', dir=target.parent, suffix='.js', delete=False, encoding='utf-8') as tmp:
+        tmp.write(source)
+    try:
+        subprocess.run(['/usr/bin/env', 'node', '--check', tmp.name], check=True, capture_output=True)
+        atomic_write(target, source.encode())
+    finally:
+        Path(tmp.name).unlink(missing_ok=True)
+    atomic_write(manifest, (json.dumps({
+        'version': 1,
+        'original_sha256': sha(backup.read_bytes()),
+        'patched_sha256': sha(source.encode()),
+    }, indent=2) + '\n').encode())
+    print(f'[FOLDER FILTER] new: {ext}')
+
+
 def patch_folder_filter(ext, payload, atomic_write, revert=False):
-    root = ext / 'webview/assets'
+    assets = ext / 'webview/assets'
+    if not assets.exists():
+        return patch_new(ext, atomic_write, revert)
+    root = assets
     manifest = ext / 'webview/.chatgpt-folder-filter.json'
     previous = json.loads(manifest.read_text()) if manifest.exists() else None
     originals = {}

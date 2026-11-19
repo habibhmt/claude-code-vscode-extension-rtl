@@ -8,8 +8,8 @@
 | ۱ | XSS اپ ۱۸۶ | moalagh ۱ | انجام | `esc()` در `186-montaghel/app/index.html`؛ `test_xss_186.cjs` در مخزن؛ PASS | — |
 | ۲ | Thought با کلیک/فوکوس | چت | انجام | عکس نمایشگر ۲ (۲۱:۵۹): «Thought for 1s» با chevron؛ `claude-ui-buttons.js:600,839` | — |
 | ۳ | پچ ChatGPT: فایل/آداپتور/`--revert` | پلان ۰ | انجام | فایل برگشت؛ ۵ تست OK | نصب واقعی |
-| ۴ | فیلتر پوشه/تب Codex روی `26.1111.21308` | moalagh ۲ | باز | `app-server-manager-hooks-*.js` نیست | آداپتور تازه |
-| ۵ | زنجیرهٔ تست و ۹ آزمون | پلان ۱ | انجام | `test_all.sh`؛ ۳۲ سبز/۱ skip/۰ قرمز؛ XSS و نوسازی لیست تیک هم بسته شد | — |
+| ۴ | فیلتر پوشه/تب Codex روی `26.1111.21308` | moalagh ۲ | انجام | آداپتور `chatgpt-folder-patch.py` (شاخهٔ new)؛ `cwd` در هر دو `thread/list`؛ `test_chatgpt_folder_query_new.cjs` PASS؛ backup `out/extension.js.chatgpt-folder-backup` | بعد از آپدیت ChatGPT دوباره |
+| ۵ | زنجیرهٔ تست و ۹ آزمون | پلان ۱ | انجام | `test_all.sh`؛ ۳۳ سبز/۱ skip/۰ قرمز؛ XSS، نوسازی لیست تیک و Codex جدید هم بسته شد | — |
 | ۶ | آزمون Swift | moalagh ۱۰ | انجام | `run.sh` به `OpenRouter.swift`؛ O1–O7؛ خطای کامپایل حالا exit 1؛ ALL PASS | — |
 | ۷ | لاگ تماس/هزینه (`/v1`، SSE، پروکسی) | پلان ۲ | انجام | `provider-attribution.jsonl`؛ پروکسی تازه؛ ۴۰۴ تازه صفر | مقایسه با API |
 | ۸ | هزینهٔ پنل: روز تهران + ردیف کل | چت | انجام | truth: **$۶٫۸۵ / ۳٬۲۷۳** (۲۰:۰۸ تهران)؛ پنل سه ردیف دارد: $۸٫۲۵ / $۱٫۹۳ / $۹٫۵۰ (عکس ۲۱:۲۷) | — |
@@ -21,7 +21,7 @@
 | ۱۴ | تماس بی‌مورد توییت | moalagh ۹ | انجام | `dide` حتی با خطای یک کاربر ذخیره می‌شود؛ `node --check` OK | — |
 | ۱۵ | ابزار وظیفه (Task tools) | پلان ۸ | انجام | `CLAUDE_CODE_ENABLE_TASKS` و `ENABLE_TODO_TOOLS` در `extension.js` تأیید شد؛ init با ۰/۱ در ۱۳۶ هیچ Task/Todo نداد | — |
 | ۱۶ | «مثل اشتراک»: Fable/اجبار ساب‌ایجنت/لیست مدل/لاگ | پلان ۹ | نیمه | Fable خالی؛ `SUBAGENT_MODEL` ست | تصمیم حبیب |
-| ۱۷ | OpenCode و Ori Eval | چت | نیمه | `opencode` و `ori` نصب‌اند و `--version` جواب می‌دهد؛ اجرای واقعی Eval نشد | اجرای واقعی |
+| ۱۷ | OpenCode و Ori Eval | چت | انجام | Ori 0.17.1: `-p` → OK، Opus 5.5، $۰٫۰۴۵۲۸۱، ۳٫۲s؛ OpenCode `run` → OK، $۰٫۰۰۵۷۱۵۷۶۸ | Eval وب جدا (اختیاری) |
 | ۱۸ | auth سراسری | چت/کارگر | انجام | wrapper به gateway برگشت؛ توکن از settings حذف؛ API key در wrapper pop؛ init CLI تازه سالم؛ عکس ۱۳۶ بی‌هشدار | — |
 | ۱۹ | بازبینی اصولی auth | چت | انجام | ۸ ریسک پایین | اجرای طراحی |
 | ۲۰ | قانون دیده‌شدن کارگر | پلان | معلق | منتظر «بنویس» | نوشتن در `~/.claude/CLAUDE.md` |
@@ -31,7 +31,7 @@
 | ۲۴ | پچ منوی مدل | چت | انجام | از `index.js.backup` پچ شد؛ اجرای دوباره `already patched`؛ VS Code 2.1.328 دارد | — |
 | ۲۵ | معلق‌های `moalagh.md` | moalagh | معلق | m1,m2,m7,m8,m9,m10,m11 | تصمیم حبیب |
 | ۲۶ | منتقل‌شده از ۱۸۶: فاکتور/کردیت ۲۰۰ دلاری/بک‌لاگ/Ultra | moalagh | باز | کردیت مهلت ۲۰ نوامبر | چک فوری |
-| ۲۷ | untracked/کامیت | پلان | انجام | commit `bd07959` + `efb4713`؛ سه فایل محافظت‌شده، `.ori/` و `model-filter.json` بیرون ماندند | کامیت سوم (XSS test) |
+| ۲۷ | untracked/کامیت | پلان | انجام | commit `bd07959` + `efb4713` + `c156027` + `196bb38`؛ سه فایل محافظت‌شده، `.ori/` و `model-filter.json` بیرون ماندند | کامیت چهارم (Codex adapter) |
 | ۲۸ | واژگان حبیب | چت | انجام | با واژه‌های خودش | ادامه |
 | ۲۹ | نوسازی لیست تیک و پاک‌شدن تغییر | آزمون | انجام | `TIK.last` در `claude-ui-buttons.js`؛ تغییر ذخیره‌نشده دیگر با پاسخ کهنه پاک نمی‌شود | — |
 

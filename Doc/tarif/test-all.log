@@ -1,0 +1,163 @@
+
+=== wezterm ===
+rtl-wezterm: all checks passed
+
+=== chatgpt patch ===
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.652s
+
+OK
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpmk0iw3qt
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps2hxg4su
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps2hxg4su
+[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps2hxg4su
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpa0mver5y
+[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpa0mver5y
+
+=== chatgpt folder patch ===
+..[SKIP folder filter] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp8n6l_3tv: Expected one header-*.js; found 0
+..s.......
+----------------------------------------------------------------------
+Ran 12 tests in 4.669s
+
+OK (skipped=1)
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpoe25uh4x
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpoe25uh4x
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4lb9w79x
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4lb9w79x
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4lb9w79x
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp1dejn_c4
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp1dejn_c4
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpf0fuy3o1
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpf0fuy3o1
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpf0fuy3o1
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4d30u2sk
+
+=== chatgpt folder filter ===
+{"sameFolderOnly":true,"folderSwitch":true,"multiRoot":true,"searchScoped":true,"siblingPrefixExcluded":true,"remoteHostExcluded":true,"originalDataPreserved":true,"importedClaudeByFolder":true,"leakedChatSabotageDetected":true,"missingChatSabotageDetected":true}
+
+=== chatgpt folder query ===
+SKIP: installed ChatGPT layout has no app-server-manager-hooks-*.js; folder filter needs a new adapter
+
+=== chatgpt folder query new ===
+{"file":"/Users/habib/.vscode/extensions/openai.chatgpt-26.1111.21308-darwin-arm64/out/extension.js","cwd":["/work/project","/work/other"],"noWorkspace":true}
+PASS
+
+=== chatgpt history click ===
+{"fastSelectionStaysOpen":true,"closingMenuKeepsChat":true,"localizedMenu":true,"newComposerFallback":true,"noLateReopen":true,"sabotageDetected":true}
+
+=== chatgpt panel state ===
+{"reloadRestoresExactChat":true,"nativeStatePreserved":true,"workspaceIsolation":true,"explicitNewWins":true,"intentionalHome":true,"sabotageDetected":true}
+
+=== chatgpt font spacing ===
+[{"width":1000,"font":["Vazirmatn"],"gapBefore":43,"gapAfter":15},{"width":360,"font":["Vazirmatn"],"gapBefore":43,"gapAfter":15},{"width":260,"font":["Vazirmatn"],"gapBefore":43,"gapAfter":15}]
+
+=== chatgpt header ===
+{"samePanelPalette":true,"runLocationTop":2,"headerHeight":0,"bottomInset":"2px","oneHeadRow":true,"brokenLookDetected":true,"brokenHeaderDetected":true,"brokenBottomDetected":true}
+
+=== chatgpt layout ===
+{"good":{"direction":"rtl","prompt":"isolate","numberRight":true,"code":"ltr","height":24,"composer":72},"brokenRtlDetected":true,"brokenHeightDetected":true,"longDraftHeight":96,"spacingBefore":{"gap":16,"status":39,"font":16,"thinking":36,"outside":16,"codeLine":"22px","cellPadding":"9px","bottom":32,"time":"Worked for 1m"},"spacingAfter":{"gap":6,"status":28,"font":12,"thinking":22,"outside":16,"codeLine":"22px","cellPadding":"9px","bottom":8,"time":"Worked for 1m"},"brokenSpacingDetected":true}
+
+=== chatgpt tabs ===
+{"router":"data router (VS Code)","historyAddsTabWithoutHostPanel":true,"brokenHistoryDetected":true,"independentRoutes":true,"draftsPreserved":true,"closeKeepsConversation":true,"rejectedNavigationKeepsTab":true,"tabHeight":30,"brokenRoutingDetected":true,"missingMemoryConnectionDetected":false}
+
+=== chatgpt tabs memory ===
+{"router":"MemoryRouter (Windsurf)","historyAddsTabWithoutHostPanel":true,"brokenHistoryDetected":true,"independentRoutes":true,"draftsPreserved":true,"closeKeepsConversation":true,"rejectedNavigationKeepsTab":"not applicable","tabHeight":30,"brokenRoutingDetected":true,"missingMemoryConnectionDetected":true}
+
+=== claude top buttons ===
+{"inHeader":true,"topCount":14,"hads":["h-on","h-off"],"hadsText":["/hads on","/hads off"],"submitted":2,"draftKept":0,"twoLines":"کارایی که میکنی باید با هماهنگی ناظر باشه ها\nسوالاتو گزارش هات رو با اسک یوزر کوسشن بگو","agentLines":2,"compact":"سلام/compact","oldLeft":["⋮⋮","art","rev","clr","btw","rc","fast","aA"],"oldRight":["⋮⋮","reme","comp","use","cont","focus","rew"],"jitterClick":"نمیفهمم اینو به زبون ساده بگو","dragOrder":["ناظر","داستان","اسک","اعتماد"],"dragTyped":"","renamed":true,"savedLabels":["reme","comp","use","cont","art","rev","clr","btw","rc","fast","ن۲","داستان","اسک","اعتماد","قانون","ایجنت","فایده","سؤال","ساده","واژه","جدول","حدس","h-on","h-off"],"rewAfter":["⋮⋮","focus","rew","reme","comp","use","cont"],"formHasJson":false,"seededCount":14,"afterDelete":13,"narrow":{"title":true,"icons":true,"scrolls":true},"notInBanner":true,"rebuilt":13,"fallback":0,"dokme":["comp","btw","ادامه"],"keys":["Tab","Enter"],"tik":["Enter"]}
+
+=== ja button ===
+سبز: بالا → ردیفِ بالا · چپ → ستونِ چپ · بی‌جا → جای محلی · پنل aA همان را نشان می‌دهد · «همه → چپ» ذخیره شد
+
+=== claude stamp ===
+{"answerSameLine":true,"answerLeft":true,"answerGap":8,"answerClearsDot":true,"promptInBubble":true,"promptLeft":true,"promptGap":8}
+
+=== claude hooks in chat ===
+DSH history host unavailable: Cannot find module 'vscode'
+Require stack:
+- /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/test_claude_hooks_in_chat.cjs
+{"hookLine":{"type":"system","subtype":"informational","level":"notice","content":"⁣۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · [20:09 +0330 -- habib] ok"},"othersUntouched":true,"noise":["hook_response","hook_response","hook_response","hook_response"],"memory":{"lines":4,"rawJson":false,"shortPath":true,"head":"⁣۲ آبان ۱۴۰۵ ۲۰:۰۹ · UserPromptSubmit · متنِ تزریقی","twice":false},"jalali":["1405/1/1","1403/12/30"],"reloadHooks":["p1","⁣۲ آبان ۱۴۰۵ ۰۹:۰۸ · UserPromptSubmit · متنِ تزریقی","p2"],"reloadShape":true,"reloadSafe":true,"reloadEdge":["⁣۲ آبان ۱۴۰۵ ۰۹:۰۸ · Stop · سرِ مرز"],"patch":{"flagAlwaysOn":true,"forwardWrapped":true,"parses":true,"reloadWrapped":true},"dollarNames":true,"sizeWins":true,"panelSelectable":true,"hadsCard":true,"hadsAlpha":true,"hadsGlass":true,"hadsCompact":true,"topRowSafe":true,"pageFolds":true,"foldAlways":true,"esmUi":{"table":true,"old":[],"host":true,"hostTabe":[]},"btnTabe":[],"userMsgScrolls":true,"biEmoji":"حافظه: 3 سابقه تزریق شد · ۲۰۵","saysRule":true}
+
+=== claude hads order ===
+{"fieldHidden":"none","click":{"presses":["nakarde"],"inputs":0},"pressPrevented":true,"dragFirst":{"sent":"do_jomle hads ravand nakarde khodkar cron porsesh hook","presses":1},"dragAfter":"ravand nakarde khodkar cron hads do_jomle porsesh hook","dragSelf":[0,0],"clickAfter":["nakarde","hook"],"noJump":{"rowsStay":true,"bandStays":true,"grew":true},"noClamp":true,"noGap":true,"turnStays":true,"fitAfterPress":true,"staysAtEnd":true}
+
+=== claude translation ===
+{"shown":[false,true,true],"parts":{"strong":"ترجمه","code":"a.js","cells":4,"li":1,"img":0,"hack":0},"others":[0,0],"asl":[true,false],"back":[false,true],"redraw":1,"asked":true}
+
+=== claude plugin prompt ===
+{"plugin":["italic","bi-kadr","yek-khat"],"session":["italic","bi-kadr","yek-khat"],"own":["normal","kadr","yek-khat"],"answer":["italic","bi-kadr","yek-khat"],"hovered":true,"hads":{"bastePasAzMoos":true,"neshan":["\"▸ \"","\"▾ \"","\"▸ \""],"baz":true,"dobareBaste":true},"says":["none","block"],"showLess":"none"}
+
+=== claude top wait ===
+{"named":{"left":0,"header":true},"noName":{"left":0,"header":true},"banner":{"left":0,"inBanner":0},"noHeader":0,"strip":true,"quietWait":true,"later":{"left":0,"header":true,"strip":false}}
+
+=== claude ask visible ===
+{"shown":[true,false],"folded":[1]}
+
+=== claude amar ===
+{"small":{"hidden":"none","rows":4,"cols":9,"vertical":"vertical-rl","heads":"دو جمله حدس روند نکرده خودکار کرون جمع‌بندی پرسش کل","hour":"۰ ۱ ۰ ۱ ۱ ۱ ۰ ۰ ۱","left":true,"dollar":false,"lines":"solid","narrow":true},"fast":"none","big":{"cls":true,"calls":60,"usd":"۱ ساعت: $0.026 · ۲۴ ساعت: $0.029 · کل: $0.029","first":true,"inside":true},"back":{"small":true,"top":true},"outside":{"small":true,"top":true},"drag":{"small":true,"moved":true,"kept":true}}
+
+=== claude code rangi ===
+{"dir":"ltr","align":"left","codeFont":"\"Vazir Code Hack\", \"SF Mono\", Monaco, \"Courier New\", monospace","faFont":"Vazirmatn, \"SF Mono\", Monaco, \"Courier New\", monospace","kColor":"rgb(86, 156, 214)","widths":[72,72,72],"sColor":"rgb(206, 145, 120)","mColor":"rgb(106, 153, 85)","keywordAtLeft":true}
+ok: کدِ رنگی چپ‌به‌راست، با Vazir Code Hack و رنگ‌هایش
+
+=== claude code ink ===
+{"fa":"rgb(194, 194, 194)","k":"rgb(86, 156, 214)"}
+ok: رنگِ متن به کد نمی‌رسد
+
+=== claude hover open ===
+{"basteh":106,"baz":1522,"dobareBasteh":106}
+
+=== claude ask width ===
+ask width: all checks passed
+
+=== claude tanzimat ===
+tanzimat: host logic passed
+tanzimat: patches passed
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-7EwWKO/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-7EwWKO/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-7EwWKO/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tanzimat: wrapper passed
+tanzimat: real engine passed
+tanzimat: panel passed
+tanzimat: question window passed
+tanzimat: all checks passed
+
+=== xss 186 ===
+{"injectedImages":0,"titleText":"<img src=\"invalid-image\" onerror=\"window.__xss=42\">","titleHTML":"&lt;img src=\"invalid-image\" onerror=\"window.__xss=42\"&gt;","folderText":"<b>folder</b>","folderHTML":"&lt;b&gt;folder&lt;/b&gt;","modelText":"<i>model</i>","modelHTML":"&lt;i&gt;model&lt;/i&gt;","pctText":"50%"}
+PASS
+
+=== claude fekr shenavar ===
+[
+  3,
+  'دو جمله:|text_x ; یک. دو.|text_x ; fekr:|text_x ; fekrِ یک کلمه دو|text_x ; چه کرد:|text_x ; کارِ سه|text_x ; بعدش:|text_x ; قدمِ چهار|text_x',
+  'card_x crtl-hads',
+  'function',
+  8
+]
+{"lay":true,"pos":"fixed","pe":"auto","bg":"color(srgb 0.172549 0.172549 0.180392 / 0.75)","resize":"both","words":["fekrِ","یک","کلمه","دو","کارِ","سه","قدمِ","چهار"],"hidden":["flex","flex","flex"],"op":["1","1","1"],"wop":"0.85","djShown":"flex","above":true}
+PASS {"lay":true,"pos":"fixed","pe":"auto","bg":"color(srgb 0.172549 0.172549 0.180392 / 0.75)","resize":"both","words":["fekrِ","یک","کلمه","دو","کارِ","سه","قدمِ","چهار"],"hidden":["flex","flex","flex"],"op":["1","1","1"],"wop":"0.85","djShown":"flex","above":true}
+
+=== claude navar ===
+DSH history host unavailable: Cannot find module 'vscode'
+Require stack:
+- /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/test_claude_navar.cjs
+{"host":{"payam":2,"tamas":2,"tokens":3160,"ersal":"DeepInfra (deepinfra/fp8)","usd":0.000312,"ctx":{"used":2060,"max":1000000},"asked":["deepseek/deepseek-v4-flash-vision-exp"]},"same":null,"append":{"tamas":3,"ctx":110},"names":["anthropic/claude-opus-5.5","deepinfra",""],"asked":{"type":"crtl-navar","sid":"11111111-2222-3333-4444-555555555555","kelid":""},"wait":"در حالِ خواندن…","small":{"heads":"هزینه هزینهٔ امروز هزینهٔ کل امروز توکن پیام کانتکست","vals":"≈$۰٫۰۰۰۳ | — | ≈$۱۰٫۸۳ | ۳٫۳k | ۲ | ۰٪","clear":true,"left":true,"lines":"solid","zero":false},"narrow":true,"big":{"big":true,"ersal":true,"payam":true,"inside":true},"back":true,"other":false,"question":"none"}
+navar: all green
+
+=== claude tik ha ===
+python ok
+host ok
+panel ok · /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tik-dMtuCJ/tik-panel.png
+engine skipped (set TIK_ENGINE=1 to run the real CLI)
+tik_ha: all green
+
+=== codex tanzimat ===
+OK test_codex_tanzimat
+
+=== reset ha ===
+reset_ha: ok
+
+=== SUMMARY: 33 passed, 1 skipped, 0 failed ===
+SKIPPED: chatgpt folder query

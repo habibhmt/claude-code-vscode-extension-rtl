@@ -13,13 +13,25 @@ class LiveTests(unittest.TestCase):
             flag=Path(tmp)/'enabled';flag.touch()
             original={'ANTHROPIC_BASE_URL':'https://openrouter.ai/api',
                       'ANTHROPIC_CUSTOM_HEADERS':'X-Session-ID: original-session'}
-            with patch.object(live,'ENABLED',flag),patch.object(live,'ensure_service',return_value={'port':12345,'token':TOKEN}):
+            with patch.object(live,'ENABLED',flag),patch.object(live,'ensure_service',return_value={'port':12345,'token':TOKEN}),patch.object(live,'note_run') as noted:
                 for folder,number in [('136th-day-fix-rtl-claude','136'),('216th-day-migration-to-open-source-model','216')]:
                     result=live.apply_trace(original,Path('/Users/habib/1-MY-WORK')/folder)
                     self.assertEqual(result['ANTHROPIC_BASE_URL'],'http://127.0.0.1:12345')
                     self.assertIn('X-Trace-Project: '+number,result['ANTHROPIC_CUSTOM_HEADERS'])
                     self.assertIn('X-Session-ID: original-session',result['ANTHROPIC_CUSTOM_HEADERS'])
                 flag.unlink();self.assertEqual(live.apply_trace(original,Path.cwd()),original)
+            self.assertEqual(noted.call_count,2)
+            self.assertEqual([c.args[2] for c in noted.call_args_list],['136','216'])
+
+    def test_run_identity_line_names_the_launcher(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'runs.jsonl'
+            live.note_run('00000000-0000-0000-0000-000000000009',Path('/Users/x/proj'),'136',path=path)
+            row=json.loads(path.read_text().splitlines()[-1])
+            self.assertEqual(row['run_id'],'00000000-0000-0000-0000-000000000009')
+            self.assertEqual(row['project'],'136');self.assertEqual(row['cwd'],'/Users/x/proj')
+            self.assertIn('parent',row);self.assertIn('entrypoint',row)
+            self.assertEqual(oct(path.stat().st_mode)[-3:],'600')
 
 class ReceiptTests(ProxyTests):
     def test_project_metadata_and_header_preservation(self):
@@ -35,5 +47,18 @@ class ReceiptTests(ProxyTests):
         self.assertEqual(headers['x-openrouter-app-visibility'],'hidden')
         self.assertNotIn('x-trace-run',headers);self.assertNotIn('x-trace-project',headers)
         for secret in (SECRET,TEXT,TOKEN):self.assertNotIn(secret,self.path.read_text())
+
+    def test_client_column_names_the_program(self):
+        """The row itself answers «which program sent this» — the question the
+        unnamed 404 burst (۱۳۵ ردیف، ۲۱ نوامبر ۲۰۲۶) could not answer."""
+        raw=json.dumps({'model':'claude-haiku-5-5','messages':[{'role':'user','content':TEXT}]}).encode()
+        req=urllib.request.Request(f'http://127.0.0.1:{self.proxy.server_port}/v1/messages',data=raw,headers={
+          'X-Trace-Token':TOKEN,'X-Trace-Project':'136','X-Trace-Run':'00000000-0000-0000-0000-000000000002',
+          'User-Agent':'ccam-runner/0.9','X-Title':'agent-check','Authorization':'Bearer '+SECRET})
+        with urllib.request.urlopen(req,timeout=5) as r:r.read()
+        row=json.loads(self.path.read_text().splitlines()[-1])
+        self.assertIn('ccam-runner/0.9',row['client'])
+        self.assertIn('agent-check',row['client'])
+        for secret in (SECRET,TEXT,TOKEN):self.assertNotIn(secret,row['client'])
 
 if __name__=='__main__':unittest.main()

@@ -1,4 +1,5 @@
 """Temporary, all-workspace tracing for the VS Code DeepSeek adapter only."""
+import datetime as dt
 import fcntl
 import json
 import os
@@ -57,14 +58,51 @@ def apply_account_gateway(env, cwd):
     return result
 
 
+def _parent_command():
+    """Command line of the process that launched this one, short and safe."""
+    try:
+        out = subprocess.run(['ps', '-o', 'command=', '-p', str(os.getppid())],
+                             capture_output=True, text=True, timeout=2).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return ' '.join(out.split())[:200] or None
+
+
+def note_run(run_id, cwd, project, *, path=None):
+    """One line per launch: which program started this traced run.
+
+    The proxy records the run id on every request; without this file a row
+    says «sender e195e18c…» and nothing more. This is what turns an
+    unidentified 15-at-once burst into a named program (۲۱ نوامبر ۲۰۲۶).
+    """
+    row = {'time_utc': dt.datetime.now(dt.timezone.utc).isoformat(),
+           'run_id': run_id, 'project': project, 'cwd': str(cwd),
+           'entrypoint': os.environ.get('CLAUDE_CODE_ENTRYPOINT', ''),
+           'parent': _parent_command(), 'argv0': (sys.argv[0] if sys.argv else '')[:120]}
+    path = Path(path) if path else DIRECTORY / 'runs.jsonl'
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(fd, 'a', encoding='utf8') as f:
+            f.write(json.dumps(row, ensure_ascii=False) + '\n')
+    except OSError:
+        pass  # tracing must never block a launch
+
+
 def _local_endpoint(env, cwd, state):
     from openrouter_attribution import project_number
     result=dict(env)
+    project = project_number(cwd) or 'unknown'
+    run_id = str(uuid.uuid4())
+    try:
+        note_run(run_id, cwd, project)
+    except Exception:
+        pass
     lines=[l for l in result.get('ANTHROPIC_CUSTOM_HEADERS','').splitlines()
            if not l.lower().startswith(('x-trace-token:','x-trace-project:','x-trace-run:'))]
     lines += ['X-Trace-Token: '+state['token'],
-              'X-Trace-Project: '+(project_number(cwd) or 'unknown'),
-              'X-Trace-Run: '+str(uuid.uuid4())]
+              'X-Trace-Project: '+project,
+              'X-Trace-Run: '+run_id]
     result['ANTHROPIC_CUSTOM_HEADERS']='\n'.join(lines)
     result['ANTHROPIC_BASE_URL']=f"http://127.0.0.1:{state['port']}"
     return result

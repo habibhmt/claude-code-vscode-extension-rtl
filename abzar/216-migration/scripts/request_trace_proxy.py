@@ -32,6 +32,7 @@ TOKEN_PATHS = frozenset({'/v1/messages/count_tokens', '/v1/messages/count_tokens
 CATALOG = Path(__file__).resolve().parents[1] / 'claude-api/deepseek-models.json'
 FIELDS = frozenset({'time_utc','time_tehran','run_id','request_number','model',
                     'work_type','status','duration_ms','response_id','error','project','sender_run',
+                    'client',
                     'input_tokens','output_tokens','cache_read_input_tokens','cache_creation_input_tokens'})
 
 def safe_id(value):
@@ -44,6 +45,26 @@ def safe_error(text):
     if not text or re.search(r'sk-[A-Za-z0-9_-]{8,}', text):
         return None
     return text[:300]
+
+
+def safe_client(headers):
+    """Who sent the call: app name and title only, never a credential or prompt.
+
+    user-agent says the program (claude-cli/2.1.328, node, python-requests …);
+    x-app / x-title are OpenRouter's own app labels when a client sets them.
+    Composed here so a row alone answers «which program was this», which is the
+    question the Extensions bucket could not answer (۲۱ نوامبر ۲۰۲۶).
+    """
+    parts = []
+    for key in ('user-agent', 'x-app', 'x-title', 'x-openrouter-title'):
+        value = str(headers.get(key) or '')
+        value = re.sub(r'\s+', ' ', value).strip()
+        value = re.sub(r'sk-[A-Za-z0-9_-]{8,}', '', value).strip()
+        if value and value not in parts:
+            parts.append(value[:60])
+    if not parts:
+        return None
+    return ' · '.join(parts)[:160]
 
 
 def safe_count(value):
@@ -226,6 +247,7 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
              'model':model,
              'project':project if re.fullmatch(r'[0-9]{1,6}',project) else 'unknown',
              'sender_run':sender if re.fullmatch(r'[a-f0-9-]{36}',sender) else 'unknown',
+             'client':safe_client(self.headers),
              'work_type':'unknown','status':None,'response_id':None,'error':None,
              'input_tokens':None,'output_tokens':None,
              'cache_read_input_tokens':None,'cache_creation_input_tokens':None}

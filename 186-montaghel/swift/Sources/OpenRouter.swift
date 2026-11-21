@@ -272,6 +272,9 @@ struct Priced: Codable {
     var prompt: Int
     var cached: Int
     var completion: Int
+    /// Which program sent the call (user-agent · title); nil on rows written
+    /// before the trace learned to record it.
+    var client: String? = nil
 }
 
 struct TraceRecord {
@@ -279,6 +282,7 @@ struct TraceRecord {
     var project: String
     var status: Int?
     var responseID: String
+    var client: String? = nil
 }
 
 // MARK: - Source of truth (file shape)
@@ -890,7 +894,7 @@ actor UsageCollector {
             }
             return Priced(id: rec.responseID, cost: g.cost, ts: rec.time, project: rec.project,
                           model: g.model, provider: g.provider, prompt: g.prompt,
-                          cached: g.cached, completion: g.completion)
+                          cached: g.cached, completion: g.completion, client: rec.client)
         } catch {
             FetchLog.write("openrouter: generation \(rec.responseID) \(error)")
             return nil
@@ -927,7 +931,8 @@ actor UsageCollector {
         if project.isEmpty { project = "unknown" }
         let status = (e["status"] as? NSNumber)?.intValue
         return TraceRecord(time: date.timeIntervalSince1970, project: project,
-                           status: status, responseID: (e["response_id"] as? String) ?? "")
+                           status: status, responseID: (e["response_id"] as? String) ?? "",
+                           client: (e["client"] as? String).flatMap { $0.isEmpty ? nil : $0 })
     }
 
     // MARK: attribution + snapshot
@@ -1030,6 +1035,11 @@ actor UsageCollector {
             var last: TimeInterval = 0; var subCost = 0.0; var subCount = 0
             var hadsCost = 0.0; var hadsCount = 0
             var remCost = 0.0; var remCount = 0
+            // Workflow and subagent transcripts live under the session that
+            // started them, so their dollars belong to that chat, not to the
+            // whole folder (حبیب، ۲۱ نوامبر ۲۰۲۶: «هر چتی به تفکیک برای خودش»).
+            var wfCost = 0.0; var wfCount = 0
+            var agCost = 0.0; var agCount = 0
             var lifetime = 0.0
         }
         struct FolderAgg {
@@ -1039,6 +1049,8 @@ actor UsageCollector {
             var wfCost = 0.0; var wfCount = 0; var wfLast: TimeInterval = 0
             var agCost = 0.0; var agCount = 0; var agLast: TimeInterval = 0
             var hadsCost = 0.0; var hadsCount = 0; var remCost = 0.0; var remCount = 0
+            /// Background calls grouped by the program that sent them.
+            var extClients: [String: (cost: Double, count: Int)] = [:]
         }
 
         var agg: [String: FolderAgg] = [:]
@@ -1048,10 +1060,18 @@ actor UsageCollector {
             f.requests += 1
             if let e = folderIdx[p.project]?.nearest(to: p.ts) {
                 switch e.kind {
-                case .workflow:
-                    f.wfCost += p.cost; f.wfCount += 1; f.wfLast = max(f.wfLast, p.ts)
-                case .agent:
-                    f.agCost += p.cost; f.agCount += 1; f.agLast = max(f.agLast, p.ts)
+                case .workflow, .agent:
+                    let isWf = e.kind == .workflow
+                    if isWf { f.wfCost += p.cost; f.wfCount += 1; f.wfLast = max(f.wfLast, p.ts) }
+                    else { f.agCost += p.cost; f.agCount += 1; f.agLast = max(f.agLast, p.ts) }
+                    // Same dollar also lands on the chat that owns the session.
+                    let wfTitle = folderIdx[p.project]?.titles[e.chat] ?? String(e.chat.prefix(8))
+                    var wc = f.chats[e.chat] ?? ChatAgg(id: e.chat, title: wfTitle)
+                    if isWf { wc.wfCost += p.cost; wc.wfCount += 1 }
+                    else { wc.agCost += p.cost; wc.agCount += 1 }
+                    wc.last = max(wc.last, p.ts)
+                    wc.lifetime = folderIdx[p.project]?.costAllByChat[e.chat] ?? wc.lifetime
+                    f.chats[e.chat] = wc
                 case .main:
                     let title = folderIdx[p.project]?.titles[e.chat] ?? String(e.chat.prefix(8))
                     var c = f.chats[e.chat] ?? ChatAgg(id: e.chat, title: title)
@@ -1063,10 +1083,15 @@ actor UsageCollector {
                     f.chats[e.chat] = c
                 }
             } else {
-                // Title generation, hads, remember …: no assistant message of ours.
+                // Calls that match no chat line: background jobs, one-shot
+                // clients. Group them by the program the trace recorded.
                 f.extCost += p.cost
                 f.extCount += 1
                 f.extLast = max(f.extLast, p.ts)
+                let who = p.client ?? "نامعلوم"
+                var slot = f.extClients[who] ?? (0.0, 0)
+                slot.0 += p.cost; slot.1 += 1
+                f.extClients[who] = slot
             }
             agg[p.project] = f
         }
@@ -1135,20 +1160,49 @@ actor UsageCollector {
             for p in agg.keys {
                 guard var f = agg[p] else { continue }
                 if let idx = folderIdx[p] {
+                    // Hads is already per session id: put it on that chat, not
+                    // on the whole folder.
                     for (chat, h) in hads
                     where idx.titles[chat] != nil || idx.lastByChat[chat] != nil {
+                        var hc = f.chats[chat] ?? ChatAgg(id: chat,
+                                   title: idx.titles[chat] ?? String(chat.prefix(8)))
+                        hc.hadsCost += h.cost; hc.hadsCount += h.calls
+                        f.chats[chat] = hc
                         f.hadsCost += h.cost; f.hadsCount += h.calls
                     }
                 }
                 for row in remember[f.name] ?? [] {
-                    f.remCost += row.cost; f.remCount += 1
+                    // Remember logs carry no session id, so the chat is the one
+                    // whose transcript is nearest in time; unattributable rows
+                    // stay on the folder and are not lost.
+                    if let chat = folderIdx[p]?.nearest(to: row.ts)?.chat {
+                        var rc = f.chats[chat] ?? ChatAgg(id: chat,
+                                   title: folderIdx[p]?.titles[chat] ?? String(chat.prefix(8)))
+                        rc.remCost += row.cost; rc.remCount += 1
+                        f.chats[chat] = rc
+                        f.remCost += row.cost; f.remCount += 1
+                    }
                 }
+                var carved = 0.0
                 if f.hadsCost > 0, f.extCost >= f.hadsCost {
-                    f.extCost -= f.hadsCost
+                    f.extCost -= f.hadsCost; carved += f.hadsCost
                 } else { f.hadsCost = 0; f.hadsCount = 0 }
                 if f.remCost > 0, f.extCost >= f.remCost {
-                    f.extCost -= f.remCost
+                    f.extCost -= f.remCost; carved += f.remCost
                 } else { f.remCost = 0; f.remCount = 0 }
+                // Those rows were counted inside a sender bucket; take them out
+                // of it too, so the children of «پس‌زمینه» add up to its figure.
+                let order = f.extClients.keys.sorted {
+                    ($0 == "نامعلوم" ? 0 : 1, -f.extClients[$0]!.cost) < ($1 == "نامعلوم" ? 0 : 1, -f.extClients[$1]!.cost)
+                }
+                for key in order {
+                    if carved <= 0 { break }
+                    guard var slot = f.extClients[key] else { continue }
+                    let take = min(slot.cost, carved)
+                    slot.cost -= take; carved -= take
+                    if slot.cost < 0.000001 { f.extClients.removeValue(forKey: key) }
+                    else { f.extClients[key] = slot }
+                }
                 agg[p] = f
             }
         }
@@ -1158,13 +1212,22 @@ actor UsageCollector {
             if c.subCost > 0 {
                 children.append(ChildInfo(kind: "subagent", label: "Subagents", cost: c.subCost, count: c.subCount))
             }
+            if c.wfCost > 0 {
+                children.append(ChildInfo(kind: "workflow", label: "Workflow", cost: c.wfCost, count: c.wfCount))
+            }
+            if c.agCost > 0 {
+                children.append(ChildInfo(kind: "agents", label: "Agents", cost: c.agCost, count: c.agCount))
+            }
             if c.hadsCost > 0 {
                 children.append(ChildInfo(kind: "hads", label: "Hads", cost: c.hadsCost, count: c.hadsCount))
             }
             if c.remCost > 0 {
                 children.append(ChildInfo(kind: "remember", label: "Remember", cost: c.remCost, count: c.remCount))
             }
-            return ChatInfo(id: c.id, title: c.title, cost: c.cost,
+            // The chat's figure is main + everything it spawned, so the rows of
+            // a folder add up to the folder total.
+            let total = c.cost + c.wfCost + c.agCost + c.hadsCost + c.remCost
+            return ChatInfo(id: c.id, title: c.title, cost: total,
                             last: ORTime.string(Date(timeIntervalSince1970: c.last)),
                             live: nowTs - c.last < 180, children: children,
                             lifetime: c.lifetime > 0 ? c.lifetime : nil)
@@ -1178,25 +1241,24 @@ actor UsageCollector {
             // after the chat rows, in a fixed order, so the list never mixes
             // "which chat" with "what kind of call".
             func kindRow(_ id: String, _ title: String, _ cost: Double,
-                         _ count: Int, _ last: TimeInterval) -> ChatInfo {
+                         _ count: Int, _ last: TimeInterval,
+                         _ children: [ChildInfo] = []) -> ChatInfo {
                 ChatInfo(id: id, title: title, cost: cost,
                          last: ORTime.string(Date(timeIntervalSince1970: last)),
-                         live: nowTs - last < 180, children: [], lifetime: nil)
+                         live: nowTs - last < 180, children: children, lifetime: nil)
             }
-            if f.wfCost >= 0.005 {
-                chats.append(kindRow("workflow", "Workflow", f.wfCost, f.wfCount, f.wfLast))
-            }
-            if f.agCost >= 0.005 {
-                chats.append(kindRow("agents", "Agents", f.agCost, f.agCount, f.agLast))
-            }
-            if f.hadsCost >= 0.005 {
-                chats.append(kindRow("hads", "Hads", f.hadsCost, f.hadsCount, f.extLast))
-            }
-            if f.remCost >= 0.005 {
-                chats.append(kindRow("remember", "Remember", f.remCost, f.remCount, f.extLast))
-            }
+            // Workflow, Agents, Hads and Remember now sit under the chat that
+            // caused them. Only calls that match no chat at all stay here.
             if f.extCost >= 0.005 {
-                chats.append(kindRow("extensions", "Extensions", f.extCost, f.extCount, f.extLast))
+                // Children name the sender of each background call, so the row
+                // never stays a nameless bucket.
+                let who = f.extClients
+                    .sorted { $0.value.cost > $1.value.cost }
+                    .map { ChildInfo(kind: "client",
+                                     label: String($0.key.prefix(44)),
+                                     cost: $0.value.cost, count: $0.value.count) }
+                chats.append(kindRow("extensions", "پس‌زمینه", f.extCost, f.extCount,
+                                     f.extLast, who))
             }
             folders.append(FolderInfo(id: f.id, name: f.name, cost: f.cost, requests: f.requests, chats: chats))
         }

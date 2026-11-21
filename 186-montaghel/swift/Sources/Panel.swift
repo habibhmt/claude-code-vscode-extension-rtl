@@ -120,7 +120,7 @@ final class PanelView: NSView {
     private static let treeSpacing: CGFloat = 2
     /// Rows that are a cost kind, not a conversation. They are drawn after a
     /// hairline so "which chat" and "what kind of call" never share a group.
-    private static let kindIDs: Set<String> = ["workflow", "agents", "hads", "remember", "extensions"]
+    private static let kindIDs: Set<String> = ["extensions"]
 
     private static let blue = NSColor(srgbRed: 0x3b / 255, green: 0x82 / 255, blue: 0xf6 / 255, alpha: 1)
 

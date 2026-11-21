@@ -378,7 +378,7 @@ enum CUPaths {
 
 /// Where a transcript line came from. The trace knows only the project number,
 /// so the split is decided by which transcript sits closest in time.
-enum TraceKind { case main, agent, workflow }
+enum TraceKind { case main, agent, workflow, compaction }
 
 struct TranscriptEntry {
     let ts: TimeInterval
@@ -408,6 +408,7 @@ struct IndexedFile {
     private static let assistantMark = Data(#""type":"assistant""#.utf8)
     private static let customMark = Data(#""type":"custom-title""#.utf8)
     private static let aiMark = Data(#""type":"ai-title""#.utf8)
+    private static let compactMark = Data(#""subtype":"compact_boundary""#.utf8)
 
     mutating func read(path: String, size: Int, mtime: Double, chat: String,
                        kind: TraceKind = .main) {
@@ -459,6 +460,18 @@ struct IndexedFile {
                let t = e["customTitle"] as? String, !t.isEmpty { customTitle = t }
             if (e["type"] as? String) == "ai-title",
                let t = e["aiTitle"] as? String, !t.isEmpty { aiTitle = t }
+            return
+        }
+        // Compaction writes no assistant message: the CLI only records the
+        // boundary and the summary. Marking that moment is the only way to
+        // tell the chat's own summarising call from a nameless background one.
+        if line.range(of: Self.compactMark) != nil,
+           let e = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
+           (e["type"] as? String) == "system",
+           (e["subtype"] as? String) == "compact_boundary",
+           let s = e["timestamp"] as? String, let d = ORTime.date(s) {
+            entries.append(TranscriptEntry(ts: d.timeIntervalSince1970, chat: chat,
+                                           sidechain: false, kind: .compaction))
             return
         }
         guard line.range(of: Self.assistantMark) != nil,
@@ -1057,6 +1070,7 @@ actor UsageCollector {
             // whole folder (حبیب، ۲۱ نوامبر ۲۰۲۶: «هر چتی به تفکیک برای خودش»).
             var wfCost = 0.0; var wfCount = 0
             var agCost = 0.0; var agCount = 0
+            var compCost = 0.0; var compCount = 0
             var lifetime = 0.0
         }
         struct FolderAgg {
@@ -1097,6 +1111,16 @@ actor UsageCollector {
                     c.last = max(c.last, p.ts)
                     if e.sidechain { c.subCost += p.cost; c.subCount += 1 }
                     c.lifetime = folderIdx[p.project]?.costAllByChat[e.chat] ?? 0
+                    f.chats[e.chat] = c
+                case .compaction:
+                    // The chat summarising itself; it belongs to that chat, not
+                    // to the nameless background bucket.
+                    let title = folderIdx[p.project]?.titles[e.chat] ?? String(e.chat.prefix(8))
+                    var c = f.chats[e.chat] ?? ChatAgg(id: e.chat, title: title)
+                    c.compCost += p.cost
+                    c.compCount += 1
+                    c.last = max(c.last, p.ts)
+                    c.lifetime = folderIdx[p.project]?.costAllByChat[e.chat] ?? c.lifetime
                     f.chats[e.chat] = c
                 }
             } else {
@@ -1254,6 +1278,9 @@ actor UsageCollector {
             if c.agCost > 0 {
                 children.append(ChildInfo(kind: "agents", label: "Agents", cost: c.agCost, count: c.agCount))
             }
+            if c.compCost > 0 {
+                children.append(ChildInfo(kind: "compaction", label: "Compaction", cost: c.compCost, count: c.compCount))
+            }
             if c.hadsCost > 0 {
                 children.append(ChildInfo(kind: "hads", label: "Hads", cost: c.hadsCost, count: c.hadsCount))
             }
@@ -1262,7 +1289,7 @@ actor UsageCollector {
             }
             // The chat's figure is main + everything it spawned, so the rows of
             // a folder add up to the folder total.
-            let total = c.cost + c.wfCost + c.agCost + c.hadsCost + c.remCost
+            let total = c.cost + c.wfCost + c.agCost + c.compCost + c.hadsCost + c.remCost
             return ChatInfo(id: c.id, title: c.title, cost: total,
                             last: ORTime.string(Date(timeIntervalSince1970: c.last)),
                             live: nowTs - c.last < 180, children: children,

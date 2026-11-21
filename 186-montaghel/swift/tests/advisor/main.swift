@@ -240,6 +240,19 @@ do {
           idx3.nearest(to: T.timeIntervalSince1970, duration: 30)?.kind == .main)
     check("K7 same +20 s with a 5 s call ⇒ no match (negative control)",
           idx3.nearest(to: T.timeIntervalSince1970, duration: 5) == nil)
+
+    // Compaction writes only a boundary, never an assistant line. The call that
+    // summarises the chat must land on that chat, not in «پس‌زمینه».
+    let comp = root.appendingPathComponent("comp")
+    try? FileManager.default.createDirectory(at: comp, withIntermediateDirectories: true)
+    let boundary = #"{"type":"system","subtype":"compact_boundary","timestamp":"\#(iso.string(from: T.addingTimeInterval(50)))"}"# + "\n"
+    try? Data(boundary.utf8).write(to: comp.appendingPathComponent("s4.jsonl"))
+    var idx4 = FolderIndex()
+    idx4.refresh(dir: comp, since: 0, dayStart: 0)
+    check("K8 compaction call (50 s) ⇒ the chat's compaction, not background",
+          idx4.nearest(to: T.timeIntervalSince1970, duration: 60)?.kind == .compaction)
+    check("K9 a boundary is not a message and not a chat cost",
+          idx4.messagesByChat.isEmpty && idx4.tokensByChat.isEmpty)
 }
 
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

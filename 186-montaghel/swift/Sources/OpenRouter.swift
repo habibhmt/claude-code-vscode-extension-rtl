@@ -369,10 +369,15 @@ enum CUPaths {
 
 // MARK: - Transcript index for chat attribution
 
+/// Where a transcript line came from. The trace knows only the project number,
+/// so the split is decided by which transcript sits closest in time.
+enum TraceKind { case main, agent, workflow }
+
 struct TranscriptEntry {
     let ts: TimeInterval
     let chat: String
     let sidechain: Bool
+    var kind: TraceKind = .main
     /// input + output + cache read + cache write, for the token-share fallback
     /// used when the trace log is missing.
     var tokens: Int = 0
@@ -385,6 +390,8 @@ struct IndexedFile {
     private(set) var offset: UInt64 = 0
     /// mtime of the last full read; a file that did not move is not re-read.
     private var lastMtime: Double = -1
+    /// Absolute path, so a refresh can drop files that no longer exist.
+    var path: String = ""
     var entries: [TranscriptEntry] = []
     var customTitle = ""
     var aiTitle = ""
@@ -395,7 +402,8 @@ struct IndexedFile {
     private static let customMark = Data(#""type":"custom-title""#.utf8)
     private static let aiMark = Data(#""type":"ai-title""#.utf8)
 
-    mutating func read(path: String, size: Int, mtime: Double, chat: String) {
+    mutating func read(path: String, size: Int, mtime: Double, chat: String,
+                       kind: TraceKind = .main) {
         // The CLI compacts a transcript by rewriting it in place, and the new
         // file can be *larger* than the old offset. Any incremental read after
         // that lands mid-record and double-counts (seen 18 Nov: $1.45 for a
@@ -407,6 +415,7 @@ struct IndexedFile {
         } else {
             return
         }
+        self.path = path
         guard size > 0, let fh = FileHandle(forReadingAtPath: path) else { return }
         defer { try? fh.close() }
         try? fh.seek(toOffset: offset)
@@ -421,7 +430,7 @@ struct IndexedFile {
                 var idx = data.startIndex
                 var lastNL: Data.Index?
                 while let nl = data[idx...].firstIndex(of: 0x0A) {
-                    parse(data[idx..<nl], chat: chat)
+                    parse(data[idx..<nl], chat: chat, kind: kind)
                     lastNL = nl
                     idx = data.index(after: nl)
                 }
@@ -436,7 +445,7 @@ struct IndexedFile {
         offset = consumed
     }
 
-    private mutating func parse(_ line: Data, chat: String) {
+    private mutating func parse(_ line: Data, chat: String, kind: TraceKind = .main) {
         if line.range(of: Self.aiMark) != nil || line.range(of: Self.customMark) != nil {
             guard let e = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else { return }
             if (e["type"] as? String) == "custom-title",
@@ -461,7 +470,7 @@ struct IndexedFile {
             + Double(n("cache_creation_input_tokens")) * HadsLog.pCw
         entries.append(TranscriptEntry(ts: d.timeIntervalSince1970, chat: chat,
                                        sidechain: (e["isSidechain"] as? Bool) ?? false,
-                                       tokens: tokens, usd: usd))
+                                       kind: kind, tokens: tokens, usd: usd))
     }
 }
 
@@ -588,7 +597,9 @@ struct FolderIndex {
         let fm = FileManager.default
         guard let names = try? fm.contentsOfDirectory(atPath: dir.path) else { finish(); return }
         let live = Set(names.filter { $0.hasSuffix(".jsonl") })
-        files = files.filter { live.contains($0.key) }
+        files = files.filter {
+            live.contains($0.key) || (!$0.value.path.isEmpty && fm.fileExists(atPath: $0.value.path))
+        }
         for name in live {
             let path = dir.appendingPathComponent(name).path
             var st = stat()
@@ -601,7 +612,41 @@ struct FolderIndex {
                    chat: (name as NSString).deletingPathExtension)
             files[name] = f
         }
+        // Subagents and workflows write their own transcripts under
+        // <session>/subagents/…, outside the project folder this loop reads.
+        // The trace only carries the project number, so without these files the
+        // nearest message is never the workflow's and every such dollar lands
+        // in "Extensions" (91th-minimal-2: $3.20 of $4.25).
+        for name in live {
+            let sid = (name as NSString).deletingPathExtension
+            let sub = dir.appendingPathComponent(sid).appendingPathComponent("subagents")
+            for f in (try? fm.contentsOfDirectory(atPath: sub.path)) ?? []
+            where f.hasPrefix("agent-") && f.hasSuffix(".jsonl") {
+                readExtra(sub.appendingPathComponent(f), key: sid + "/agent/" + f,
+                          chat: sid, kind: .agent, since: since)
+            }
+            let wf = sub.appendingPathComponent("workflows")
+            for w in (try? fm.contentsOfDirectory(atPath: wf.path)) ?? [] {
+                let wdir = wf.appendingPathComponent(w)
+                for f in (try? fm.contentsOfDirectory(atPath: wdir.path)) ?? []
+                where f.hasSuffix(".jsonl") {
+                    readExtra(wdir.appendingPathComponent(f), key: sid + "/wf/" + w + "/" + f,
+                              chat: sid, kind: .workflow, since: since)
+                }
+            }
+        }
         finish()
+    }
+
+    private mutating func readExtra(_ url: URL, key: String, chat: String,
+                                    kind: TraceKind, since: TimeInterval) {
+        var st = stat()
+        guard stat(url.path, &st) == 0 else { return }
+        let mtime = Double(st.st_mtimespec.tv_sec) + Double(st.st_mtimespec.tv_nsec) / 1e9
+        if mtime < since { return }
+        var f = files[key] ?? IndexedFile()
+        f.read(path: url.path, size: Int(st.st_size), mtime: mtime, chat: chat, kind: kind)
+        files[key] = f
     }
 
     private mutating func finish() {
@@ -612,11 +657,14 @@ struct FolderIndex {
         messagesByChat = [:]
         tokensAllByChat = [:]
         costAllByChat = [:]
-        for e in sorted {
+        // Only the session's own file feeds the chat maps; subagent and
+        // workflow lines are there only to be matched by time, and counting
+        // their tokens again would inflate every chat.
+        for e in sorted where e.kind == .main {
             tokensAllByChat[e.chat, default: 0] += e.tokens
             costAllByChat[e.chat, default: 0] += e.usd
         }
-        for e in sorted where e.ts >= dayStart {
+        for e in sorted where e.kind == .main && e.ts >= dayStart {
             tokensByChat[e.chat, default: 0] += e.tokens
             if e.sidechain { tokensBySide[e.chat, default: 0] += e.tokens }
             lastByChat[e.chat] = max(lastByChat[e.chat] ?? 0, e.ts)
@@ -888,8 +936,32 @@ actor UsageCollector {
         if let n = folderNames[id] { return n }
         let names = (try? FileManager.default.contentsOfDirectory(atPath: CUPaths.work.path)) ?? []
         // `136th-…`; `the` covers the one folder named `108the-…`.
-        let hit = names.first { $0.hasPrefix(id + "th-") || $0.hasPrefix(id + "the-") }
-        let name = hit ?? id
+        let hits = names.filter { $0.hasPrefix(id + "th-") || $0.hasPrefix(id + "the-") }
+        let name: String
+        if hits.count <= 1 {
+            name = hits.first ?? id
+        } else {
+            // 91th-minimal-2, 91th-refactor, 91th-research … all report project
+            // "91" in the trace, which carries the number only. Picking the
+            // first folder in directory order put another folder's spend under
+            // 91th-refactor. Name the group after the folder that actually
+            // wrote a transcript last — that is where the money came from.
+            var best: (String, Double)?
+            for h in hits {
+                let dir = transcriptDir(folder: h)
+                var newest: Double = 0
+                for f in (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+                where f.hasSuffix(".jsonl") {
+                    var st = stat()
+                    if stat(dir.appendingPathComponent(f).path, &st) == 0 {
+                        newest = max(newest, Double(st.st_mtimespec.tv_sec)
+                                     + Double(st.st_mtimespec.tv_nsec) / 1e9)
+                    }
+                }
+                if best == nil || newest > best!.1 { best = (h, newest) }
+            }
+            name = best?.0 ?? id
+        }
         folderNames[id] = name
         return name
     }
@@ -964,6 +1036,8 @@ actor UsageCollector {
             var id: String; var name: String; var cost = 0.0; var requests = 0
             var chats: [String: ChatAgg] = [:]
             var extCost = 0.0; var extCount = 0; var extLast: TimeInterval = 0
+            var wfCost = 0.0; var wfCount = 0; var wfLast: TimeInterval = 0
+            var agCost = 0.0; var agCount = 0; var agLast: TimeInterval = 0
         }
 
         var agg: [String: FolderAgg] = [:]
@@ -972,14 +1046,21 @@ actor UsageCollector {
             f.cost += p.cost
             f.requests += 1
             if let e = folderIdx[p.project]?.nearest(to: p.ts) {
-                let title = folderIdx[p.project]?.titles[e.chat] ?? String(e.chat.prefix(8))
-                var c = f.chats[e.chat] ?? ChatAgg(id: e.chat, title: title)
-                c.cost += p.cost
-                c.count += 1
-                c.last = max(c.last, p.ts)
-                if e.sidechain { c.subCost += p.cost; c.subCount += 1 }
-                c.lifetime = folderIdx[p.project]?.costAllByChat[e.chat] ?? 0
-                f.chats[e.chat] = c
+                switch e.kind {
+                case .workflow:
+                    f.wfCost += p.cost; f.wfCount += 1; f.wfLast = max(f.wfLast, p.ts)
+                case .agent:
+                    f.agCost += p.cost; f.agCount += 1; f.agLast = max(f.agLast, p.ts)
+                case .main:
+                    let title = folderIdx[p.project]?.titles[e.chat] ?? String(e.chat.prefix(8))
+                    var c = f.chats[e.chat] ?? ChatAgg(id: e.chat, title: title)
+                    c.cost += p.cost
+                    c.count += 1
+                    c.last = max(c.last, p.ts)
+                    if e.sidechain { c.subCost += p.cost; c.subCount += 1 }
+                    c.lifetime = folderIdx[p.project]?.costAllByChat[e.chat] ?? 0
+                    f.chats[e.chat] = c
+                }
             } else {
                 // Title generation, hads, remember …: no assistant message of ours.
                 f.extCost += p.cost
@@ -1064,6 +1145,20 @@ actor UsageCollector {
         var folders: [FolderInfo] = []
         for f in agg.values {
             var chats = f.chats.values.map(chatInfo)
+            // Workflow and subagent calls are their own rows, not "Extensions":
+            // the number in Extensions should mean "nothing in any transcript".
+            if f.wfCount > 0 {
+                chats.append(ChatInfo(id: "workflow", title: "Workflow", cost: f.wfCost,
+                                      last: ORTime.string(Date(timeIntervalSince1970: f.wfLast)),
+                                      live: nowTs - f.wfLast < 180, children: [],
+                                      lifetime: nil))
+            }
+            if f.agCount > 0 {
+                chats.append(ChatInfo(id: "agents", title: "Agents", cost: f.agCost,
+                                      last: ORTime.string(Date(timeIntervalSince1970: f.agLast)),
+                                      live: nowTs - f.agLast < 180, children: [],
+                                      lifetime: nil))
+            }
             if f.extCount > 0 {
                 chats.append(ChatInfo(id: "extensions", title: "Extensions", cost: f.extCost,
                                       last: ORTime.string(Date(timeIntervalSince1970: f.extLast)),

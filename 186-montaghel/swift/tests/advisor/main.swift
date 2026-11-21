@@ -189,4 +189,44 @@ do {
     check("A7 big «(خودکار)» chat, name before the 3 MB tail → nothing", got.isEmpty)
 }
 
+// The trace carries only the project number ("91"), so subagent and workflow
+// transcripts have to be indexed by time or their dollars land in "Extensions".
+do {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent("fi-\(getpid())")
+    let proj = root.appendingPathComponent("proj")
+    try? FileManager.default.createDirectory(at: proj, withIntermediateDirectories: true)
+    let iso = ISO8601DateFormatter(); iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    let T = Date(timeIntervalSince1970: 1_800_000_000)
+    func line(_ t: Date, _ out: Int) -> String {
+        #"{"type":"assistant","timestamp":"\#(iso.string(from: t))","message":{"model":"m","usage":{"input_tokens":1,"output_tokens":\#(out)}}}"# + "\n"
+    }
+    let sid = "s1"
+    try? Data(line(T, 10).utf8).write(to: proj.appendingPathComponent("\(sid).jsonl"))
+    let sub = proj.appendingPathComponent(sid).appendingPathComponent("subagents")
+    try? FileManager.default.createDirectory(at: sub, withIntermediateDirectories: true)
+    try? Data(line(T.addingTimeInterval(5), 20).utf8).write(to: sub.appendingPathComponent("agent-a.jsonl"))
+    let wf = sub.appendingPathComponent("workflows").appendingPathComponent("wf_x")
+    try? FileManager.default.createDirectory(at: wf, withIntermediateDirectories: true)
+    try? Data(line(T.addingTimeInterval(10), 30).utf8).write(to: wf.appendingPathComponent("agent-b.jsonl"))
+
+    var idx = FolderIndex()
+    idx.refresh(dir: proj, since: 0, dayStart: 0)
+    check("K1 session transcript stays main", idx.nearest(to: T.timeIntervalSince1970)?.kind == .main)
+    check("K2 subagent transcript ⇒ agent",
+          idx.nearest(to: T.addingTimeInterval(5).timeIntervalSince1970)?.kind == .agent)
+    check("K3 workflow transcript ⇒ workflow",
+          idx.nearest(to: T.addingTimeInterval(10).timeIntervalSince1970)?.kind == .workflow)
+    check("K4 chat tokens count the session file only",
+          idx.tokensByChat.values.reduce(0, +) == 11)
+
+    // Negative control: without the subagent folders the same moment is main.
+    let bare = root.appendingPathComponent("bare")
+    try? FileManager.default.createDirectory(at: bare, withIntermediateDirectories: true)
+    try? Data(line(T.addingTimeInterval(5), 20).utf8).write(to: bare.appendingPathComponent("s2.jsonl"))
+    var idx2 = FolderIndex()
+    idx2.refresh(dir: bare, since: 0, dayStart: 0)
+    check("K5 no subagent folders ⇒ main, not agent",
+          idx2.nearest(to: T.addingTimeInterval(5).timeIntervalSince1970)?.kind == .main)
+}
+
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

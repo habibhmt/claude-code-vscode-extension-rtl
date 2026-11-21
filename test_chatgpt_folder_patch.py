@@ -211,6 +211,8 @@ class FolderPatchTests(unittest.TestCase):
             exts = [Path(tmp) / 'one', Path(tmp) / 'two']
             for ext in exts:
                 (ext / 'webview/assets').mkdir(parents=True)
+                # The old contract is what selects the old adapter now, so give it one.
+                (ext / 'webview/assets/app-server-manager-hooks-corrupt.js').write_text('function Y(){}')
                 (ext / 'webview/index.html').write_text('<html><head></head><body></body></html>')
                 (ext / 'package.json').write_text('{}')
                 # the corrupt manifest makes the folder-filter step raise
@@ -268,6 +270,33 @@ class FolderPatchTests(unittest.TestCase):
             with self.assertRaises(Exception):
                 f.patch_folder_filter(ext, 'function {', m.atomic_write)
             self.assertEqual(before, {p.name: p.read_bytes() for p in root.iterdir()})
+
+    def test_assets_without_hooks_use_new_adapter(self):
+        # 26.1111 ships webview/assets full of .svg files but no
+        # app-server-manager-hooks-*.js; the folder alone must not pick the old adapter.
+        with tempfile.TemporaryDirectory() as tmp:
+            ext = Path(tmp)
+            assets = ext / 'webview/assets'
+            assets.mkdir(parents=True)
+            (assets / 'x.svg').write_text('<svg/>')
+            (ext / 'out').mkdir()
+            original = ('"use strict";'
+                        'function P(){return this.codexAppServer.sendRequest(YGe,r,"thread/list",'
+                        '{limit:50,cursor:null,sortKey:"created_at",modelProviders:e?[YI]:null,archived:!1,sourceKinds:ug,useStateDbOnly:!0})}'
+                        'function Q(){let o={limit:e,cursor:null,sortKey:"created_at",modelProviders:[],archived:!1,sourceKinds:ug,useStateDbOnly:!0};return o}')
+            target = ext / 'out/extension.js'
+            target.write_text(original)
+            f.patch_folder_filter(ext, PAYLOAD, m.atomic_write)
+            self.assertTrue((ext / 'out/.chatgpt-folder-filter-new.json').exists(), 'New adapter did not run')
+            patched = target.read_text()
+            self.assertIn('cwd:crtlCwd()', patched)
+            second = io.StringIO()
+            with contextlib.redirect_stdout(second):
+                f.patch_folder_filter(ext, PAYLOAD, m.atomic_write)
+            self.assertIn('already patched new', second.getvalue())
+            self.assertEqual(target.read_text(), patched)
+            f.patch_folder_filter(ext, PAYLOAD, m.atomic_write, revert=True)
+            self.assertEqual(target.read_text(), original)
 
 
 if __name__ == '__main__':

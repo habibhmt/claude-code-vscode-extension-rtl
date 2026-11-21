@@ -199,7 +199,9 @@ def patch_new(ext, atomic_write, revert=False):
 
 def patch_folder_filter(ext, payload, atomic_write, revert=False):
     assets = ext / 'webview/assets'
-    if not assets.exists():
+    hooks = list(assets.glob('app-server-manager-hooks-*.js')) if assets.exists() else []
+    old_manifest = ext / 'webview/.chatgpt-folder-filter.json'
+    if not hooks and not (revert and old_manifest.exists()):
         return patch_new(ext, atomic_write, revert)
     root = assets
     manifest = ext / 'webview/.chatgpt-folder-filter.json'

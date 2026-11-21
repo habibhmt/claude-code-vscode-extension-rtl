@@ -111,6 +111,35 @@ class ProxyTests(unittest.TestCase):
         leaked=copy.deepcopy(rows);leaked[0]['extra']=SECRET
         self.assertIn('private_data_logged',evidence_errors(raw,recv,expected,out,leaked))
         self.assertIn('request_changed',evidence_errors(raw,recv+b' ',expected,out,rows))
+    def test_count_tokens_answered_locally(self):
+        import deepseek_tokens
+        self.proxy.credential = {'openrouter': 'fixture-router-key'}.__getitem__
+        before = len(self.up.observed)
+        raw, out, status, rows = self.call(path='/v1/messages/count_tokens')
+        self.assertEqual(status, 200)
+        payload = json.loads(out)
+        self.assertIsInstance(payload.get('input_tokens'), int)
+        self.assertGreater(payload['input_tokens'], 0)
+        # Nothing left the Mac: the fake upstream saw no count_tokens call.
+        self.assertEqual(len(self.up.observed), before)
+        row = rows[-1]
+        self.assertEqual(row['status'], 200)
+        self.assertEqual(row['estimate_tokens'], payload['input_tokens'])
+        self.assertIsNone(row['input_tokens'])
+        self.assertIn(row['work_type'], ('count_tokens', 'count_tokens_estimate'))
+        self.assertEqual(row['work_type'] == 'count_tokens', deepseek_tokens.count(json.loads(raw)) is not None)
+        self.assertNotIn(TEXT, json.dumps(rows))
+        self.assertNotIn(SECRET, json.dumps(rows))
+
+    def test_count_tokens_language_aware(self):
+        import deepseek_tokens
+        self.proxy.credential = {'openrouter': 'fixture-router-key'}.__getitem__
+        en = {'model': 'm', 'messages': [{'role': 'user', 'content': 'the quick brown fox jumps over the lazy dog ' * 20}]}
+        fa = {'model': 'm', 'messages': [{'role': 'user', 'content': 'روباه قهوه‌ای سریع از روی سگ تنبل می‌پرد ' * 20}]}
+        if deepseek_tokens.count(en) is None:
+            self.skipTest('tokenizer not installed')
+        self.assertGreater(deepseek_tokens.count(fa), deepseek_tokens.count(en))
+
     def test_no_symlink_log(self):
         target=pathlib.Path(self.tmp.name)/'target';target.write_text('untouched')
         link=pathlib.Path(self.tmp.name)/'link';link.symlink_to(target)

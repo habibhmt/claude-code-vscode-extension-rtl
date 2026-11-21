@@ -49,3 +49,6 @@ abzar/216-migration/.runtime/
 
 # Pre-edit copies made before touching another session's files
 *.bak-*
+
+# Model files are fetched and sha256-verified by scripts/fetch_deepseek_v41.py
+abzar/216-migration/claude-api/deepseek-v41/

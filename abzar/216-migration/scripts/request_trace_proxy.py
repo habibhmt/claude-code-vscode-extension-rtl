@@ -18,6 +18,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+
+import deepseek_tokens
 import uuid
 from zoneinfo import ZoneInfo
 from claude_deepseek import PilotError
@@ -33,7 +35,8 @@ CATALOG = Path(__file__).resolve().parents[1] / 'claude-api/deepseek-models.json
 FIELDS = frozenset({'time_utc','time_tehran','run_id','request_number','model',
                     'work_type','status','duration_ms','response_id','error','project','sender_run',
                     'client',
-                    'input_tokens','output_tokens','cache_read_input_tokens','cache_creation_input_tokens'})
+                    'input_tokens','output_tokens','cache_read_input_tokens','cache_creation_input_tokens',
+                    'estimate_tokens'})
 
 def safe_id(value):
     return value if isinstance(value,str) and re.fullmatch(r'(?:gen|msg)-[A-Za-z0-9-]{1,110}|msg_[A-Za-z0-9]{1,110}', value) else None
@@ -250,7 +253,10 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
              'client':safe_client(self.headers),
              'work_type':'unknown','status':None,'response_id':None,'error':None,
              'input_tokens':None,'output_tokens':None,
-             'cache_read_input_tokens':None,'cache_creation_input_tokens':None}
+             'cache_read_input_tokens':None,'cache_creation_input_tokens':None,
+             'estimate_tokens':None}
+        if self.path in TOKEN_PATHS:
+            return self.count_tokens(body, row, now, start)
         # Do not infer work type from private prompt text. No verified explicit
         # sender marker is currently available, so attribution remains unknown.
         headers={k:v for k,v in self.headers.items() if k.lower() in
@@ -343,6 +349,32 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
             self.close_connection=True
             row['duration_ms']=round((time.monotonic()-start)*1000)
             self.server.record(row)
+
+    def count_tokens(self, body, row, now, start):
+        """Answer /v1/messages/count_tokens here instead of earning a 404.
+
+        OpenRouter has no such route (a key-less POST there answers 404 exactly
+        like a made-up path, while /v1/messages answers 401). The count is the
+        model's own tokenization of the rendered prompt; if the tokenizer files
+        are missing the character estimate is returned and the row says so.
+        """
+        count = deepseek_tokens.count(body)
+        exact = count is not None
+        if not exact:
+            count = deepseek_tokens.estimate(body)
+        row['work_type'] = 'count_tokens' if exact else 'count_tokens_estimate'
+        row['status'] = 200
+        row['estimate_tokens'] = count
+        row['duration_ms'] = round((time.monotonic() - start) * 1000)
+        data = json.dumps({'input_tokens': count}).encode()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Connection', 'close')
+        self.end_headers()
+        self.wfile.write(data)
+        self.close_connection = True
+        self.server.record(row)
 
     def api_error(self, status, message):
         data = json.dumps({'type':'error','error':{'type':'authentication_error' if status == 401 else 'invalid_request_error',

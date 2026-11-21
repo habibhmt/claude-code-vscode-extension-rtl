@@ -118,6 +118,9 @@ final class PanelView: NSView {
     private static let chatHeight: CGFloat = 17
     private static let childHeight: CGFloat = 15
     private static let treeSpacing: CGFloat = 2
+    /// Rows that are a cost kind, not a conversation. They are drawn after a
+    /// hairline so "which chat" and "what kind of call" never share a group.
+    private static let kindIDs: Set<String> = ["workflow", "agents", "hads", "remember", "extensions"]
 
     private static let blue = NSColor(srgbRed: 0x3b / 255, green: 0x82 / 255, blue: 0xf6 / 255, alpha: 1)
 
@@ -357,9 +360,15 @@ final class PanelView: NSView {
             let isOpen = expandedFolders.contains(f.id)
             add(folderRow(f, expanded: isOpen), Self.folderHeight)
             guard isOpen else { continue }
+            var kindsStarted = false
             for c in f.chats {
+                let isKind = Self.kindIDs.contains(c.id)
+                if isKind && !kindsStarted {
+                    kindsStarted = true
+                    add(HairlineView(color: NSColor.white.withAlphaComponent(0.08)), 0.5)
+                }
                 let chatOpen = expandedChats.contains(c.id)
-                add(chatRow(c, expanded: chatOpen), Self.chatHeight)
+                add(chatRow(c, expanded: chatOpen, isKind: isKind), Self.chatHeight)
                 guard chatOpen else { continue }
                 for child in c.children {
                     add(childRow(child), Self.childHeight)
@@ -414,12 +423,13 @@ final class PanelView: NSView {
         return row
     }
 
-    private func chatRow(_ c: ChatInfo, expanded: Bool) -> NSView {
+    private func chatRow(_ c: ChatInfo, expanded: Bool, isKind: Bool = false) -> NSView {
         let row = ClickRow()
 
-        let dot = RowLabel(labelWithString: "●")
-        dot.font = .systemFont(ofSize: 7)
-        dot.textColor = c.live ? .systemGreen : NSColor.white.withAlphaComponent(0.18)
+        let dot = RowLabel(labelWithString: isKind ? "▪" : "●")
+        dot.font = .systemFont(ofSize: isKind ? 6 : 7)
+        dot.textColor = isKind ? .tertiaryLabelColor
+            : (c.live ? .systemGreen : NSColor.white.withAlphaComponent(0.18))
         dot.translatesAutoresizingMaskIntoConstraints = false
 
         let hasChildren = !c.children.isEmpty
@@ -429,8 +439,8 @@ final class PanelView: NSView {
         triangle.translatesAutoresizingMaskIntoConstraints = false
 
         let title = RowLabel(labelWithString: c.title)
-        title.font = .systemFont(ofSize: 11)
-        title.textColor = .labelColor
+        title.font = .systemFont(ofSize: 11, weight: isKind ? .medium : .regular)
+        title.textColor = isKind ? .secondaryLabelColor : .labelColor
         title.lineBreakMode = .byTruncatingMiddle
         title.maximumNumberOfLines = 1
         title.setContentHuggingPriority(.defaultLow, for: .horizontal)

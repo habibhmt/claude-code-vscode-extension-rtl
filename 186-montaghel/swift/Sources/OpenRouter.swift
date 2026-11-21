@@ -1038,6 +1038,7 @@ actor UsageCollector {
             var extCost = 0.0; var extCount = 0; var extLast: TimeInterval = 0
             var wfCost = 0.0; var wfCount = 0; var wfLast: TimeInterval = 0
             var agCost = 0.0; var agCount = 0; var agLast: TimeInterval = 0
+            var hadsCost = 0.0; var hadsCount = 0; var remCost = 0.0; var remCount = 0
         }
 
         var agg: [String: FolderAgg] = [:]
@@ -1125,6 +1126,33 @@ actor UsageCollector {
             }
         }
 
+        // «حدس» and «remember» keep their own logs. Their calls match no chat
+        // message, so they sit inside the Extensions bucket; carve them out of
+        // it — never below zero — and the folder total does not move by a cent.
+        if !approximate {
+            let hads = HadsLog.load(since: todayStart)
+            let remember = RememberLog.load(dayStart: todayStart)
+            for p in agg.keys {
+                guard var f = agg[p] else { continue }
+                if let idx = folderIdx[p] {
+                    for (chat, h) in hads
+                    where idx.titles[chat] != nil || idx.lastByChat[chat] != nil {
+                        f.hadsCost += h.cost; f.hadsCount += h.calls
+                    }
+                }
+                for row in remember[f.name] ?? [] {
+                    f.remCost += row.cost; f.remCount += 1
+                }
+                if f.hadsCost > 0, f.extCost >= f.hadsCost {
+                    f.extCost -= f.hadsCost
+                } else { f.hadsCost = 0; f.hadsCount = 0 }
+                if f.remCost > 0, f.extCost >= f.remCost {
+                    f.extCost -= f.remCost
+                } else { f.remCost = 0; f.remCount = 0 }
+                agg[p] = f
+            }
+        }
+
         func chatInfo(_ c: ChatAgg) -> ChatInfo {
             var children: [ChildInfo] = []
             if c.subCost > 0 {
@@ -1145,27 +1173,31 @@ actor UsageCollector {
         var folders: [FolderInfo] = []
         for f in agg.values {
             var chats = f.chats.values.map(chatInfo)
-            // Workflow and subagent calls are their own rows, not "Extensions":
-            // the number in Extensions should mean "nothing in any transcript".
-            if f.wfCount > 0 {
-                chats.append(ChatInfo(id: "workflow", title: "Workflow", cost: f.wfCost,
-                                      last: ORTime.string(Date(timeIntervalSince1970: f.wfLast)),
-                                      live: nowTs - f.wfLast < 180, children: [],
-                                      lifetime: nil))
-            }
-            if f.agCount > 0 {
-                chats.append(ChatInfo(id: "agents", title: "Agents", cost: f.agCost,
-                                      last: ORTime.string(Date(timeIntervalSince1970: f.agLast)),
-                                      live: nowTs - f.agLast < 180, children: [],
-                                      lifetime: nil))
-            }
-            if f.extCount > 0 {
-                chats.append(ChatInfo(id: "extensions", title: "Extensions", cost: f.extCost,
-                                      last: ORTime.string(Date(timeIntervalSince1970: f.extLast)),
-                                      live: nowTs - f.extLast < 180, children: [],
-                                      lifetime: nil))
-            }
             chats.sort { $0.last > $1.last }
+            // Everything below is a cost kind, not a conversation. They come
+            // after the chat rows, in a fixed order, so the list never mixes
+            // "which chat" with "what kind of call".
+            func kindRow(_ id: String, _ title: String, _ cost: Double,
+                         _ count: Int, _ last: TimeInterval) -> ChatInfo {
+                ChatInfo(id: id, title: title, cost: cost,
+                         last: ORTime.string(Date(timeIntervalSince1970: last)),
+                         live: nowTs - last < 180, children: [], lifetime: nil)
+            }
+            if f.wfCost >= 0.005 {
+                chats.append(kindRow("workflow", "Workflow", f.wfCost, f.wfCount, f.wfLast))
+            }
+            if f.agCost >= 0.005 {
+                chats.append(kindRow("agents", "Agents", f.agCost, f.agCount, f.agLast))
+            }
+            if f.hadsCost >= 0.005 {
+                chats.append(kindRow("hads", "Hads", f.hadsCost, f.hadsCount, f.extLast))
+            }
+            if f.remCost >= 0.005 {
+                chats.append(kindRow("remember", "Remember", f.remCost, f.remCount, f.extLast))
+            }
+            if f.extCost >= 0.005 {
+                chats.append(kindRow("extensions", "Extensions", f.extCost, f.extCount, f.extLast))
+            }
             folders.append(FolderInfo(id: f.id, name: f.name, cost: f.cost, requests: f.requests, chats: chats))
         }
         folders.sort { $0.cost > $1.cost }

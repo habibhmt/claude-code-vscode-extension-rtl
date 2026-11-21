@@ -978,6 +978,7 @@ actor UsageCollector {
                 c.count += 1
                 c.last = max(c.last, p.ts)
                 if e.sidechain { c.subCost += p.cost; c.subCount += 1 }
+                c.lifetime = folderIdx[p.project]?.costAllByChat[e.chat] ?? 0
                 f.chats[e.chat] = c
             } else {
                 // Title generation, hads, remember …: no assistant message of ours.

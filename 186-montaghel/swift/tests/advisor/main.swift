@@ -227,6 +227,19 @@ do {
     idx2.refresh(dir: bare, since: 0, dayStart: 0)
     check("K5 no subagent folders ⇒ main, not agent",
           idx2.nearest(to: T.addingTimeInterval(5).timeIntervalSince1970)?.kind == .main)
+
+    // A slow first token: the answer starts far more than 15 s after the
+    // request, but inside the request's own duration window (۲۱ نوامبر ۲۰۲۶).
+    let slow = root.appendingPathComponent("slow")
+    try? FileManager.default.createDirectory(at: slow, withIntermediateDirectories: true)
+    try? Data(line(T.addingTimeInterval(20), 7).utf8)
+        .write(to: slow.appendingPathComponent("s3.jsonl"))
+    var idx3 = FolderIndex()
+    idx3.refresh(dir: slow, since: 0, dayStart: 0)
+    check("K6 answer at +20 s of a 30 s call ⇒ that chat, not background",
+          idx3.nearest(to: T.timeIntervalSince1970, duration: 30)?.kind == .main)
+    check("K7 same +20 s with a 5 s call ⇒ no match (negative control)",
+          idx3.nearest(to: T.timeIntervalSince1970, duration: 5) == nil)
 }
 
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

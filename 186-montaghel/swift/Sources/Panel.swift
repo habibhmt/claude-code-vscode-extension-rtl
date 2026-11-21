@@ -583,5 +583,10 @@ final class PanelView: NSView {
         updatedLabel.stringValue = "Updated " + Self.clock.string(from: date)
     }
 
-    private func money(_ value: Double) -> String { String(format: "$%.2f", value) }
+    private func money(_ value: Double) -> String {
+        // A real but tiny row must not read "$0.00"; show its third digit so
+        // «پس‌زمینه» and the chat rows can still be seen to add up.
+        if value > 0, value < 0.01 { return String(format: "$%.3f", value) }
+        return String(format: "$%.2f", value)
+    }
 }

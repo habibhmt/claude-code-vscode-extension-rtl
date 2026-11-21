@@ -4,6 +4,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const { fetchLimits, listSessions, PROJECTS } = require('./usage');
+const { snapToEdges } = require('./snap');
 
 const STATE_FILE = path.join(app.getPath('userData'), 'state.json');
 const SUPPORT = path.join(require('os').homedir(), 'Library/Application Support/claude-usage-bar');
@@ -26,9 +27,10 @@ function saveState(patch) {
 }
 
 const COLLAPSED = { width: 190, height: 118 };
+const COMPACT_H = 54;          // one line: only the worst number, the rest on hover
 const EXPANDED = { width: 400, height: 470 };
 
-let win, tray, expanded = false;
+let win, tray, expanded = false, snapping = false;
 let state = {};
 const seenTurns = new Map();   // sessionId -> uuid of the last turn we announced
 let lastError = null;
@@ -37,7 +39,8 @@ let refreshTimer = null, debounce = null;
 
 function createWindow() {
   win = new BrowserWindow({
-    ...COLLAPSED,
+    width: COLLAPSED.width,
+    height: state.compact ? COMPACT_H : COLLAPSED.height,
     show: false,
     frame: false,
     transparent: true,
@@ -53,9 +56,20 @@ function createWindow() {
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadFile('index.html');
   win.on('blur', () => { if (expanded) setExpanded(false); });
+  // Dragging ends here. If the panel was let go near an edge, it sticks to it —
+  // minimap-style. The guard stops the programmatic setPosition from re-entering.
   win.on('moved', () => {
     const b = win.getBounds();
-    saveState({ x: b.x, y: b.y });   // size is fixed per mode, only the spot is ours to keep
+    if (snapping || expanded) { saveState({ x: b.x, y: b.y }); return; }
+    const d = screen.getDisplayMatching(b).workArea;
+    const s = snapToEdges(b, d);
+    if (s.x !== b.x || s.y !== b.y) {
+      snapping = true;
+      win.setPosition(s.x, s.y, false);
+      setTimeout(() => { snapping = false; }, 150);
+      saveState({ x: s.x, y: s.y });
+      diag('snapped', { from: { x: b.x, y: b.y }, to: s });
+    } else saveState({ x: b.x, y: b.y });
   });
 }
 
@@ -69,12 +83,27 @@ function applyClickThrough() {
 
 function setExpanded(v) {
   expanded = v;
-  const size = v ? EXPANDED : COLLAPSED;
+  const size = v ? EXPANDED : { width: COLLAPSED.width, height: state.compact ? COMPACT_H : COLLAPSED.height };
   const b = win.getBounds();
   win.setBounds({ x: b.x, y: b.y, ...size }, false);
   win.webContents.send('expanded', v);
   applyClickThrough();
   if (v) refresh();
+}
+
+// Grow/shrink the panel without letting it hang off the bottom of the screen.
+function setWindowHeight(h) {
+  const b = win.getBounds();
+  const d = screen.getDisplayMatching(b).workArea;
+  const y = Math.min(Math.max(b.y, d.y), d.y + d.height - h);
+  win.setBounds({ x: b.x, y: Math.round(y), width: COLLAPSED.width, height: h }, false);
+}
+
+function setCompact(v) {
+  saveState({ compact: v });
+  if (!win || win.isDestroyed()) return;
+  win.webContents.send('compact', v);
+  if (!expanded) setWindowHeight(v ? COMPACT_H : COLLAPSED.height);
 }
 
 function positionUnderTray() {
@@ -217,6 +246,7 @@ app.whenReady().then(() => {
   createWindow();
   win.webContents.once('did-finish-load', () => {
     win.webContents.send('opacity', state.opacity ?? 0.62);
+    win.webContents.send('compact', !!state.compact);
     applyClickThrough();
   });
   refresh();
@@ -252,6 +282,10 @@ function showMenu() {
       label: 'اعلان «جواب آماده»', type: 'checkbox', checked: state.notify !== false,
       click: () => saveState({ notify: state.notify === false }),
     },
+    {
+      label: 'حالت خیلی جمع', type: 'checkbox', checked: !!state.compact,
+      click: () => setCompact(!state.compact),
+    },
     { type: 'separator' },
     { label: 'بازنشانی جای پنجره', click: () => { saveState({ x: null, y: null }); positionUnderTray(); } },
     { label: 'تازه‌سازی', click: refresh },
@@ -261,6 +295,12 @@ function showMenu() {
 }
 
 ipcMain.on('toggle-expand', () => setExpanded(!expanded));
+// In compact mode the rest of the bars come back while the mouse is over the panel.
+ipcMain.on('panel-hover', (_e, inside) => {
+  if (expanded || !state.compact || !win || win.isDestroyed()) return;
+  const want = inside ? COLLAPSED.height : COMPACT_H;
+  if (win.getBounds().height !== want) setWindowHeight(want);
+});
 ipcMain.on('set-opacity', (_e, v) => {
   const o = Math.min(0.95, Math.max(0.2, Number(v) || 0.62));
   saveState({ opacity: o });

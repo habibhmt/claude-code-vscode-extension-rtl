@@ -10,6 +10,10 @@ const ext=process.env.CODEX_TEST_EXTENSION||(() => {
   return path.join(base,dirs[dirs.length-1]||'openai.chatgpt-26.1021.22027-darwin-arm64');
 })();
 const assets=path.join(ext,'webview/assets');
+if (!fs.existsSync(assets)) {
+  console.log('SKIP: the VS Code ChatGPT extension is not installed (no webview/assets)');
+  process.exit(77);
+}
 if (!fs.readdirSync(assets).some(n=>/^app-server-manager-hooks-.*\.js$/.test(n))) {
   console.log('SKIP: installed ChatGPT layout has no app-server-manager-hooks-*.js; folder filter needs a new adapter');
   process.exit(77);

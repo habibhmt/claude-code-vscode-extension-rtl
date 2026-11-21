@@ -7,5 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   setOpacity: v => ipcRenderer.send('set-opacity', v),
   onOpacity: cb => ipcRenderer.on('opacity', (_e, v) => cb(v)),
   onClickThrough: cb => ipcRenderer.on('click-through', (_e, v) => cb(v)),
+  onCompact: cb => ipcRenderer.on('compact', (_e, v) => cb(v)),
+  hover: v => ipcRenderer.send('panel-hover', v),
   quit: () => ipcRenderer.send('quit'),
 });

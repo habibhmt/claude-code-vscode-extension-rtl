@@ -10,10 +10,23 @@ const home = path.join(tmp, 'home'), proj = path.join(tmp, 'proj');
 fs.mkdirSync(home); fs.mkdirSync(path.join(proj, '.git'), {recursive: true});
 fs.writeFileSync(path.join(home, 'config.toml'), `# یادداشتِ حبیب می‌ماند\nmodel = "gpt-old"\n[projects."${fs.realpathSync(proj)}"]\ntrust_level = "trusted"\n`);
 process.env.CODEX_HOME = home;
-const codex = (process.env.CODEX_BIN || fs.readdirSync(path.join(os.homedir(), '.vscode/extensions')).filter(d => d.startsWith('openai.chatgpt-')).sort().map(d => {
-  const b = path.join(os.homedir(), '.vscode/extensions', d, 'bin');
-  return fs.readdirSync(b).map(x => path.join(b, x, 'codex')).find(fs.existsSync);
-}).filter(Boolean).pop());
+function bundledCodex() {
+  try {
+    const extBase = path.join(os.homedir(), '.vscode/extensions');
+    for (const d of fs.readdirSync(extBase).filter(n => n.startsWith('openai.chatgpt-')).sort().reverse()) {
+      const b = path.join(extBase, d, 'bin');
+      for (const x of fs.readdirSync(b)) {
+        const f = path.join(b, x, 'codex');
+        if (fs.existsSync(f)) return f;
+      }
+    }
+  } catch {}
+  return null;
+}
+// The extension bundle may be uninstalled; the standalone CLI is the same
+// app-server, so use it rather than skipping the whole test.
+const codex = process.env.CODEX_BIN || bundledCodex() ||
+  [path.join(os.homedir(), '.local/bin/codex')].find(fs.existsSync);
 assert.ok(codex, 'codex binary');
 
 // the host part, built exactly as the patch builds it

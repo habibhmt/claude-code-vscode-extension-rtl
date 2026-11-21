@@ -67,6 +67,10 @@
   /* click-through: show the user the panel is no longer catching clicks */
   body.ghost #shell { border-color: rgba(255,255,255,.05); }
   body.ghost #bars { opacity: .8; }
+  /* خیلی جمع: فقط بحرانی‌ترین عدد؛ بقیه با هاور برمی‌گردند */
+  body.compact:not(.open):not(.hover) .row:not(.worst) { display: none; }
+  body.compact:not(.open):not(.hover) .row.worst .reset { display: none; }
+  body.compact:not(.open) #bars { padding: 8px 12px; }
 </style>
 <div id="shell">
   <div id="bars"></div>
@@ -110,10 +114,15 @@
         (d.staleSince ? '، ' + ago(d.staleSince) : '');
     }
     for (const el of sortBar.children) el.classList.toggle('on', el.dataset.k === d.sort);
-    bars.innerHTML = d.rows.map(r => {
+    // In compact mode only the worst row survives, so mark it before drawing.
+    let worst = 0;
+    d.rows.forEach((r, i) => {
+      if ((Number(r.percent) || 0) > (Number(d.rows[worst]?.percent) || 0)) worst = i;
+    });
+    bars.innerHTML = d.rows.map((r, i) => {
       const pct = Number(r.percent) || 0;
       return `
-      <div class="row">
+      <div class="row${i === worst ? ' worst' : ''}">
         <div class="top"><span class="pct">${esc(pct)}%</span><span class="reset">${esc(left(r.resets_at))}</span></div>
         <div class="track"><div class="fill ${cls(pct)}" style="width:${Math.min(100, pct)}%"></div></div>
       </div>`;
@@ -149,6 +158,18 @@
     opacity.value = Math.round(v * 100);
   });
   window.api.onClickThrough(v => document.body.classList.toggle('ghost', v));
+  window.api.onCompact?.(v => document.body.classList.toggle('compact', v));
+  // Hover is what brings the other bars back in compact mode; the main process
+  // also grows the window so the hidden rows are not clipped.
+  document.body.addEventListener('mouseenter', () => {
+    if (!document.body.classList.contains('compact')) return;
+    document.body.classList.add('hover');
+    window.api.hover?.(true);
+  });
+  document.body.addEventListener('mouseleave', () => {
+    document.body.classList.remove('hover');
+    window.api.hover?.(false);
+  });
 
   bars.addEventListener('click', e => { if (!e.detail || e.detail === 1) window.api.toggleExpand(); });
   window.api.onExpanded(v => document.body.classList.toggle('open', v));

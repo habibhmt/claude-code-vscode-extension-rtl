@@ -8,11 +8,16 @@ const assert = require('node:assert/strict');
 
 function latestExtension() {
   const base = path.join(process.env.HOME, '.vscode/extensions');
-  const dirs = fs.readdirSync(base).filter((n) => n.startsWith('openai.chatgpt-')).sort();
-  if (!dirs.length) throw new Error('no openai.chatgpt extension');
-  return path.join(base, dirs[dirs.length - 1]);
+  let dirs = [];
+  try { dirs = fs.readdirSync(base).filter((n) => n.startsWith('openai.chatgpt-')).sort(); } catch {}
+  return dirs.length ? path.join(base, dirs[dirs.length - 1]) : null;
 }
-const target = process.argv[2] || process.env.CODEX_TEST_EXTENSION || latestExtension();
+const picked = process.argv[2] || process.env.CODEX_TEST_EXTENSION || latestExtension();
+if (!picked) {
+  console.log('SKIP: no openai.chatgpt extension in ~/.vscode/extensions');
+  process.exit(77);
+}
+const target = picked;
 const file = target.endsWith('.js') ? target : path.join(target, 'out/extension.js');
 const source = fs.readFileSync(file, 'utf8');
 

@@ -255,4 +255,24 @@ do {
           idx4.messagesByChat.isEmpty && idx4.tokensByChat.isEmpty)
 }
 
+// «درخواستِ امروز» only counts what was priced: a 404 has no response id
+// (the countTokens route OpenRouter lacks), and a locally answered count_tokens
+// row is deliberately unpriced. Raw line counting read 1522 where 1129 calls
+// had cost anything.
+do {
+    let day = "2026-11-22"
+    let text = """
+    {"time_utc": "2026-11-22T10:00:00+00:00", "status": 200, "response_id": "gen-a"}
+    {"time_utc": "2026-11-22T10:01:00+00:00", "status": 404, "response_id": null}
+    {"time_utc": "2026-11-22T10:02:00+00:00", "status": 200, "response_id": null}
+    {"time_utc": "2026-11-22T10:03:00+00:00", "status": 200, "response_id": ""}
+    {"time_utc": "2026-11-21T23:59:00+00:00", "status": 200, "response_id": "gen-b"}
+    """
+    check("P1 a 404, a count_tokens row and another day stay out of the count",
+          UsageCollector.countPricedRows(text, day: day) == 1)
+    check("P2 the same text for the other day counts its own priced row",
+          UsageCollector.countPricedRows(text, day: "2026-11-21") == 1)
+    check("P3 an empty trace counts nothing", UsageCollector.countPricedRows("", day: day) == 0)
+}
+
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

@@ -861,14 +861,28 @@ actor UsageCollector {
         return RefreshResult(truth: current, state: .ok, creditAt: lastCreditAt)
     }
 
-    private static func traceCountToday(day: String) -> Int {
-        guard let text = try? String(contentsOf: CUPaths.trace, encoding: .utf8) else { return 0 }
+    /// Counts today's trace rows the panel can actually show.
+    ///
+    /// `requests` means «how many model calls cost money today», so a row that
+    /// was never priced must not be counted: a 404 has no response id (the
+    /// countTokens route OpenRouter lacks answered 404), and a locally answered
+    /// count_tokens row is deliberately unpriced. Counting raw lines made the
+    /// panel read 1522 where only 1129 calls had cost anything (۲۲ نوامبر ۲۰۲۶).
+    static func countPricedRows(_ text: String, day: String) -> Int {
         var n = 0
         for line in text.split(whereSeparator: \.isNewline) {
-            guard line.hasPrefix("{\"time_utc\": \"\(day)") || line.contains("\"time_utc\": \"\(day)") else { continue }
+            guard line.contains("\"time_utc\": \"\(day)") else { continue }
+            guard let e = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any] else { continue }
+            guard (e["status"] as? NSNumber)?.intValue == 200 else { continue }
+            guard let rid = e["response_id"] as? String, !rid.isEmpty else { continue }
             n += 1
         }
         return n
+    }
+
+    private static func traceCountToday(day: String) -> Int {
+        guard let text = try? String(contentsOf: CUPaths.trace, encoding: .utf8) else { return 0 }
+        return countPricedRows(text, day: day)
     }
 
     // MARK: collector pass

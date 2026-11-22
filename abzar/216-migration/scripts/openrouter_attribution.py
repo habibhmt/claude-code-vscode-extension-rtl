@@ -3,6 +3,10 @@ from pathlib import Path
 import re
 
 _PROJECT = re.compile(r'^([1-9][0-9]{0,5})(?:th|st|nd|rd)?(?:-|$)')
+# A folder with no numbered prefix keeps its own name as the project id. Using
+# its digits instead would put `0th-day-salamat`, `000-BRAIN` and every other
+# zero-prefixed folder into one "0" bucket (۲۲ نوامبر ۲۰۲۶).
+_SAFE_ID = re.compile(r'^[A-Za-z0-9._-]{1,64}$')
 _OWN = {'x-openrouter-title', 'x-title', 'http-referer', 'x-openrouter-app-visibility'}
 _HEADER = re.compile(r"^[!#$%&'*+.^_`|~0-9A-Za-z-]+$")
 
@@ -11,7 +15,12 @@ PROJECTS_ROOT = Path('/Users/habib/1-MY-WORK')
 
 
 def project_number(cwd, *, projects_root=PROJECTS_ROOT):
-    """Only a direct project child of the verified workspace root counts."""
+    """Only a direct project child of the verified workspace root counts.
+
+    A numbered folder (`136th-day-…`) reports its number; a folder without one
+    reports its own name, so `0th-day-salamat` and `000-BRAIN` stay two separate
+    projects instead of collapsing into "0".
+    """
     p = Path(cwd).resolve(strict=True)
     root = Path(projects_root).resolve(strict=True)
     if not p.is_dir():
@@ -21,8 +30,11 @@ def project_number(cwd, *, projects_root=PROJECTS_ROOT):
     relative = p.relative_to(root)
     if not relative.parts:
         return None
-    match = _PROJECT.match(relative.parts[0])
-    return str(int(match.group(1))) if match else None
+    folder = relative.parts[0]
+    match = _PROJECT.match(folder)
+    if match:
+        return str(int(match.group(1)))
+    return folder if _SAFE_ID.fullmatch(folder) else None
 
 
 def apply_project_attribution(env, cwd, *, projects_root=PROJECTS_ROOT):

@@ -275,4 +275,106 @@ do {
     check("P3 an empty trace counts nothing", UsageCollector.countPricedRows("", day: day) == 0)
 }
 
+// ۲۲ نوامبر ۲۰۲۶: پوشهٔ بی‌شماره همه «۰» می‌شد، پس ۱۱۶ ردیف از سشنِ
+// 0th-day-salamat صاحب نداشت. حالا هر پوشهٔ بی‌شماره نامِ خودش را می‌برد.
+check("S1 136th-day-… → 136", projectIDForFolder("136th-day-fix-rtl-claude") == "136")
+check("S2 0th-day-salamat keeps its own name", projectIDForFolder("0th-day-salamat") == "0th-day-salamat")
+check("S3 000-BRAIN keeps its own name", projectIDForFolder("000-BRAIN") == "000-BRAIN")
+check("S4 two zero folders never collapse", projectIDForFolder("000-BRAIN") != projectIDForFolder("0th-day-salamat"))
+check("S5 path, space or over-long name → nil",
+      projectIDForFolder("../x") == nil && projectIDForFolder("0th day") == nil
+      && projectIDForFolder(String(repeating: "a", count: 65)) == nil)
+check("S6 a plain number folder stays a number", projectIDForFolder("136") == "136")
+do {
+    // The launch file is read only to name rows the log already locked as
+    // unknown; anything outside the workspace or without a folder stays nil.
+    let text = """
+    {"run_id":"r1","cwd":"/Users/x/1-MY-WORK/0th-day-salamat"}
+    {"run_id":"r2","cwd":"/Users/x/1-MY-WORK/136th-day-fix-rtl-claude"}
+    {"run_id":"r3","cwd":"/private/var/folders/t-4c"}
+    {"run_id":"r4"}
+    """
+    let map = RunRegistry.parse(text, workRoot: "/Users/x/1-MY-WORK")
+    check("S7 an old unknown row gets its folder name", map["r1"] == "0th-day-salamat")
+    check("S8 a numbered folder still maps to its number", map["r2"] == "136")
+    check("S9 outside the workspace or no folder → unnamed", map["r3"] == nil && map["r4"] == nil)
+}
+
+do {
+    // End to end: a locked `unknown` row is named through its run; a row that
+    // already has a project is never overridden by the launch file.
+    func row(_ p: String, _ s: String) -> Data {
+        Data(#"{"time_utc":"2026-11-22T10:00:00+00:00","project":"\#(p)","sender_run":"\#(s)","status":200,"response_id":"g"}"#.utf8)
+    }
+    let reg: (String) -> String? = { $0 == "RUN-1" ? "0th-day-salamat" : nil }
+    check("S10 unknown row named from its run",
+          UsageCollector.parseTrace(row("unknown", "RUN-1"), resolveRun: reg)?.project == "0th-day-salamat")
+    check("S11 a named row is not overridden",
+          UsageCollector.parseTrace(row("136", "RUN-1"), resolveRun: reg)?.project == "136")
+    check("S12 an unrecorded run stays unknown",
+          UsageCollector.parseTrace(row("unknown", "RUN-9"), resolveRun: reg)?.project == "unknown")
+}
+
+do {
+    // Already-priced `unknown` rows: the offset has moved past them, so their
+    // dollars would stay nameless. The trace line still carries the sender.
+    let trace = """
+    {"time_utc":"2026-11-22T10:00:00+00:00","project":"unknown","sender_run":"RUN-1","status":200,"response_id":"g1"}
+    {"time_utc":"2026-11-22T10:01:00+00:00","project":"unknown","sender_run":"RUN-9","status":200,"response_id":"g2"}
+    {"time_utc":"2026-11-22T10:02:00+00:00","project":"136","sender_run":"RUN-1","status":200,"response_id":"g3"}
+    {"time_utc":"2026-11-22T10:03:00+00:00","project":"unknown","sender_run":"unknown","status":200,"response_id":"g4"}
+    """
+    let senders = UsageCollector.unknownSenders(trace, wanted: ["g1", "g2", "g3", "g4"])
+    check("S13 only the wanted unknown rows feed the relabel",
+          senders["g1"] == "RUN-1" && senders["g4"] == "unknown" && senders["g3"] == nil)
+    func pr(_ id: String, _ project: String, _ cost: Double) -> Priced {
+        Priced(id: id, cost: cost, ts: 0, project: project, model: "m", provider: "p",
+               prompt: 0, cached: 0, completion: 0)
+    }
+    let prices = ["g1": pr("g1", "unknown", 0.5), "g2": pr("g2", "unknown", 0.05),
+                  "g3": pr("g3", "136", 0.03)]
+    let reg: (String) -> String? = { $0 == "RUN-1" ? "0th-day-salamat" : nil }
+    let fixed = UsageCollector.relabel(prices, senders: senders, resolve: reg)
+    // The wiring init uses: trace text in, named rows out.
+    do {
+        let u = FileManager.default.temporaryDirectory.appendingPathComponent("run-\(getpid()).jsonl")
+        try? Data(trace.utf8).write(to: u)
+        let fromFile = UsageCollector.relabelUnknown(prices, traceURL: u, resolve: reg)
+        check("S19 init's file read names g1 and leaves g2",
+              fromFile["g1"]?.project == "0th-day-salamat" && fromFile["g2"]?.project == "unknown")
+        try? FileManager.default.removeItem(at: u)
+    }
+    check("S18 the relabel the app runs names g1 and leaves g2",
+          UsageCollector.relabelUnknown(prices, traceText: trace, resolve: reg)["g1"]?.project == "0th-day-salamat"
+          && UsageCollector.relabelUnknown(prices, traceText: trace, resolve: reg)["g2"]?.project == "unknown")
+    check("S14 an unknown row is renamed from its launch", fixed["g1"]?.project == "0th-day-salamat")
+    check("S15 a row with no recorded run stays unknown", fixed["g2"]?.project == "unknown")
+    check("S16 a named row is never touched", fixed["g3"]?.project == "136")
+    let sumBefore = prices.values.reduce(0) { $0 + $1.cost }
+    let sumAfter = fixed.values.reduce(0) { $0 + $1.cost }
+    check("S17 the money total does not move", abs(sumBefore - sumAfter) < 1e-12 && fixed.count == prices.count)
+}
+
+do {
+    // The launch file is found next to the trace log the panel reads, newest
+    // wins. Naming it wrongly here would silently turn the fallback off while
+    // every parsing test stayed green (ناظر-۱۳۶، ۲۲ نوامبر).
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent("rr-\(getpid())")
+    defer { try? FileManager.default.removeItem(at: root) }
+    let a = root.appendingPathComponent("a/live-request-trace")
+    let b = root.appendingPathComponent("b/live-request-trace")
+    try? FileManager.default.createDirectory(at: a, withIntermediateDirectories: true)
+    try? FileManager.default.createDirectory(at: b, withIntermediateDirectories: true)
+    let fa = a.appendingPathComponent("runs.jsonl"), fb = b.appendingPathComponent("runs.jsonl")
+    try? Data("{}\n".utf8).write(to: fa)
+    try? Data("{}\n".utf8).write(to: fb)
+    try? FileManager.default.setAttributes([.modificationDate: Date(timeIntervalSince1970: 1_700_000_000)], ofItemAtPath: fa.path)
+    try? FileManager.default.setAttributes([.modificationDate: Date(timeIntervalSince1970: 1_800_000_000)], ofItemAtPath: fb.path)
+    let traces = [a.appendingPathComponent("requests.jsonl"), b.appendingPathComponent("requests.jsonl")]
+    check("S20 the newest launch file is the one read", RunRegistry.file(in: traces)?.path == fb.path)
+    try? FileManager.default.removeItem(at: fb)
+    check("S21 with no launch file after the trace there is nothing to read",
+          RunRegistry.file(in: [b.appendingPathComponent("requests.jsonl")]) == nil)
+}
+
 print(fails == 0 ? "ALL PASS" : "\(fails) FAILED"); exit(fails == 0 ? 0 : 1)

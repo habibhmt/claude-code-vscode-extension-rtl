@@ -286,6 +286,82 @@ struct TraceRecord {
     var responseID: String
     var duration: TimeInterval = 0
     var client: String? = nil
+    /// The launching session, so a row logged as `unknown` before the project
+    /// rule changed can still be named from `runs.jsonl`.
+    var senderRun: String? = nil
+}
+
+/// Same rule as the Python launcher (`openrouter_attribution.py`): a numbered
+/// folder reports its number, and a folder without one reports its own name so
+/// `0th-day-salamat` and `000-BRAIN` never collapse into one "0" bucket.
+func projectIDForFolder(_ folder: String) -> String? {
+    let range = NSRange(folder.startIndex..., in: folder)
+    if let m = projectNumbered.firstMatch(in: folder, range: range), m.range.location == 0 {
+        let digits = (folder as NSString).substring(with: m.range(at: 1))
+        return String(Int(digits) ?? 0)
+    }
+    guard safeProjectID.firstMatch(in: folder, range: range) != nil else { return nil }
+    return folder
+}
+private let projectNumbered = try! NSRegularExpression(pattern: #"^([1-9][0-9]{0,5})(?:th|st|nd|rd)?(?:-|$)"#)
+private let safeProjectID = try! NSRegularExpression(pattern: #"^[A-Za-z0-9._-]{1,64}$"#)
+
+/// Rows written while the project rule still dropped unnumbered folders say
+/// `project: unknown`, but every one of them carries the sender's run id and
+/// `runs.jsonl` — written by the launcher — knows that run's folder. Read the
+/// two together instead of rewriting the log (۲۲ نوامبر ۲۰۲۶).
+enum RunRegistry {
+    private static let lock = NSLock()
+    private static var cache: (mtime: Date?, map: [String: String])?
+
+    /// Test hook: drop the cache so a rewritten fixture is read again.
+    static func reset() { lock.lock(); cache = nil; lock.unlock() }
+
+    /// The launch file sits next to whichever trace log the panel reads; the
+    /// newest one wins, exactly like `CUPaths.trace`. Candidates are a
+    /// parameter so a test can prove the discovery, not just the parsing.
+    static func file(in traceCandidates: [URL] = CUPaths.traceCandidates) -> URL? {
+        let fm = FileManager.default
+        var best: (URL, Date)?
+        for t in traceCandidates {
+            let u = t.deletingLastPathComponent().appendingPathComponent("runs.jsonl")
+            guard let a = try? fm.attributesOfItem(atPath: u.path),
+                  let d = a[.modificationDate] as? Date else { continue }
+            if best == nil || d > best!.1 { best = (u, d) }
+        }
+        return best?.0
+    }
+
+    static func parse(_ text: String, workRoot: String = CUPaths.work.path) -> [String: String] {
+        var map: [String: String] = [:]
+        for line in text.split(whereSeparator: \.isNewline) {
+            guard let e = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
+                  let run = e["run_id"] as? String, !run.isEmpty,
+                  let cwd = e["cwd"] as? String, !cwd.isEmpty else { continue }
+            let folder = (cwd as NSString).lastPathComponent
+            guard cwd.hasPrefix(workRoot + "/"),
+                  let id = projectIDForFolder(folder) else { continue }
+            map[run] = id
+        }
+        return map
+    }
+
+    private static func load(_ url: URL) -> [String: String] {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else { return [:] }
+        return parse(text)
+    }
+
+    /// Project id for a run, or nil when the launch is not on record.
+    static func project(forRun run: String) -> String? {
+        guard !run.isEmpty else { return nil }
+        lock.lock(); defer { lock.unlock() }
+        guard let u = file() else { return nil }
+        let m = (try? FileManager.default.attributesOfItem(atPath: u.path))?[.modificationDate] as? Date
+        if cache == nil || cache!.mtime != m {
+            cache = (m, load(u))
+        }
+        return cache!.map[run]
+    }
 }
 
 // MARK: - Source of truth (file shape)
@@ -747,8 +823,59 @@ actor UsageCollector {
     private var current: SourceOfTruth?
 
     init() {
-        priced = Self.loadPrices()
+        priced = Self.relabelUnknown(Self.loadPrices())
         offset = Self.loadOffset()
+    }
+
+    /// Rows already priced as `unknown` are not re-read from the trace (the
+    /// offset has moved past them), so their dollars would sit nameless for
+    /// good. The trace still holds each response id next to its sender, and the
+    /// launch file names the sender's folder — the panel is corrected in memory
+    /// and the two source files stay untouched (۲۲ نوامبر ۲۰۲۶).
+    private static func relabelUnknown(_ prices: [String: Priced]) -> [String: Priced] {
+        relabelUnknown(prices, traceURL: CUPaths.trace)
+    }
+
+    static func relabelUnknown(_ prices: [String: Priced], traceURL: URL,
+                               resolve: (String) -> String? = RunRegistry.project(forRun:)) -> [String: Priced] {
+        var text = ""
+        if let fh = FileHandle(forReadingAtPath: traceURL.path) {
+            defer { try? fh.close() }
+            if let data = try? fh.readToEnd() { text = String(decoding: data, as: UTF8.self) }
+        }
+        return relabelUnknown(prices, traceText: text, resolve: resolve)
+    }
+
+    static func relabelUnknown(_ prices: [String: Priced], traceText: String,
+                               resolve: (String) -> String? = RunRegistry.project(forRun:)) -> [String: Priced] {
+        let wanted = Set(prices.values.filter { $0.project == "unknown" }.map(\.id))
+        guard !wanted.isEmpty else { return prices }
+        return relabel(prices, senders: unknownSenders(traceText, wanted: wanted), resolve: resolve)
+    }
+
+    /// response id → sender run, only for the rows we care about.
+    static func unknownSenders(_ text: String, wanted: Set<String>) -> [String: String] {
+        var out: [String: String] = [:]
+        for line in text.split(whereSeparator: \.isNewline) {
+            guard line.contains("\"unknown\"") else { continue }
+            guard let e = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
+                  let rid = e["response_id"] as? String, wanted.contains(rid),
+                  let s = e["sender_run"] as? String, !s.isEmpty else { continue }
+            out[rid] = s
+        }
+        return out
+    }
+
+    static func relabel(_ prices: [String: Priced], senders: [String: String],
+                        resolve: (String) -> String? = RunRegistry.project(forRun:)) -> [String: Priced] {
+        var out = prices
+        for (id, run) in senders {
+            guard let p = out[id], p.project == "unknown", let name = resolve(run) else { continue }
+            out[id] = Priced(id: p.id, cost: p.cost, ts: p.ts, project: name, model: p.model,
+                             provider: p.provider, prompt: p.prompt, cached: p.cached,
+                             completion: p.completion, duration: p.duration, client: p.client)
+        }
+        return out
     }
 
     // MARK: state files
@@ -967,16 +1094,23 @@ actor UsageCollector {
         }
     }
 
-    private static func parseTrace(_ d: Data) -> TraceRecord? {
+    static func parseTrace(_ d: Data, resolveRun: (String) -> String? = RunRegistry.project(forRun:)) -> TraceRecord? {
         guard let e = try? JSONSerialization.jsonObject(with: d) as? [String: Any],
               let s = e["time_utc"] as? String, let date = ORTime.date(s) else { return nil }
         var project = (e["project"] as? String) ?? "unknown"
         if project.isEmpty { project = "unknown" }
+        let sender = (e["sender_run"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+        // The log is the historical record: an old `unknown` row still carries
+        // its run id, and the launch file names that run's folder.
+        if project == "unknown", let s = sender, let id = resolveRun(s) {
+            project = id
+        }
         let status = (e["status"] as? NSNumber)?.intValue
         return TraceRecord(time: date.timeIntervalSince1970, project: project,
                            status: status, responseID: (e["response_id"] as? String) ?? "",
                            duration: ((e["duration_ms"] as? NSNumber)?.doubleValue ?? 0) / 1000,
-                           client: (e["client"] as? String).flatMap { $0.isEmpty ? nil : $0 })
+                           client: (e["client"] as? String).flatMap { $0.isEmpty ? nil : $0 },
+                           senderRun: sender)
     }
 
     // MARK: attribution + snapshot
@@ -1015,10 +1149,10 @@ actor UsageCollector {
         return name
     }
 
-    /// `136th-day-…` → `136`; nil for any folder that is not a numbered project.
+    /// `136th-day-…` → `136`; a folder with no number keeps its own name, the
+    /// same rule the launcher uses (see `projectIDForFolder`).
     private static func projectID(_ folder: String) -> String? {
-        let digits = folder.prefix { $0.isNumber }
-        return digits.isEmpty ? nil : String(digits)
+        projectIDForFolder(folder)
     }
 
     /// Projects with a transcript written since `since` — the fallback has no

@@ -30,6 +30,10 @@ MODEL_SHAPE = re.compile(r'(?:deepseek|anthropic)/[A-Za-z0-9._@/-]{1,120}'
                          r'|anthropic-api/[A-Za-z0-9._-]{1,120}'
                          r'|claude-[A-Za-z0-9._-]{1,120}')
 PATHS = frozenset({'/v1/messages', '/v1/messages?beta=true'})
+# Project ids are numbers for numbered folders and folder names for the rest
+# (`0th-day-salamat`). Anything with a slash, space or over 64 chars is a bad
+# header and must not reach the log.
+PROJECT_ID = re.compile(r'[A-Za-z0-9._-]{1,64}')
 TOKEN_PATHS = frozenset({'/v1/messages/count_tokens', '/v1/messages/count_tokens?beta=true'})
 CATALOG = Path(__file__).resolve().parents[1] / 'claude-api/deepseek-models.json'
 FIELDS = frozenset({'time_utc','time_tehran','run_id','request_number','model',
@@ -248,7 +252,7 @@ class TraceHandler(http.server.BaseHTTPRequestHandler):
         row={'time_utc':now.isoformat(),'time_tehran':now.astimezone(ZoneInfo('Asia/Tehran')).isoformat(),
              'run_id':self.server.run_id,'request_number':number,
              'model':model,
-             'project':project if re.fullmatch(r'[0-9]{1,6}',project) else 'unknown',
+             'project':project if PROJECT_ID.fullmatch(project) else 'unknown',
              'sender_run':sender if re.fullmatch(r'[a-f0-9-]{36}',sender) else 'unknown',
              'client':safe_client(self.headers),
              'work_type':'unknown','status':None,'response_id':None,'error':None,

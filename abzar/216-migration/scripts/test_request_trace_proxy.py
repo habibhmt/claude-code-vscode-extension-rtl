@@ -36,9 +36,11 @@ class ProxyTests(unittest.TestCase):
     def tearDown(self):
         for s in [self.proxy,self.up]:s.shutdown();s.server_close()
         self.tmp.cleanup()
-    def call(self,model='deepseek/deepseek-v4.1-flash-1017',token=TOKEN,path='/v1/messages?beta=true'):
+    def call(self,model='deepseek/deepseek-v4.1-flash-1017',token=TOKEN,path='/v1/messages?beta=true',project=None):
         raw=json.dumps({'model':model,'messages':[{'role':'user','content':TEXT}], 'stream':True,'output_config':{'effort':'high'}}).encode()
-        req=urllib.request.Request(f'http://127.0.0.1:{self.proxy.server_port}'+path,data=raw,headers={'X-Trace-Token':token,'Authorization':'Bearer '+SECRET,'Content-Type':'application/json'})
+        headers={'X-Trace-Token':token,'Authorization':'Bearer '+SECRET,'Content-Type':'application/json'}
+        if project is not None: headers['X-Trace-Project']=project
+        req=urllib.request.Request(f'http://127.0.0.1:{self.proxy.server_port}'+path,data=raw,headers=headers)
         try:r=urllib.request.urlopen(req,timeout=5)
         except urllib.error.HTTPError as e:r=e
         with r: output=r.read();status=r.status
@@ -54,6 +56,21 @@ class ProxyTests(unittest.TestCase):
         self.assertEqual(headers['authorization'],'Bearer '+SECRET)
         self.assertNotIn('x-trace-token',headers)
         self.assertEqual(self.path.stat().st_mode&0o777,0o600)
+    def test_project_id_accepts_folder_name_and_rejects_a_path(self):
+        # A folder without a number reports its own name; anything that could
+        # escape the field (slash, space, too long) must fall back to unknown.
+        for value, want in [
+            ('136', '136'),
+            ('0th-day-salamat', '0th-day-salamat'),
+            ('000-BRAIN', '000-BRAIN'),
+            ('../x', 'unknown'),
+            ('0th day', 'unknown'),
+            ('a' * 65, 'unknown'),
+        ]:
+            _,_,status,rows=self.call(project=value)
+            self.assertEqual(status,200)
+            self.assertEqual(rows[0]['project'],want,value)
+            self.path.write_text('')      # each case its own row
     def test_haiku_detected(self):
         _,_,_,rows=self.call('claude-haiku-5-5');self.assertEqual(rows[0]['model'],'claude-haiku-5-5')
     def test_explicit_accounts_in_one_chat(self):

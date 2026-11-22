@@ -33,6 +33,29 @@ class AttributionTests(unittest.TestCase):
             p=Path(d)/'216th-day-project';p.mkdir()
             with self.assertRaisesRegex(ValueError,'Invalid custom HTTP header'):
                 apply_project_attribution({'ANTHROPIC_CUSTOM_HEADERS':'secret-synthetic'},p,projects_root=d)
+    def test_zero_prefixed_folders_keep_their_own_name(self):
+        # The old rule read the digits first, so both of these became "0" and
+        # landed in one bucket; each folder is its own project now.
+        with tempfile.TemporaryDirectory() as d:
+            a=Path(d)/'0th-day-salamat';a.mkdir()
+            b=Path(d)/'000-BRAIN';b.mkdir()
+            c=Path(d)/'0th-day-secreter-director-from-all-sources';c.mkdir()
+            self.assertEqual(project_number(a,projects_root=d),'0th-day-salamat')
+            self.assertEqual(project_number(b,projects_root=d),'000-BRAIN')
+            self.assertEqual(project_number(c,projects_root=d),'0th-day-secreter-director-from-all-sources')
+            self.assertNotEqual(project_number(a,projects_root=d),project_number(b,projects_root=d))
+
+    def test_numbered_folder_without_suffix_is_still_the_number(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)/'136';p.mkdir()
+            self.assertEqual(project_number(p,projects_root=d),'136')
+
+    def test_zero_folder_keeps_numbered_ones_untouched(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)/'136th-day-fix-rtl-claude';p.mkdir()
+            out=apply_project_attribution({},p,projects_root=d)
+            self.assertIn('Claude Code - Project 136',out['ANTHROPIC_CUSTOM_HEADERS'])
+
     def test_real_path_over_symlink_label(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'216th-day-project';p.mkdir()

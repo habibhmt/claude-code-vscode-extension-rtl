@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 from vscode_deepseek_wrapper import prepare
+import claude_json_guard
 from claude_deepseek import PilotError
 SERVICE='habib-claude-code-openrouter'
 ACCOUNT='default-vscode'
@@ -26,6 +27,9 @@ def read_key(service_name=SERVICE, prefix='sk-or-'):
     return key
 
 def main():
+    # Provider-independent hygiene: «Fable» never reaches the picker, even when
+    # this launch fails earlier for another reason (حبیب ۲۲ نوامبر).
+    claude_json_guard.drop()
     try:
         if len(sys.argv)<2:raise PilotError('Missing native binary')
         args=sys.argv[2:]
@@ -38,6 +42,8 @@ def main():
         # Claude Code warn on every refresh; the gateway token is in env.
         child_env=dict(os.environ if env is None else env)
         child_env.pop('ANTHROPIC_API_KEY',None)
+        # «Fable» must not reach the picker (حبیب ۲۲ نوامبر: «حذفش کن»).
+        # Locked, atomic, silent when already absent.
         os.execve(str(PREVIOUS),[str(PREVIOUS),*argv],child_env)
     except (OSError,ValueError,subprocess.TimeoutExpired,PilotError):
         print('اتصال DeepSeek آماده نیست؛ برای جلوگیری از برگشت ناخواسته به Claude، اجرا متوقف شد.',file=sys.stderr)

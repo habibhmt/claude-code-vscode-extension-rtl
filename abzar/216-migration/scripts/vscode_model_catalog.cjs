@@ -121,7 +121,35 @@ function extraChoices(filter, taken) {
   return groups;
 }
 
+const GATEWAY_MERGED = path.join(ROOT, '.runtime/opencode-go/merged-models.json');
+
+/** Rows from the gateway's single source (/local/models.json), shaped for this picker.
+ *  حبیب ۲۱:۱۳: منوی VS Code نباید فهرستِ قدیمیِ OpenRouter را نشان بدهد؛ منبعِ
+ *  حقیقت همان دروازه است. اگر فایل نبود/خراب بود، مسیرِ قبلی دست‌نخورده می‌ماند. */
+function gatewayChoices() {
+  const rows = readJson(GATEWAY_MERGED);
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  const out = [];
+  for (const row of rows) {
+    if (!row || typeof row.id !== 'string' || !row.id) continue;
+    const opencodeGroup = row.provider === 'opencode';
+    out.push({
+      value: row.id,
+      displayName: row.name || row.id,
+      description: row.description || '',
+      group: opencodeGroup ? 'OpenCode Go' : 'OpenRouter',
+      family: opencodeGroup ? 'opencode' : 'openrouter',
+      familyLabel: opencodeGroup ? 'OpenCode Go' : 'OpenRouter',
+    });
+  }
+  if (!out.length) return null;
+  if (new Set(out.map(m => m.value)).size !== out.length) return null;
+  return out;
+}
+
 function modelChoices(rows = readJson(catalog), options = {}) {
+  const fromGateway = gatewayChoices();
+  if (fromGateway) return fromGateway;
   if (!Array.isArray(rows) || rows.length === 0) throw Error('Invalid VS Code model catalog');
   const filter = options.filter || readFilter();
   const used = options.used || usedModels();

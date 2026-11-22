@@ -49,10 +49,14 @@ OPENROUTER_CATALOGUE = RUNTIME / 'openrouter-models.json'
 OPENCODE_CACHE = RUNTIME / 'opencode-models.json'
 MERGED_CACHE = RUNTIME / 'merged-models.json'
 STATUS = RUNTIME / 'status.json'
-# مدلِ مرده نباید ۴۵ ثانیه سکوت بدهد (شرطِ ناظر-۱۳۶، ۲۰:۰۸): پیام حداکثر ۲۰
-# ثانیه صبر می‌کند، بعد ردیفِ `timeout` و وضعیتِ قرمز. count_tokens ارزان است
-# و همان تایم‌اوتِ کوتاه را دارد.
-MESSAGE_TIMEOUT = int(os.environ.get('OPENCODE_GATEWAY_TIMEOUT', '20'))
+# سقفِ ۲۰ ثانیه‌ای (۲۲ نوامبر ۲۰:۰۸) در طوفانِ ۰۰:۳۲ تا ۰۱:۱۶ تهران ۲۰۴ خطای
+# ۵۰۲ ساخت: OpenCode در آن ساعت کند شده بود (میانهٔ پاسخ ۱۳٬۵۳۴ms در برابر
+# ۸٬۴۳۴ms ساعت‌های عادی) و ۳۲ از ۸۷ پاسخِ سالم هم بالای ۱۸ ثانیه بودند؛ پس ۲۰
+# ثانیه روی لبه بود، نه بالای آن. حالا ۱۸۰ ثانیه، و شکستِ اول یک تلاشِ مجدد
+# می‌خورد (نگاه `open_upstream`). count_tokens ارزان است و تایم‌اوتِ کوتاه‌ترِ
+# خودش را دارد.
+MESSAGE_TIMEOUT = int(os.environ.get('OPENCODE_GATEWAY_TIMEOUT', '180'))
+RETRY_PAUSE = float(os.environ.get('OPENCODE_GATEWAY_RETRY_PAUSE', '1.5'))
 ALARM_STATUSES = {401, 402, 403, 429, 500, 502, 503, 504}
 OPENROUTER_URL = 'https://openrouter.ai/api/v1/models?endpoints=/api/v1/messages'
 CATALOGUE_TTL = 3600
@@ -349,6 +353,44 @@ def note(row):
             f.write(json.dumps(row, ensure_ascii=False) + '\n')
 
 
+def is_timeout(error):
+    """تایم‌اوت، حتی وقتی urllib آن را داخلِ URLError پیچیده باشد.
+
+    خودِ `socket.timeout` همان `TimeoutError` است، ولی `http.client` هنگامِ
+    نوشتنِ بدنه آن را `URLError('<urlopen error The write operation timed out>')`
+    می‌کند؛ همان چیزی که در لاگِ ۲۳ نوامبر ۰۰:۳۲ تا ۰۱:۱۶ به شاخهٔ ۵۰۲ می‌افتاد و
+    «کندی» را «خرابیِ دروازه» معرفی می‌کرد.
+    """
+    if isinstance(error, TimeoutError):
+        return True
+    if isinstance(getattr(error, 'reason', None), TimeoutError):
+        return True
+    return 'timed out' in str(error)
+
+
+def open_upstream(request, timeout):
+    """باز کردنِ درخواست، با یک تلاشِ مجدد اگر پیش از رسیدنِ هر بایتی شکست خورد.
+
+    تلاشِ مجدد فقط وقتی است که هیچ پاسخی نرسیده باشد؛ در آن حالت سرویس هیچ
+    مصرفی ثبت نکرده، پس دوبار پول کم نمی‌شود. اگر جواب شروع شده باشد، همان جواب
+    برگردانده می‌شود و تصمیم با `do_POST` است.
+
+    خروجی: (پاسخ، تعدادِ تلاش‌ها)
+    """
+    last = None
+    for attempt in (1, 2):
+        try:
+            return OPENER.open(request, timeout=timeout), attempt
+        except urllib.error.HTTPError as error:
+            # خطای HTTP خودش پاسخ است (۴۰۱/۴۲۹/۴۰۰…) — نه شکستِ انتقال.
+            return error, attempt
+        except (TimeoutError, OSError, urllib.error.URLError) as error:
+            last = error
+        if attempt == 1:
+            time.sleep(RETRY_PAUSE)
+    raise last
+
+
 def spend_from(raw):
     """Sum list_cost / allowance out of an Anthropic-style response body."""
     try:
@@ -453,41 +495,59 @@ class Handler(http.server.BaseHTTPRequestHandler):
             target, data=json.dumps(body, ensure_ascii=False).encode(),
             headers=headers, method='POST')
         try:
-            response = OPENER.open(request, timeout=MESSAGE_TIMEOUT)
-        except urllib.error.HTTPError as error:
-            response = error
-        except TimeoutError:
+            response, attempts = open_upstream(request, MESSAGE_TIMEOUT)
+        except (TimeoutError, OSError, urllib.error.URLError) as error:
+            elapsed = round((time.monotonic() - started) * 1000)
+            if is_timeout(error):
+                note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                      'provider': provider, 'work_type': 'messages', 'model': sent,
+                      'requested': original_model, 'status': 504,
+                      'duration_ms': elapsed, 'attempts': 2,
+                      'error': 'timeout'})
+                set_status(provider, 504, f'مدلِ «{sent}» تا {MESSAGE_TIMEOUT} ثانیه جواب نداد')
+                return self.reply(504, json.dumps({'type': 'error', 'error': {
+                    'type': 'api_error',
+                    'message': f'مدلِ «{sent}» تا {MESSAGE_TIMEOUT} ثانیه جواب نداد '
+                               f'(دو بار تلاش شد)؛ به سرویسِ بعدی وصل نشد.'}},
+                    ensure_ascii=False).encode())
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': provider, 'work_type': 'messages', 'model': sent,
-                  'requested': original_model, 'status': 504,
-                  'duration_ms': round((time.monotonic() - started) * 1000),
-                  'error': 'timeout'})
-            set_status(provider, 504, f'مدلِ «{sent}» تا {MESSAGE_TIMEOUT} ثانیه جواب نداد')
-            return self.reply(504, json.dumps({'type': 'error', 'error': {
-                'type': 'api_error',
-                'message': f'مدلِ «{sent}» تا {MESSAGE_TIMEOUT} ثانیه جواب نداد؛ به سرویسِ بعدی وصل نشد.'}},
-                ensure_ascii=False).encode())
-        except (OSError, urllib.error.URLError):
-            note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-                  'provider': provider, 'requested': original_model, 'status': 502,
-                  'duration_ms': 0, 'error': 'transport_error'})
+                  'requested': original_model, 'status': 502,
+                  'duration_ms': elapsed, 'attempts': 2,
+                  'error': 'transport_error: ' + str(error)[:180]})
             set_status(provider, 502, 'خطای انتقال به سرویس')
-            return self.reply(502, b'{"error":"gateway transport error"}')
+            return self.reply(502, json.dumps({'type': 'error', 'error': {
+                'type': 'api_error',
+                'message': f'ارتباط با سرویسِ {provider} برقرار نشد (دو بار تلاش شد): '
+                           f'{str(error)[:160]}'}}, ensure_ascii=False).encode())
+        spend = None
+        pending = b''
+        whole = b''
+        stream_error = None
+        client_gone = False
         with response:
             status = response.status
             self.send_response(status)
             self.send_header('Content-Type', response.headers.get('Content-Type', 'application/json'))
             self.send_header('Connection', 'close')
             self.end_headers()
-            spend = None
-            pending = b''
-            whole = b''
             while True:
-                chunk = response.read1(65536)
+                try:
+                    chunk = response.read1(65536)
+                except (TimeoutError, OSError) as error:
+                    # وسطِ استریم ساکت ماند: ردیف ثبت می‌شود، نه استثنای ناخوانده
+                    # (قبلاً ۱۹ بار همین‌جا traceback ریخته بود و ردیفی نمانده بود).
+                    stream_error = 'stream: ' + str(error)[:140]
+                    break
                 if not chunk:
                     break
-                self.wfile.write(chunk)
-                self.wfile.flush()
+                try:
+                    self.wfile.write(chunk)
+                    self.wfile.flush()
+                except OSError:
+                    # کلاینت خودش قطع کرد (کلود کد بی‌خیال شد) — نه خطای دروازه.
+                    client_gone = True
+                    break
                 if len(whole) < 1 << 20:
                     whole += chunk
                 pending += chunk
@@ -519,7 +579,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                'work_type': 'count_tokens' if self.path.endswith('count_tokens') else 'messages',
                'model': sent,
                'requested': original_model, 'status': status,
-               'duration_ms': round((time.monotonic() - started) * 1000)}
+               'duration_ms': round((time.monotonic() - started) * 1000),
+               'attempts': attempts}
+        if stream_error:
+            row['stream_error'] = stream_error
+        if client_gone:
+            row['client_gone'] = True
         if mapped_from and mapped_from != sent:
             row['mapped_from'] = mapped_from
         # پولِ OpenRouter فقط در requests.jsonlِ پروکسی شمرده می‌شود؛ ردیفِ

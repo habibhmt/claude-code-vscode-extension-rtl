@@ -53,6 +53,8 @@ run "claude amar" node test_claude_amar.cjs
 run "claude code rangi" env NODE_PATH=node_modules node test_claude_code_rangi.cjs
 run "claude code ink" node test_claude_code_ink.cjs
 run "claude hover open" env NODE_PATH=node_modules node test_claude_hover_baz.cjs
+run "claude hover khattire" env NODE_PATH=node_modules node Doc/abzar/test_hover_khattire.cjs
+run "payam bine seshni" env PYTHONDONTWRITEBYTECODE=1 python3 Doc/abzar/test_peer_send.py
 run "claude ask width" node test_claude_ask_width.cjs
 run "claude tanzimat" env NODE_PATH=node_modules node test_claude_tanzimat.cjs
 run "xss 186" env NODE_PATH=node_modules node test_xss_186.cjs

@@ -2374,7 +2374,7 @@ ba_motaghayerha = ["path", "STATUS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:142"]
+jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:173"]
 
 [kBundleID]
 yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
@@ -2690,7 +2690,7 @@ jaye = ["abzar/216-migration/scripts/opencode_usage.py:32"]
 
 [UNKNOWN_CHAT]
 yani = "کجا: فایلِ مصرف · چیه: برچسبِ گروهِ ردیف‌های بی‌شناسه در chat_cost · مثال: نامعلوم (پیش از ثبت)"
-meghdar = "نامعلوم (پیش از ثبت)"
+meghdar = "Unattributed (before tracking)"
 chera = "نسبت‌دادنِ ردیفِ بی‌شناسه به چتی تصادفی ممنوع است"
 noe = "sabet"
 ozv = "masraf"
@@ -2702,7 +2702,7 @@ jaye = ["abzar/216-migration/scripts/opencode_usage.py:33"]
 
 [UNKNOWN_FOLDER]
 yani = "کجا: فایلِ مصرف · چیه: برچسبِ گروهِ چت‌هایی که مسیرشان پیدا نشد · مثال: نامعلوم (بی‌مسیر)"
-meghdar = "نامعلوم (بی‌مسیر)"
+meghdar = "Unattributed (no path)"
 chera = "همان دلیلِ UNKNOWN_CHAT"
 noe = "sabet"
 ozv = "masraf"
@@ -2723,3 +2723,51 @@ tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
 khanandeha = []
 jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:20"]
+
+[TITLE_MAX]
+yani = "کجا: فایلِ مصرف · چیه: بیشترین طولِ عنوانِ چت که از اولین پیامِ آدم کوتاه می‌شود · مثال: 42"
+meghdar = "42"
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۹:۰۹ «شناسهٔ چت رو نوشتی که نمی‌فهممش» ⇒ برچسب باید اسم باشد، کوتاه"
+noe = "sabet"
+ozv = "masraf"
+ba_motaghayerha = ["title", "TITLE_MAX"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۹:۰۹ (از راهِ ناظر-۱۳۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_usage.py:74"]
+
+[HADS_LOG]
+yani = "کجا: فایلِ مصرف · چیه: پوشهٔ لاگِ کارِ کمکیِ افزونهٔ حدس؛ توکنِ هر چت از آن خوانده می‌شود · مثال: ~/.claude/hads-log"
+meghdar = ""
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۱۹:۱۷: شکستِ کارِ کمکی فقط از همین لاگ، با واحدِ توکن — دلار ندارد"
+noe = "sabet"
+ozv = "masraf"
+ba_motaghayerha = ["hads", "HADS_LOG"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۹:۱۱ (شکستِ پلاگین زیرِ هر چت)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_usage.py:119"]
+
+[title]
+yani = "کجا: chat_cost.sessions[] · چیه: نامِ چت: نامِ سشن، وگرنه اولین پیامِ آدم، وگرنه تهی · مثال: مجری-۱۳۶"
+meghdar = ""
+chera = "حبیب ۲۳ نوامبر ۱۹:۰۹ «چت به اسم فلان» — شناسه هیچ‌جا برچسب نیست"
+noe = "dadeh"
+ozv = "dadeh"
+ba_motaghayerha = ["title", "TITLE_MAX", "name"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۹:۰۹ (از راهِ ناظر-۱۳۶)"
+khanandeha = []
+jaye = []
+
+[hads]
+yani = "کجا: chat_cost.sessions[] · چیه: توکنِ کارِ کمکیِ حدس برای همان چت: total و parts (هر bakhsh) · مثال: total ۲۵۹۰۵۹۲"
+meghdar = ""
+chera = "واحد توکن است نه دلار؛ چتِ بی‌لاگ کلید نمی‌گیرد (نه صفر)"
+noe = "dadeh"
+ozv = "dadeh"
+ba_motaghayerha = ["HADS_LOG", "hads"]
+tarif = "28"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۱۹:۱۷ (قاعدهٔ شش‌بندی)"
+khanandeha = []
+jaye = []

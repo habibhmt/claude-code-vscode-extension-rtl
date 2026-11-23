@@ -21,12 +21,21 @@
 | ۱۱ | `HOVER_DELAY` | `entezar_baz_shodan_payam_ms` | صبرِ ثابت، نه حد ⇒ بی `had_`؛ ثابت‌های صفحه ۲۵ اکت «بمونن» گرفتند، پس فقط اگر حبیب بخواهد | claude-ui-buttons.js |
 | ۱۲ | `GLOSS_DELAY` | `entezar_kart_vazhe_ms` | همان | claude-ui-buttons.js |
 | ۱۳ | `tries` (و عددِ ۶۰ کنارش) | `tedad_gashtan_panel` و `had_tedad_gashtan_panel` | شمار + حدِ شمار؛ همان «بمونن» | claude-ui-buttons.js |
+| ۱۴ | `CATALOGUE_TTL` | `catalogue_ttl_s` | مدت است و واحدش ثانیه؛ قاعدهٔ ۱۰ می‌گوید واحد در آخرِ اسم | opencode_gateway.py |
+| ۱۵ | `GLOSS_DELAY_T` | `mohlat_javab_hook_ms` | مدت است و واحدش میلی‌ثانیه | claude-ui-buttons.js |
 
 ## ۲ · یک اسم در دو فایل (قاعدهٔ ۷: «یک حقیقت، یک جا»)
 | # | اسم | کجاها | پیشنهاد |
 |---|---|---|---|
 | ۱۴ | `mah_shamsi` | `mods/hads/hooks/register.js` و `claude-host-hook.js` | دو برنامهٔ جدا‌اند (مود در پروسهٔ Claude، وصله در VS Code) و یکی نمی‌تواند از دیگری بخواند ⇐ پیشنهاد: «عمداً» با یک آزمون که دو فهرست یکی بمانند، یا یک فایلِ JSON که هر دو بخوانند |
 | ۱۵ | `neshane_amar` / `NESHANE_AMAR` | مود و صفحه | همان دلیل؛ آزمونِ `test_claude_amar.cjs` با همان نشانه می‌سنجد |
+| ۱۶ | `SESSION` | `claude-ui-buttons.js` و `opencode_gateway.py` | دو برنامهٔ جدا با دو معنیِ متفاوت (شناسهٔ سشنِ UI و شناسهٔ دروازه) ⇐ پیشنهاد: یکی از دو اسم عوض شود (`darvaze_session`) یا «عمداً» با یک خطِ توضیح در هر دو بلوک |
+| ۱۷ | `KEY` | `claude-ui-buttons.js`، `opencode_gateway.py`، `opencode_picker.py` | کلیدِ Keychain در دروازه و کلیدِ پیکر با معنیِ نزدیک ولی جای متفاوت ⇐ پیشنهاد: `kelid_keychain` برای دروازه و `kelid_picker` برای پیکر |
+| ۱۸ | `SERVICE` | `opencode_gateway.py`، `vscode_opencode_wrapper.py` | یک حقیقت (نامِ سرویسِ Keychain) در دو اسکریپتِ کوچک تکرار شده ⇐ پیشنهاد: یک ماژولِ مشترکِ `opencode_common.py` که هر دو از آن بخوانند |
+| ۱۹ | `ACCOUNT` | `opencode_gateway.py`، `vscode_opencode_wrapper.py` | همان ⇐ همان ماژولِ مشترک |
+| ۲۰ | `PORT` | `opencode_gateway.py`، `vscode_opencode_wrapper.py`، `opencode_picker.py` | همان: پورتِ دروازه در سه جا ⇐ همان ماژولِ مشترک |
+| ۲۱ | `BASE` | `vscode_opencode_wrapper.py`، `opencode_picker.py` | آدرسِ محلی از همان `PORT` ساخته می‌شود ⇐ همان ماژولِ مشترک |
+| ۲۲ | `OUT` | `opencode_usage.py`، `opencode_caps.py` | دو خروجیِ متفاوت با یک اسم (خلاصهٔ مصرف و سقف‌ها) ⇐ پیشنهاد: `out_masraf` و `out_saghf` |
 
 ## ۳ · اسم‌های تازه بی «بله» (آمده بعد از ۲۵ اکت ۰۶:۰۷)
 ۳۵ اسم در `Doc/shenasname_matn.toml` با `tayid = "پیشنهاد — تأییدنشده"` (و در `Doc/jadval_motaghayerha.md` با «؟»). فهرستشان برای «بله» ِ حبیب در پنجرهٔ سؤالِ مرحلهٔ ۲ می‌آید.

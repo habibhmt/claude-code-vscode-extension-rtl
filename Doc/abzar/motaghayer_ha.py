@@ -5,13 +5,36 @@ Standard of ۹۱ (۲۰۳'s copy: 203th-day-imac-cpu-tracker/doc/estandard-tarif-
 import os, re
 
 RISHE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# مسیر: هر فایلی که با «~» شروع شود از خانه باز می‌شود (اپِ ۱۸۶ بیرونِ این مخزن است).
 FILE_HA = [
     # (file, pattern of a file-level declaration)
     ('mods/hads/hooks/register.js', re.compile(r'^(?:export )?(const|let) ([A-Za-z_$][\w$]*) = (.*)$')),
     ('claude-ui-buttons.js', re.compile(r'^  (var) ([A-Za-z_$][\w$]*) = (.*)$')),
     ('claude-host-hook.js', re.compile(r'^  (var) ([A-Za-z_$][\w$]*) = (.*)$')),
+    # دروازه و رَپر و کاتالوگِ مصرف (ناظر-۱۳۶، ۲۳ نوامبر ۱۵:۱۰: «FILE_HA را گسترش بده»،
+    # محدود به همین فایل‌های واقعی؛ الگو فقط ثابتِ ماژول را می‌گیرد، نه متغیرِ محلی).
+    ('abzar/216-migration/scripts/opencode_gateway.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/216-migration/scripts/vscode_opencode_wrapper.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/216-migration/scripts/opencode_usage.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/216-migration/scripts/opencode_picker.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/216-migration/scripts/opencode_caps.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    # سوئیفت: فقط ثابتِ سطحِ فایل یا `static let` (تودرتوی ۴ فاصله)، نه `let` های محلی.
+    ('~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift',
+     re.compile(r'^ {0,4}(?:static )?(let|var) ([A-Za-z_]\w*)(?:\s*:\s*[^=]+)? = (.*)$')),
+    ('~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift',
+     re.compile(r'^ {0,4}(?:static )?(let|var) ([A-Za-z_]\w*)(?:\s*:\s*[^=]+)? = (.*)$')),
 ]
-TABE = re.compile(r'^(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>|^function\b|^async function\b')
+
+
+def masir(f):
+    """مسیرِ کاملِ فایل؛ «~» از خانه باز می‌شود و بقیه از ریشهٔ پروژه."""
+    return os.path.expanduser(f) if f.startswith('~') else os.path.join(RISHE, f)
+
+
+TABE = re.compile(r'^(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>|^function\b|^async function\b'
+                  r'|^def\s+([A-Za-z_]\w*)'
+                  r'|^func\s+([A-Za-z_]\w*)'
+                  r'|^\s{0,4}static func\s+([A-Za-z_]\w*)')
 # a second name on the same line: «var a = '', b = false»
 DOVOMI = re.compile(r',\s*([A-Za-z_$][\w$]*) = ')
 
@@ -37,13 +60,15 @@ def noe_motaghayer(kind, meghdar, esm, matn):
 def peyda_kardan():
     out = []
     for f, pat in FILE_HA:
-        matn = open(os.path.join(RISHE, f), encoding='utf-8').read()
+        matn = open(masir(f), encoding='utf-8').read()
         lines = matn.split('\n')
         for i, l in enumerate(lines):
             m = pat.match(l)
             if not m:
                 continue
-            kind, esm, meghdar = m.groups()
+            # الگوی پایتون فقط دو گروه دارد (اسم، مقدار) — نوعش همیشه ثابتِ ماژول است.
+            groups = m.groups()
+            kind, esm, meghdar = ('const', groups[0], groups[1]) if len(groups) == 2 else groups
             if TABE.match(meghdar.strip()):
                 continue
             tz = tozih_bala(lines, i)
@@ -56,7 +81,7 @@ def peyda_kardan():
 
 def tabe_ha_ye_file(f):
     """name and line span of each file-level function (for the 'functions' column)"""
-    lines = open(os.path.join(RISHE, f), encoding='utf-8').read().split('\n')
+    lines = open(masir(f), encoding='utf-8').read().split('\n')
     pat = re.compile(r'^(?:  )?(?:export )?(?:async )?function\*?\s+([A-Za-z_$][\w$]*)|^(?:  )?(?:export )?(?:const|var) ([A-Za-z_$][\w$]*) = (?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>')
     sar = [(i, (m.group(1) or m.group(2))) for i, l in enumerate(lines) for m in [pat.match(l)] if m]
     out = []

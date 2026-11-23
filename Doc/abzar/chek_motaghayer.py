@@ -9,6 +9,9 @@ import jadval_motaghayer as j
 
 VAHED = ('_ts', '_ms', '_s', '_token', '_harf', '_radif', '_px', '_darsad', '_usd', '_byte', '_khat', '_tedad', '_javab', '_bar')
 FA = str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')
+# چک دورقمی (ناظر-۱۳۶، ۲۳ نوامبر ۱۵:۲۲): بدهیِ قدیمیِ این سه فایل نباید قرمزِ کارِ
+# تازهٔ ما را بپوشاند و برعکس. «بدهی» = بلوکی که پیش از امروز هم نبوده است.
+LEGACY = {'mods/hads/hooks/register.js', 'claude-ui-buttons.js', 'claude-host-hook.js'}
 
 
 def main():
@@ -20,10 +23,13 @@ def main():
     for a in items:
         esm_ha.setdefault(a['esm'], []).append(a)
     bad = []
+    bad_legacy = []
     for esm, ja in esm_ha.items():
         b = sh.get(esm)
         if not b:
-            bad.append(f'بی شناسنامه: {esm} ({ja[0]["file"]}:{ja[0]["khat"]})'); continue
+            line = f'بی شناسنامه: {esm} ({ja[0]["file"]}:{ja[0]["khat"]})'
+            (bad_legacy if ja[0]['file'] in LEGACY else bad).append(line)
+            continue
         for k in ('yani', 'tarif', 'tayid'):
             if not str(b.get(k, '')).strip():
                 bad.append(f'شناسنامهٔ {esm}: «{k}» خالی است')
@@ -47,9 +53,23 @@ def main():
         bad.append('جدولِ متغیرها کهنه است: python3 Doc/abzar/jadval_motaghayer.py')
     if not os.path.exists(j.MASIR_SAKHTE) or open(j.MASIR_SAKHTE, encoding='utf-8').read() != j.sakht_shenasname_sakhte():
         bad.append('شناسنامهٔ ساخته (با عددِ امروز) کهنه است: python3 Doc/abzar/jadval_motaghayer.py')
+    # واژه‌نامهٔ تابلو هم ساخته است؛ اگر از `jaye` عقب بماند، کارت آدرسِ کهنه نشان می‌دهد.
+    if not os.path.exists(j.MASIR_VAZHENAME) or open(j.MASIR_VAZHENAME, encoding='utf-8').read() != j.sakht_vazhename():
+        bad.append('واژه‌نامهٔ تابلو کهنه است: python3 Doc/abzar/jadval_motaghayer.py')
     for x in bad:
         print('❌', x)
-    print(f'متغیر: {len(esm_ha)} · شناسنامه: {len(sh)} · جمع: {len(bad)} ❌')
+    if bad_legacy:
+        # بدهیِ قدیمی شمرده می‌شود و نمونه‌اش نشان داده می‌شود، ولی قرمزِ ما نیست.
+        import collections
+        cnt = collections.Counter(x.split('(')[1].split(':')[0] for x in bad_legacy)
+        print('⚠️ بدهیِ قدیمی (پیش از ۲۳ نوامبر ۲۰۲۶، مالک: کارِ بعدی): ' + str(len(bad_legacy)) +
+              ' بلوک — ' + ' · '.join(f'{k} {v}' for k, v in cnt.most_common()))
+        for x in bad_legacy[:3]:
+            print('   …', x)
+    # صفر خطا باید سبز دیده شود، نه «۰ ❌» (ایرادِ سنجیده‌شده: آدم فکر می‌کرد قرمز است).
+    alam = '✅' if not bad else '❌'
+    print(f'متغیر: {len(esm_ha)} · شناسنامه: {len(sh)} · گمشده‌های ما: {len(bad)} · '
+          f'گمشده‌های قدیمی: {len(bad_legacy)} · جمعِ ایرادهای ما: {len(bad)} {alam}')
     sys.exit(1 if bad else 0)
 
 

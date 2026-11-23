@@ -745,7 +745,9 @@ async function panelInBrowser() {
   const row = (k) => pg.locator(`.crtl-tz-row[data-k="${k}"]`);
   await pg.waitForFunction(() => /medium/.test(document.querySelector('.crtl-tz-row[data-k="effortLevel"] .crtl-tz-note').textContent));
   assert.equal(await row('language').locator('.crtl-tz-note').textContent(), 'الان: persian از پروژه؛ یعنی مدل به زبان persian جواب می‌دهد', 'the note says what, from where, and what it means');
-  assert.equal(await row('autoCompactWindow').locator('.crtl-tz-note').textContent(), 'الان: کامپکت سر ۲۶۷ هزار (پیش‌فرض کلود)؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود', 'the compaction point from the engine');
+  // یادآوریِ رممبر سرِ «پنجره − ۲۰٬۰۰۰» است (تعریف ۳۰ بندِ ۲)؛ انتظارِ قدیمی بی آن بود
+  // و زنجیره در ۲۳:۵۶ همین را گرفت.
+  assert.equal(await row('autoCompactWindow').locator('.crtl-tz-note').textContent(), 'الان: کامپکت سر ۲۶۷ هزار (پیش‌فرض کلود)؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود · یادآوریِ رممبر سر ۲۴۷ هزار', 'the compaction point from the engine');
   assert.ok(await row('model').locator('select option[value="sonnet"]').count() === 1, 'models from the engine');
   assert.equal(await row('model').locator('select option[value="default"]').count(), 0, 'no Default among them');
   assert.ok(await row('model').locator(`select option[value="${MODEL_A}"]`).count() === 1, 'the full names in the file too');
@@ -829,7 +831,7 @@ async function panelInBrowser() {
   await pg.waitForFunction(() => /ریلود/.test((document.querySelector('#crtl-panel .crtl-tz-popup') || {}).textContent || ''));
   assert.equal(J(local(P1)).autoCompactWindow, 333000);
   await popup.getByRole('button', { name: 'باشه' }).click();
-  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="autoCompactWindow"] .crtl-tz-note').textContent === 'الان: کامپکت سر ۲۶۷ هزار از پروژه؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود · ثبت‌شده: ۳۰۰ هزار؛ بعد از ریلود');
+  await pg.waitForFunction(() => document.querySelector('.crtl-tz-row[data-k="autoCompactWindow"] .crtl-tz-note').textContent === 'الان: کامپکت سر ۲۶۷ هزار از پروژه؛ یعنی وقتی کانتکست به ۲۶۷ هزار توکن برسد چت خلاصه می‌شود · یادآوریِ رممبر سر ۲۴۷ هزار · ثبت‌شده: ۳۰۰ هزار؛ بعد از ریلود');
   // a level's own value fills the box when its tick lands, typed back as the number he knows
   await tick('autoCompactWindow', 'poshe').click();
   assert.equal(await acInput.inputValue(), '300000', 'typed number, not the window');

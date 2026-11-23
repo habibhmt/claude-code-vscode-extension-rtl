@@ -1056,6 +1056,11 @@
     GLOSS.wired = true;
     var SKIP = 'pre,textarea,input,script,style,#crtl-gloss,#crtl-panel,[class*="messageInputContainer_"],[contenteditable="true"]';
     var WORD = /[A-Za-z0-9_]/;
+    // نام‌های خط‌تیره‌دار (`harness-cli-claude-code`) با WORDِ بالا هرگز کامل
+    // نمی‌شوند، پس کارتشان نمی‌آمد (ناظر-۱۳۶ ۲۳:۲۶). حالا تا انتهای خط‌تیره‌ها
+    // باز می‌شود، ولی فقط اگر عیناً یکی از نام‌های ثبت‌شده باشد؛ وگرنه هر جملهٔ
+    // خط‌تیره‌دار کارت می‌گرفت.
+    var WORD_DASH = /[A-Za-z0-9_-]/;
     // INVARIANT — never add, remove or replace a node inside the chat. The
     // messages are React's; rewriting a text node to wrap a match in a <span>
     // made React lose track of its own children and the whole panel died with
@@ -1109,10 +1114,30 @@
       var a = i, b = i;
       while (a > 0 && WORD.test(s.charAt(a - 1))) a--;
       while (b < s.length && WORD.test(s.charAt(b))) b++;
-      var word = s.slice(a, b);
+      var word = s.slice(a, b), wa = a, wb = b;
+      // گسترشِ خط‌تیره‌دار: فقط اگر نتیجه دقیقاً یک نامِ ثبت‌شده باشد
+      var da = a, db = b;
+      while (da > 0 && WORD_DASH.test(s.charAt(da - 1))) da--;
+      while (db < s.length && WORD_DASH.test(s.charAt(db))) db++;
+      if (da !== a || db !== b) {
+        var tole_bozorgtar = null;
+        for (var em in GLOSS.G) {
+          if (em.indexOf('-') === -1) continue;
+          var k = s.indexOf(em, da);
+          while (k !== -1 && k + em.length <= db) {
+            if (k <= i && i <= k + em.length && (!tole_bozorgtar || em.length > tole_bozorgtar.length)) tole_bozorgtar = em;
+            k = s.indexOf(em, k + 1);
+          }
+        }
+        if (tole_bozorgtar) {
+          word = tole_bozorgtar;
+          wa = s.indexOf(tole_bozorgtar, da);
+          wb = wa + tole_bozorgtar.length;
+        }
+      }
       if (!GLOSS.G[word]) return null;
       var r = document.createRange();
-      r.setStart(t, a); r.setEnd(t, b);
+      r.setStart(t, wa); r.setEnd(t, wb);
       return { name: word, rect: r.getBoundingClientRect() };
     }
 
@@ -3001,9 +3026,26 @@
       return 'این چت هنوز شروع نشده · ' + tz_khali(k);
     }
     var v;
-    if (k === 'effortLevel') v = a.applied.effort;
+    // حبیب ۲۴ نوامبر ۰۰:۴۲: «از وقتی اوپن کد رو آوردی اون افورت و اولتراکد که از اینجا
+    // می‌شد تنظیمش کرد رفته». علت: مدل روی دروازهٔ اوپن کد در رجیستری نیست ⇒ موتور
+    // مقدارِ effort/ultracode را گزارش نمی‌کند و ردیف خالی می‌شد. حالا اگر موتور چیزی
+    // نگفت، همان مقدارِ ثبت‌شده با برچسبِ «ثبت‌شده» نشان داده می‌شود (مثلِ autoCompactWindow).
+    var tz_sabt = function (kk) {
+      var src = w ? { v: w.v } : null;
+      if (src) return src.v;
+      if (darJahani && jahani[kk] !== undefined) return jahani[kk];
+      for (var i = (a.sources || []).length - 1; i >= 0; i--) {
+        var st = (a.sources[i] || {}).settings || {};
+        if (st[kk] !== undefined) return st[kk];
+      }
+      return undefined;
+    };
+    if (k === 'effortLevel') { v = a.applied.effort; if (v === undefined || v === null || v === '') v = tz_sabt('effortLevel'); }
     else if (k === 'model') v = a.applied.model;
-    else if (k === 'ultracode') v = !!(a.applied.ultracodeRequested || a.applied.ultracode);
+    else if (k === 'ultracode') {
+      v = !!(a.applied.ultracodeRequested || a.applied.ultracode);
+      if (!v) { var tzu = tz_sabt('ultracode'); if (tzu !== undefined) v = !!tzu; }
+    }
     else if (k === 'remoteControlAtStartup') v = a.remote === 'connecting' ? 'در حال وصل' : a.remote === 'disconnected' || a.remote === 'error' ? false : a.remote ? true : undefined;
     // نشانِ موتور (a.thr) اگر نبود، مقدارِ ثبت‌شدهٔ سطحِ برنده را نشان بده —
     // «معلوم نیست» فقط وقتی است که هیچ‌جا ثبت نشده باشد (ناظر-۱۳۶، ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷).

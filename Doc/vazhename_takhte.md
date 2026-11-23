@@ -211,11 +211,11 @@
 | `UA` | کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧ | ☑ UA: `abzar/216-migration/scripts/opencode_caps.py:20` |
 | `ROW` | کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model | ☑ ROW: `abzar/216-migration/scripts/opencode_caps.py:21` |
 | `VAL` | کجا: کپس · چیه: الگوی regex برای برداشتنِ مقدارِ سقف از همان ردیف · مثال: data-plan | ☑ VAL: `abzar/216-migration/scripts/opencode_caps.py:22` |
-| `path` | کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧ | ☑ path: `/Users/habib/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:8` |
-| `names` | کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash | ☑ names: `/Users/habib/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:11` |
-| `statusPath` | کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧ | ☑ statusPath: `/Users/habib/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:173` |
-| `kBundleID` | کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧ | ☑ kBundleID: `/Users/habib/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:4` |
-| `alarms` | کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧ | ☑ alarms: `/Users/habib/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:12` |
+| `path` | کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧ | ☑ path: `apps/claude-usage/swift/Sources/OpenCode.swift:8` |
+| `names` | کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash | ☑ names: `apps/claude-usage/swift/Sources/OpenCode.swift:11` |
+| `statusPath` | کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧ | ☑ statusPath: `apps/claude-usage/swift/Sources/OpenCode.swift:173` |
+| `kBundleID` | کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧ | ☑ kBundleID: `apps/claude-usage/swift/Sources/App.swift:4` |
+| `alarms` | کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧ | ☑ alarms: `apps/claude-usage/swift/Sources/App.swift:12` |
 | `GLOSS` | کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده | ☑ GLOSS: `claude-ui-buttons.js:1008` |
 | `GLOSS_DELAY_T` | کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: 3000 میلی‌ثانیه | ☑ GLOSS_DELAY_T: `claude-ui-buttons.js:1047` |
 | `USAGE_LOG` | کجا: فایلِ مصرف · چیه: مسیرِ usage.jsonl که هزینهٔ چت و فولدر از آن خوانده می‌شود · مثال: ⟦USAGE_LOG⟧ | ☑ USAGE_LOG: `abzar/216-migration/scripts/opencode_usage.py:30` |
@@ -223,6 +223,6 @@
 | `PROJECTS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ رونوشت‌ها؛ نامِ پوشه مسیرِ پروژه را می‌دهد، بدونِ خواندنِ محتوا · مثال: ~/.claude/projects | ☑ PROJECTS_DIR: `abzar/216-migration/scripts/opencode_usage.py:32` |
 | `UNKNOWN_CHAT` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ ردیف‌های بی‌شناسه در chat_cost · مثال: نامعلوم (پیش از ثبت) | ☑ UNKNOWN_CHAT: `abzar/216-migration/scripts/opencode_usage.py:33` |
 | `UNKNOWN_FOLDER` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ چت‌هایی که مسیرشان پیدا نشد · مثال: نامعلوم (بی‌مسیر) | ☑ UNKNOWN_FOLDER: `abzar/216-migration/scripts/opencode_usage.py:34` |
-| `panelController` | کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧ | ☑ panelController: `/Users/habib/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:20` |
+| `panelController` | کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧ | ☑ panelController: `apps/claude-usage/swift/Sources/App.swift:20` |
 | `TITLE_MAX` | کجا: فایلِ مصرف · چیه: بیشترین طولِ عنوانِ چت که از اولین پیامِ آدم کوتاه می‌شود · مثال: 42 | ☑ TITLE_MAX: `abzar/216-migration/scripts/opencode_usage.py:74` |
 | `HADS_LOG` | کجا: فایلِ مصرف · چیه: پوشهٔ لاگِ کارِ کمکیِ افزونهٔ حدس؛ توکنِ هر چت از آن خوانده می‌شود · مثال: ~/.claude/hads-log | ☑ HADS_LOG: `abzar/216-migration/scripts/opencode_usage.py:119` |

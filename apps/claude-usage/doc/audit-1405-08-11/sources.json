@@ -1,0 +1,664 @@
+[
+  {
+    "id": "01a05881-300a-7d93-9c15-83b2bdd08c62",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/08/31/rollout-2026-08-31T19-17-36-01a05881-300a-7d93-9c15-83b2bdd08c62.jsonl.zst",
+    "name": "ادامه دیباگ ClaudeUsage",
+    "lines": 74,
+    "bytes": 520564,
+    "errors": [],
+    "counts": {
+      "developer": 1,
+      "user": 2,
+      "assistant": 4,
+      "call": 9,
+      "result": 9
+    },
+    "user_chars": 10557,
+    "first": "2026-08-31T15:49:41.885Z"
+  },
+  {
+    "id": "01a058aa-7f50-7ac2-aed1-d589a1dd5a88",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/08/31/rollout-2026-08-31T20-02-43-01a058aa-7f50-7ac2-aed1-d589a1dd5a88.jsonl.zst",
+    "name": "دیباگ مخفی‌شدن آیکن منوبار",
+    "lines": 556,
+    "bytes": 7805785,
+    "errors": [],
+    "counts": {
+      "developer": 3,
+      "user": 3,
+      "assistant": 12,
+      "call": 73,
+      "result": 73
+    },
+    "user_chars": 12069,
+    "first": "2026-08-31T16:32:48.302Z"
+  },
+  {
+    "id": "01a058ac-2566-7cd0-af95-6ae6c41d976f",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/08/31/rollout-2026-08-31T20-04-31-01a058ac-2566-7cd0-af95-6ae6c41d976f.jsonl.zst",
+    "name": "Guardian review",
+    "lines": 104,
+    "bytes": 505852,
+    "errors": [],
+    "counts": {
+      "developer": 2,
+      "user": 11,
+      "assistant": 10
+    },
+    "user_chars": 168891,
+    "first": "2026-08-31T16:34:36.038Z"
+  },
+  {
+    "id": "52d979b4-6cf5-484e-b094-5d170ebe893a",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/52d979b4-6cf5-484e-b094-5d170ebe893a.jsonl",
+    "name": "52d979b4-6cf5-484e-b094-5d170ebe893a",
+    "lines": 818,
+    "bytes": 2586849,
+    "errors": [],
+    "counts": {
+      "user": 20,
+      "call": 78,
+      "result": 78,
+      "assistant": 16,
+      "queued": 1
+    },
+    "user_chars": 124719,
+    "first": "2026-09-16T00:13:13.237Z"
+  },
+  {
+    "id": "5371426e-1c88-4e7e-9b4c-9b1867638e64",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/5371426e-1c88-4e7e-9b4c-9b1867638e64.jsonl",
+    "name": "5371426e-1c88-4e7e-9b4c-9b1867638e64",
+    "lines": 714,
+    "bytes": 1680210,
+    "errors": [],
+    "counts": {
+      "user": 26,
+      "call": 57,
+      "result": 57,
+      "assistant": 17,
+      "queued": 7
+    },
+    "user_chars": 158666,
+    "first": "2026-09-16T16:44:52.417Z"
+  },
+  {
+    "id": "b4b55ecf-e857-45ce-acab-be4131ac037c",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/b4b55ecf-e857-45ce-acab-be4131ac037c.jsonl",
+    "name": "b4b55ecf-e857-45ce-acab-be4131ac037c",
+    "lines": 31,
+    "bytes": 283892,
+    "errors": [],
+    "counts": {
+      "queued": 1,
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-09-16T16:45:46.015Z"
+  },
+  {
+    "id": "478d325f-a927-4ec2-89af-9c125416f476",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/478d325f-a927-4ec2-89af-9c125416f476.jsonl",
+    "name": "478d325f-a927-4ec2-89af-9c125416f476",
+    "lines": 31,
+    "bytes": 231185,
+    "errors": [],
+    "counts": {
+      "queued": 1,
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-09-16T16:45:57.429Z"
+  },
+  {
+    "id": "de393d52-20b9-47db-8c5c-4ebe6b6fc8f1",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/de393d52-20b9-47db-8c5c-4ebe6b6fc8f1.jsonl",
+    "name": "de393d52-20b9-47db-8c5c-4ebe6b6fc8f1",
+    "lines": 31,
+    "bytes": 288572,
+    "errors": [],
+    "counts": {
+      "queued": 1,
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-09-16T16:46:03.027Z"
+  },
+  {
+    "id": "89eea983-8740-47f9-a424-143db81fe1d6",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/89eea983-8740-47f9-a424-143db81fe1d6.jsonl",
+    "name": "89eea983-8740-47f9-a424-143db81fe1d6",
+    "lines": 25,
+    "bytes": 134981,
+    "errors": [],
+    "counts": {
+      "queued": 1,
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-09-16T16:46:08.904Z"
+  },
+  {
+    "id": "ce09b6ba-eb72-4652-a64d-fb5b93fba31c",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/ce09b6ba-eb72-4652-a64d-fb5b93fba31c.jsonl",
+    "name": "ce09b6ba-eb72-4652-a64d-fb5b93fba31c",
+    "lines": 25,
+    "bytes": 112290,
+    "errors": [],
+    "counts": {
+      "queued": 1,
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-09-16T16:46:13.901Z"
+  },
+  {
+    "id": "0875a36c-c8ee-4e6d-91ba-3b358d00208b",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/0875a36c-c8ee-4e6d-91ba-3b358d00208b.jsonl",
+    "name": "0875a36c-c8ee-4e6d-91ba-3b358d00208b",
+    "lines": 25,
+    "bytes": 109570,
+    "errors": [],
+    "counts": {
+      "queued": 1,
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-09-16T16:46:18.979Z"
+  },
+  {
+    "id": "e723ccc1-8ebc-4826-a35f-b4b92238ccca",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/e723ccc1-8ebc-4826-a35f-b4b92238ccca.jsonl",
+    "name": "e723ccc1-8ebc-4826-a35f-b4b92238ccca",
+    "lines": 114,
+    "bytes": 379329,
+    "errors": [],
+    "counts": {
+      "user": 4,
+      "call": 5,
+      "result": 5,
+      "assistant": 4
+    },
+    "user_chars": 288,
+    "first": "2026-09-17T07:44:42.647Z"
+  },
+  {
+    "id": "f2247295-79f6-46c0-b00d-4a9fbeeb6d7c",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/f2247295-79f6-46c0-b00d-4a9fbeeb6d7c.jsonl",
+    "name": "f2247295-79f6-46c0-b00d-4a9fbeeb6d7c",
+    "lines": 197,
+    "bytes": 624639,
+    "errors": [],
+    "counts": {
+      "queued": 4,
+      "user": 5,
+      "call": 17,
+      "result": 17,
+      "assistant": 5
+    },
+    "user_chars": 15803,
+    "first": "2026-09-22T19:57:51.655Z"
+  },
+  {
+    "id": "18a81673-b11e-4ddd-82e0-4c5eb82c1deb",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/18a81673-b11e-4ddd-82e0-4c5eb82c1deb.jsonl",
+    "name": "18a81673-b11e-4ddd-82e0-4c5eb82c1deb",
+    "lines": 238,
+    "bytes": 645442,
+    "errors": [],
+    "counts": {
+      "user": 6,
+      "assistant": 6,
+      "call": 21,
+      "result": 21
+    },
+    "user_chars": 3346,
+    "first": "2026-09-24T16:48:07.732Z"
+  },
+  {
+    "id": "b6509555-4782-4457-bad9-bcf0ea96df8f",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/b6509555-4782-4457-bad9-bcf0ea96df8f.jsonl",
+    "name": "b6509555-4782-4457-bad9-bcf0ea96df8f",
+    "lines": 5953,
+    "bytes": 19812060,
+    "errors": [],
+    "counts": {
+      "user": 209,
+      "call": 537,
+      "result": 431,
+      "assistant": 106,
+      "queued": 58,
+      "system": 434
+    },
+    "user_chars": 359765,
+    "first": "2026-09-27T13:32:30.652Z"
+  },
+  {
+    "id": "9211eb57-5272-4578-886c-403b48554d48",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/9211eb57-5272-4578-886c-403b48554d48.jsonl",
+    "name": "9211eb57-5272-4578-886c-403b48554d48",
+    "lines": 1358,
+    "bytes": 5372684,
+    "errors": [],
+    "counts": {
+      "user": 51,
+      "call": 127,
+      "result": 94,
+      "assistant": 29,
+      "queued": 26,
+      "system": 106
+    },
+    "user_chars": 120395,
+    "first": "2026-09-27T14:30:59.469Z"
+  },
+  {
+    "id": "5b63e96c-7b25-42d8-897e-041ee149e3f9",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/5b63e96c-7b25-42d8-897e-041ee149e3f9.jsonl",
+    "name": "5b63e96c-7b25-42d8-897e-041ee149e3f9",
+    "lines": 736,
+    "bytes": 1499464,
+    "errors": [],
+    "counts": {
+      "user": 42,
+      "call": 63,
+      "result": 65,
+      "assistant": 13,
+      "system": 58,
+      "queued": 7
+    },
+    "user_chars": 32940,
+    "first": "2026-10-08T19:37:26.482Z"
+  },
+  {
+    "id": "2fd3cf62-8c22-4910-886c-ab32f90377e7",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/2fd3cf62-8c22-4910-886c-ab32f90377e7.jsonl",
+    "name": "2fd3cf62-8c22-4910-886c-ab32f90377e7",
+    "lines": 349,
+    "bytes": 964657,
+    "errors": [],
+    "counts": {
+      "user": 19,
+      "system": 28,
+      "call": 26,
+      "result": 22,
+      "assistant": 7,
+      "queued": 3
+    },
+    "user_chars": 25187,
+    "first": "2026-10-16T01:18:09.954Z"
+  },
+  {
+    "id": "01a14b74-84c0-7ca3-bb4d-1b7998d02b6b",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-31-29-01a14b74-84c0-7ca3-bb4d-1b7998d02b6b.jsonl.zst",
+    "name": "ناظر-Cloud sessions bonus credit promotion",
+    "lines": 445,
+    "bytes": 655007,
+    "errors": [],
+    "counts": {
+      "user": 13,
+      "call": 83,
+      "result": 83,
+      "assistant": 29
+    },
+    "user_chars": 32670,
+    "first": "2026-10-17T20:01:29.881Z"
+  },
+  {
+    "id": "01a14b74-84bc-7f01-9b41-ba29029b8047",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-31-29-01a14b74-84bc-7f01-9b41-ba29029b8047.jsonl.zst",
+    "name": "مجری-Cloud sessions bonus credit promotion",
+    "lines": 855,
+    "bytes": 1155357,
+    "errors": [],
+    "counts": {
+      "user": 22,
+      "call": 173,
+      "result": 173,
+      "assistant": 36
+    },
+    "user_chars": 27080,
+    "first": "2026-10-17T20:01:29.884Z"
+  },
+  {
+    "id": "01a14b74-853d-7731-9e80-3e39773b75c2",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-31-29-01a14b74-853d-7731-9e80-3e39773b75c2.jsonl.zst",
+    "name": "ناظر-اخبار Claude Code و هوش مصنوعی",
+    "lines": 129,
+    "bytes": 191191,
+    "errors": [],
+    "counts": {
+      "user": 7,
+      "call": 21,
+      "result": 21,
+      "assistant": 7
+    },
+    "user_chars": 5728,
+    "first": "2026-10-17T20:01:29.980Z"
+  },
+  {
+    "id": "01a14b74-8558-7541-8309-3c4eca0f1d3c",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-31-29-01a14b74-8558-7541-8309-3c4eca0f1d3c.jsonl.zst",
+    "name": "مجری-اخبار Claude Code و هوش مصنوعی",
+    "lines": 301,
+    "bytes": 405032,
+    "errors": [],
+    "counts": {
+      "user": 15,
+      "call": 53,
+      "result": 53,
+      "assistant": 13
+    },
+    "user_chars": 7144,
+    "first": "2026-10-17T20:01:30.028Z"
+  },
+  {
+    "id": "01a14b75-9e4b-7a32-a792-3340e160423a",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-41-01a14b75-9e4b-7a32-a792-3340e160423a.jsonl.zst",
+    "name": "PONG response",
+    "lines": 9,
+    "bytes": 24903,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-10-17T20:02:41.927Z"
+  },
+  {
+    "id": "01a14b75-9e6b-7263-8818-0d27a64f1028",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-41-01a14b75-9e6b-7263-8818-0d27a64f1028.jsonl.zst",
+    "name": "ClaudeUsage تنبیه سرد شدن کش",
+    "lines": 115,
+    "bytes": 152202,
+    "errors": [],
+    "counts": {
+      "user": 4,
+      "assistant": 6,
+      "call": 21,
+      "result": 21
+    },
+    "user_chars": 3222,
+    "first": "2026-10-17T20:02:41.955Z"
+  },
+  {
+    "id": "01a14b75-9e92-74b0-8e5d-59d90d019f2a",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-41-01a14b75-9e92-74b0-8e5d-59d90d019f2a.jsonl.zst",
+    "name": "PONG",
+    "lines": 9,
+    "bytes": 24689,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-10-17T20:02:41.996Z"
+  },
+  {
+    "id": "01a14b75-9ea8-7470-9036-30d0e7db8305",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-41-01a14b75-9ea8-7470-9036-30d0e7db8305.jsonl.zst",
+    "name": "Anthropic news و تحقیق با Claude",
+    "lines": 407,
+    "bytes": 593070,
+    "errors": [],
+    "counts": {
+      "user": 15,
+      "call": 78,
+      "result": 78,
+      "assistant": 16
+    },
+    "user_chars": 13496,
+    "first": "2026-10-17T20:02:42.030Z"
+  },
+  {
+    "id": "01a14b75-9ec6-7e41-9321-0dee64e63ab2",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-41-01a14b75-9ec6-7e41-9321-0dee64e63ab2.jsonl.zst",
+    "name": "Pong response",
+    "lines": 9,
+    "bytes": 24903,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-10-17T20:02:42.053Z"
+  },
+  {
+    "id": "01a14b75-9ec1-7ff0-b65a-f582eb727cd5",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-41-01a14b75-9ec1-7ff0-b65a-f582eb727cd5.jsonl.zst",
+    "name": "مجری-Claude Code غیررسمی تحقیق و تاریخچه نانوشته ها",
+    "lines": 333,
+    "bytes": 539558,
+    "errors": [],
+    "counts": {
+      "user": 17,
+      "call": 57,
+      "result": 57,
+      "assistant": 17
+    },
+    "user_chars": 51429,
+    "first": "2026-10-17T20:02:42.056Z"
+  },
+  {
+    "id": "01a14b75-9edd-7362-975c-cd882072ab63",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-42-01a14b75-9edd-7362-975c-cd882072ab63.jsonl.zst",
+    "name": "PONG response",
+    "lines": 9,
+    "bytes": 24689,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-10-17T20:02:42.076Z"
+  },
+  {
+    "id": "01a14b75-9f0e-7431-8bc9-489fc7d2d836",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-42-01a14b75-9f0e-7431-8bc9-489fc7d2d836.jsonl.zst",
+    "name": "Ping response",
+    "lines": 9,
+    "bytes": 24903,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-10-17T20:02:42.121Z"
+  },
+  {
+    "id": "01a14b75-9f21-7ee3-b4b6-230d5b671d7c",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-42-01a14b75-9f21-7ee3-b4b6-230d5b671d7c.jsonl.zst",
+    "name": "PONG",
+    "lines": 9,
+    "bytes": 24689,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 32,
+    "first": "2026-10-17T20:02:42.150Z"
+  },
+  {
+    "id": "01a14b75-9f29-7cd3-b049-8658b7ab853d",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-42-01a14b75-9f29-7cd3-b049-8658b7ab853d.jsonl.zst",
+    "name": "هوک تخمی",
+    "lines": 47,
+    "bytes": 63399,
+    "errors": [],
+    "counts": {
+      "user": 4,
+      "call": 5,
+      "result": 5,
+      "assistant": 4
+    },
+    "user_chars": 288,
+    "first": "2026-10-17T20:02:42.158Z"
+  },
+  {
+    "id": "01a14b75-9f30-7782-b3cb-03037cf66c5a",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/17/rollout-2026-10-17T23-32-42-01a14b75-9f30-7782-b3cb-03037cf66c5a.jsonl.zst",
+    "name": "ناظر-Claude Code غیررسمی تحقیق و تاریخچه نانوشته ها",
+    "lines": 71,
+    "bytes": 125989,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "call": 14,
+      "result": 14,
+      "assistant": 4
+    },
+    "user_chars": 309,
+    "first": "2026-10-17T20:02:42.169Z"
+  },
+  {
+    "id": "09d5fd24-cf68-48a9-bd23-37b6b5b14727",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/09d5fd24-cf68-48a9-bd23-37b6b5b14727.jsonl",
+    "name": "09d5fd24-cf68-48a9-bd23-37b6b5b14727",
+    "lines": 34,
+    "bytes": 195939,
+    "errors": [],
+    "counts": {
+      "user": 5,
+      "system": 1,
+      "assistant": 1
+    },
+    "user_chars": 10183,
+    "first": "2026-10-18T17:45:43.420Z"
+  },
+  {
+    "id": "01a1502a-3e15-7ad3-8114-746f35cb2f41",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/18/rollout-2026-10-18T21-28-28-01a1502a-3e15-7ad3-8114-746f35cb2f41.jsonl.zst",
+    "name": "ببین طبق اون چیزی که میدونی من 200 دلار چیز دارم دویست دلار کردیت API کال کلود آ",
+    "lines": 10,
+    "bytes": 28813,
+    "errors": [],
+    "counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "user_chars": 706,
+    "first": "2026-10-18T17:58:28.468Z"
+  },
+  {
+    "id": "01a1508d-a123-77f3-92c3-588b531d0ed3",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/18/rollout-2026-10-18T23-17-01-01a1508d-a123-77f3-92c3-588b531d0ed3.jsonl.zst",
+    "name": "پیگیری مرحله تنظیم کلوکود",
+    "lines": 1119,
+    "bytes": 15336544,
+    "errors": [],
+    "counts": {
+      "developer": 75,
+      "user": 55,
+      "assistant": 80,
+      "call": 115,
+      "result": 115
+    },
+    "user_chars": 65646,
+    "first": "2026-10-18T19:47:06.709Z"
+  },
+  {
+    "id": "e319bd94-76e5-4313-91fc-6a8cfc38e8a1",
+    "source": "claude",
+    "path": "/Users/habib/.claude/projects/-Users-habib-1-MY-WORK-186-claude-subscription-usage/e319bd94-76e5-4313-91fc-6a8cfc38e8a1.jsonl",
+    "name": "e319bd94-76e5-4313-91fc-6a8cfc38e8a1",
+    "lines": 10060,
+    "bytes": 21460697,
+    "errors": [
+      3505,
+      3506,
+      3507
+    ],
+    "counts": {
+      "user": 339,
+      "system": 634,
+      "call": 828,
+      "result": 870,
+      "assistant": 190,
+      "queued": 89
+    },
+    "user_chars": 526832,
+    "first": "2026-10-19T13:12:54.822Z"
+  },
+  {
+    "id": "01a156de-3b5d-7950-a0d0-3133a84f79ec",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/10/20/rollout-2026-10-20T04-42-47-01a156de-3b5d-7950-a0d0-3133a84f79ec.jsonl.zst",
+    "name": "مجری-۱۸۶",
+    "lines": 991,
+    "bytes": 1064117,
+    "errors": [],
+    "counts": {
+      "user": 29,
+      "call": 188,
+      "result": 188,
+      "assistant": 60
+    },
+    "user_chars": 15544,
+    "first": "2026-10-20T01:12:47.296Z"
+  },
+  {
+    "id": "01a19989-316d-73e2-a464-3672d61e87b2",
+    "source": "codex",
+    "path": "/Users/habib/.codex/sessions/2026/11/02/rollout-2026-11-02T03-24-27-01a19989-316d-73e2-a464-3672d61e87b2.jsonl",
+    "name": "ادامهٔ کار قبلی",
+    "lines": 939,
+    "bytes": 3200706,
+    "errors": [],
+    "counts": {
+      "developer": 48,
+      "user": 30,
+      "assistant": 53,
+      "call": 118,
+      "result": 117
+    },
+    "user_chars": 14000,
+    "first": "2026-11-01T23:54:34.453Z"
+  }
+]

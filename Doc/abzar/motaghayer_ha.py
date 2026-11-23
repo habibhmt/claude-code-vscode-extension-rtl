@@ -19,9 +19,9 @@ FILE_HA = [
     ('abzar/216-migration/scripts/opencode_picker.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     ('abzar/216-migration/scripts/opencode_caps.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     # سوئیفت: فقط ثابتِ سطحِ فایل یا `static let` (تودرتوی ۴ فاصله)، نه `let` های محلی.
-    ('~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift',
+    ('apps/claude-usage/swift/Sources/OpenCode.swift',
      re.compile(r'^ {0,4}(?:static )?(let|var) ([A-Za-z_]\w*)(?:\s*:\s*[^=]+)? = (.*)$')),
-    ('~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift',
+    ('apps/claude-usage/swift/Sources/App.swift',
      re.compile(r'^ {0,4}(?:static )?(let|var) ([A-Za-z_]\w*)(?:\s*:\s*[^=]+)? = (.*)$')),
 ]
 

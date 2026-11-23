@@ -1,0 +1,51 @@
+PASS U1 three bars: session, weekly, fable
+PASS U2 weekly takes the fractional 67.37, not the rounded 67
+PASS U3 fable from its own scope (64), not Opus (40)
+PASS U4 reset time read (with and without fractions)
+PASS U5 empty response → no bars, no crash
+PASS N1 5 min left → no nudge
+PASS N2 3 min left → nudge
+PASS N3 3 min left but nudged 10 min ago → wait
+PASS N4 401 with a fresh token → nudge
+PASS N5 the question goes to the model (not «auth status»), no session, no hooks, $0.01 cap
+PASS T1 first read counts the answer
+PASS T2 only the new whole line is read; half a line waits
+PASS T3 fable share counted
+PASS T4 piecewise read == full read
+PASS T5 shrunk file → re-read from scratch
+PASS T6 5 h window slides with time
+PASS C1 29 min → no ring
+PASS C2 30 min → 30
+PASS C3 47 min → 45
+PASS C4 59 min → 55
+PASS C5 60 min → too late, nothing
+PASS C6 test unit: 45 «minutes» of 2 s → 45
+PASS C7 «۴۵ دقیقه — ۱۵ دقیقه وقت داری» + «حجم: ۱۰۲٬۰۰۰ توکن»
+PASS R1 first scan after launch → silent
+PASS R1b first scan, known chat → silent
+PASS R2 chat seen for the first time → silent
+PASS R3 same answer → silent
+PASS R4 new answer → rings
+PASS R5 text: «جواب آماده شد» + «کانتکست ۱۰۲٬۰۰۰ توکن · opus-5-5», no 🔴
+PASS R6 over 150k → 🔴 and ⚠️
+PASS G1 10 answers of one chat in 10 min → 1 banner
+PASS G2 same chat after an hour → rings again
+PASS G3 10 chats at once → 6 banners, 4 silent
+PASS G4 an hour later the cap is free again
+PASS G5 10 answers to Habib in one chat → 10 banners
+PASS G6 cap full of agent banners, Habib's answer still rings
+PASS T7 peer ⇒ agent · tool_result keeps it · his message ⇒ human · task ⇒ agent
+PASS T8 a skill's meta text after a peer message does not make the turn his
+PASS T9 a message he typed mid-turn (queued_command) ⇒ human
+PASS T11 queued peer message (origin on the attachment) ⇒ agent
+PASS T12 queued task notification without origin ⇒ agent
+PASS T13 queued message he typed (origin human) ⇒ his
+PASS T10 old record without origin ⇒ his
+PASS C8 cache chime: his chat → with sound, agent's chat → silent (still sent)
+PASS A1 first scan after launch → nothing rings
+PASS A2 a file older than 65 min is not read
+PASS A3 new answer → «جواب آماده شد» with sound
+PASS A4 idle chat crosses 45 min → one chime
+PASS A5 same mark never rings twice
+FAIL A6 «(خودکار)» chat: new answer and cache mark → nothing
+1 FAILED

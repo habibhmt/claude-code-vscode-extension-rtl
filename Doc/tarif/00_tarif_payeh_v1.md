@@ -10,7 +10,7 @@
 | | |
 |---|---|
 | **آدرسِ تعریف** | `136th-day-fix-rtl-claude · Doc/tarif/00_tarif_payeh_v1.md` |
-| **آدرسِ کد** | `abzar/216-migration/scripts/{opencode_gateway.py, vscode_opencode_wrapper.py, vscode_model_catalog.cjs, opencode_usage.py, nazer_mojri_136.py}` · اپ: `~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/` |
+| **آدرسِ کد** | `abzar/216-migration/scripts/{opencode_gateway.py, vscode_opencode_wrapper.py, vscode_model_catalog.cjs, opencode_usage.py, nazer_mojri_136.py}` · اپ: `apps/claude-usage/swift/Sources/` |
 | **آدرسِ داده** | `abzar/216-migration/.runtime/opencode-go/{usage.jsonl, merged-models.json, model-caps.json, status.json, opencode-models.json}` · `~/Library/Application Support/claude-usage-bar/opencode-go.json` · `~/.dsh/storages/model-hunter/` |
 | **تاریخِ سنجش** | ۲۳ نوامبر ۲۰۲۶، ۰۵:۲۰–۰۵:۴۵ (هر عددِ این سند همان لحظه با فرمان خوانده شد) |
 
@@ -155,7 +155,7 @@
 **قاعده:** هیچ عددی در اپ یا در سند **ساخته نمی‌شود**. نبودِ منبع ⇒ «—»، نه صفر.
 
 ▪ باطل می‌شود اگر: عددِ ثابتی به‌جای مقدارِ فایل در اپ بیاید
-⇐ `grep -n "today.spend\|list_cost\|monthly_cap" ~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/*.swift`
+⇐ `grep -n "today.spend\|list_cost\|monthly_cap" apps/claude-usage/swift/Sources/*.swift`
 
 ---
 

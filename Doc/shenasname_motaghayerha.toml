@@ -2350,7 +2350,7 @@ ba_motaghayerha = ["statusPath", "OUT"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:8"]
+jaye = ["apps/claude-usage/swift/Sources/OpenCode.swift:8"]
 
 [names]
 yani = "کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash"
@@ -2362,7 +2362,7 @@ ba_motaghayerha = ["path"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:11"]
+jaye = ["apps/claude-usage/swift/Sources/OpenCode.swift:11"]
 
 [statusPath]
 yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧"
@@ -2374,7 +2374,7 @@ ba_motaghayerha = ["path", "STATUS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:173"]
+jaye = ["apps/claude-usage/swift/Sources/OpenCode.swift:173"]
 
 [kBundleID]
 yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
@@ -2386,7 +2386,7 @@ ba_motaghayerha = ["alarms"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:4"]
+jaye = ["apps/claude-usage/swift/Sources/App.swift:4"]
 
 [alarms]
 yani = "کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧"
@@ -2398,7 +2398,7 @@ ba_motaghayerha = ["kBundleID"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:12"]
+jaye = ["apps/claude-usage/swift/Sources/App.swift:12"]
 
 [GLOSS]
 yani = "کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده"
@@ -2722,7 +2722,7 @@ ba_motaghayerha = ["chat_cost"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
 khanandeha = []
-jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:20"]
+jaye = ["apps/claude-usage/swift/Sources/App.swift:20"]
 
 [TITLE_MAX]
 yani = "کجا: فایلِ مصرف · چیه: بیشترین طولِ عنوانِ چت که از اولین پیامِ آدم کوتاه می‌شود · مثال: 42"

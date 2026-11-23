@@ -1,0 +1,9 @@
+.DS_Store
+app/node_modules/
+.remember/
+.claude/
+swift/.build/
+*.log
+__pycache__/
+context-status.html
+context-status.md

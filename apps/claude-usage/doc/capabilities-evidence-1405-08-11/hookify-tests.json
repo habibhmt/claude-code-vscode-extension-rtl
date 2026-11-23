@@ -1,0 +1,61 @@
+{
+  "test_directory": "/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/186-hookify-check-f9hqv7uz",
+  "results": [
+    {
+      "case": "allowed",
+      "tool": "Bash",
+      "denied": false,
+      "result": {},
+      "stderr": ""
+    },
+    {
+      "case": "blocked-shell",
+      "tool": "Bash",
+      "denied": true,
+      "result": {
+        "hookSpecificOutput": {
+          "hookEventName": "PreToolUse",
+          "permissionDecision": "deny"
+        },
+        "systemMessage": "**[audit-bash]**\nAudit test marker must be blocked."
+      },
+      "stderr": ""
+    },
+    {
+      "case": "blocked-claude-write",
+      "tool": "Write",
+      "denied": false,
+      "result": {},
+      "stderr": ""
+    },
+    {
+      "case": "codex-patch",
+      "tool": "apply_patch",
+      "denied": true,
+      "result": {
+        "hookSpecificOutput": {
+          "hookEventName": "PreToolUse",
+          "permissionDecision": "deny"
+        },
+        "systemMessage": "**[audit-bash]**\nAudit test marker must be blocked."
+      },
+      "stderr": ""
+    },
+    {
+      "case": "disabled-rule",
+      "tool": "Bash",
+      "denied": false,
+      "result": {},
+      "stderr": ""
+    }
+  ],
+  "current_chat_runtime_probe": {
+    "tool": "functions.exec -> exec_command",
+    "rule_present": true,
+    "rule_action": "block",
+    "expected": "marker command denied",
+    "observed": "marker command executed successfully",
+    "temporary_rule_removed": true,
+    "conclusion": "Hookify script matches Bash fixture, but blocking through the current chat tool path is NOT verified; probe failed."
+  }
+}

@@ -13,7 +13,7 @@
 | | |
 |---|---|
 | **آدرسِ تعریف** | `136th-day-fix-rtl-claude · Doc/tarif/28_tarif_usage_app_v1.md` |
-| **آدرسِ کد** | اپ: `~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/{App,OpenCode}.swift` · فایلِ مصرف: `abzar/216-migration/scripts/opencode_usage.py` · دروازه: همان‌جا `opencode_gateway.py` |
+| **آدرسِ کد** | اپ: `apps/claude-usage/swift/Sources/{App,OpenCode}.swift` · فایلِ مصرف: `abzar/216-migration/scripts/opencode_usage.py` · دروازه: همان‌جا `opencode_gateway.py` |
 | **آدرسِ داده** | مصرف: `abzar/216-migration/.runtime/opencode-go/usage.jsonl` · خلاصهٔ اپ: `~/Library/Application Support/claude-usage-bar/opencode-go.json` · وضعیت: همان‌جا `status.json` · OpenRouter: `~/Library/Application Support/ClaudeUsage/source-of-truth.json` |
 
 ---
@@ -123,7 +123,7 @@
 **مرزِ زبان:** پنجرهٔ پنل و نوار: انگلیسی. اعلان‌های بیرونِ پنل (`Rules.swift`: «جواب آماده شد»، «⏰ ۴۵ دقیقه…»): **فارسی می‌ماند** — تصمیمِ حبیب، ۲۳ نوامبر ۲۰۲۶ ۱۹:۰۵ («نه، فقط پنل انگلیسی»)، از راهِ ناظر-۱۳۶. `Alarms.swift` هم فقط با عنوانِ رونوشت مقایسه می‌کند، نمایش نیست.
 
 ▪ باطل می‌شود اگر: حبیب بگوید «باز فارسی آمد» یا «این خط را من نگفته بودم» یا «مانده را نشان می‌دهد ولی نوار پُر است» یا «از کجا فهمیدی زنده است»
-⇐ `cd ~/1-MY-WORK/186-claude-subscription-usage/swift/Sources && for f in *.swift; do printf '%s ' "$f"; grep -nP '[\x{0600}-\x{06FF}]' "$f" | grep -vP '^\s*\d+:\s*//' | wc -l; done`
+⇐ `cd ~/1-MY-WORK/136th-day-fix-rtl-claude/apps/claude-usage/swift/Sources && for f in *.swift; do printf '%s ' "$f"; grep -nP '[\x{0600}-\x{06FF}]' "$f" | grep -vP '^\s*\d+:\s*//' | wc -l; done`
 (باید ۰ باشد؛ `Rules.swift` و `Alarms.swift` **استثنا**ی تصمیمِ ۱۹:۰۵‌اند، نه بدهی) ·
 `grep -c "open sessions\|last update\|Reset" PanelView.swift` = ۰ · `grep -c 'chat [0-9a-f]\{6\} ·' PanelView.swift` = ۰ (شناسه برچسب نیست) · عکسِ دو تب
 (**تلهٔ سنجیده‌شدهٔ ۱۹:۰۵:** بدونِ `-n`، فیلترِ کامنت هیچ خطی را نمی‌گیرد و عددِ دروغ می‌دهد)

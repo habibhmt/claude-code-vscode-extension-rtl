@@ -22,5 +22,19 @@ d1=$(bash abzar/ide_data_name.sh "$HOME/.vscode/extensions/anthropic.claude-code
 if [ "$d1" = ".vscode" ]; then ok=$((ok + 1)); else echo "FAIL: نامِ پوشهٔ داده ⇒ '$d1' (انتظار: .vscode)"; bad=$((bad + 1)); fi
 d2=$(bash abzar/ide_data_name.sh "/x/.cursor/extensions/anthropic.claude-code-2.1.302-darwin-arm64/webview")
 if [ "$d2" = ".cursor" ]; then ok=$((ok + 1)); else echo "FAIL: نامِ پوشهٔ داده ⇒ '$d2' (انتظار: .cursor)"; bad=$((bad + 1)); fi
-echo "ide_nasb: $ok ok, $bad bad"
-[ "$bad" -eq 0 ]
+# موردِ مثبت روی اپِ واقعی: ردِ بی‌جا نباید بشود. اگر VS Code نصب است، `.vscode`
+# باید «نصب» بدهد؛ نبود ⇒ این آزمون skip می‌شود (نه سبزِ الکی).
+skip=""
+if [ -d "/Applications/Visual Studio Code.app" ]; then
+    rc=0
+    bash abzar/ide_nasb.sh .vscode || rc=$?      # بدونِ CRTL_APPS_DIR ⇒ /Applicationsِ واقعی
+    if [ "$rc" -eq 0 ]; then ok=$((ok + 1)); else
+        echo "FAIL: .vscode روی اپِ واقعی ⇒ $rc (انتظار: 0 — ردِ بی‌جا)"; bad=$((bad + 1)); fi
+else
+    echo "SKIP: Visual Studio Code.app روی این مک نیست"
+    skip=1
+fi
+echo "ide_nasb: $ok ok, $bad bad${skip:+ (با یک skip)}"
+[ "$bad" -eq 0 ] || exit 1
+[ -n "$skip" ] && [ "$ok" -eq 0 ] && exit 77
+exit 0

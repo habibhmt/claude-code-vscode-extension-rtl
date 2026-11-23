@@ -5,36 +5,36 @@ rtl-wezterm: all checks passed
 === chatgpt patch ===
 .....
 ----------------------------------------------------------------------
-Ran 5 tests in 0.448s
+Ran 5 tests in 0.982s
 
 OK
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp9jr9tiau
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpj3elawku
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpj3elawku
-[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpj3elawku
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmppf3094qb
-[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmppf3094qb
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp_bocfdba
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpzrtx5tk_
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpzrtx5tk_
+[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpzrtx5tk_
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpgnez1do9
+[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpgnez1do9
 
 === chatgpt folder patch ===
-...[SKIP folder filter] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp546iq79h: Expected one header-*.js; found 0
+...[SKIP folder filter] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4leai57d: Expected one header-*.js; found 0
 ..s.......
 ----------------------------------------------------------------------
-Ran 13 tests in 2.442s
+Ran 13 tests in 2.343s
 
 OK (skipped=1)
-[FOLDER FILTER] new: /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpq3vj9wvx
-[FOLDER RESTORED new] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpq3vj9wvx
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpzqnyd2ar
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpzqnyd2ar
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpnxb_0fl6
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpnxb_0fl6
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpnxb_0fl6
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmprj6a06mh
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmprj6a06mh
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmper1i0vzg
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmper1i0vzg
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmper1i0vzg
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp420xysgh
+[FOLDER FILTER] new: /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpixpnx8mf
+[FOLDER RESTORED new] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpixpnx8mf
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpvuy_bucm
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpvuy_bucm
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp0rp9ho6d
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp0rp9ho6d
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp0rp9ho6d
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpenxzfd4l
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpenxzfd4l
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps4jr_rlh
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps4jr_rlh
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps4jr_rlh
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmph8f298hk
 
 === chatgpt folder filter ===
 {"sameFolderOnly":true,"folderSwitch":true,"multiRoot":true,"searchScoped":true,"siblingPrefixExcluded":true,"remoteHostExcluded":true,"originalDataPreserved":true,"importedClaudeByFolder":true,"leakedChatSabotageDetected":true,"missingChatSabotageDetected":true}
@@ -108,7 +108,7 @@ ok: کدِ رنگی چپ‌به‌راست، با Vazir Code Hack و رنگ‌ه
 ok: رنگِ متن به کد نمی‌رسد
 
 === claude hover open ===
-{"basteh":106,"baz":1522,"dobareBasteh":106,"glossA":{"yes":"cow_buy_state (crtl-gloss-A-nUhRkz)\nیعنی: خریدِ کوسواپ\nنوع: khat_cow_pol_koja_raft\nنویسنده: charkhe/marhale.py\nخواننده‌ها: ledger\nهم‌خانواده: cow_sell_state\nچرا: چون چرخه\nتأیید: حبیب ۱۹ سپت «بله»\nتعریف کامل\n01","no":""},"glossHesar":{"yes":"cow_buy_state (A)\nیعنی: خرید\nنوع: khat\nنویسنده: o\nخواننده‌ها: l\nهم‌خانواده: b\nچرا: چ\nتأیید: ت","no":""},"glossAbs":{"f":"/tmp/abs/foo.py","line":"12"}}
+{"basteh":106,"baz":1522,"dobareBasteh":106,"glossA":{"yes":"cow_buy_state (crtl-gloss-A-Qlsh0N)\nیعنی: خریدِ کوسواپ\nنوع: khat_cow_pol_koja_raft\nنویسنده: charkhe/marhale.py\nخواننده‌ها: ledger\nهم‌خانواده: cow_sell_state\nچرا: چون چرخه\nتأیید: حبیب ۱۹ سپت «بله»\nتعریف کامل\n01","no":""},"glossHesar":{"yes":"cow_buy_state (A)\nیعنی: خرید\nنوع: khat\nنویسنده: o\nخواننده‌ها: l\nهم‌خانواده: b\nچرا: چ\nتأیید: ت","no":""},"glossAbs":{"f":"/tmp/abs/foo.py","line":"12"}}
 
 === claude ask width ===
 ask width: all checks passed
@@ -116,9 +116,9 @@ ask width: all checks passed
 === claude tanzimat ===
 tanzimat: host logic passed
 tanzimat: patches passed
-tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-UiZV6d/.claude/tik_ha.json' ⇒ قفلِ قدیمی
-tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-UiZV6d/.claude/tik_ha.json' ⇒ قفلِ قدیمی
-tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-UiZV6d/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-AhHWu8/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-AhHWu8/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-AhHWu8/.claude/tik_ha.json' ⇒ قفلِ قدیمی
 tanzimat: wrapper passed
 tanzimat: real engine passed
 tanzimat: panel passed
@@ -156,7 +156,7 @@ navar: all green
 === claude tik ha ===
 python ok
 host ok
-panel ok · /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tik-5Plvxh/tik-panel.png
+panel ok · /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tik-XOSoQk/tik-panel.png
 engine skipped (set TIK_ENGINE=1 to run the real CLI)
 tik_ha: all green
 
@@ -167,7 +167,7 @@ OK test_codex_tanzimat
 reset_ha: ok
 
 === ide nasb ===
-ide_nasb: 5 ok, 0 bad
+ide_nasb: 6 ok, 0 bad
 
 === SUMMARY: 35 passed, 2 skipped, 0 failed ===
 SKIPPED: chatgpt folder query

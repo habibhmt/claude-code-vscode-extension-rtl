@@ -1789,3 +1789,234 @@ noe = "sabet"
 ba_motaghayerha = ["GLOSS_DELAY", "GLOSS"]
 tarif = "20"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"
+
+# ─── فیلدهای داده (نه ثابتِ کد) — ناظر-۱۳۶، ۲۳ نوامبر ۲۰۲۶ ۱۷:۱۷ ───
+# این‌ها در `usage.jsonl` و `opencode-go.json` هستند، نه در کد؛ پس چک آن‌ها را با خودِ داده
+# می‌سنجد (`chek_motaghayer.py::dadeh_fields`)، نه با اسکنرِ کد.
+
+[session_id]
+yani = "کجا: ردیفِ مصرف · چیه: شناسهٔ چت (گفتگو) که کلود کد در هدرِ x-claude-code-session-id می‌فرستد · مثال: 7aa0e8a2-…"
+chera = "حبیب ۲۲ نوامبر «باید بفهمید فلان چت با مدلِ اوپن روتر بوده یا اوپن کد»"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["chat_cost", "provider"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"
+
+[provider]
+yani = "کجا: ردیفِ مصرف · چیه: سرویسی که پول از آن کم شد: opencode یا openrouter · مثال: opencode"
+chera = "حبیب «همه مصرف بره روی اوپن کد»"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["session_id", "list_cost"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[model]
+yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
+chera = "برای تفکیکِ هزینهٔ هر مدل"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["requested", "mapped_from"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[requested]
+yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/…"
+chera = "تا معلوم شود مدلِ کاربر بی‌صدا عوض نشده"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["model", "mapped_from"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[mapped_from]
+yani = "کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus"
+chera = "برای سنجشِ «مدل بی‌صدا عوض نشد»"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["requested", "model"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[list_cost]
+yani = "کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021"
+chera = "حبیب «هزینه‌های OpenCode رو از لاگش در بیارید»"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["monthly_cap", "remaining", "chat_cost"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[monthly_cap]
+yani = "کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200"
+chera = "برای «مانده» بدونِ حدس"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["list_cost", "remaining"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[remaining]
+yani = "کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18"
+chera = "عددِ «مانده» در نوار"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["monthly_cap", "list_cost"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[request_bytes]
+yani = "کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452"
+chera = "بزرگ‌ترین درخواست ۷٫۷ مگابایت بود و کندی را توضیح می‌داد"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["duration_ms"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[upload_ms]
+yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4"
+chera = "برای جداکردنِ کندیِ آپلود از کندیِ سرویس"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["wait_ms", "stream_ms", "duration_ms"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[wait_ms]
+yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709"
+chera = "پایهٔ تصمیمِ سقفِ ۴۵ ثانیه‌ایِ بایتِ اول"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["upload_ms", "stream_ms", "duration_ms"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[stream_ms]
+yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157"
+chera = "برای جداکردنِ انتظار از استریم"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["wait_ms", "duration_ms"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[duration_ms]
+yani = "کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870"
+chera = "آزمونِ «جمعِ سه جزء = کل» باید واقعاً چیزی بسنجد"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["upload_ms", "wait_ms", "stream_ms"]
+tarif = "00"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[chat_cost]
+yani = "کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders}"
+chera = "حبیب «باید بفهمید فلان چت …»؛ ناظر-۱۳۶ ۱۶:۰۶ «هزینهٔ هر چت و هر فولدر»"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["session_id", "list_cost"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[schema]
+yani = "کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1"
+chera = "برای تغییرِ ساختار بدونِ شکستنِ اپ"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["chat_cost"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[total]
+yani = "کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148"
+chera = "آزمونِ درونیِ فایل"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["list_cost", "unknown"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[unknown]
+yani = "کجا: chat_cost · چیه: گروهِ ردیف‌های بی‌شناسه؛ پولی که به هیچ چتی نسبت داده نمی‌شود · مثال: {label, cost, requests}"
+chera = "حدس‌زدنِ صاحبِ ردیف ممنوع است"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["session_id", "total"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[sessions]
+yani = "کجا: chat_cost · چیه: فهرستِ چت‌ها با شناسه، مسیر، دلار و شمارِ درخواست · مثال: [{session_id, cwd, cost, requests}]"
+chera = "نمایشِ هزینهٔ هر چت در تبِ OpenCode"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["session_id", "folders"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[folders]
+yani = "کجا: chat_cost · چیه: فهرستِ فولدرها؛ دلارِ هر فولدر = جمعِ چت‌هایش · مثال: [{label, cost, chats}]"
+chera = "نمایشِ هزینهٔ هر فولدر"
+ozv = "dadeh"
+noe = "dadeh"
+ba_motaghayerha = ["sessions"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+# ─── ثابت‌های تازهٔ همین مرحله (ناظر-۱۳۶ ۱۷:۱۷ و حبیب ۱۷:۲۱) ───
+
+[USAGE_LOG]
+yani = "کجا: فایلِ مصرف · چیه: مسیرِ usage.jsonl که هزینهٔ چت و فولدر از آن خوانده می‌شود · مثال: ⟦USAGE_LOG⟧"
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۱۶:۰۶ «هزینهٔ هر چت و هر فولدر»"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["chat_cost", "OUT"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[SESSIONS_DIR]
+yani = "کجا: فایلِ مصرف · چیه: پوشهٔ سشن‌های زنده که نام و مسیرِ هر چت از آن می‌آید · مثال: ~/.claude/sessions"
+chera = "برای نسبت‌دادنِ چت به فولدر"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["PROJECTS_DIR", "session_id"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[PROJECTS_DIR]
+yani = "کجا: فایلِ مصرف · چیه: پوشهٔ رونوشت‌ها؛ نامِ پوشه مسیرِ پروژه را می‌دهد، بدونِ خواندنِ محتوا · مثال: ~/.claude/projects"
+chera = "سشنِ زنده همیشه نیست؛ رونوشت هست"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["SESSIONS_DIR"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[UNKNOWN_CHAT]
+yani = "کجا: فایلِ مصرف · چیه: برچسبِ گروهِ ردیف‌های بی‌شناسه در chat_cost · مثال: نامعلوم (پیش از ثبت)"
+chera = "نسبت‌دادنِ ردیفِ بی‌شناسه به چتی تصادفی ممنوع است"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["UNKNOWN_FOLDER", "unknown"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[UNKNOWN_FOLDER]
+yani = "کجا: فایلِ مصرف · چیه: برچسبِ گروهِ چت‌هایی که مسیرشان پیدا نشد · مثال: نامعلوم (بی‌مسیر)"
+chera = "همان دلیلِ UNKNOWN_CHAT"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["UNKNOWN_CHAT", "folders"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
+
+[panelController]
+yani = "کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧"
+chera = "حبیب ۲۳ نوامبر ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
+ozv = "ap186"
+noe = "sabet"
+ba_motaghayerha = ["chat_cost"]
+tarif = "28"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"

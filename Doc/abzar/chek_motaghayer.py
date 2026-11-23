@@ -14,6 +14,41 @@ FA = str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')
 LEGACY = {'mods/hads/hooks/register.js', 'claude-ui-buttons.js', 'claude-host-hook.js'}
 
 
+def dadeh_fields():
+    """کلیدهایی که واقعاً در داده هستند: ردیف‌های usage.jsonl + کلیدهای opencode-go.json (تودرتو)."""
+    import json
+    out = set()
+    usage = os.path.join(m.RISHE, 'abzar/216-migration/.runtime/opencode-go/usage.jsonl')
+    if os.path.exists(usage):
+        # کلِ فایل، نه فقط چند ردیف: فیلدهای تشخیصی تازه‌اند و ردیف‌های قدیمی ندارندشان،
+        # و `mapped_from` فقط در ردیف‌های نگاشت‌شده هست (سنجیده ۲۳ نوامبر ۱۷:۳۴).
+        with open(usage, encoding='utf-8', errors='replace') as f:
+            lines = f.readlines()
+        for line in lines:
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(row, dict):
+                out |= set(row)
+    snap = os.path.expanduser('~/Library/Application Support/claude-usage-bar/opencode-go.json')
+    if os.path.exists(snap):
+        try:
+            data = json.load(open(snap, encoding='utf-8'))
+        except ValueError:
+            data = {}
+        def walk(node):
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    out.add(k)
+                    walk(v)
+            elif isinstance(node, list):
+                for v in node[:3]:
+                    walk(v)
+        walk(data)
+    return out
+
+
 def main():
     sh_masir = os.path.join(m.RISHE, 'Doc', 'shenasname_matn.toml')
     sh = tomllib.load(open(sh_masir, 'rb'))
@@ -46,9 +81,16 @@ def main():
                 bad.append(f'اسم بیرون از تعریفِ ۱۰ ِ ۹۱: {esm} (درستش کن یا در esm_pishnahadi.md بیاور)')
         if len({a['file'] for a in ja}) > 1 and f'`{esm}`' not in pish:
             bad.append(f'یک اسم در دو فایل: {esm} (قاعدهٔ ۷)')
+    # فیلدهای داده (noe = "dadeh") در کد نیستند؛ با خودِ داده سنجیده می‌شوند، نه با اسکنر.
+    dadeh = {esm for esm, b in sh.items() if str(b.get('noe', '')).strip() == 'dadeh'}
     for esm in sh:
-        if esm not in esm_ha:
+        if esm not in esm_ha and esm not in dadeh:
             bad.append(f'شناسنامهٔ کهنه: {esm} در کد نیست')
+    if dadeh:
+        fields = dadeh_fields()
+        for esm in sorted(dadeh):
+            if esm not in fields:
+                bad.append(f'فیلدِ داده در داده نیست: {esm} (نه در usage.jsonl نه در opencode-go.json)')
     if open(j.MASIR_JADVAL, encoding='utf-8').read() != j.sakht():
         bad.append('جدولِ متغیرها کهنه است: python3 Doc/abzar/jadval_motaghayer.py')
     if not os.path.exists(j.MASIR_SAKHTE) or open(j.MASIR_SAKHTE, encoding='utf-8').read() != j.sakht_shenasname_sakhte():

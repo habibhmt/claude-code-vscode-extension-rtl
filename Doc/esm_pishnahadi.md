@@ -47,3 +47,6 @@
 | ۱۷ | `moalagh.md` | `doc/moalagh.md` | CLAUDE.md ِ حبیب `moalagh.md` می‌گوید | همان |
 | ۱۸ | فایل‌های انگلیسیِ ریشه (`fix-rtl-claude.sh`، `claude-ui-buttons.js`، …) | **بماند** (پیشنهادِ من) | اسمشان کارشان را می‌گوید و انگلیسی با اسپلِ درست است؛ `com.habib.fix-rtl-claude.plist`، نصب‌کننده‌ها و README به آن‌ها اشاره می‌کنند | عوض کردن ⇐ LaunchAgent باید دوباره نصب شود |
 | ۴۵ | `TITLE_MAX` | `had_tol_esm_chat_harf` | طولِ عنوانِ چت = حدِ حرف ⇒ واحد (حرف) آخر · تا تغییرِ نام، همین `TITLE_MAX` در کد می‌ماند | opencode_usage.py |
+| ۵۱ | `DEFAULT_MAX_TURNS` | `had_nobe_klai` | سقفِ پیش‌فرضِ نوبت | — |
+| ۵۲ | `MAX_ALLOWED_TURNS` | `had_nobe_klai_kol` | سقفِ مجازِ نوبت | — |
+| ۵۳ | `LOG` | `masir_log_hook` | مسیرِ لاگِ هوک (هم‌نام در دو فایل) | — |

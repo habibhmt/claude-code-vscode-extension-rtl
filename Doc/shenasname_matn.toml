@@ -2056,3 +2056,156 @@ noe = "dadeh"
 ba_motaghayerha = ["HADS_LOG", "hads"]
 tarif = "28"
 tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۱۹:۱۷ (قاعدهٔ شش‌بندی)"
+
+[had_kamtarin_yad_avari_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: کفِ آستانهٔ پیامِ «یادداشت بنویس» تا پنجرهٔ کوچک آستانهٔ منفی نسازد · مثال: ⟦had_kamtarin_yad_avari_token⟧"
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷: آستانه از پنجرهٔ مؤثر، با کف"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["had_kamtarin_yad_avari_token", "had_chat"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷ (تصمیمِ حبیب از راهِ ناظر)"
+
+[masir_file_masraf]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: مسیرِ فایلِ مصرفِ دروازه که هزینهٔ واقعیِ هر تماس از آن خوانده می‌شود · مثال: ⟦masir_file_masraf⟧"
+chera = "تعریف ۳۰ بندِ ۴: هزینه از قبضِ واقعی، نه قیمتِ Anthropic"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["masir_file_masraf", "USAGE_LOG"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+
+[had_khandan_file_masraf_byte]
+yani = "کجا: پایپ‎لاینِ رممبر · چیه: چند بایت از تهِ فایلِ مصرف خوانده شود تا تماسِ تازه پیدا شود · مثال: ⟦had_khandan_file_masraf_byte⟧"
+chera = "فایلِ مصرف بزرگ است؛ کلِ آن خوانده نمی‌شود"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["had_khandan_file_masraf_byte", "masir_file_masraf"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+
+[DEFAULT_MAX_TURNS]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: سقفِ نوبتِ کلایِ فرعی؛ ۱ کافی نیست چون تحویلِ پرامپت یک نوبت حساب می‌شود · مثال: ⟦DEFAULT_MAX_TURNS⟧"
+chera = "کامِنتِ خودِ کد (#98/#100): با ۱، پیش از جواب خطا می‌دهد"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["DEFAULT_MAX_TURNS", "MAX_ALLOWED_TURNS"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳ (ثبتِ نام)"
+
+[MAX_ALLOWED_TURNS]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: سقفِ مجاز برای تنظیمِ دستیِ نوبت‌ها · مثال: ⟦MAX_ALLOWED_TURNS⟧"
+chera = "مقدارِ خرابِ محیطی نباید اجرا را بی‌نهایت کند"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["MAX_ALLOWED_TURNS", "DEFAULT_MAX_TURNS"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[NESTED_SUMMARIZER_ENV]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: نامِ متغیرِ محیطی که به فرزند می‌گوید «تو زیرمجموعه‌ای»، تا هوک‌های خودِ رممبر دوباره اجرا نشوند · مثال: ⟦NESTED_SUMMARIZER_ENV⟧"
+chera = "جلوگیری از حلقهٔ بی‌پایانِ رممبر"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["NESTED_SUMMARIZER_ENV"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[DEFAULT_REJECT_PATTERN]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: الگویِ ردِ جواب وقتی مدل به‌جای JSON چیزِ دیگری می‌گوید · مثال: ⟦DEFAULT_REJECT_PATTERN⟧"
+chera = "پاسخِ هوکِ مسدودکننده مدل نیست؛ باید رد شود"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["DEFAULT_REJECT_PATTERN"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[had_yad_avari_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: آستانهٔ پیش‌فرضِ پیامِ «یادداشت بنویس» وقتی هیچ پنجره‌ای ثبت نشده · مثال: ⟦had_yad_avari_token⟧"
+chera = "حبیب ۴ نوامبر: «روی ۲۸۰ هزار توکن رممبر زده بشه»"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["had_yad_avari_token", "had_chat", "had_kamtarin_yad_avari_token"]
+tarif = "30"
+tayid = "حبیب ۴ نوامبر ۲۰۲۶ ۰۱:۰۹ (از کامنتِ خودِ کد)"
+
+[had_bozorgtarin_yad_avari_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: چند بایت از تهِ رونوشت خوانده شود · مثال: ⟦had_bozorgtarin_yad_avari_token⟧"
+chera = "رونوشتِ بزرگ خوانده نمی‌شود؛ فقط تهٔ آن"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["had_bozorgtarin_yad_avari_token"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[panjere_taze_remember_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: پنجرهٔ تازگیِ یادداشت؛ اگر یادداشت تازه‌تر از این فاصلهٔ توکنی باشد، پیام تکرار نمی‌شود · مثال: ⟦panjere_taze_remember_token⟧"
+chera = "یادداشتِ سرِ ۶۰ هزار به کارِ ۲۹۰ هزار نمی‌آید"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["panjere_taze_remember_token"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[farman_remember_matn]
+yani = "کجا: نگهبانِ یادآوری · چیه: نشانهٔ فرمانِ ‎/remember:remember‎ در رونوشت · مثال: ⟦farman_remember_matn⟧"
+chera = "برای فهمیدنِ اینکه یادداشت تازه نوشته شده یا نه"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["farman_remember_matn"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[matn_yad_avari_remember]
+yani = "کجا: نگهبانِ یادآوری · چیه: متنِ پیامی که به مدل داده می‌شود تا یادداشت بنویسد · مثال: ⟦matn_yad_avari_remember⟧"
+chera = "پیام باید بگوید «این پیامِ خودکارِ نگهبان است، نه حرفِ حبیب»"
+ozv = "rem"
+noe = "sabet"
+ba_motaghayerha = ["matn_yad_avari_remember", "farman_remember_matn"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+
+[had_chat]
+yani = "کجا: نگهبانِ یادآوری · چیه: آستانهٔ پیامِ «یادداشت بنویس» برای همین چت: پنجرهٔ مؤثر − ۳۳٬۰۰۰ − ۲۰٬۰۰۰ (و کف و پیش‌فرض) · مثال: ۵۳۳٬۰۰۰ ⇒ ۴۸۰٬۰۰۰"
+chera = "حبیب ۴ نوامبر: «رممبر ۲۰ هزار پیش از کامپکت»؛ ناظر-۱۳۶ ۲۳ نوامبر ۲۰:۱۷: از پنجرهٔ مؤثر"
+ozv = "rem"
+noe = "tabe"
+ba_motaghayerha = ["had_chat", "had_kamtarin_yad_avari_token", "had_yad_avari_token"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷ (از راهِ ناظر-تعاریف)"
+
+[kharj_az_row_darvaze]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: هزینهٔ واقعیِ یک تماس را با امضای توکن (input + cache_read + output) از ردیفِ دروازه پیدا می‌کند؛ نبود ⇒ «—» · مثال: 5726+8192cache->163out ⇒ $0.00098"
+chera = "لاگ تا ۶۵ برابر قیمتِ Anthropic را می‌نوشت؛ تعریف ۳۰ بندِ ۴"
+ozv = "rem"
+noe = "tabe"
+ba_motaghayerha = ["kharj_az_row_darvaze", "masir_file_masraf"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+
+[model_ha_ye_chat]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: مدلِ تماسِ یادداشت = مدلِ همان چت (`ANTHROPIC_MODEL`) یا `REMEMBER_MODEL`؛ نبود ⇒ هیچ مدلی فرستاده نمی‌شود، نه haiku · مثال: deepseek-v4.1-flash"
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰:۱۷: «اگر ANTHROPIC_MODEL نبود، به haiku برنگرد»"
+ozv = "rem"
+noe = "tabe"
+ba_motaghayerha = ["model_ha_ye_chat"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+
+[autoCompactWindow]
+yani = "کجا: تبِ «تنظیمات کلود» (دکمهٔ Aa) · چیه: کلیدِ پنجرهٔ کامپکت؛ مقدارِ مؤثر = ثبتِ پوشه بر سراسری مقدم · مثال: پوشهٔ ۱۳۶ = ۵۳۳٬۰۰۰ (کامپکت سر ۵۰۰٬۰۰۰؛ یادآوری سر ۴۸۰٬۰۰۰)"
+chera = "حبیب ۲۳ نوامبر ۲۰:۲۳: «مگه عکس از تنظیمات Aa نفرستادم که طبق اون باشه»"
+ozv = "tan"
+noe = "vaziat"
+ba_motaghayerha = ["autoCompactWindow", "TZ_FASELE_TOKEN", "had_chat"]
+tarif = "30"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۰:۲۳ (از راهِ ناظر-۱۳۶)"
+
+[GLOSS_TAZE_MS]
+yani = "کجا: پنلِ چت · چیه: هر چند میلی‌ثانیه واژه‌نامه دوباره پرسیده شود تا بلوکِ تازهٔ شناسنامه بی‌ریلود دیده شود · مثال: ⟦GLOSS_TAZE_MS⟧ (۳۰ ثانیه)"
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۲:۱۰: کشِ یک‌بار-در-سشن، بلوکِ تازه را نامرئی می‌کرد"
+ozv = "gloss"
+noe = "sabet"
+ba_motaghayerha = ["GLOSS_TAZE_MS", "GLOSS_DELAY"]
+tarif = "20"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ (از راهِ ناظر-۱۳۶ ۲۲:۱۰)"

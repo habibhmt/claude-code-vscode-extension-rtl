@@ -1038,10 +1038,16 @@
     // تا جوابِ کارت‌های خودی نرسیده، پشتیبانِ پخته — ولی فقط همین پوشه
     if (!GLOSS.got && window.__CRTL_GLOSSARY) gloss_prepare(gloss_hesar(window.__CRTL_GLOSSARY, cwd));
   }
+  // بلوکِ تازه در شناسنامه، بی‌ریلود دیده شود: میزبان با مهرِ زمانیِ فایل‌ها کش می‌کند،
+  // پس پرسشِ دوباره ارزان است؛ حداکثر هر ۳۰ ثانیه یک بار (ناظر-۱۳۶، ۲۳ نوامبر ۲۰۲۶ ۲۲:۱۰).
+  var GLOSS_TAZE_MS = 30000;
   function gloss_darkhast() {
     var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
-    if (!api || !SESSION.sid || GLOSS.asked === SESSION.sid) return;
+    if (!api || !SESSION.sid) return;
+    var now = Date.now();
+    if (GLOSS.asked === SESSION.sid && now - (GLOSS.askedAt || 0) < GLOSS_TAZE_MS) return;
     GLOSS.asked = SESSION.sid;
+    GLOSS.askedAt = now;
     api.postMessage({ type: 'crtl-glossary', sid: SESSION.sid, channel: SESSION.channel || '' });
   }
   var GLOSS_DELAY_T = 3000;
@@ -2999,7 +3005,9 @@
     else if (k === 'model') v = a.applied.model;
     else if (k === 'ultracode') v = !!(a.applied.ultracodeRequested || a.applied.ultracode);
     else if (k === 'remoteControlAtStartup') v = a.remote === 'connecting' ? 'در حال وصل' : a.remote === 'disconnected' || a.remote === 'error' ? false : a.remote ? true : undefined;
-    else if (k === 'autoCompactWindow') v = a.thr;
+    // نشانِ موتور (a.thr) اگر نبود، مقدارِ ثبت‌شدهٔ سطحِ برنده را نشان بده —
+    // «معلوم نیست» فقط وقتی است که هیچ‌جا ثبت نشده باشد (ناظر-۱۳۶، ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷).
+    else if (k === 'autoCompactWindow') v = (typeof a.thr === 'number') ? a.thr : (w ? w.v - TZ_FASELE_TOKEN : undefined);
     else v = (a.effective || {})[k];
     var azManba;
     if (!az) {
@@ -3012,6 +3020,8 @@
     if (k === 'autoCompactWindow') {
       if (typeof v !== 'number') return 'الان: معلوم نیست';
       var matn = 'الان: کامپکت سر ' + tz_hezar(v) + (az ? ' از ' + az : ' (پیش‌فرض کلود)') + tz_mani(k, v, tz_hezar(v));
+      // همان عددی که هوکِ رممبر استفاده می‌کند: ۲۰٬۰۰۰ پیش از نقطهٔ کامپکت.
+      matn += ' · یادآوریِ رممبر سر ' + tz_hezar(v - 20000);
       if (w && w.v - TZ_FASELE_TOKEN !== v) matn += ' · ثبت‌شده: ' + tz_hezar(w.v - TZ_FASELE_TOKEN) + '؛ بعد از ریلود';
       return matn;
     }

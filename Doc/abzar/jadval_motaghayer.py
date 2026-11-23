@@ -39,13 +39,18 @@ def sakht_shenasname_sakhte():
         ba = b.get('ba_motaghayerha') or []
         if isinstance(ba, str):
             ba = [ba]
+        jaye = [f"{a['file']}:{a['khat']}" for a in ja]
+        if not jaye:  # بلوکِ تابع/کلید: جایش را از خودِ کد پیدا کن
+            loc = m.jaye_tabe(esm) or m.jaye_name(esm)
+            if loc:
+                jaye = [f'{loc[0]}:{loc[1]}']
         out += ['[' + esm + ']', 'yani = ' + q(yani), 'meghdar = ' + q(meghdar.get(esm, '')),
                 'chera = ' + q(b.get('chera', '')), 'noe = ' + q(b.get('noe', '')),
                 'ozv = ' + q(b.get('ozv', '')),
                 'ba_motaghayerha = [' + ', '.join(q(x) for x in ba) + ']',
                 'tarif = ' + q(b.get('tarif', '')), 'tayid = ' + q(b.get('tayid', '')),
                 'khanandeha = [' + ', '.join(q(x) for x in kh) + ']',
-                'jaye = [' + ', '.join(q(f"{a['file']}:{a['khat']}") for a in ja) + ']', '']
+                'jaye = [' + ', '.join(q(x) for x in jaye) + ']', '']
     return '\n'.join(out)
 
 

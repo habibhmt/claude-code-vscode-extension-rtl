@@ -18,6 +18,9 @@ FILE_HA = [
     ('abzar/216-migration/scripts/opencode_usage.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     ('abzar/216-migration/scripts/opencode_picker.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     ('abzar/216-migration/scripts/opencode_caps.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    # ثابت‌های رممبر: افزونهٔ فعال از ~/.claude/plugins-local می‌خوانَد، نه از cache.
+    ('~/.claude/plugins-local/remember-habib/pipeline/haiku.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
+    ('~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     # سوئیفت: فقط ثابتِ سطحِ فایل یا `static let` (تودرتوی ۴ فاصله)، نه `let` های محلی.
     ('apps/claude-usage/swift/Sources/OpenCode.swift',
      re.compile(r'^ {0,4}(?:static )?(let|var) ([A-Za-z_]\w*)(?:\s*:\s*[^=]+)? = (.*)$')),
@@ -89,3 +92,46 @@ def tabe_ha_ye_file(f):
         j = sar[k + 1][0] if k + 1 < len(sar) else len(lines)
         out.append((esm, '\n'.join(lines[i:j])))
     return out
+
+PY_TABE = re.compile(r'^(?:async\s+)?def\s+([A-Za-z_]\w*)\s*\(')
+JS_TABE = re.compile(r'^(?:  )?(?:export )?(?:async )?function\*?\s+([A-Za-z_$][\w$]*)'
+                     r'|^(?:  )?(?:export )?(?:const|var) ([A-Za-z_$][\w$]*) = (?:async\s*)?'
+                     r'(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>')
+
+
+def jaye_tabe(esm):
+    """(file, line) of a function/method named esm in the scanned files; None if absent."""
+    for f, _ in FILE_HA:
+        try:
+            lines = open(masir(f), encoding='utf-8').read().split('\n')
+        except OSError:
+            continue
+        for i, l in enumerate(lines):
+            m = PY_TABE.match(l) or JS_TABE.match(l)
+            if m and (m.group(1) or (m.lastindex or 0) > 1 and m.group(2)) == esm:
+                return f, i + 1
+    return None
+
+
+def dar_code(esm):
+    """True when the literal name appears anywhere in the scanned files (settings keys etc.)."""
+    for f, _ in FILE_HA:
+        try:
+            if esm in open(masir(f), encoding='utf-8').read():
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def jaye_name(esm):
+    """(file, line) of the first literal occurrence of a name in the scanned files."""
+    for f, _ in FILE_HA:
+        try:
+            lines = open(masir(f), encoding='utf-8').read().split('\n')
+        except OSError:
+            continue
+        for i, l in enumerate(lines):
+            if esm in l:
+                return f, i + 1
+    return None

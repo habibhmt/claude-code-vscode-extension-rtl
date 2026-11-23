@@ -83,8 +83,18 @@ def main():
             bad.append(f'یک اسم در دو فایل: {esm} (قاعدهٔ ۷)')
     # فیلدهای داده (noe = "dadeh") در کد نیستند؛ با خودِ داده سنجیده می‌شوند، نه با اسکنر.
     dadeh = {esm for esm, b in sh.items() if str(b.get('noe', '')).strip() == 'dadeh'}
+    # بلوکِ تابع (noe = "tabe"): در اسکنرِ متغیرها نیست، ولی وجودش در کد سنجیده می‌شود.
+    tabe_ha = {esm for esm, b in sh.items() if str(b.get('noe', '')).strip() == 'tabe'}
+    for esm in tabe_ha:
+        if m.jaye_tabe(esm) is None:
+            bad.append(f'تابع در کد نیست: {esm}')
+    # کلیدِ تنظیم (noe = "vaziat"): اسم باید واقعاً در کدِ اسکن‌شده باشد.
+    vaziat = {esm for esm, b in sh.items() if str(b.get('noe', '')).strip() == 'vaziat'}
+    for esm in vaziat:
+        if not m.dar_code(esm):
+            bad.append(f'کلید در کد نیست: {esm}')
     for esm in sh:
-        if esm not in esm_ha and esm not in dadeh:
+        if esm not in esm_ha and esm not in dadeh and esm not in tabe_ha and esm not in vaziat:
             bad.append(f'شناسنامهٔ کهنه: {esm} در کد نیست')
     if dadeh:
         fields = dadeh_fields()

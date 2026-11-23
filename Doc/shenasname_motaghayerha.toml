@@ -1126,7 +1126,7 @@ ba_motaghayerha = ["usageCache", "usageTick"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise"]
-jaye = ["claude-ui-buttons.js:1421"]
+jaye = ["claude-ui-buttons.js:1427"]
 
 [usageCache]
 yani = "آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید"
@@ -1138,7 +1138,7 @@ ba_motaghayerha = ["counterTimer"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1421"]
+jaye = ["claude-ui-buttons.js:1427"]
 
 [usageTick]
 yani = "شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار)"
@@ -1150,7 +1150,7 @@ ba_motaghayerha = ["counterTimer"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1421"]
+jaye = ["claude-ui-buttons.js:1427"]
 
 [FILE_NAME]
 yani = "اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند"
@@ -1162,7 +1162,7 @@ ba_motaghayerha = ["DEF"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["emal_tanzim_vared_shode", "neveshtan_yaddasht_panel"]
-jaye = ["claude-ui-buttons.js:1608"]
+jaye = ["claude-ui-buttons.js:1614"]
 
 [DRAG_PX]
 yani = "کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل"
@@ -1174,7 +1174,7 @@ ba_motaghayerha = []
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["ejraye_dokme", "keshidan_navar_bala", "keshidan_tik_hads", "sakht_hame"]
-jaye = ["claude-ui-buttons.js:1774"]
+jaye = ["claude-ui-buttons.js:1780"]
 
 [topWatch]
 yani = "نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش"
@@ -1186,7 +1186,7 @@ ba_motaghayerha = []
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["bardashtan_jaygozin", "payesh_navar_bala"]
-jaye = ["claude-ui-buttons.js:1861"]
+jaye = ["claude-ui-buttons.js:1867"]
 
 [draftCommands]
 yani = "متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها"
@@ -1198,7 +1198,7 @@ ba_motaghayerha = ["DEFAULT_COMMANDS"]
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["emal_tanzim_vared_shode", "keshidan_navar_bala", "sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1914"]
+jaye = ["claude-ui-buttons.js:1920"]
 
 [draftProfileName]
 yani = "اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده"
@@ -1210,7 +1210,7 @@ ba_motaghayerha = []
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1915"]
+jaye = ["claude-ui-buttons.js:1921"]
 
 [NESHANE_AMAR]
 yani = "همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند"
@@ -1222,7 +1222,7 @@ ba_motaghayerha = ["neshane_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3719"]
+jaye = ["claude-ui-buttons.js:3729"]
 
 [KELID_JA_AMAR]
 yani = "کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد"
@@ -1234,7 +1234,7 @@ ba_motaghayerha = ["ja_kuchak_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3719"]
+jaye = ["claude-ui-buttons.js:3729"]
 
 [sotun_amar]
 yani = "ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام"
@@ -1246,7 +1246,7 @@ ba_motaghayerha = ["radif_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_bozorg", "jadval_kuchak"]
-jaye = ["claude-ui-buttons.js:3720"]
+jaye = ["claude-ui-buttons.js:3730"]
 
 [radif_amar]
 yani = "ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل"
@@ -1258,7 +1258,7 @@ ba_motaghayerha = ["sotun_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_bozorg", "jadval_kuchak"]
-jaye = ["claude-ui-buttons.js:3722"]
+jaye = ["claude-ui-buttons.js:3732"]
 
 [amar_matn_akhar]
 yani = "آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود"
@@ -1270,7 +1270,7 @@ ba_motaghayerha = []
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["amar_bozorgi", "fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3723"]
+jaye = ["claude-ui-buttons.js:3733"]
 
 [amar_bozorg]
 yani = "جدولِ «تماس‌ها» در حالتِ بزرگ است"
@@ -1282,7 +1282,7 @@ ba_motaghayerha = ["ja_kuchak_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["amar_bozorgi", "fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3723"]
+jaye = ["claude-ui-buttons.js:3733"]
 
 [ja_kuchak_amar]
 yani = "جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند"
@@ -1294,7 +1294,7 @@ ba_motaghayerha = ["amar_bozorg", "KELID_JA_AMAR"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:48)"
 khanandeha = ["amar_bozorgi", "fekr_bi_kadr"]
-jaye = ["claude-ui-buttons.js:3723"]
+jaye = ["claude-ui-buttons.js:3733"]
 
 [amar_dar_rah]
 yani = "یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه)"
@@ -1306,7 +1306,7 @@ ba_motaghayerha = []
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:18)"
 khanandeha = ["jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3838"]
+jaye = ["claude-ui-buttons.js:3848"]
 
 [timer]
 yani = "زمان‌سنجِ همان گشتن"
@@ -1318,7 +1318,7 @@ ba_motaghayerha = []
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["baz_shodan_ba_hover", "gloss_nasb", "menu_naghl", "navar_keshidan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:4115"]
+jaye = ["claude-ui-buttons.js:4125"]
 
 [gorooh_hook]
 yani = "نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند"
@@ -1450,7 +1450,7 @@ ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3850"]
+jaye = ["claude-ui-buttons.js:3860"]
 
 [tarjome_mt]
 yani = "زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد"
@@ -1462,7 +1462,7 @@ ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3850"]
+jaye = ["claude-ui-buttons.js:3860"]
 
 [tarjome_sid]
 yani = "ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند"
@@ -1474,7 +1474,7 @@ ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3850"]
+jaye = ["claude-ui-buttons.js:3860"]
 
 [ravand_akhar]
 yani = "روندهایی که الان در کادر نشان داده می‌شوند؛ هر کدام با حرف‌های عینیِ حبیب"
@@ -1714,7 +1714,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["bordan_be_other", "entekhab_matn_soal"]
-jaye = ["claude-ui-buttons.js:1723"]
+jaye = ["claude-ui-buttons.js:1729"]
 
 [TZ_BALA]
 yani = "کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت"
@@ -1726,7 +1726,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_resid"]
-jaye = ["claude-ui-buttons.js:2423"]
+jaye = ["claude-ui-buttons.js:2429"]
 
 [TZ_NOSKHE_PISH]
 yani = "کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318)"
@@ -1738,7 +1738,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["tz_khali", "tz_mani"]
-jaye = ["claude-ui-buttons.js:2967"]
+jaye = ["claude-ui-buttons.js:2973"]
 
 [TZ_CHROME]
 yani = "کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن"
@@ -1750,7 +1750,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_maghdar_sath", "tz_matn_alan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2422"]
+jaye = ["claude-ui-buttons.js:2428"]
 
 [TZ_SATH]
 yani = "کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت"
@@ -1762,7 +1762,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2424"]
+jaye = ["claude-ui-buttons.js:2430"]
 
 [TZ_ESM_SATH]
 yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح"
@@ -1774,7 +1774,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
-jaye = ["claude-ui-buttons.js:2425"]
+jaye = ["claude-ui-buttons.js:2431"]
 
 [TZ_ESM_MANBA]
 yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند"
@@ -1786,7 +1786,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
-jaye = ["claude-ui-buttons.js:2426"]
+jaye = ["claude-ui-buttons.js:2432"]
 
 [TZ_FASELE_TOKEN]
 yani = "کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318"
@@ -1798,7 +1798,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan", "tz_sakht_kontrol"]
-jaye = ["claude-ui-buttons.js:2427"]
+jaye = ["claude-ui-buttons.js:2433"]
 
 [TZ_REMEMBER_TOKEN]
 yani = "کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن"
@@ -1810,7 +1810,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2428"]
+jaye = ["claude-ui-buttons.js:2434"]
 
 [UPSTREAM]
 yani = "کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد"
@@ -2290,7 +2290,7 @@ ba_motaghayerha = ["ROOT", "MODEL"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/216-migration/scripts/opencode_picker.py:33"]
+jaye = ["abzar/216-migration/scripts/opencode_picker.py:33", "~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15"]
 
 [URL]
 yani = "کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: https://opencode.ai/console/go"
@@ -2422,7 +2422,7 @@ ba_motaghayerha = ["GLOSS_DELAY", "GLOSS"]
 tarif = "20"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"
 khanandeha = ["gloss_darkhast", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:1047"]
+jaye = ["claude-ui-buttons.js:1053"]
 
 [session_id]
 yani = "کجا: ردیفِ مصرف · چیه: شناسهٔ چت (گفتگو) که کلود کد در هدرِ x-claude-code-session-id می‌فرستد · مثال: 7aa0e8a2-…"
@@ -2434,7 +2434,7 @@ ba_motaghayerha = ["chat_cost", "provider"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"
 khanandeha = []
-jaye = []
+jaye = ["claude-ui-buttons.js:34"]
 
 [provider]
 yani = "کجا: ردیفِ مصرف · چیه: سرویسی که پول از آن کم شد: opencode یا openrouter · مثال: opencode"
@@ -2446,7 +2446,7 @@ ba_motaghayerha = ["session_id", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["mods/hads/hooks/register.js:44"]
 
 [model]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
@@ -2458,7 +2458,7 @@ ba_motaghayerha = ["requested", "mapped_from"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["mods/hads/hooks/register.js:2"]
 
 [requested]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/…"
@@ -2470,7 +2470,7 @@ ba_motaghayerha = ["model", "mapped_from"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:481"]
 
 [mapped_from]
 yani = "کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus"
@@ -2482,7 +2482,7 @@ ba_motaghayerha = ["requested", "model"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:283"]
 
 [list_cost]
 yani = "کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021"
@@ -2494,7 +2494,7 @@ ba_motaghayerha = ["monthly_cap", "remaining", "chat_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:13"]
 
 [monthly_cap]
 yani = "کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200"
@@ -2506,7 +2506,7 @@ ba_motaghayerha = ["list_cost", "remaining"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:740"]
 
 [remaining]
 yani = "کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18"
@@ -2518,7 +2518,7 @@ ba_motaghayerha = ["monthly_cap", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:741"]
 
 [request_bytes]
 yani = "کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452"
@@ -2530,7 +2530,7 @@ ba_motaghayerha = ["duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:492"]
 
 [upload_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4"
@@ -2542,7 +2542,7 @@ ba_motaghayerha = ["wait_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:500"]
 
 [wait_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709"
@@ -2554,7 +2554,7 @@ ba_motaghayerha = ["upload_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:653"]
 
 [stream_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157"
@@ -2566,7 +2566,7 @@ ba_motaghayerha = ["wait_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:654"]
 
 [duration_ms]
 yani = "کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870"
@@ -2578,7 +2578,7 @@ ba_motaghayerha = ["upload_ms", "wait_ms", "stream_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:538"]
 
 [chat_cost]
 yani = "کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders}"
@@ -2590,7 +2590,7 @@ ba_motaghayerha = ["session_id", "list_cost"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_usage.py:159"]
 
 [schema]
 yani = "کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1"
@@ -2602,7 +2602,7 @@ ba_motaghayerha = ["chat_cost"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["claude-ui-buttons.js:2427"]
 
 [total]
 yani = "کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148"
@@ -2614,7 +2614,7 @@ ba_motaghayerha = ["list_cost", "unknown"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["abzar/216-migration/scripts/opencode_usage.py:134"]
 
 [unknown]
 yani = "کجا: chat_cost · چیه: گروهِ ردیف‌های بی‌شناسه؛ پولی که به هیچ چتی نسبت داده نمی‌شود · مثال: {label, cost, requests}"
@@ -2626,7 +2626,7 @@ ba_motaghayerha = ["session_id", "total"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["mods/hads/hooks/register.js:44"]
 
 [sessions]
 yani = "کجا: chat_cost · چیه: فهرستِ چت‌ها با شناسه، مسیر، دلار و شمارِ درخواست · مثال: [{session_id, cwd, cost, requests}]"
@@ -2638,7 +2638,7 @@ ba_motaghayerha = ["session_id", "folders"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["claude-ui-buttons.js:2632"]
 
 [folders]
 yani = "کجا: chat_cost · چیه: فهرستِ فولدرها؛ دلارِ هر فولدر = جمعِ چت‌هایش · مثال: [{label, cost, chats}]"
@@ -2650,7 +2650,7 @@ ba_motaghayerha = ["sessions"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = []
+jaye = ["claude-host-hook.js:1353"]
 
 [USAGE_LOG]
 yani = "کجا: فایلِ مصرف · چیه: مسیرِ usage.jsonl که هزینهٔ چت و فولدر از آن خوانده می‌شود · مثال: ⟦USAGE_LOG⟧"
@@ -2758,7 +2758,7 @@ ba_motaghayerha = ["title", "TITLE_MAX", "name"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۹:۰۹ (از راهِ ناظر-۱۳۶)"
 khanandeha = []
-jaye = []
+jaye = ["claude-ui-buttons.js:36"]
 
 [hads]
 yani = "کجا: chat_cost.sessions[] · چیه: توکنِ کارِ کمکیِ حدس برای همان چت: total و parts (هر bakhsh) · مثال: total ۲۵۹۰۵۹۲"
@@ -2770,4 +2770,208 @@ ba_motaghayerha = ["HADS_LOG", "hads"]
 tarif = "28"
 tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۱۹:۱۷ (قاعدهٔ شش‌بندی)"
 khanandeha = []
-jaye = []
+jaye = ["mods/hads/hooks/register.js:3"]
+
+[had_kamtarin_yad_avari_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: کفِ آستانهٔ پیامِ «یادداشت بنویس» تا پنجرهٔ کوچک آستانهٔ منفی نسازد · مثال: 30000"
+meghdar = "30000"
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷: آستانه از پنجرهٔ مؤثر، با کف"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["had_kamtarin_yad_avari_token", "had_chat"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷ (تصمیمِ حبیب از راهِ ناظر)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:14"]
+
+[masir_file_masraf]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: مسیرِ فایلِ مصرفِ دروازه که هزینهٔ واقعیِ هر تماس از آن خوانده می‌شود · مثال: ⟦masir_file_masraf⟧"
+meghdar = ""
+chera = "تعریف ۳۰ بندِ ۴: هزینه از قبضِ واقعی، نه قیمتِ Anthropic"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["masir_file_masraf", "USAGE_LOG"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:68"]
+
+[had_khandan_file_masraf_byte]
+yani = "کجا: پایپ‎لاینِ رممبر · چیه: چند بایت از تهِ فایلِ مصرف خوانده شود تا تماسِ تازه پیدا شود · مثال: 2000000"
+meghdar = "2000000"
+chera = "فایلِ مصرف بزرگ است؛ کلِ آن خوانده نمی‌شود"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["had_khandan_file_masraf_byte", "masir_file_masraf"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:70"]
+
+[DEFAULT_MAX_TURNS]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: سقفِ نوبتِ کلایِ فرعی؛ ۱ کافی نیست چون تحویلِ پرامپت یک نوبت حساب می‌شود · مثال: ⟦DEFAULT_MAX_TURNS⟧"
+meghdar = ""
+chera = "کامِنتِ خودِ کد (#98/#100): با ۱، پیش از جواب خطا می‌دهد"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["DEFAULT_MAX_TURNS", "MAX_ALLOWED_TURNS"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳ (ثبتِ نام)"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:45"]
+
+[MAX_ALLOWED_TURNS]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: سقفِ مجاز برای تنظیمِ دستیِ نوبت‌ها · مثال: 20"
+meghdar = "20"
+chera = "مقدارِ خرابِ محیطی نباید اجرا را بی‌نهایت کند"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["MAX_ALLOWED_TURNS", "DEFAULT_MAX_TURNS"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:46"]
+
+[NESTED_SUMMARIZER_ENV]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: نامِ متغیرِ محیطی که به فرزند می‌گوید «تو زیرمجموعه‌ای»، تا هوک‌های خودِ رممبر دوباره اجرا نشوند · مثال: ⟦NESTED_SUMMARIZER_ENV⟧"
+meghdar = ""
+chera = "جلوگیری از حلقهٔ بی‌پایانِ رممبر"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["NESTED_SUMMARIZER_ENV"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:164"]
+
+[DEFAULT_REJECT_PATTERN]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: الگویِ ردِ جواب وقتی مدل به‌جای JSON چیزِ دیگری می‌گوید · مثال: ⟦DEFAULT_REJECT_PATTERN⟧"
+meghdar = ""
+chera = "پاسخِ هوکِ مسدودکننده مدل نیست؛ باید رد شود"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["DEFAULT_REJECT_PATTERN"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:1138"]
+
+[had_yad_avari_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: آستانهٔ پیش‌فرضِ پیامِ «یادداشت بنویس» وقتی هیچ پنجره‌ای ثبت نشده · مثال: ⟦had_yad_avari_token⟧"
+meghdar = ""
+chera = "حبیب ۴ نوامبر: «روی ۲۸۰ هزار توکن رممبر زده بشه»"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["had_yad_avari_token", "had_chat", "had_kamtarin_yad_avari_token"]
+tarif = "30"
+tayid = "حبیب ۴ نوامبر ۲۰۲۶ ۰۱:۰۹ (از کامنتِ خودِ کد)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:12"]
+
+[had_bozorgtarin_yad_avari_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: چند بایت از تهِ رونوشت خوانده شود · مثال: 800000"
+meghdar = "800000"
+chera = "رونوشتِ بزرگ خوانده نمی‌شود؛ فقط تهٔ آن"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["had_bozorgtarin_yad_avari_token"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:16"]
+
+[panjere_taze_remember_token]
+yani = "کجا: نگهبانِ یادآوری · چیه: پنجرهٔ تازگیِ یادداشت؛ اگر یادداشت تازه‌تر از این فاصلهٔ توکنی باشد، پیام تکرار نمی‌شود · مثال: ⟦panjere_taze_remember_token⟧"
+meghdar = ""
+chera = "یادداشتِ سرِ ۶۰ هزار به کارِ ۲۹۰ هزار نمی‌آید"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["panjere_taze_remember_token"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:17"]
+
+[farman_remember_matn]
+yani = "کجا: نگهبانِ یادآوری · چیه: نشانهٔ فرمانِ ‎/remember:remember‎ در رونوشت · مثال: ⟦farman_remember_matn⟧"
+meghdar = ""
+chera = "برای فهمیدنِ اینکه یادداشت تازه نوشته شده یا نه"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["farman_remember_matn"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:18"]
+
+[matn_yad_avari_remember]
+yani = "کجا: نگهبانِ یادآوری · چیه: متنِ پیامی که به مدل داده می‌شود تا یادداشت بنویسد · مثال: ⟦matn_yad_avari_remember⟧"
+meghdar = ""
+chera = "پیام باید بگوید «این پیامِ خودکارِ نگهبان است، نه حرفِ حبیب»"
+noe = "sabet"
+ozv = "rem"
+ba_motaghayerha = ["matn_yad_avari_remember", "farman_remember_matn"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۵۳"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:19"]
+
+[had_chat]
+yani = "کجا: نگهبانِ یادآوری · چیه: آستانهٔ پیامِ «یادداشت بنویس» برای همین چت: پنجرهٔ مؤثر − ۳۳٬۰۰۰ − ۲۰٬۰۰۰ (و کف و پیش‌فرض) · مثال: ۵۳۳٬۰۰۰ ⇒ ۴۸۰٬۰۰۰"
+meghdar = ""
+chera = "حبیب ۴ نوامبر: «رممبر ۲۰ هزار پیش از کامپکت»؛ ناظر-۱۳۶ ۲۳ نوامبر ۲۰:۱۷: از پنجرهٔ مؤثر"
+noe = "tabe"
+ozv = "rem"
+ba_motaghayerha = ["had_chat", "had_kamtarin_yad_avari_token", "had_yad_avari_token"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷ (از راهِ ناظر-تعاریف)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:80"]
+
+[kharj_az_row_darvaze]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: هزینهٔ واقعیِ یک تماس را با امضای توکن (input + cache_read + output) از ردیفِ دروازه پیدا می‌کند؛ نبود ⇒ «—» · مثال: 5726+8192cache->163out ⇒ $0.00098"
+meghdar = ""
+chera = "لاگ تا ۶۵ برابر قیمتِ Anthropic را می‌نوشت؛ تعریف ۳۰ بندِ ۴"
+noe = "tabe"
+ozv = "rem"
+ba_motaghayerha = ["kharj_az_row_darvaze", "masir_file_masraf"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:73"]
+
+[model_ha_ye_chat]
+yani = "کجا: فشرده‌سازیِ یادداشت · چیه: مدلِ تماسِ یادداشت = مدلِ همان چت (`ANTHROPIC_MODEL`) یا `REMEMBER_MODEL`؛ نبود ⇒ هیچ مدلی فرستاده نمی‌شود، نه haiku · مثال: deepseek-v4.1-flash"
+meghdar = ""
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰:۱۷: «اگر ANTHROPIC_MODEL نبود، به haiku برنگرد»"
+noe = "tabe"
+ozv = "rem"
+ba_motaghayerha = ["model_ha_ye_chat"]
+tarif = "30"
+tayid = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۷"
+khanandeha = []
+jaye = ["~/.claude/plugins-local/remember-habib/pipeline/haiku.py:101"]
+
+[autoCompactWindow]
+yani = "کجا: تبِ «تنظیمات کلود» (دکمهٔ Aa) · چیه: کلیدِ پنجرهٔ کامپکت؛ مقدارِ مؤثر = ثبتِ پوشه بر سراسری مقدم · مثال: پوشهٔ ۱۳۶ = ۵۳۳٬۰۰۰ (کامپکت سر ۵۰۰٬۰۰۰؛ یادآوری سر ۴۸۰٬۰۰۰)"
+meghdar = ""
+chera = "حبیب ۲۳ نوامبر ۲۰:۲۳: «مگه عکس از تنظیمات Aa نفرستادم که طبق اون باشه»"
+noe = "vaziat"
+ozv = "tan"
+ba_motaghayerha = ["autoCompactWindow", "TZ_FASELE_TOKEN", "had_chat"]
+tarif = "30"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۰:۲۳ (از راهِ ناظر-۱۳۶)"
+khanandeha = []
+jaye = ["claude-ui-buttons.js:2429"]
+
+[GLOSS_TAZE_MS]
+yani = "کجا: پنلِ چت · چیه: هر چند میلی‌ثانیه واژه‌نامه دوباره پرسیده شود تا بلوکِ تازهٔ شناسنامه بی‌ریلود دیده شود · مثال: 30000 (۳۰ ثانیه)"
+meghdar = "30000"
+chera = "ناظر-۱۳۶ ۲۳ نوامبر ۲۰۲۶ ۲۲:۱۰: کشِ یک‌بار-در-سشن، بلوکِ تازه را نامرئی می‌کرد"
+noe = "sabet"
+ozv = "gloss"
+ba_motaghayerha = ["GLOSS_TAZE_MS", "GLOSS_DELAY"]
+tarif = "20"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ (از راهِ ناظر-۱۳۶ ۲۲:۱۰)"
+khanandeha = ["gloss_cwd_shod", "gloss_darkhast"]
+jaye = ["claude-ui-buttons.js:1043"]

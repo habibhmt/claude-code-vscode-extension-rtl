@@ -1140,7 +1140,10 @@
         // "maghz/maghz.py:61,124" ⇒ a link that opens the file at line 61
         if (e.loc && e.loc.length) h += '<div class="r"><span class="k">فایل:خط</span>' + e.loc.map(function (l) {
           var m = /^(.*?):(\d+)/.exec(l), f = m ? m[1] : l;
-          return '<div class="l"><a href="#" data-f="' + esc(e.root + '/' + f) + '"' + (m ? ' data-line="' + m[2] + '"' : '') + '>' + esc(l) + '</a></div>';
+          // مسیرِ مطلقِ بیرونِ پوشه (`/Users/…`, مثلِ فایل‌های 186) ریشه نمی‌گیرد؛
+          // همان قاعدهٔ «تعریف کامل» پایین‌تر. بی این، لینکِ آن پنج متغیر می‌شکست.
+          var full = f.charAt(0) === '/' ? f : e.root + '/' + f;
+          return '<div class="l"><a href="#" data-f="' + esc(full) + '"' + (m ? ' data-line="' + m[2] + '"' : '') + '>' + esc(l) + '</a></div>';
         }).join('') + '</div>';
         // a definition file opens at the first place that names this variable
         if (e.tarif && e.tarif.length) h += '<div class="r"><span class="k">تعریف کامل</span>' + e.tarif.map(function (t) {

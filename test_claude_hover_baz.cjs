@@ -85,6 +85,20 @@ async function hover(browser, script, cards, baked, cwd){
  return {yes,no};
 }
 
+
+// مسیرِ مطلق در «فایل:خط» نباید ریشهٔ پروژه را جلویش بگذارد (پنج متغیرِ 186)
+async function hover_abs(browser, script){
+ const {ctx,p}=await safhe_gloss(browser,script,null,null);
+ await p.waitForTimeout(1200);
+ const card={root:'/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude',p:'136',yani:'y',noe:'n',ozv:'o',kh:[],ba:[],chera:'c',tayid:'t',tarif:[],loc:['/tmp/abs/foo.py:12']};
+ await p.evaluate(c=>window.__crtl_gloss_set({cow_buy_state:[c]}),card);
+ const box=await p.evaluate(()=>{const el=document.getElementById('wA');const r=document.createRange();r.selectNodeContents(el);const b=r.getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height};});
+ await p.mouse.move(box.x+box.w/2,box.y+box.h/2); await p.waitForTimeout(1000);
+ const f=await p.evaluate(()=>{const a=document.querySelector('#crtl-gloss a[data-f]');return a?a.dataset.f:'';});
+ const line=await p.evaluate(()=>{const a=document.querySelector('#crtl-gloss a[data-f]');return a?a.dataset.line:'';});
+ await ctx.close(); return {f,line};
+}
+
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  const out={};
@@ -109,6 +123,9 @@ async function hover(browser, script, cards, baked, cwd){
   out.glossHesar=(await hover(browser,script,null,{cow_buy_state:[cardA(pr.A)],other_var:[cardA(pr.B)]},pr.A));
   assert.ok(out.glossHesar.yes,'پشتیبانِ پخته برای همین پوشه باید کارت بدهد');
   assert.equal(out.glossHesar.no,'','کارتِ پوشهٔ دیگر نباید در این پنجره بیاید (حصارِ cwd)');
+  out.glossAbs=await hover_abs(browser,script);
+  assert.equal(out.glossAbs.f,'/tmp/abs/foo.py','مسیرِ مطلق باید عیناً بماند، نه با ریشه جلویش: '+out.glossAbs.f);
+  assert.equal(out.glossAbs.line,'12','شمارهٔ خط باید ۱۲ بماند');
   console.log(JSON.stringify(out));
   assert.ok(out.basteh<300,'closed it is short');
   assert.ok(out.baz>=60*18,'under the mouse all 60 lines show: '+out.baz);

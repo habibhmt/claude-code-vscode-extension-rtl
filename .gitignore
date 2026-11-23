@@ -59,3 +59,6 @@ abzar/216-migration/claude-api/deepseek-v41/
 
 # نسخه‌های پیش از دست‌زدن به فایلِ سشنِ دیگران
 *.crtl-bak
+
+# گزارش‌های «Claude Code Workflow Dashboard» — افزونه هنگامِ Export در ریشهٔ مخزن می‌ریزد
+claude-workflow-*.md

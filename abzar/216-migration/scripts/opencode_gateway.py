@@ -24,6 +24,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 
 import ctypes
 
@@ -352,6 +353,20 @@ def clear_status(provider):
 
 
 def note(row):
+    """نوشتنِ یک ردیفِ مصرف. هر ردیف **شناسهٔ یکتا** دارد.
+
+    حبیب ۲۴ نوامبر ۲۰۲۶ ۰۱:۲۸: «از این به بعد جوری که هر تماس از این به بعد
+    مشخص باشه». پیش از این ردیف‌ها هیچ شناسهٔ یکتایی نداشتند و جفت‌کردنشان با
+    حسابِ واقعی فقط با «امضای توکن + پنجرهٔ زمانی» ممکن بود (و ابهام‌دار).
+    از این پس هر ردیف سه چیز تازه دارد:
+      · `req_id`  — ۳۲ رقمِ هگز یکتا؛ کلیدِ جفت‌کردن با حساب.
+      · `ts_ms`   — میلی‌ثانیهٔ UTC؛ پنجرهٔ زمانی لازم نیست حدس زده شود.
+      · `provider`— اگر جایی تهی مانده باشد، صریح `null` می‌نشیند، نه غایب.
+    """
+    row = dict(row)
+    row.setdefault('req_id', uuid.uuid4().hex)
+    row.setdefault('ts_ms', int(time.time() * 1000))
+    row.setdefault('provider', None)
     with LOCK:
         RUNTIME.mkdir(parents=True, exist_ok=True, mode=0o700)
         fd = os.open(USAGE, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)

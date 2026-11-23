@@ -149,8 +149,8 @@
 | 143 | `CSS` | sabet | همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند | claude-ui-buttons.js:335 | dokme_ha, gloss_nasb, sakht_hame, sakhtan_shenavar | 04 | — | ✓ |
 | 144 | `HOVER_DELAY` | sabet | کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: ⟦HOVER_DELAY⟧ | claude-ui-buttons.js:806 | baz_shodan_ba_hover, radif_andaze | 04 | — | ✓ |
 | 145 | `GLOSS_DELAY` | sabet | کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: ⟦GLOSS_DELAY⟧ | claude-ui-buttons.js:1007 | bastan_panel, gloss_nasb | 06 | — | ✓ |
-| 146 | `GLOSS` | sabet | — | claude-ui-buttons.js:1008 | bastan_panel, gloss_cwd_shod, gloss_darkhast, gloss_nasb, gloss_prepare, vazhe_name_ru_kalame | — | — | — |
-| 147 | `GLOSS_DELAY_T` | sabet | — | claude-ui-buttons.js:1047 | gloss_darkhast, vazhe_name_ru_kalame | — | — | — |
+| 146 | `GLOSS` | vaziat | کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده | claude-ui-buttons.js:1008 | bastan_panel, gloss_cwd_shod, gloss_darkhast, gloss_nasb, gloss_prepare, vazhe_name_ru_kalame | 20 | `GLOSS_DELAY`, `GLOSS_DELAY_T` | ✓ |
+| 147 | `GLOSS_DELAY_T` | sabet | کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: ⟦GLOSS_DELAY_T⟧ میلی‌ثانیه | claude-ui-buttons.js:1047 | gloss_darkhast, vazhe_name_ru_kalame | 20 | `GLOSS_DELAY`, `GLOSS` | ✓ |
 | 148 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1418 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
 | 149 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1418 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
 | 150 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1418 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |

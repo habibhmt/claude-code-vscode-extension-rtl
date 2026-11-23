@@ -376,7 +376,7 @@ yani = "دلار برای هر میلیون توکنِ نوشتنِ کش (پنج
 chera = "حبیب «بپرس»"
 ozv = "hads"
 noe = "sabet"
-ba_motaghayerha = ["gheymat_tamas_usd"]
+ba_motaghayerha = []
 tarif = "12"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 
@@ -443,21 +443,12 @@ ba_motaghayerha = []
 tarif = "12"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 
-[gheymat_tamas_usd]
-yani = "کجا: جدولِ «تماس‌ها» · چیه: دلار برای هر میلیون توکن: ورودی، خروجی، نوشتنِ کش، خواندنِ کش؛ برای Sonnet و fork (Opus) · از جدولِ ۲۰۳ (ertebat_claude.py)"
-chera = "حبیب 26 Oct 21:54 «تماس‌ها» · «حدس»"
-ozv = "hads"
-noe = "sabet"
-ba_motaghayerha = ["had_tamas_riz"]
-tarif = "19"
-tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
-
 [had_tamas_riz]
 yani = "کجا: حالتِ بزرگِ جدولِ «تماس‌ها» · چیه: چند تماسِ آخر ریز به ریز · مثال: ⟦had_tamas_riz⟧ تای آخر"
 chera = ""
 ozv = "hads"
 noe = "sabet"
-ba_motaghayerha = ["gheymat_tamas_usd"]
+ba_motaghayerha = []
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 
@@ -1334,3 +1325,467 @@ noe = "sabet"
 ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
+
+# ─── دروازه، رَپر و ابزارهای اوپن‌کد (ناظر-۱۳۶، ۲۳ نوامبر ۱۵:۱۰ و ۱۵:۲۲؛ گزینهٔ ۱) ───
+# tarif = "00" یعنی تعریفِ پایه: Doc/tarif/00_tarif_payeh_v1.md
+
+[UPSTREAM]
+yani = "کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به ⟦UPSTREAM⟧ می‌رسد"
+chera = "حبیب ۲۲ نوامبر «همه مصرف بره روی اوپن کد»"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["PORT", "MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[PREFIX]
+yani = "کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: ⟦PREFIX⟧deepseek-v4.1-flash ⇒ deepseek-v4.1-flash"
+chera = "کلود کد فقط شناسه‌هایی را در منو نگه می‌دارد که با claude- شروع شوند"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["UPSTREAM"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[SERVICE]
+yani = "کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود"
+chera = "حبیب ۵ نوامبر «رمزا رو بزار توی کی چین»"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["ACCOUNT", "AUTH_HEADERS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[ACCOUNT]
+yani = "کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: ⟦ACCOUNT⟧"
+chera = "هر هارنس حسابِ خودش را دارد"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["SERVICE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[PORT]
+yani = "کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧"
+chera = "رَپر باید بداند دروازه کجاست"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["BASE", "UPSTREAM"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[RUNTIME]
+yani = "کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl"
+chera = "همهٔ فایل‌های داده یک جا"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["USAGE", "CAPS", "STATUS", "MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[USAGE]
+yani = "کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧"
+chera = "حبیب ۲۲ نوامبر «هزینه‌های OpenCode رو از لاگش در بیارید»"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["RUNTIME", "STATUS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[CAPS]
+yani = "کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧"
+chera = "برای «مانده» بدونِ حدس"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[DROP]
+yani = "کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد"
+chera = "کلیدِ آنتروپیک نباید به سرویسِ دیگر برود"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["AUTH_HEADERS", "OR_HEADERS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[TRACE_STATE]
+yani = "کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧"
+chera = "مسیرِ دوم (اوپن‌روتر) از همان پروکسی رد می‌شود"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["OPENROUTER_URL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[OPENROUTER_CATALOGUE]
+yani = "کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧"
+chera = "تفکیکِ دو مسیر بدونِ تماسِ اضافه"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["OPENCODE_CACHE", "MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[OPENCODE_CACHE]
+yani = "کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧"
+chera = "با سرویسِ مرده فهرست از ۴۱۰ به ۳۸۰ می‌افتاد"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[MERGED_CACHE]
+yani = "کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧"
+chera = "حبیب «هر دو بمانند و به سرویسِ خودشان بروند»"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["OPENCODE_CACHE", "OPENROUTER_CATALOGUE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[STATUS]
+yani = "کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧"
+chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["ALARM_STATUSES", "USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[MESSAGE_TIMEOUT]
+yani = "کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه"
+chera = "سقفِ کوتاه روی پاسخ‌های کندِ سالم می‌برید (۳۲ از ۸۷ بالای ۱۸ ثانیه)"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["FIRST_BYTE_TIMEOUT", "RETRY_PAUSE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[FIRST_BYTE_TIMEOUT]
+yani = "کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه"
+chera = "ناظر-۱۳۶ ۱۵:۲۲ «۴۵ ثانیه و تمام، ۵۰۴ صدادار»"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["MESSAGE_TIMEOUT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[RETRY_PAUSE]
+yani = "کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه"
+chera = "تلاشِ مجدد بی‌مکث به سرویسِ در حالِ بهبود فشار می‌آورد"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["MESSAGE_TIMEOUT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[ALARM_STATUSES]
+yani = "کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند"
+chera = "همهٔ خطاها خبر ندارند؛ فقط آن‌هایی که کار را می‌خوابانند"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["STATUS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[OPENROUTER_URL]
+yani = "کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧"
+chera = "فهرست باید از خودِ سرویس بیاید، نه از حافظه"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["OPENROUTER_CATALOGUE", "CATALOGUE_TTL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[CATALOGUE_TTL]
+yani = "کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت"
+chera = "هر بار خواندن از سرویس کند است"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["OPENROUTER_CATALOGUE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[HUNTER_PATTERN]
+yani = "کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی)"
+chera = "شکارچی با همین الگو هزینهٔ هر مدل را می‌سنجد"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[OR_HEADERS]
+yani = "کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta"
+chera = "هدرِ مسیرِ اول نباید به مسیرِ دوم برود"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["DROP", "AUTH_HEADERS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[AUTH_HEADERS]
+yani = "کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer ⟦KEY⟧"
+chera = "کلید فقط در حافظه، هرگز در فایل"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["SERVICE", "KEY"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[OPENER]
+yani = "کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧"
+chera = "پروکسیِ محیطی یک بار درخواست‌ها را به جای اشتباه برد"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["UPSTREAM"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[LOCK]
+yani = "کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧"
+chera = "سرورِ چندرشته‌ای است"
+ozv = "darvaze"
+noe = "vaziat"
+ba_motaghayerha = ["USAGE", "KNOWN_LOCK"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[KNOWN_LOCK]
+yani = "کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧"
+chera = "همان دلیلِ LOCK"
+ozv = "darvaze"
+noe = "vaziat"
+ba_motaghayerha = ["KNOWN", "LOCK"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[KNOWN]
+yani = "کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at}"
+chera = "هر درخواست نباید فهرست را دوباره بخواند"
+ozv = "darvaze"
+noe = "vaziat"
+ba_motaghayerha = ["KNOWN_LOCK", "OPENCODE_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+
+[GATEWAY]
+yani = "کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧"
+chera = "افزونه نباید بی‌دروازه پیام بفرستد"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["PORT", "BASE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[BASE]
+yani = "کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧"
+chera = "کلود کد فقط آدرسِ پایه را می‌شناسد"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["PORT", "GATEWAY"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[MODEL]
+yani = "کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: ⟦MODEL⟧"
+chera = "نام‌های مستعارِ خالی به مدلِ کلودِ پولی می‌رسیدند (۳۷ درخواست، $۰٫۳۳)"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["BASE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[PREVIOUS]
+yani = "کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧"
+chera = "زنجیرهٔ رَپرها نباید قطع شود"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["GATEWAY"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[SUBCOMMANDS]
+yani = "کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧"
+chera = "افزودنِ پرچم به `claude auth status` خطای «unknown option» می‌داد"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["VALUE_FLAGS", "BARE_FLAGS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[BARE_FLAGS]
+yani = "کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help"
+chera = "پاسخِ کوتاه است و پرچمِ اضافه خرابش می‌کند"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["SUBCOMMANDS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[VALUE_FLAGS]
+yani = "کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user"
+chera = "«user» به‌جای زیرفرمان خوانده می‌شد و خطای ثبت‌نام می‌داد"
+ozv = "raper"
+noe = "sabet"
+ba_motaghayerha = ["SUBCOMMANDS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+
+[OUT]
+yani = "کجا: فایلِ مصرف و کپس · چیه: فایلی که اپ‌ها می‌خوانند (خلاصهٔ مصرف و سقف) · مثال: ⟦OUT⟧"
+chera = "یک شکل برای هر دو اپ، نه دو محاسبهٔ جدا"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["MIN_LINE", "USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ فایلِ مصرف، ۲۳ نوامبر ۲۰۲۶)"
+
+[MIN_LINE]
+yani = "کجا: فایلِ مصرف · چیه: فایلِ کنارِ خروجی که آخرین خطِ خوانده‌شده را نگه می‌دارد تا هر بار کلِ لاگ خوانده نشود · مثال: ⟦MIN_LINE⟧"
+chera = "لاگِ مصرف بزرگ می‌شود"
+ozv = "masraf"
+noe = "sabet"
+ba_motaghayerha = ["OUT", "USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ فایلِ مصرف، ۲۳ نوامبر ۲۰۲۶)"
+
+[ANSWERED]
+yani = "کجا: پیکر · چیه: کلیدی در تنظیماتِ کلاینت که «پاسخِ فهرستِ مدل داده شد» را نگه می‌دارد · مثال: ⟦ANSWERED⟧"
+chera = "کلاینت مدل‌های تازه را خودش نمی‌پرسد"
+ozv = "menuye_model"
+noe = "sabet"
+ba_motaghayerha = ["BIG", "ROOT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+
+[BIG]
+yani = "کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount"
+chera = "نوشتنِ دوبارهٔ آن‌ها فایل را سنگین و خراب می‌کرد"
+ozv = "menuye_model"
+noe = "sabet"
+ba_motaghayerha = ["ANSWERED", "ROOT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+
+[ROOT]
+yani = "کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api"
+chera = "همهٔ مسیرهای پیکر از آن ساخته می‌شوند"
+ozv = "menuye_model"
+noe = "sabet"
+ba_motaghayerha = ["LOG", "BIG"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+
+[LOG]
+yani = "کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧"
+chera = "برای سنجیدنِ اینکه مدل بی‌صدا عوض نشود"
+ozv = "menuye_model"
+noe = "sabet"
+ba_motaghayerha = ["ROOT", "MODEL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+
+[URL]
+yani = "کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: ⟦URL⟧"
+chera = "سقفِ هر مدل جای دیگری منتشر نمی‌شود"
+ozv = "saghf"
+noe = "sabet"
+ba_motaghayerha = ["ROW", "VAL", "CAPS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+
+[UA]
+yani = "کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧"
+chera = "کنسول به درخواستِ بی‌معرف جوابِ کامل نمی‌دهد"
+ozv = "saghf"
+noe = "sabet"
+ba_motaghayerha = ["URL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+
+[ROW]
+yani = "کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model"
+chera = "جدولِ HTML است، نه API"
+ozv = "saghf"
+noe = "sabet"
+ba_motaghayerha = ["VAL", "URL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+
+[VAL]
+yani = "کجا: کپس · چیه: الگوی regex برای برداشتنِ مقدارِ سقف از همان ردیف · مثال: data-plan"
+chera = "همان دلیلِ ROW"
+ozv = "saghf"
+noe = "sabet"
+ba_motaghayerha = ["ROW"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+
+[path]
+yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧"
+chera = "اپ فقط می‌خواند؛ هیچ عددی نمی‌سازد"
+ozv = "ap186"
+noe = "sabet"
+ba_motaghayerha = ["statusPath", "OUT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+
+[names]
+yani = "کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash"
+chera = "کاربر نامِ خوانا ببیند"
+ozv = "ap186"
+noe = "sabet"
+ba_motaghayerha = ["path"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+
+[statusPath]
+yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧"
+chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
+ozv = "ap186"
+noe = "sabet"
+ba_motaghayerha = ["path", "STATUS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+
+[kBundleID]
+yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
+chera = "دو نسخه هم‌زمان دو نوار می‌ساختند"
+ozv = "ap186"
+noe = "sabet"
+ba_motaghayerha = ["alarms"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+
+[alarms]
+yani = "کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧"
+chera = "هشدار جدا از نمایشِ نوار است"
+ozv = "ap186"
+noe = "sabet"
+ba_motaghayerha = ["kBundleID"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+
+# ─── خودِ ماشینِ شناسنامه (حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵) ───
+
+[GLOSS]
+yani = "کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده"
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"
+ozv = "safhe"
+noe = "vaziat"
+ba_motaghayerha = ["GLOSS_DELAY", "GLOSS_DELAY_T"]
+tarif = "20"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"
+
+[GLOSS_DELAY_T]
+yani = "کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: ⟦GLOSS_DELAY_T⟧ میلی‌ثانیه"
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان) — کارتِ بی‌جواب کاربر را گم می‌کرد"
+ozv = "safhe"
+noe = "sabet"
+ba_motaghayerha = ["GLOSS_DELAY", "GLOSS"]
+tarif = "20"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ «همین کارایی که مربوط به شناسنامه هست هم باید شناسنامه داشته باشن»"

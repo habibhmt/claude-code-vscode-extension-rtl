@@ -72,7 +72,22 @@
       return;
     }
     if (d.type === 'crtl-session-info') {
-      if (d.sid === SESSION.sid) { SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending; neshan_shenase_chat(); }
+      if (d.sid === SESSION.sid) {
+        SESSION.name = d.name || ''; SESSION.title = d.title || ''; SESSION.remote = d.remote || ''; SESSION.card = d.card || ''; SESSION.pending = !!d.pending;
+        if (typeof d.cwd === 'string' && d.cwd) gloss_cwd_shod(d.cwd);
+        neshan_shenase_chat();
+      }
+      return;
+    }
+    if (d.type === 'crtl-glossary') {
+      // کارت‌های همین پوشه از هوک؛ یا خطای دیدنی، بی کارتِ خالیِ بی‌خبر
+      if (d.ok) gloss_prepare(d.cards || {});
+      else {
+        var ge = String(d.error || 'شناسنامه نیامد');
+        ERRORS.push('glossary: ' + ge);
+        if (ERRORS.length > 6) ERRORS.shift();
+        try { console.error('[crtl-glossary] ' + ge); } catch (e) {}
+      }
       return;
     }
     var m = d.type === 'from-extension' && d.message;
@@ -80,7 +95,11 @@
     // the channel the chat's own requests go on: the host finds this chat's engine by it
     if (m && m.type === 'io_message' && m.channelId) SESSION.channel = m.channelId;
     var sid = io && (io.session_id || io.sessionId);
-    if (typeof sid === 'string' && /^[0-9a-f-]{36}$/.test(sid)) SESSION.sid = sid;
+    if (typeof sid === 'string' && /^[0-9a-f-]{36}$/.test(sid)) {
+      SESSION.sid = sid;
+      // با معلوم شدنِ سشن، کارت‌های شناسنامهٔ همین پوشه را از هوک می‌خواهیم (یک‌بار برای هر سشن)
+      try { gloss_darkhast(); } catch (e) {}
+    }
   });
   // Right after a reload no CLI message has arrived yet, but the app keeps
   // its own sessionID in the tab's vscode state — read it, never write it.
@@ -99,6 +118,7 @@
     neshan_shenase_chat();
     var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
     if (api && SESSION.sid) api.postMessage({ type: 'crtl-session-info', sid: SESSION.sid });
+    try { gloss_darkhast(); } catch (e) {}
   }
   function neshan_shenase_chat() {
     [['crtl-sess-title', SESSION.title], ['crtl-sess-remote', SESSION.remote], ['crtl-sess-name', SESSION.name], ['crtl-sess-id', SESSION.sid]].forEach(function (f) {
@@ -977,22 +997,59 @@
   // Escape closes the find bar first, then the settings panel — the panel used
   // to have no way out except the aA button, which is easy to lose.
   /* ---------------- variable glossary on hover ---------------- */
-  // window.__CRTL_GLOSSARY is baked in by fix-rtl-claude.sh from each
-  // project's shenasname file ({name: [card, ...]}). Known names in the chat
-  // get a dotted underline; resting on one for GLOSS_DELAY ms opens its card.
-  // A new card shows up after the patch re-runs and the window reloads.
+  // کارت‌ها مالِ همین پوشه‌اند: صفحه از هوک می‌پرسد (`crtl-glossary`) و هوک آن‌ها را از
+  // `<پوشهٔ چت>/doc/shenasname_motaghayerha.toml` می‌سازد (حبیب ۲۲ نوامبر ۲۰۲۶:
+  // «هر پنجره وی اس کد مال فولدر خودش رو نشون بده»). تا جواب برسد، `window.__CRTL_GLOSSARY`
+  // ِ پخته فقط «پشتیبانِ یک‌نسخه‌ای» است و با `cwd`ِ همان چت حصار می‌شود؛ وگرنه کارتِ ۹۱
+  // در پنجرهٔ هر پروژه‌ای می‌آمد.
+  // Known names in the chat get a dotted underline; resting on one for GLOSS_DELAY ms
+  // opens its card.
   var GLOSS_DELAY = 600;
-  function vazhe_name_ru_kalame() {
-    var G = window.__CRTL_GLOSSARY;
-    if (!G || document.__crtlGlossWired) return;
-    document.__crtlGlossWired = true;
+  var GLOSS = { G: {}, RE: null, HL: null, HL_PEND: null, scan: null, wired: false, cwd: '', asked: '', got: false, t: null };
+  // داده و نصب دو چیزِ جدا هستند. تلهٔ قبلی این بود که با `G`ِ تهی، `wired` علامت می‌خورد و
+  // شنونده‌ها هرگز نصب نمی‌شدند؛ آن‌وقت داده‌ای که بعداً می‌رسید هیچ کاری نمی‌کرد.
+  function gloss_prepare(cards) {
+    var G = cards || {};
+    GLOSS.G = G;
+    GLOSS.got = true;
     var names = Object.keys(G);
-    if (!names.length) return;
     // `_` counts as part of a word so post_buy_gate never lights up inside post_buy_gate_1_s
-    var RE = new RegExp('(^|[^A-Za-z0-9_])(' + names.sort(function (a, b) { return b.length - a.length; }).join('|') + ')(?![A-Za-z0-9_])', 'g');
-    var WORD = /[A-Za-z0-9_]/;
+    GLOSS.RE = names.length
+      ? new RegExp('(^|[^A-Za-z0-9_])(' + names.sort(function (a, b) { return b.length - a.length; }).join('|') + ')(?![A-Za-z0-9_])', 'g')
+      : null;
+    if (GLOSS.HL) GLOSS.HL.clear();
+    if (GLOSS.HL_PEND) GLOSS.HL_PEND.clear();
+    if (GLOSS.scan) GLOSS.scan();
+  }
+  // حصارِ پشتیبان: کارتِ پروژه‌ای دیگر هرگز در این پنجره نمی‌آید
+  function gloss_hesar(cards, cwd) {
+    var out = {};
+    if (!cwd) return out;
+    Object.keys(cards || {}).forEach(function (n) {
+      var keep = (cards[n] || []).filter(function (e) {
+        return e && e.root && (cwd === e.root || cwd.indexOf(e.root + '/') === 0);
+      });
+      if (keep.length) out[n] = keep;
+    });
+    return out;
+  }
+  function gloss_cwd_shod(cwd) {
+    GLOSS.cwd = cwd;
+    // تا جوابِ کارت‌های خودی نرسیده، پشتیبانِ پخته — ولی فقط همین پوشه
+    if (!GLOSS.got && window.__CRTL_GLOSSARY) gloss_prepare(gloss_hesar(window.__CRTL_GLOSSARY, cwd));
+  }
+  function gloss_darkhast() {
+    var api = window.acquireVsCodeApi && window.acquireVsCodeApi.__crtl ? window.acquireVsCodeApi() : null;
+    if (!api || !SESSION.sid || GLOSS.asked === SESSION.sid) return;
+    GLOSS.asked = SESSION.sid;
+    api.postMessage({ type: 'crtl-glossary', sid: SESSION.sid, channel: SESSION.channel || '' });
+  }
+  var GLOSS_DELAY_T = 3000;
+  function gloss_nasb() {
+    if (GLOSS.wired) return;
+    GLOSS.wired = true;
     var SKIP = 'pre,textarea,input,script,style,#crtl-gloss,#crtl-panel,[class*="messageInputContainer_"],[contenteditable="true"]';
-
+    var WORD = /[A-Za-z0-9_]/;
     // INVARIANT — never add, remove or replace a node inside the chat. The
     // messages are React's; rewriting a text node to wrap a match in a <span>
     // made React lose track of its own children and the whole panel died with
@@ -1001,38 +1058,39 @@
     // window.CSS, not CSS: this file already has its own `CSS` (the panel's
     // stylesheet string), which silently shadowed the browser's namespace
     var HLS = window.CSS && window.CSS.highlights;
-    var HL = HLS ? new Highlight() : null;
-    var HL_PEND = HLS ? new Highlight() : null;
-    if (HL) { HLS.set('crtl-var', HL); HLS.set('crtl-var-pending', HL_PEND); }
+    GLOSS.HL = HLS ? new Highlight() : null;
+    GLOSS.HL_PEND = HLS ? new Highlight() : null;
+    if (GLOSS.HL) { HLS.set('crtl-var', GLOSS.HL); HLS.set('crtl-var-pending', GLOSS.HL_PEND); }
 
     function pending(name) {
-      return G[name].every(function (e) { return /پیشنهاد/.test(e.tayid || ''); });
+      return (GLOSS.G[name] || []).every(function (e) { return /پیشنهاد/.test(e.tayid || ''); });
     }
-    function scan() {
+    var queued = false;
+    GLOSS.scan = function () {
       queued = false;
-      if (!HL) return;
-      HL.clear(); HL_PEND.clear();
+      if (!GLOSS.HL || !GLOSS.RE) return;
+      GLOSS.HL.clear(); GLOSS.HL_PEND.clear();
       document.querySelectorAll('[class*="messagesContainer_"]').forEach(function (root) {
         var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n;
         while ((n = w.nextNode())) {
           if (!n.nodeValue || n.nodeValue.length < 3) continue;
           var p = n.parentElement;
           if (!p || (p.closest && p.closest(SKIP))) continue;
-          var m; RE.lastIndex = 0;
+          var RE = GLOSS.RE, m;
+          RE.lastIndex = 0;
           while ((m = RE.exec(n.nodeValue))) {
             var at = m.index + m[1].length;
             var r = document.createRange();
             r.setStart(n, at); r.setEnd(n, at + m[2].length);
-            (pending(m[2]) ? HL_PEND : HL).add(r);
+            (pending(m[2]) ? GLOSS.HL_PEND : GLOSS.HL).add(r);
           }
         }
       });
-    }
-    var queued = false;
+    };
     new MutationObserver(function () {
-      if (!queued) { queued = true; setTimeout(scan, 400); }
+      if (!queued) { queued = true; setTimeout(GLOSS.scan, 400); }
     }).observe(document.body, { childList: true, subtree: true, characterData: true });
-    scan();
+    GLOSS.scan();
 
     // which variable, if any, sits under the pointer — read from the caret
     // position, so no marker element has to exist in the page
@@ -1046,7 +1104,7 @@
       while (a > 0 && WORD.test(s.charAt(a - 1))) a--;
       while (b < s.length && WORD.test(s.charAt(b))) b++;
       var word = s.slice(a, b);
-      if (!G[word]) return null;
+      if (!GLOSS.G[word]) return null;
       var r = document.createRange();
       r.setStart(t, a); r.setEnd(t, b);
       return { name: word, rect: r.getBoundingClientRect() };
@@ -1069,12 +1127,14 @@
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
     function sakht_radif(k, v, cls) { return v ? '<div class="r"><span class="k">' + k + ':</span> <span class="' + (cls || '') + '">' + v + '</span></div>' : ''; }
     function render(name) {
-      return G[name].map(function (e) {
+      return GLOSS.G[name].map(function (e) {
         var h = '<div class="h">' + esc(name) + '  <span class="k">(' + esc(e.p) + ')</span></div>';
         h += sakht_radif('یعنی', esc(e.yani));
+        h += sakht_radif('نوع', esc(e.noe));
         if (e.val) h += sakht_radif('مقدار فعلی در برگه', '<span dir="ltr">' + esc(e.val.v) + '</span>');
         h += sakht_radif('نویسنده', esc(e.ozv));
         if (e.kh && e.kh.length) h += sakht_radif('خواننده‌ها', esc(e.kh.join('، ')));
+        if (e.ba && e.ba.length) h += sakht_radif('هم‌خانواده', esc(e.ba.join('، ')));
         h += sakht_radif('چرا', esc(e.chera));
         h += sakht_radif('تأیید', esc(e.tayid), /پیشنهاد/.test(e.tayid || '') ? 'pend' : '');
         // "maghz/maghz.py:61,124" ⇒ a link that opens the file at line 61
@@ -1146,6 +1206,21 @@
         hide();
       }
     }, true);
+  }
+  // دادهٔ تازه از هوک (یا از آزمون): اول نصب، بعد داده — نه برعکس
+  window.__crtl_gloss_set = function (cards) { gloss_nasb(); gloss_prepare(cards); };
+  window.__crtl_gloss_cwd = function (cwd) { gloss_cwd_shod(cwd); gloss_nasb(); };
+  function vazhe_name_ru_kalame() {
+    gloss_nasb();
+    // پشتیبانِ پخته فقط وقتی معنا دارد که پوشه معلوم باشد (حصار)؛ تا آن لحظه کارتی نمی‌آید.
+    if (!GLOSS.got && GLOSS.cwd && window.__CRTL_GLOSSARY) gloss_prepare(gloss_hesar(window.__CRTL_GLOSSARY, GLOSS.cwd));
+    // بی‌جواب‌ماندنِ هوک هم خطای دیدنی است، نه سکوت
+    clearTimeout(GLOSS.t);
+    GLOSS.t = setTimeout(function () {
+      if (GLOSS.got) return;
+      ERRORS.push('glossary: کارت نیامد (هوک جواب نداد — ' + (GLOSS_DELAY_T / 1000) + ' ثانیه)');
+      if (ERRORS.length > 6) ERRORS.shift();
+    }, GLOSS_DELAY_T);
   }
 
   function bastan_panel_ba_click_birun() {

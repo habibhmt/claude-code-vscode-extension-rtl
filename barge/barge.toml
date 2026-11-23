@@ -1,0 +1,63 @@
+# ساخته با abzar/barge_saz.py — «مقدار فعلی در برگه» ی کارتِ هاور؛ دستی عوض نکن
+# هر خط: NAME = مقدار   # از <فایل>:<خط> — مقدار از خودِ کد خوانده شده، نه از حافظه
+
+[bi_ozv]
+had_hads_ghabli_harf = 200   # از mods/hads/hooks/register.js:140
+had_kelid_ravand_kamtarin_harf = 20   # از mods/hads/hooks/register.js:1164
+had_payam_zakhire_harf = 1500000   # از mods/hads/hooks/register.js:316
+had_tedad_hads_ghabli_khat = 12   # از mods/hads/hooks/register.js:139
+had_tedad_payam_zakhire_khat = 3000   # از mods/hads/hooks/register.js:315
+
+[hads]
+akhar_javab_dar_kar = false   # از mods/hads/hooks/register.js:59
+akhar_javab_dobare = false   # از mods/hads/hooks/register.js:61
+cache_sard_shod = false   # از mods/hads/hooks/register.js:65
+do_jomle_dar_kar = false   # از mods/hads/hooks/register.js:54
+do_jomle_dobare = false   # از mods/hads/hooks/register.js:55
+do_jomle_fasele_ms = 60000   # از mods/hads/hooks/register.js:41
+ghablia_baz = false   # از mods/hads/hooks/register.js:1571
+had_do_jomle_harf = 300   # از mods/hads/hooks/register.js:555
+had_ferestadan_kar = 3   # از mods/hads/hooks/register.js:1151
+had_fork_context_token = 400000   # از mods/hads/hooks/register.js:43
+had_ghablia_tedad = 50   # از mods/hads/hooks/register.js:474
+had_harf_dokme_prompt = 18   # از mods/hads/hooks/register.js:1345
+had_hook_bozorg_harf = 600   # از mods/hads/hooks/register.js:1625
+had_hook_bozorg_radif = 3   # از mods/hads/hooks/register.js:1624
+had_hook_kuchak_harf = 100   # از mods/hads/hooks/register.js:1583
+had_hook_kuchak_radif = 6   # از mods/hads/hooks/register.js:1623
+had_hook_transcript_byte = 4000000   # از mods/hads/hooks/register.js:1580
+had_hook_transcript_khat = 400   # از mods/hads/hooks/register.js:1579
+had_kamtarin_do_jomle_jambandi = 1   # از mods/hads/hooks/register.js:822
+had_kamtarin_harf_sanad = 8   # از mods/hads/hooks/register.js:262
+had_tamas_riz = 300   # از mods/hads/hooks/register.js:590
+had_tedad_kamtarin_zaban_harf = 40   # از mods/hads/hooks/register.js:677
+had_tedad_ravand_zade_radif = 50   # از mods/hads/hooks/register.js:20
+had_tedad_shekast_fork_bar = 2   # از mods/hads/hooks/register.js:23
+had_tedad_tarjome_radif = 200   # از mods/hads/hooks/register.js:704
+hads_baraye_chat = ""   # از mods/hads/hooks/register.js:37
+hads_har_chand_javab = 3   # از mods/hads/hooks/register.js:9
+masir_transcript = ""   # از mods/hads/hooks/register.js:1584
+matn_bi_harfe_habib = "حرفِ تازه‌ای از حبیب نبود؛ ادامهٔ کارِ قبلی"   # از mods/hads/hooks/register.js:98
+matn_porsesh = ""   # از mods/hads/hooks/register.js:71
+model_do_jomle_va_hads = "sonnet"   # از mods/hads/hooks/register.js:7
+nakarde_ba_sanad_baz = false   # از mods/hads/hooks/register.js:30
+tarjome_kadr_dar_kar = false   # از mods/hads/hooks/register.js:736
+zaman_akhar_javab = 0   # از mods/hads/hooks/register.js:58
+zaman_akharin_kar = 0   # از mods/hads/hooks/register.js:63
+zaman_do_jomle_akhar = 0   # از mods/hads/hooks/register.js:56
+zaman_khandan_hook = 0   # از mods/hads/hooks/register.js:1586
+
+[ravand]
+had_tedad_payam_transcript_khat = 3000   # از mods/hads/hooks/register.js:356
+
+[safhe]
+DRAG_PX = 5   # از claude-ui-buttons.js:1771
+FILE_NAME = "claude-rtl-settings.json"   # از claude-ui-buttons.js:1605
+GLOSS_DELAY = 600   # از claude-ui-buttons.js:1007
+HOVER_DELAY = 700   # از claude-ui-buttons.js:806
+KEY = "crtl-sizes"   # از claude-ui-buttons.js:206
+SOAL_SABR_MS = 250   # از claude-ui-buttons.js:1720
+TZ_CHROME = "claudeInChromeDefaultEnabled"   # از claude-ui-buttons.js:2419
+TZ_NOSKHE_PISH = "2.1.318"   # از claude-ui-buttons.js:2964
+amar_dar_rah = false   # از claude-ui-buttons.js:3835
+timer = 0   # از dsh-rtl/client.js:1267

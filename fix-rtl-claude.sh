@@ -310,18 +310,17 @@ hash_stdin() {
 # One value that changes whenever the produced output would change. The seed
 # file is part of it: editing ~/.claude-rtl-sizes.json must not be skipped as
 # "nothing changed" the way it was before.
-# Variable glossary for the hover card, built from the shenasname files listed
-# in ~/.claude-rtl-glossary.json. Part of the stamp, so a new card re-patches.
-GLOSSARY_FILE="$TMP_DIR/glossary.json"
-if [ "$HAVE_PYTHON" = true ]; then
-    python3 "$REPO_DIR/build-glossary.py" > "$GLOSSARY_FILE" 2>>"$LOG_FILE" || echo '{}' > "$GLOSSARY_FILE"
-else
-    echo '{}' > "$GLOSSARY_FILE"
-fi
+# کارت‌های شناسنامه دیگر این‌جا ساخته نمی‌شوند و در باندل پخته نمی‌شوند: هوکِ میزبان
+# (`claude-host-hook.js` → `crtl-glossary`) موقعِ باز شدنِ هر چت، شناسنامهٔ همان پوشه
+# (`doc/shenasname_motaghayerha.toml`) را با `build-glossary.py --cwd` می‌سازد، در حافظهٔ
+# همان پنجره کش می‌کند و هر ساخت را در `~/.claude/crtl_gloss.log` می‌نویسد.
+# این بلوک قبلاً ساختِ سراسری + `exit 1` داشت: بی پایتونِ tomllibدار کلِ پچ می‌خوابید،
+# برای فایلی که هیچ‌کس نمی‌خواند (ناظر ۲۳ نوامبر).
 
-stamp="$(printf '%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
-    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)$(cat "$TANZIMAT_FA_FILE" 2>/dev/null)$(cat "$TANZIMAT_TOZIH_FILE" 2>/dev/null)" \
-    "$(cat "$GLOSSARY_FILE" 2>/dev/null)" | hash_stdin)"
+# واژه‌نامه دیگر بخشی از stamp نیست: در باندل پخته نمی‌شود، پس تغییرش پچِ دوباره لازم
+# ندارد (هوک هر بار از دیسکِ همان پوشه می‌خواند).
+stamp="$(printf '%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
+    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)$(cat "$TANZIMAT_FA_FILE" 2>/dev/null)$(cat "$TANZIMAT_TOZIH_FILE" 2>/dev/null)" | hash_stdin)"
 
 # The buttons live inline in extension.js; older runs also appended them to
 # index.js, so accept either as proof that a webview folder is patched.
@@ -370,7 +369,7 @@ patch_ide() {
                 # `|| py_ok=false` keeps `set -e` from killing the run mid-patch:
                 # a python failure must fall through to the rollback below.
                 py_ok=true
-                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_DOKME_FILE="$DOKME_FILE" CRTL_TANZIMAT_FA_FILE="$TANZIMAT_FA_FILE" CRTL_TANZIMAT_TOZIH_FILE="$TANZIMAT_TOZIH_FILE" CRTL_GLOSSARY_FILE="$GLOSSARY_FILE" python3 - <<'PYEOF' || py_ok=false
+                CRTL_CSS_FILE="$css_tmp" CRTL_EXT_JS="$ext_js" CRTL_BUTTONS_JS="$BUTTONS_JS" CRTL_HOST_HOOK_JS="$HOST_HOOK_JS" CRTL_SIZES_FILE="$SIZES_FILE" CRTL_DOKME_FILE="$DOKME_FILE" CRTL_TANZIMAT_FA_FILE="$TANZIMAT_FA_FILE" CRTL_TANZIMAT_TOZIH_FILE="$TANZIMAT_TOZIH_FILE" python3 - <<'PYEOF' || py_ok=false
 import os, re
 css = open(os.environ['CRTL_CSS_FILE'], encoding='utf-8').read()
 path = os.environ['CRTL_EXT_JS']
@@ -435,13 +434,9 @@ if m:
             seed += 'window.__CRTL_TANZIMAT_TOZIH=' + json.dumps(json.load(open(tozih_file, encoding='utf-8')), ensure_ascii=False) + ';'
         except Exception:
             pass
-    gloss_file = os.environ.get('CRTL_GLOSSARY_FILE', '')
-    if gloss_file and os.path.exists(gloss_file):
-        try:
-            import json
-            seed += 'window.__CRTL_GLOSSARY=' + json.dumps(json.load(open(gloss_file, encoding='utf-8')), ensure_ascii=False) + ';'
-        except Exception:
-            pass
+    # کارت‌های شناسنامه دیگر در باندل پخته نمی‌شوند: هوک آن‌ها را به تفکیکِ پوشهٔ
+    # همان چت می‌سازد (`crtl-glossary`). پختنشان یعنی ۷۰۰ کیلوبایت دادهٔ ۹۱ در
+    # پنجرهٔ هر پروژه — همان چیزی که حبیب دید و گفت «هر پنجره مالِ فولدرِ خودش».
     n = re.search(r"script-src 'nonce-\$\{(\w+)\}'", src)
     if js_path and os.path.exists(js_path) and n:
         js = open(js_path, encoding='utf-8').read()

@@ -5,44 +5,45 @@ rtl-wezterm: all checks passed
 === chatgpt patch ===
 .....
 ----------------------------------------------------------------------
-Ran 5 tests in 0.652s
+Ran 5 tests in 0.420s
 
 OK
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpmk0iw3qt
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps2hxg4su
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps2hxg4su
-[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmps2hxg4su
-[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpa0mver5y
-[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpa0mver5y
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpw_3vhnp1
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmppyim1zxp
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmppyim1zxp
+[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmppyim1zxp
+[PATCHED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmph4c1p6ty
+[RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmph4c1p6ty
 
 === chatgpt folder patch ===
-..[SKIP folder filter] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp8n6l_3tv: Expected one header-*.js; found 0
+...[SKIP folder filter] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpr6br_01k: Expected one header-*.js; found 0
 ..s.......
 ----------------------------------------------------------------------
-Ran 12 tests in 4.669s
+Ran 13 tests in 2.078s
 
 OK (skipped=1)
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpoe25uh4x
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpoe25uh4x
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4lb9w79x
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4lb9w79x
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4lb9w79x
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp1dejn_c4
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp1dejn_c4
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpf0fuy3o1
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpf0fuy3o1
-[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpf0fuy3o1
-[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp4d30u2sk
+[FOLDER FILTER] new: /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp3457wnhx
+[FOLDER RESTORED new] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmp3457wnhx
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpq2ipez9c
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpq2ipez9c
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpi5fn3p1y
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpi5fn3p1y
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpi5fn3p1y
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpjqxzygj0
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpjqxzygj0
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpkmcpeayw
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpkmcpeayw
+[FOLDER RESTORED] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpkmcpeayw
+[FOLDER FILTER] /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tmpx1ggmgfe
 
 === chatgpt folder filter ===
 {"sameFolderOnly":true,"folderSwitch":true,"multiRoot":true,"searchScoped":true,"siblingPrefixExcluded":true,"remoteHostExcluded":true,"originalDataPreserved":true,"importedClaudeByFolder":true,"leakedChatSabotageDetected":true,"missingChatSabotageDetected":true}
 
 === chatgpt folder query ===
-SKIP: installed ChatGPT layout has no app-server-manager-hooks-*.js; folder filter needs a new adapter
+SKIP: the VS Code ChatGPT extension is not installed (no webview/assets)
 
 === chatgpt folder query new ===
-{"file":"/Users/habib/.vscode/extensions/openai.chatgpt-26.1111.21308-darwin-arm64/out/extension.js","cwd":["/work/project","/work/other"],"noWorkspace":true}
-PASS
+SKIP: no openai.chatgpt extension in ~/.vscode/extensions
 
 === chatgpt history click ===
 {"fastSelectionStaysOpen":true,"closingMenuKeepsChat":true,"localizedMenu":true,"newComposerFallback":true,"noLateReopen":true,"sabotageDetected":true}
@@ -107,7 +108,7 @@ ok: کدِ رنگی چپ‌به‌راست، با Vazir Code Hack و رنگ‌ه
 ok: رنگِ متن به کد نمی‌رسد
 
 === claude hover open ===
-{"basteh":106,"baz":1522,"dobareBasteh":106}
+{"basteh":106,"baz":1522,"dobareBasteh":106,"glossA":{"yes":"cow_buy_state (crtl-gloss-A-EpxXbM)\nیعنی: خریدِ کوسواپ\nنوع: khat_cow_pol_koja_raft\nنویسنده: charkhe/marhale.py\nخواننده‌ها: ledger\nهم‌خانواده: cow_sell_state\nچرا: چون چرخه\nتأیید: حبیب ۱۹ سپت «بله»\nتعریف کامل\n01","no":""},"glossHesar":{"yes":"cow_buy_state (A)\nیعنی: خرید\nنوع: khat\nنویسنده: o\nخواننده‌ها: l\nهم‌خانواده: b\nچرا: چ\nتأیید: ت","no":""}}
 
 === claude ask width ===
 ask width: all checks passed
@@ -115,9 +116,9 @@ ask width: all checks passed
 === claude tanzimat ===
 tanzimat: host logic passed
 tanzimat: patches passed
-tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-7EwWKO/.claude/tik_ha.json' ⇒ قفلِ قدیمی
-tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-7EwWKO/.claude/tik_ha.json' ⇒ قفلِ قدیمی
-tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-7EwWKO/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-CbYc3c/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-CbYc3c/.claude/tik_ha.json' ⇒ قفلِ قدیمی
+tik_ha: [Errno 2] No such file or directory: '/var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tz-CbYc3c/.claude/tik_ha.json' ⇒ قفلِ قدیمی
 tanzimat: wrapper passed
 tanzimat: real engine passed
 tanzimat: panel passed
@@ -126,6 +127,12 @@ tanzimat: all checks passed
 
 === xss 186 ===
 {"injectedImages":0,"titleText":"<img src=\"invalid-image\" onerror=\"window.__xss=42\">","titleHTML":"&lt;img src=\"invalid-image\" onerror=\"window.__xss=42\"&gt;","folderText":"<b>folder</b>","folderHTML":"&lt;b&gt;folder&lt;/b&gt;","modelText":"<i>model</i>","modelHTML":"&lt;i&gt;model&lt;/i&gt;","pctText":"50%"}
+PASS
+
+=== snap 186 ===
+PASS
+
+=== compact 186 ===
 PASS
 
 === claude fekr shenavar ===
@@ -143,13 +150,13 @@ PASS {"lay":true,"pos":"fixed","pe":"auto","bg":"color(srgb 0.172549 0.172549 0.
 DSH history host unavailable: Cannot find module 'vscode'
 Require stack:
 - /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/test_claude_navar.cjs
-{"host":{"payam":2,"tamas":2,"tokens":3160,"ersal":"DeepInfra (deepinfra/fp8)","usd":0.000312,"ctx":{"used":2060,"max":1000000},"asked":["deepseek/deepseek-v4-flash-vision-exp"]},"same":null,"append":{"tamas":3,"ctx":110},"names":["anthropic/claude-opus-5.5","deepinfra",""],"asked":{"type":"crtl-navar","sid":"11111111-2222-3333-4444-555555555555","kelid":""},"wait":"در حالِ خواندن…","small":{"heads":"هزینه هزینهٔ امروز هزینهٔ کل امروز توکن پیام کانتکست","vals":"≈$۰٫۰۰۰۳ | — | ≈$۱۰٫۸۳ | ۳٫۳k | ۲ | ۰٪","clear":true,"left":true,"lines":"solid","zero":false},"narrow":true,"big":{"big":true,"ersal":true,"payam":true,"inside":true},"back":true,"other":false,"question":"none"}
+{"host":{"payam":2,"tamas":2,"tokens":3160,"ersal":"DeepInfra (deepinfra/fp8)","usd":0.000312,"ctx":{"used":2060,"max":1000000},"asked":["deepseek/deepseek-v4-flash-vision-exp"]},"same":null,"append":{"tamas":3,"ctx":110},"names":["anthropic/claude-opus-5.5","deepinfra",""],"asked":{"type":"crtl-navar","sid":"11111111-2222-3333-4444-555555555555","kelid":""},"wait":"در حالِ خواندن…","small":{"heads":"هزینه هزینهٔ امروز هزینهٔ کل امروز توکن پیام کانتکست","vals":"≈$۰٫۰۰۰۳ | — | ≈$۰٫۱۵۶ | ۳٫۳k | ۲ | ۰٪","clear":true,"left":true,"lines":"solid","zero":false},"narrow":true,"big":{"big":true,"ersal":true,"payam":true,"inside":true},"back":true,"other":false,"question":"none"}
 navar: all green
 
 === claude tik ha ===
 python ok
 host ok
-panel ok · /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tik-dMtuCJ/tik-panel.png
+panel ok · /var/folders/6p/h39k55cn35j_ct74_b49x3cc0000gn/T/tik-KF6KNy/tik-panel.png
 engine skipped (set TIK_ENGINE=1 to run the real CLI)
 tik_ha: all green
 
@@ -159,5 +166,6 @@ OK test_codex_tanzimat
 === reset ha ===
 reset_ha: ok
 
-=== SUMMARY: 33 passed, 1 skipped, 0 failed ===
+=== SUMMARY: 34 passed, 2 skipped, 0 failed ===
 SKIPPED: chatgpt folder query
+SKIPPED: chatgpt folder query new

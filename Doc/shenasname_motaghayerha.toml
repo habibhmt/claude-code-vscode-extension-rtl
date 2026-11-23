@@ -1,913 +1,2401 @@
 # ساخته با python3 Doc/abzar/jadval_motaghayer.py از Doc/shenasname_matn.toml و کد — دستی عوض نکن
 
 [model_do_jomle_va_hads]
-yani = "کجا: مودِ حدس · چیه: مدلی که «دو جمله» و حدسِ پشتیبان (وقتی fork نمی‌شود) با آن ساخته می‌شود · مثال: claude-sonnet-5-5"
-meghdar = "claude-sonnet-5-5"
-khanandeha = ["begu_do_jomle", "tarjome_ba_sonnet"]
-jaye = ["mods/hads/hooks/register.js:5"]
+yani = "کجا: مودِ حدس · چیه: مدلی که «دو جمله» و حدسِ پشتیبان (وقتی fork نمی‌شود) با آن ساخته می‌شود · مثال: sonnet"
+meghdar = "sonnet"
+chera = "حبیب «دو جمله»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_fork_context_token"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = []
+jaye = ["mods/hads/hooks/register.js:7"]
 
 [hads_har_chand_javab]
 yani = "کجا: آخرِ هر جواب · چیه: حدس و روند و نکرده و خودکار و کرون هر چند جواب یک بار ساخته شوند · مثال: هر 3 جواب یک fork"
 meghdar = "3"
+chera = "حبیب «حدسو بذار مدل اصلی بکنه … منتها مثلاً چند تا پیام به چند تا پیام»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["tedad_javab_har_chat"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "chat_kuchak"]
-jaye = ["mods/hads/hooks/register.js:7"]
+jaye = ["mods/hads/hooks/register.js:9"]
 
 [tedad_javab_har_chat]
 yani = "چند جواب در هر چت دیده شده، از بالا آمدنِ همین پروسه؛ برای «هر چند جواب یک بار»"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["hads_har_chand_javab"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab"]
-jaye = ["mods/hads/hooks/register.js:9"]
+jaye = ["mods/hads/hooks/register.js:11"]
 
 [hads_akhar]
 yani = "آخرین حدس‌هایی که کادر نشان می‌دهد"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["hads_baraye_chat"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin", "tik_zadan"]
-jaye = ["mods/hads/hooks/register.js:12"]
+jaye = ["mods/hads/hooks/register.js:14"]
 
 [nakarde_akhar]
 yani = "آخرین «نکرده»‌ها (خواسته‌های حبیب که هنوز انجام نشده)، برای کادر"
 meghdar = ""
+chera = "حبیب 25 Oct 04:22 «نکرده‌ها» · «چه کارایی حبیب بهت گفته و نکردی و مثل حدس دو تا توی هر دفعه داده بشه»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["nakarde_ba_sanad_akhar"]
+tarif = "14"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["anjam_shod_zadan", "bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin", "tik_zadan"]
-jaye = ["mods/hads/hooks/register.js:24"]
+jaye = ["mods/hads/hooks/register.js:26"]
 
 [nakarde_ba_sanad_akhar]
 yani = "«نکرده»‌هایی که سندشان (فایل یا commit) نشان داد انجام شده؛ در یک خطِ کوچک شمرده می‌شوند"
 meghdar = ""
+chera = "حبیب 25 Oct 19:17 «نکرده»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["nakarde_akhar", "had_kamtarin_harf_sanad"]
+tarif = "14"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 19:20)"
 khanandeha = ["bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin", "tik_zadan"]
-jaye = ["mods/hads/hooks/register.js:27"]
+jaye = ["mods/hads/hooks/register.js:29"]
 
 [nakarde_ba_sanad_baz]
 yani = "خطِ «با سند کنار رفت» باز است یا بسته"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["nakarde_ba_sanad_akhar"]
+tarif = "14"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 19:20)"
 khanandeha = ["register"]
-jaye = ["mods/hads/hooks/register.js:28"]
+jaye = ["mods/hads/hooks/register.js:30"]
 
 [khodkar_akhar]
 yani = "آخرین «خودکار»ها: کاری که ایجنت خودش با ابزارش می‌تواند بکند به‌جای پرسیدن از حبیب"
 meghdar = ""
+chera = "حبیب 25 Oct 16:48 «خودکار» · «کارهایی که خود مدل میتونه انجام بده … جوری که مدل هی نخواد از من بپرسه … به تعداد هیچ محدود نباشه»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["khodkar_ferestade_har_chat"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
 khanandeha = ["bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin", "tik_zadan"]
-jaye = ["mods/hads/hooks/register.js:32"]
+jaye = ["mods/hads/hooks/register.js:34"]
 
 [cron_akhar]
 yani = "آخرین «کرون‌جاب»‌ها: کارهای تکراری که حبیب گفت و به اجرای خودکار سرِ وقت می‌خورند"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
 khanandeha = ["bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin", "tik_zadan"]
-jaye = ["mods/hads/hooks/register.js:33"]
+jaye = ["mods/hads/hooks/register.js:35"]
 
 [hads_baraye_chat]
 yani = "حدس‌ها مالِ کدام چت‌اند؛ بعد از /clear (چتِ تازه) نشان داده نمی‌شوند"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["hads_akhar"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin"]
-jaye = ["mods/hads/hooks/register.js:35"]
+jaye = ["mods/hads/hooks/register.js:37"]
 
 [do_jomle_fasele_ms]
 yani = "کجا: وسطِ کار، بعد از هر ابزار · چیه: کمترین فاصلهٔ دو «دو جمله» · مثال: هر 60000 میلی‌ثانیه حداکثر یکی"
 meghdar = "60000"
+chera = "حبیب «دو جمله»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["model_do_jomle_va_hads"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["begu_do_jomle", "vazhe_name"]
-jaye = ["mods/hads/hooks/register.js:39"]
+jaye = ["mods/hads/hooks/register.js:41"]
 
 [had_fork_context_token]
 yani = "کجا: آخرِ جواب · چیه: اگر چت از این بزرگ‌تر باشد fork گران است و Sonnet روی پیام‌های آخر کار می‌کند · مثال: بیش از 400000 توکن"
 meghdar = "400000"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["model_do_jomle_va_hads"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["chat_kuchak"]
-jaye = ["mods/hads/hooks/register.js:41"]
+jaye = ["mods/hads/hooks/register.js:43"]
 
 [cache_sard_ms]
 yani = "کجا: «پرسش» · چیه: بیکاریِ بیش از این یعنی کشِ چت احتمالاً سرد شده و «پرسش» اول هشدار می‌دهد (کشِ یک‌ساعته)"
 meghdar = "3300000"
-khanandeha = ["register"]
+chera = "حبیب «پرسش» · «Prompt cache warm, about 58 min left»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["cache_sard_5m_ms", "cache_sard_bad_az_ms"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["cache_mohlat"]
 jaye = ["mods/hads/hooks/register.js:45"]
 
 [cache_sard_5m_ms]
 yani = "همان، وقتی کشِ چت پنج‌دقیقه‌ای است"
 meghdar = "240000"
-khanandeha = ["register"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["cache_sard_ms"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["cache_mohlat"]
 jaye = ["mods/hads/hooks/register.js:46"]
 
 [cache_sard_bad_az_ms]
 yani = "کدام یک از دو بالایی الان به کار می‌رود (بسته به کشِ چت)"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["cache_sard_ms", "cache_sard_5m_ms"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["porsesh_kon", "register"]
 jaye = ["mods/hads/hooks/register.js:47"]
 
 [prompt_system_do_jomle]
 yani = "دستورِ Sonnet برای «دو جمله»: دو جملهٔ ساده که ایجنت الان چه می‌کند و منتظرِ چیست، با واژه‌نامهٔ حبیب"
 meghdar = ""
-khanandeha = ["begu_do_jomle"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = []
 jaye = ["mods/hads/hooks/register.js:48"]
 
 [do_jomle_akhar]
 yani = "آخرین «دو جمله» و چتش"
 meghdar = ""
-khanandeha = ["bargardandan_akharin", "benevis_do_jomle", "register", "sabt_jambandi", "tasvir_akharin", "tik_zadan"]
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["bargardandan_akharin", "benevis_do_jomle", "fekr_vasat", "radif_fekr", "register", "sabt_jambandi", "tasvir_akharin", "tik_zadan"]
 jaye = ["mods/hads/hooks/register.js:53"]
 
 [do_jomle_dar_kar]
 yani = "یک «دو جمله» در راه است"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["do_jomle_dobare"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["begu_do_jomle"]
 jaye = ["mods/hads/hooks/register.js:54"]
 
 [do_jomle_dobare]
 yani = "وقتی یکی در راه بود، یکی دیگر خواسته شد؛ بعدش ساخته می‌شود"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["do_jomle_dar_kar"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["begu_do_jomle"]
 jaye = ["mods/hads/hooks/register.js:55"]
 
 [zaman_do_jomle_akhar]
 yani = "ساعتِ آخرین «دو جمله»، برای فاصلهٔ 60000"
 meghdar = "0"
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["do_jomle_fasele_ms"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["begu_do_jomle"]
 jaye = ["mods/hads/hooks/register.js:56"]
 
 [zaman_akhar_javab]
 yani = "ساعتِ آخرین پایانِ جواب؛ پایانِ جواب بر «دو جمله»ٔ وسطِ کار که دیرتر رسید می‌چربد"
 meghdar = "0"
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "begu_do_jomle"]
 jaye = ["mods/hads/hooks/register.js:58"]
 
 [akhar_javab_dar_kar]
 yani = "کارِ آخرِ جواب در راه است"
 meghdar = ""
-khanandeha = ["akhar_javab"]
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["akhar_javab_dobare"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["akhar_javab", "fekr_vasat", "zadam"]
 jaye = ["mods/hads/hooks/register.js:59"]
 
 [akhar_javab_dobare]
 yani = "جوابی وسطِ کارِ قبلی تمام شد؛ بعدش انجام می‌شود، گم نمی‌شود"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["akhar_javab_dar_kar"]
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab"]
 jaye = ["mods/hads/hooks/register.js:61"]
 
 [zaman_akharin_kar]
 yani = "آخرین باری که خودِ چت با مدل حرف زد؛ سنِ کش"
 meghdar = "0"
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["cache_sard_ms"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["porsesh_kon", "register"]
 jaye = ["mods/hads/hooks/register.js:63"]
 
 [cache_sard_shod]
 yani = "Claude Code خودش بعد از resume گفت کش رفته"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["cache_sard_ms"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["porsesh_kon", "register"]
 jaye = ["mods/hads/hooks/register.js:65"]
 
 [porsesh_montazer]
 yani = "«پرسش»ی که پیش از آماده بودنِ fork آمد؛ آخرِ جوابِ بعدی خودش پرسیده می‌شود"
 meghdar = ""
-khanandeha = ["porsesh_kon", "register", "tik_zadan"]
+chera = "حبیب «پرسش»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["matn_porsesh_montazer"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["porsesh_kon", "register", "tik_zadan", "zadam"]
 jaye = ["mods/hads/hooks/register.js:68"]
 
 [javab_porsesh]
 yani = "جوابِ آخرین «پرسش» (fork با کشِ گرم)؛ هرگز به چت نمی‌رود"
 meghdar = ""
+chera = "حبیب «بپرس»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["matn_porsesh"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["bargardandan_akharin", "porsesh_kon", "register", "tasvir_akharin", "tik_zadan"]
 jaye = ["mods/hads/hooks/register.js:70"]
 
 [matn_porsesh]
 yani = "متنی که حبیب در جعبهٔ «پرسش» نوشته"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["javab_porsesh"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["porsesh_kon", "register"]
 jaye = ["mods/hads/hooks/register.js:71"]
 
 [prompt_ha]
 yani = "پرومپت‌های ذخیره‌شدهٔ «پرسش» (همهٔ چت‌ها یکی، در فایل)"
 meghdar = ""
+chera = "حبیب 26 Oct 05:41 «پرسش» · «اون بپرس یه قسمت پرومپت هم داشته باشه که توش بتونم متن بزارم و بشه یک دکمه … دکمه ادیت و ذخیره هم داشته باشه … اون سوالی که از مدل با کش گرم میپرسیم با این پرومپت پرسیده بشه»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["prompt_entekhab_har_chat", "had_harf_dokme_prompt"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
 khanandeha = ["khandan_prompt_ha", "register", "zakhire_prompt_ha", "zakhire_prompt_virayesh"]
 jaye = ["mods/hads/hooks/register.js:76"]
 
 [prompt_entekhab_har_chat]
 yani = "کدام پرومپت در هر چت روشن است"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["prompt_ha"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
 khanandeha = ["prompt_entekhab_shode", "register"]
 jaye = ["mods/hads/hooks/register.js:77"]
 
 [prompt_virayesh]
 yani = "پرومپتی که الان با ✎ در حالِ ویرایش است"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["prompt_ha"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
 khanandeha = ["register", "zakhire_prompt_virayesh"]
 jaye = ["mods/hads/hooks/register.js:78"]
 
 [system_reminder_regex]
 yani = "الگوی بخش‌های system-reminder که از متنِ پیام‌ها کنار گذاشته می‌شوند"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["cut", "khandan", "khandan_hads", "payam_ha_ye_akhar", "payam_ha_ye_habib"]
 jaye = ["mods/hads/hooks/register.js:93"]
 
 [matn_bi_harfe_habib]
 yani = "وقتی نوبت با پیامِ خودِ حبیب شروع نشده (کار، چتِ دیگر، Continue)، به‌جای «خواستهٔ حبیب» این می‌آید"
 meghdar = "حرفِ تازه‌ای از حبیب نبود؛ ادامهٔ کارِ قبلی"
+chera = "حبیب «Continue from where you left off.»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["az_agent_digar", "harf_habib", "register"]
 jaye = ["mods/hads/hooks/register.js:98"]
 
 [prompt_fork_do_jomle]
 yani = "تکهٔ دستورِ fork برای «دو جمله»؛ فقط بخش‌های روشن خواسته می‌شوند"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["cut", "prompt_fork_bakhsh_ha"]
 jaye = ["mods/hads/hooks/register.js:133"]
 
 [prompt_fork_hads]
 yani = "تکهٔ دستورِ fork برای حدس"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["cut", "prompt_fork_bakhsh_ha"]
 jaye = ["mods/hads/hooks/register.js:134"]
 
 [abzar_ha_ye_claude_code]
 yani = "فهرستِ کاملِ ابزارهای ایجنت در Claude Code، برای «خودکار» (از سندِ رسمی)"
 meghdar = ""
+chera = "حبیب 25 Oct 18:08 «منظورم کل ابزارهایی هست که توی کلود کد برای ایجنت ها موجوده. و این ابزارها باید سرچ به وب بکنی که لیست کاملش رو در بیاری و توی پرومپتت بیاری که ایجنت چک بکنه و بررسی بکنه و پیشنهاداشو بده»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["prompt_fork_khodkar"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
 khanandeha = ["ghaede_khodkar", "ghaede_nakarde"]
 jaye = ["mods/hads/hooks/register.js:165"]
 
 [prompt_fork_khodkar]
 yani = "تکهٔ دستورِ fork برای «خودکار»"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["abzar_ha_ye_claude_code"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
 khanandeha = ["ghaede_nakarde", "prompt_fork_bakhsh_ha"]
 jaye = ["mods/hads/hooks/register.js:200"]
 
 [prompt_fork_cron]
 yani = "تکهٔ دستورِ fork برای «کرون‌جاب»"
 meghdar = ""
+chera = "حبیب 25 Oct 16:52 «کرون‌جاب» · «کرون جا درست کنه … با توجه به اون کارایی که من مشخص میکنم اون کاراییش که میخوره»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["ghaede_cron"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
 khanandeha = ["ghaede_khodkar", "prompt_fork_bakhsh_ha"]
 jaye = ["mods/hads/hooks/register.js:236"]
 
 [ghaede_cron]
 yani = "قاعده‌های «کرون‌جاب» در دستورِ fork"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["prompt_fork_cron"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 16:58)"
 khanandeha = ["ghaede_bakhsh_ha", "ghaede_khodkar"]
 jaye = ["mods/hads/hooks/register.js:237"]
 
 [had_kamtarin_harf_sanad]
 yani = "کجا: سندِ «نکرده» · چیه: متنِ سند کوتاه‌تر از این چک حساب نمی‌شود · مثال: کمتر از 8 حرف"
 meghdar = "8"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["nakarde_ba_sanad_akhar"]
+tarif = "14"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 19:20)"
 khanandeha = ["khandan_nakarde", "khandan_sanad", "ravand_ba_shahed"]
 jaye = ["mods/hads/hooks/register.js:262"]
 
 [nakarde_anjam_har_chat]
 yani = "«نکرده»‌هایی که حبیب در هر چت خودش «✓ انجام شد» زد"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khandan_nakarde_anjam", "masir_nakarde_anjam"]
 jaye = ["mods/hads/hooks/register.js:423"]
 
 [gheymat_cache_neveshtan_usd]
 yani = "دلار برای هر میلیون توکنِ نوشتنِ کش (پنج‌دقیقه‌ای و یک‌ساعته)، برای هشدارِ «پرسش» با کشِ سرد"
 meghdar = ""
+chera = "حبیب «بپرس»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khandan_javab_fork", "kharj_cache_sard"]
 jaye = ["mods/hads/hooks/register.js:465"]
 
 [had_ghablia_tedad]
 yani = "کجا: «قبلی‌ها» · چیه: چند «دو جمله»ٔ قبلی نگه داشته و نشان داده شود · مثال: 50 تای آخر"
 meghdar = "50"
+chera = "حبیب «قبلی‌ها» · «دو جمله»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["benevis_do_jomle", "kharj_cache_sard"]
-jaye = ["mods/hads/hooks/register.js:473"]
+jaye = ["mods/hads/hooks/register.js:474"]
 
 [do_jomle_akhar_dar_daftar]
 yani = "آخرین «دو جمله» که در دفتر نوشته شد، برای هر چت (یک پروسه چند چت می‌تواند داشته باشد)"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["benevis_do_jomle", "w"]
-jaye = ["mods/hads/hooks/register.js:505"]
+jaye = ["mods/hads/hooks/register.js:506"]
 
 [hads_zade_shode]
 yani = "حدس‌هایی که در کادرِ نوشتن گذاشته شدند، تا با Enter معلوم شود کدام رفت"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "01"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["register", "w"]
-jaye = ["mods/hads/hooks/register.js:507"]
+jaye = ["mods/hads/hooks/register.js:508"]
 
 [do_jomle_ha_ye_nobat]
 yani = "همهٔ «دو جمله»‌های نوبتِ در جریان، برای جمع‌بندیِ آخرِ جواب"
 meghdar = ""
+chera = "حبیب «دو جمله»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["had_kamtarin_do_jomle_jambandi"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["amade_jambandi", "benevis_do_jomle", "register", "w"]
-jaye = ["mods/hads/hooks/register.js:510"]
+jaye = ["mods/hads/hooks/register.js:511"]
 
 [mah_miladi]
 yani = "اسمِ کوتاهِ ماه‌های میلادی، مثلِ تاریخ‌نویسیِ حبیب («۲۴ اکت ۱۸:۵۷»)"
 meghdar = ""
+chera = "حبیب «۲۴ اکت ۱۸:۵۷»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["mah_shamsi"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["benevis_do_jomle", "two"]
-jaye = ["mods/hads/hooks/register.js:522"]
+jaye = ["mods/hads/hooks/register.js:523"]
 
 [mah_shamsi]
 yani = "اسمِ ماه‌های شمسی برای تاریخِ خطِ هوک‌ها (در مود و در وصلهٔ میزبان، دو جا)"
 meghdar = ""
+chera = "حبیب «۳ آبان ۱۴۰۵ ۲۰:۰۹» · «اگر که ساعت تاریخ شمسی باشه چه بهتر»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["mah_miladi"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["two", "zaman_shamsi"]
-jaye = ["mods/hads/hooks/register.js:534", "claude-host-hook.js:783"]
+jaye = ["mods/hads/hooks/register.js:535", "claude-host-hook.js:1011"]
 
 [had_do_jomle_harf]
 yani = "کجا: «دو جمله» · چیه: بیشترین حرف · مثال: بلندتر از 300 حرف با … کوتاه می‌شود"
 meghdar = "300"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["kutah_be_do_jomle", "two", "zaman_shamsi"]
-jaye = ["mods/hads/hooks/register.js:554"]
-
-[gheymat_tamas_usd]
-yani = "کجا: جدولِ «تماس‌ها» · چیه: دلار برای هر میلیون توکن: ورودی، خروجی، نوشتنِ کش، خواندنِ کش؛ برای Sonnet و fork (Opus) · از جدولِ ۲۰۳ (ertebat_claude.py)"
-meghdar = ""
-khanandeha = ["sefr", "vazhe_name"]
-jaye = ["mods/hads/hooks/register.js:576"]
+jaye = ["mods/hads/hooks/register.js:555"]
 
 [had_tamas_riz]
 yani = "کجا: حالتِ بزرگِ جدولِ «تماس‌ها» · چیه: چند تماسِ آخر ریز به ریز · مثال: 300 تای آخر"
 meghdar = "300"
-khanandeha = ["sefr", "vazhe_name"]
-jaye = ["mods/hads/hooks/register.js:577"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["rah_external", "sefr"]
+jaye = ["mods/hads/hooks/register.js:590"]
 
 [neshane_amar]
 yani = "نشانهٔ اولِ خطِ پنهانی که دادهٔ جدولِ «تماس‌ها» را به صفحه می‌برد"
 meghdar = ""
-khanandeha = ["khat_amar_terminal", "matn_amar", "vazhe_name"]
-jaye = ["mods/hads/hooks/register.js:578"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["NESHANE_AMAR"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["khat_amar_terminal", "matn_amar", "rah_external", "register"]
+jaye = ["mods/hads/hooks/register.js:591"]
 
 [amar_cache]
 yani = "دادهٔ جدولِ «تماس‌ها» که چند ثانیه نگه داشته می‌شود تا هر رسمِ کادر فایل را دوباره نخواند"
 meghdar = ""
-khanandeha = ["benevis_kharj", "matn_amar", "vazhe_name"]
-jaye = ["mods/hads/hooks/register.js:579"]
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["neshane_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["benevis_kharj", "matn_amar", "rah_external"]
+jaye = ["mods/hads/hooks/register.js:592"]
 
 [had_kamtarin_do_jomle_jambandi]
 yani = "کجا: آخرِ جواب · چیه: با کمتر از این «دو جمله» در نوبت جمع‌بندی ساخته نمی‌شود · مثال: 1"
 meghdar = "1"
+chera = "حبیب 24 Oct 22:42 «دو جمله … عکس لحظه ای میگیره … جمع بندی نداره … بعد از رفت و برگشت کل اینا رو بده به … یه ایجنت با کشه گرم که … جمعبندی کنه» · «دو جمله»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["do_jomle_ha_ye_nobat"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "amade_jambandi"]
-jaye = ["mods/hads/hooks/register.js:814"]
+jaye = ["mods/hads/hooks/register.js:822"]
 
 [abzar_ha_ye_nobat]
 yani = "ابزارهایی که در نوبتِ در جریان صدا زده شدند"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "amade_jambandi", "register"]
-jaye = ["mods/hads/hooks/register.js:816"]
+jaye = ["mods/hads/hooks/register.js:824"]
 
 [khaste_habib_nobat]
 yani = "پیامِ خودِ حبیب که نوبت را شروع کرد"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "14"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["akhar_javab", "amade_jambandi", "register"]
-jaye = ["mods/hads/hooks/register.js:818"]
+jaye = ["mods/hads/hooks/register.js:826"]
 
 [khodkar_ferestade_har_chat]
 yani = "«خودکار»ها و «نکرده»‌هایی که به چت فرستاده شدند، با شمارِ هر کار"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["had_ferestadan_kar"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 03:39)"
 khanandeha = ["khandan_khodkar_ferestade", "masir_khodkar_ferestade"]
-jaye = ["mods/hads/hooks/register.js:895"]
+jaye = ["mods/hads/hooks/register.js:1133"]
 
 [baraye_ferestadan_har_chat]
 yani = "«خودکار»هایی که در صفِ فرستادن به چت‌اند"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["khodkar_ferestade_har_chat"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 03:39)"
 khanandeha = ["baraye_ferestadan", "ferestadan_khodkar", "masir_khodkar_ferestade"]
-jaye = ["mods/hads/hooks/register.js:896"]
+jaye = ["mods/hads/hooks/register.js:1134"]
 
 [had_ferestadan_kar]
 yani = "کجا: «خودکار» · چیه: یک کار چند بار به چت برود؛ بارِ آخر با درخواستِ کمک از حبیب، بعدش دیگر نه · مثال: 3 بار"
 meghdar = "3"
+chera = "حبیب 26 Oct 07:50 «خودکار» · «نکرده»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["matn_bar_sevom"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 07:52)"
 khanandeha = ["dar_list", "ferestadan_khodkar", "shomar"]
-jaye = ["mods/hads/hooks/register.js:913"]
+jaye = ["mods/hads/hooks/register.js:1151"]
 
 [matn_bar_sevom]
 yani = "متنی که بارِ آخرِ فرستادنِ یک کار اضافه می‌شود: «اول به زبانِ ساده به حبیب توضیح بده و کمک بخواه»"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_ferestadan_kar"]
+tarif = "15"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 07:52)"
 khanandeha = ["dar_list", "matn_ferestadan_khodkar"]
-jaye = ["mods/hads/hooks/register.js:914"]
+jaye = ["mods/hads/hooks/register.js:1152"]
 
 [matn_porsesh_montazer]
 yani = "پیامِ کادر وقتی «پرسش» باید تا جوابِ بعدی صبر کند"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["porsesh_montazer"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["hads_ba_fork", "porsesh_kon"]
-jaye = ["mods/hads/hooks/register.js:1088"]
+jaye = ["mods/hads/hooks/register.js:1326"]
 
 [matn_dalil_bi_javab]
 yani = "دلیلِ ساده‌ای که کادر وقتی fork جواب نداد نشان می‌دهد"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["hads_ba_fork", "porsesh_kon"]
-jaye = ["mods/hads/hooks/register.js:1089"]
+jaye = ["mods/hads/hooks/register.js:1327"]
 
 [had_harf_dokme_prompt]
 yani = "کجا: دکمه‌های پرومپتِ «پرسش» · چیه: بیشترین حرفِ روی دکمه · مثال: بلندتر از 18 حرف با …"
 meghdar = "18"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["prompt_ha"]
+tarif = "18"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 05:48)"
 khanandeha = ["register", "zakhire_prompt_ha"]
-jaye = ["mods/hads/hooks/register.js:1107"]
+jaye = ["mods/hads/hooks/register.js:1345"]
 
 [bakhsh_ha]
 yani = "بخش‌های کادرِ حدس و اسمِ فارسیِ هر کدام (تیک‌ها)"
 meghdar = ""
-khanandeha = ["bargardandan_akharin", "khandan_file_chat", "khandan_tartib", "masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:1196"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["esm_bakhsh", "kalame_khamush"]
+tarif = "16"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["dade_shenavar", "khandan_file_chat_kham", "khandan_tartib", "masir_file_chat", "radif_fekr", "register", "virayeshgar"]
+jaye = ["mods/hads/hooks/register.js:1436"]
 
 [esm_bakhsh]
 yani = "همان، به شکلِ جدولِ اسم ⇐ واژه"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["bakhsh_ha"]
+tarif = "16"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
 khanandeha = ["masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:1199"]
+jaye = ["mods/hads/hooks/register.js:1439"]
 
 [dayere_ha]
 yani = "دایره‌های سرچِ حافظه: همین چت، همین پروژه، همهٔ پروژه‌ها"
 meghdar = ""
+chera = "حبیب 25 Oct 18:03 «🔎 حافظه» · «این قابلیت سرچ کردن باید قابل تنظیم باشه که … فقط از توی چت خودش باشه یا از توی چتای توی پروژه خودش باشه یا از توی کل چتای موجود در کل پروژه ها»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["esm_dayere", "dayere_har_chat"]
+tarif = "17"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:38)"
 khanandeha = ["hafeze_dayere", "masir_file_chat", "register", "taghir_dayere"]
-jaye = ["mods/hads/hooks/register.js:1204"]
+jaye = ["mods/hads/hooks/register.js:1444"]
 
 [esm_dayere]
 yani = "اسمِ فارسیِ هر دایره"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["dayere_ha"]
+tarif = "17"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:38)"
 khanandeha = ["masir_file_chat", "register"]
-jaye = ["mods/hads/hooks/register.js:1205"]
+jaye = ["mods/hads/hooks/register.js:1445"]
 
 [dayere_har_chat]
 yani = "دایرهٔ سرچِ حافظه برای هر چت"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["dayere_ha"]
+tarif = "17"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:38)"
 khanandeha = ["khandan_dayere", "masir_hafeze_dayere", "register", "taghir_dayere"]
-jaye = ["mods/hads/hooks/register.js:1208"]
+jaye = ["mods/hads/hooks/register.js:1448"]
 
 [akharin_zakhire]
 yani = "آخرین وضعی که برای هر چت در فایل نوشته شد (حدس‌ها، نکرده‌ها …)، برای برگرداندن بعد از ریلود"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["akharin_bargashte"]
+tarif = "16"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
 khanandeha = ["tasvir_akharin", "zakhire_akharin"]
-jaye = ["mods/hads/hooks/register.js:1247"]
+jaye = ["mods/hads/hooks/register.js:1487"]
 
 [akharin_bargashte]
 yani = "چت‌هایی که وضعشان بعد از ریلود یک بار برگردانده شد"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["akharin_zakhire"]
+tarif = "16"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-25 18:25)"
 khanandeha = ["bargardandan_akharin", "zakhire_akharin"]
-jaye = ["mods/hads/hooks/register.js:1254"]
+jaye = ["mods/hads/hooks/register.js:1494"]
 
 [kalame_khamush]
 yani = "کلمهٔ هر بخشِ خاموش در فایلِ چت (مثلِ -hads)؛ کامل نوشته شده تا با grep پیدا شود"
 meghdar = ""
-khanandeha = ["kalame_ha_ye_file", "khandan_file_chat", "taghir_tartib"]
-jaye = ["mods/hads/hooks/register.js:1291"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["bakhsh_ha", "kalame_tanzim"]
+tarif = "10"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["kalame_ha_ye_file", "khandan_file_chat_kham", "taghir_tartib"]
+jaye = ["mods/hads/hooks/register.js:1538"]
 
 [kalame_tanzim]
 yani = "کلمه‌های دیگرِ فایلِ چت: حالتِ کادر و تنظیم‌ها"
 meghdar = ""
-khanandeha = ["kalame_ha_ye_file", "khandan_file_chat", "taghir_tartib"]
-jaye = ["mods/hads/hooks/register.js:1292"]
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["kalame_khamush"]
+tarif = "13"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["kalame_ha_ye_file", "khandan_file_chat_kham", "taghir_tartib"]
+jaye = ["mods/hads/hooks/register.js:1539"]
 
 [ghablia_baz]
 yani = "«قبلی‌ها» باز است"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["had_ghablia_tedad"]
+tarif = "12"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "register"]
-jaye = ["mods/hads/hooks/register.js:1317"]
+jaye = ["mods/hads/hooks/register.js:1571"]
 
 [had_hook_transcript_khat]
 yani = "کجا: «هوک‌ها» · چیه: چند خطِ آخرِ فایلِ چت برای پیدا کردنِ هوک‌ها خوانده شود · مثال: 400 خط"
 meghdar = "400"
+chera = "حبیب «هوک‌ها»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_hook_transcript_byte"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1325"]
+jaye = ["mods/hads/hooks/register.js:1579"]
 
 [had_hook_transcript_byte]
 yani = "همان، به بایت: بیش از این از تهِ فایل خوانده نمی‌شود"
 meghdar = "4000000"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_hook_transcript_khat"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1326"]
+jaye = ["mods/hads/hooks/register.js:1580"]
 
 [hook_transcript_grep]
 yani = "الگوی خط‌های هوک در فایلِ چت"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript"]
-jaye = ["mods/hads/hooks/register.js:1327"]
+jaye = ["mods/hads/hooks/register.js:1581"]
 
 [had_hook_kuchak_harf]
 yani = "کجا: «هوک‌ها» · چیه: بیشترین حرفِ هر خطِ کوچک · مثال: 100 حرف"
 meghdar = "100"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_hook_kuchak_radif"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "register"]
-jaye = ["mods/hads/hooks/register.js:1329"]
+jaye = ["mods/hads/hooks/register.js:1583"]
 
 [masir_transcript]
 yani = "مسیرِ فایلِ چتِ همین چت"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "masir_file_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1330"]
+jaye = ["mods/hads/hooks/register.js:1584"]
 
 [hook_ha]
 yani = "هوک‌هایی که برای کادر خوانده شد، و چتش"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1331"]
+jaye = ["mods/hads/hooks/register.js:1585"]
 
 [zaman_khandan_hook]
 yani = "ساعتِ آخرین خواندنِ هوک‌ها"
 meghdar = "0"
+chera = ""
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["jam_kardan", "khandan_hook_az_transcript", "register"]
-jaye = ["mods/hads/hooks/register.js:1332"]
+jaye = ["mods/hads/hooks/register.js:1586"]
 
 [had_hook_kuchak_radif]
 yani = "کجا: «هوک‌ها» · چیه: چند هوکِ آخر در حالتِ کوچک · مثال: 6 ردیف"
 meghdar = "6"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_hook_bozorg_radif"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1369"]
+jaye = ["mods/hads/hooks/register.js:1623"]
 
 [had_hook_bozorg_radif]
 yani = "همان در حالتِ بزرگ"
 meghdar = "3"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_hook_bozorg_harf"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1370"]
+jaye = ["mods/hads/hooks/register.js:1624"]
 
 [had_hook_bozorg_harf]
 yani = "بیشترین حرفِ هر هوک در حالتِ بزرگ"
 meghdar = "600"
+chera = ""
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_hook_bozorg_radif"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khandan_hook_ha", "register"]
-jaye = ["mods/hads/hooks/register.js:1371"]
+jaye = ["mods/hads/hooks/register.js:1625"]
 
 [ERRORS]
 yani = "خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل"
 meghdar = ""
-khanandeha = ["negahban_khata", "neshan_shenase_chat", "tashkhis_khata", "vazhe_name_ru_kalame"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["gloss_nasb", "negahban_khata", "neshan_shenase_chat", "tashkhis_khata", "vazhe_name_ru_kalame"]
 jaye = ["claude-ui-buttons.js:22"]
 
 [SESSION]
 yani = "چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود)"
-meghdar = ""
-khanandeha = ["neshan_shenase_chat", "neshan_tarjome", "porsidan_shenase_chat", "sakht_panel_aa", "tz_porsidan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:37"]
+meghdar = "claude-code-opencode-gateway"
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "02"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["aaSend", "fekr_bi_kadr", "gloss_darkhast", "navar_keshidan", "navar_porsidan", "neshan_shenase_chat", "neshan_tarjome", "porsidan_shenase_chat", "sakht_panel_aa", "shenase_fekr", "tik_kelid", "tik_porsidan", "tik_sabt", "tik_session", "tz_porsidan", "tz_sakht_radif"]
+jaye = ["claude-ui-buttons.js:37", "abzar/216-migration/scripts/opencode_gateway.py:38"]
 
 [DEFAULT_COMMANDS]
 yani = "دکمه‌های پیش‌فرضِ نوارِ بالا"
 meghdar = ""
-khanandeha = ["dokme_ha", "gozashtan_dokme_pishfarz_bala", "khandan_tanzim", "negahban_khata"]
-jaye = ["claude-ui-buttons.js:105"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["DEF"]
+tarif = "02"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["aaOverlay", "aaSend", "dokme_ha", "gozashtan_dokme_pishfarz_bala", "khandan_tanzim", "negahban_khata"]
+jaye = ["claude-ui-buttons.js:145"]
 
 [KEY]
 yani = "کلیدِ localStorage ِ تنظیم‌های پنل"
-meghdar = "crtl-sizes"
-khanandeha = ["khandan_tanzim", "negahban_khata", "zakhire_tanzim"]
-jaye = ["claude-ui-buttons.js:138"]
+meghdar = "additionalModelOptionsCache"
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["aaSend", "khandan_tanzim", "zakhire_tanzim"]
+jaye = ["claude-ui-buttons.js:206", "abzar/216-migration/scripts/opencode_gateway.py:96", "abzar/216-migration/scripts/opencode_picker.py:29"]
 
 [DEF]
 yani = "تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها)"
 meghdar = ""
-khanandeha = ["esm_profile_moshtarak", "khandan_tanzim", "negahban_khata", "radif_andaze", "tanzim_pishfarz"]
-jaye = ["claude-ui-buttons.js:139"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["LIMITS", "PRESETS", "KEY"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["aaSend", "esm_profile_moshtarak", "khandan_tanzim", "radif_andaze", "tanzim_pishfarz"]
+jaye = ["claude-ui-buttons.js:207"]
 
 [LIMITS]
 yani = "کمترین و بیشترینِ هر اندازه در پنل"
 meghdar = ""
-khanandeha = ["khandan_tanzim", "negahban_khata", "radif_andaze", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:164"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["aaSend", "khandan_tanzim", "radif_andaze", "sakht_panel_aa"]
+jaye = ["claude-ui-buttons.js:234"]
 
 [PRESETS]
 yani = "حالت‌های آمادهٔ اندازه‌ها"
 meghdar = ""
-khanandeha = ["negahban_khata", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:165"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["aaSend", "sakht_panel_aa"]
+jaye = ["claude-ui-buttons.js:235"]
 
 [esm_ghadim_tanzim]
 yani = "اسمِ قدیمِ دو تنظیم ⇐ اسمِ تازه؛ مقدارِ ذخیره‌شده با اسمِ قدیم خوانده می‌شود"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["DEF"]
+tarif = "10"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khandan_tanzim", "tanzim_pishfarz"]
-jaye = ["claude-ui-buttons.js:187"]
+jaye = ["claude-ui-buttons.js:257"]
 
 [CSS]
 yani = "همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند"
 meghdar = ""
-khanandeha = ["dokme_ha", "sakht_hame", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:254"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["dokme_ha", "gloss_nasb", "sakht_hame", "sakhtan_shenavar"]
+jaye = ["claude-ui-buttons.js:335"]
 
 [HOVER_DELAY]
 yani = "کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: 700"
 meghdar = "700"
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["baz_shodan_ba_hover", "radif_andaze"]
-jaye = ["claude-ui-buttons.js:696"]
+jaye = ["claude-ui-buttons.js:806"]
 
 [GLOSS_DELAY]
 yani = "کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: 600"
 meghdar = "600"
-khanandeha = ["bastan_panel", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:842"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "06"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["bastan_panel", "gloss_nasb"]
+jaye = ["claude-ui-buttons.js:1007"]
 
 [counterTimer]
 yani = "زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = ["usageCache", "usageTick"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise"]
-jaye = ["claude-ui-buttons.js:1200"]
+jaye = ["claude-ui-buttons.js:1418"]
 
 [usageCache]
 yani = "آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = ["counterTimer"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1200"]
+jaye = ["claude-ui-buttons.js:1418"]
 
 [usageTick]
 yani = "شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار)"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = ["counterTimer"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1200"]
+jaye = ["claude-ui-buttons.js:1418"]
 
 [FILE_NAME]
 yani = "اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند"
 meghdar = "claude-rtl-settings.json"
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["DEF"]
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["emal_tanzim_vared_shode", "neveshtan_yaddasht_panel"]
-jaye = ["claude-ui-buttons.js:1387"]
+jaye = ["claude-ui-buttons.js:1605"]
 
 [DRAG_PX]
 yani = "کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل"
 meghdar = "5"
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "02"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["ejraye_dokme", "keshidan_navar_bala", "keshidan_tik_hads", "sakht_hame"]
-jaye = ["claude-ui-buttons.js:1551"]
+jaye = ["claude-ui-buttons.js:1771"]
 
 [topWatch]
 yani = "نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "02"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["bardashtan_jaygozin", "payesh_navar_bala"]
-jaye = ["claude-ui-buttons.js:1638"]
+jaye = ["claude-ui-buttons.js:1858"]
 
 [draftCommands]
 yani = "متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = ["DEFAULT_COMMANDS"]
+tarif = "02"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["emal_tanzim_vared_shode", "keshidan_navar_bala", "sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1691"]
+jaye = ["claude-ui-buttons.js:1911"]
 
 [draftProfileName]
 yani = "اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده"
 meghdar = ""
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1692"]
+jaye = ["claude-ui-buttons.js:1912"]
 
 [NESHANE_AMAR]
 yani = "همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند"
 meghdar = ""
-khanandeha = ["jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2904"]
+chera = "حبیب 26 Oct 21:54 «سمت چپ که خالیه یه جدول کوچیک بذار … قابل جابجایی … یک ساعت اخیر 24 ساعت اخیر کل … خودکار رو عمودی بنویس … اگر بزرگش بکنم … ریز بریز با مقدار مقادیر کامل»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["neshane_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["fekr_bi_kadr", "jadval_tamas"]
+jaye = ["claude-ui-buttons.js:3716"]
 
 [KELID_JA_AMAR]
 yani = "کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد"
 meghdar = ""
-khanandeha = ["jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2904"]
+chera = "حبیب 26 Oct 21:54 «سمت چپ که خالیه یه جدول کوچیک بذار … قابل جابجایی … یک ساعت اخیر 24 ساعت اخیر کل … خودکار رو عمودی بنویس … اگر بزرگش بکنم … ریز بریز با مقدار مقادیر کامل»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["ja_kuchak_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["fekr_bi_kadr", "jadval_tamas"]
+jaye = ["claude-ui-buttons.js:3716"]
 
 [sotun_amar]
 yani = "ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام"
 meghdar = ""
-khanandeha = ["jadval_bozorg", "jadval_kuchak", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2905"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["radif_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["fekr_bi_kadr", "jadval_bozorg", "jadval_kuchak"]
+jaye = ["claude-ui-buttons.js:3717"]
 
 [radif_amar]
 yani = "ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل"
 meghdar = ""
-khanandeha = ["jadval_bozorg", "jadval_kuchak", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2907"]
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = ["sotun_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["fekr_bi_kadr", "jadval_bozorg", "jadval_kuchak"]
+jaye = ["claude-ui-buttons.js:3719"]
 
 [amar_matn_akhar]
 yani = "آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود"
 meghdar = ""
-khanandeha = ["amar_bozorgi", "jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2908"]
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["amar_bozorgi", "fekr_bi_kadr", "jadval_tamas"]
+jaye = ["claude-ui-buttons.js:3720"]
 
 [amar_bozorg]
 yani = "جدولِ «تماس‌ها» در حالتِ بزرگ است"
 meghdar = ""
-khanandeha = ["amar_bozorgi", "jadval_tamas", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2908"]
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = ["ja_kuchak_amar"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
+khanandeha = ["amar_bozorgi", "fekr_bi_kadr", "jadval_tamas"]
+jaye = ["claude-ui-buttons.js:3720"]
 
 [ja_kuchak_amar]
 yani = "جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند"
 meghdar = ""
-khanandeha = ["amar_bozorgi", "neshan_hook_va_hads"]
-jaye = ["claude-ui-buttons.js:2908"]
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = ["amar_bozorg", "KELID_JA_AMAR"]
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:48)"
+khanandeha = ["amar_bozorgi", "fekr_bi_kadr"]
+jaye = ["claude-ui-buttons.js:3720"]
 
 [amar_dar_rah]
 yani = "یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه)"
 meghdar = ""
+chera = "حبیب 26 Oct 23:12 «اون کلمات گاهی میاد تو کادر بسته حدس»"
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "19"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:18)"
 khanandeha = ["jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3022"]
+jaye = ["claude-ui-buttons.js:3835"]
 
 [timer]
 yani = "زمان‌سنجِ همان گشتن"
 meghdar = ""
-khanandeha = ["baz_shodan_ba_hover", "menu_naghl", "neshan_tarjome", "tz_sakht_radif", "vazhe_name_ru_kalame"]
-jaye = ["claude-ui-buttons.js:3127"]
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "04"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
+khanandeha = ["baz_shodan_ba_hover", "gloss_nasb", "menu_naghl", "navar_keshidan", "tz_sakht_radif"]
+jaye = ["claude-ui-buttons.js:4112"]
 
 [gorooh_hook]
 yani = "نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند"
 meghdar = ""
+chera = "حبیب 25 Oct «من چند بار چند بار ریلود میکنم چند چت رو بعد اینو بکشه»"
+noe = "sabet"
+ozv = "mizban"
+ba_motaghayerha = ["neshane_hook"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khat_ha_ye_hook_dar_file", "sakht_khat_hook"]
-jaye = ["claude-host-hook.js:852"]
+jaye = ["claude-host-hook.js:1081"]
 
 [neshane_hook]
 yani = "بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "mizban"
+ba_motaghayerha = ["gorooh_hook"]
+tarif = "11"
+tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["khat_ha_ye_hook_dar_file", "masir_transcript"]
-jaye = ["claude-host-hook.js:865"]
+jaye = ["claude-host-hook.js:1094"]
 
 [had_tedad_kamtarin_zaban_harf]
 yani = "کجا: آخرِ جواب، بخشِ «زبان» · چیه: جوابِ کوتاه‌تر از این تعداد حرف (فارسی + لاتین، بی کد و لینک) سنجیده نمی‌شود · مثال: 40"
 meghdar = "40"
+chera = "حبیب ۲۸ اکت ۰۲:۲۰ «اگه مدل انگلیسی جواب داد تو جواب قبلیش بهش یاداوری کنه که فاوسی حرف بزنه»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["matn_yadavari_zaban"]
+tarif = "01"
+tayid = "حدس — حبیب بخش را خواست، عدد را نگفت"
 khanandeha = ["begu_do_jomle", "englisi_ast"]
-jaye = ["mods/hads/hooks/register.js:673"]
+jaye = ["mods/hads/hooks/register.js:677"]
 
 [matn_yadavari_zaban]
 yani = "متنی که «زبان» بعد از جوابِ انگلیسی به چت می‌فرستد تا مدل فارسی حرف بزند"
 meghdar = ""
+chera = "حبیب ۲۸ اکت ۰۲:۲۰ «تو جواب قبلیش بهش یاداوری کنه که فاوسی حرف بزنه»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["had_tedad_kamtarin_zaban_harf", "zaban_yadavari_shod"]
+tarif = "01"
+tayid = "حدس — متن را حبیب ندیده"
 khanandeha = ["begu_do_jomle", "chek_zaban"]
-jaye = ["mods/hads/hooks/register.js:674"]
+jaye = ["mods/hads/hooks/register.js:678"]
 
 [zaban_yadavari_shod]
 yani = "برای هر چت: آیا همین الان یادآوریِ زبان فرستاده شد؛ اگر بله، جوابِ بعدی دوباره یادآوری نمی‌گیرد (حلقه نشود)"
 meghdar = ""
+chera = "حبیب ۲۸ اکت ۰۲:۲۰ «زبان»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["matn_yadavari_zaban"]
+tarif = "01"
+tayid = "حدس"
 khanandeha = ["chek_zaban", "khandan"]
-jaye = ["mods/hads/hooks/register.js:757"]
+jaye = ["mods/hads/hooks/register.js:764"]
 
 [matn_se_daste]
 yani = "تکهٔ پرامپتِ «خودکار»: هر «منتظرِ شما / خودت وارد شو / کد را بفرست» ِ ایجنت در سه دسته سنجیده می‌شود: (الف) خودش، (ب) راه از ۲۰۳، (ج) فقط کارِ حبیب"
 meghdar = ""
+chera = "حبیب ۲۹ اکت ۲۰:۳۴ (از راهِ ۲۰۳) «اگر توسط خود ایجنت واقعاً قابل انجام نیست اونوقت به من ارجاع بده یا اگه جزء کارای که ۲۰۳ میتونه انجام بده … از ۲۰۳ پرسیده بشه»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "01"
+tayid = "حدس — متن از پیامِ ۲۰۳، خودِ متن را حبیب ندیده"
 khanandeha = ["ghaede_khodkar"]
 jaye = ["mods/hads/hooks/register.js:220"]
 
 [prompt_az_hads]
 yani = "سرِ هر پرومپتِ ترجمه: این پیام از مود است نه از حبیب، و ابزاری صدا نزن"
 meghdar = ""
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["englisi_ast", "prompt_tarjome_javab", "prompt_tarjome_kadr"]
-jaye = ["mods/hads/hooks/register.js:690"]
+jaye = ["mods/hads/hooks/register.js:694"]
 
 [ghaede_tarjome]
 yani = "قاعدهٔ ترجمهٔ جواب: قالب‌بندی و کد و فرمان دست‌نخورده، چیزی کم یا زیاد نشود"
 meghdar = ""
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["englisi_ast", "prompt_tarjome_javab"]
-jaye = ["mods/hads/hooks/register.js:692"]
+jaye = ["mods/hads/hooks/register.js:696"]
 
 [had_tedad_tarjome_radif]
 yani = "چند ترجمهٔ آخر در فایلِ tarjome.jsonl هر چت می‌ماند: 200"
 meghdar = "200"
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sabt_tarjome", "tarjome_ba_sonnet"]
-jaye = ["mods/hads/hooks/register.js:697"]
+jaye = ["mods/hads/hooks/register.js:704"]
 
 [tarjome_kadr_dar_kar]
 yani = "دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند"
 meghdar = ""
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "motaghayer"
+ozv = "hads"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["begu", "khandan", "register", "tarjome_javab"]
-jaye = ["mods/hads/hooks/register.js:729"]
+jaye = ["mods/hads/hooks/register.js:736"]
 
 [tarjome_ha]
 yani = "ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب"
 meghdar = ""
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "motaghayer"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3034"]
+jaye = ["claude-ui-buttons.js:3847"]
 
 [tarjome_mt]
 yani = "زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد"
 meghdar = ""
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "motaghayer"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3034"]
+jaye = ["claude-ui-buttons.js:3847"]
 
 [tarjome_sid]
 yani = "ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند"
 meghdar = ""
+chera = "حبیب ۲ نوامبر ۰۴:۵۵ «یه ابزار ترجمه … جمله منو به انگلیسی ترجمه کنه و دوم اینکه جوابای کلود رو هم … انگلیسی رو تبدیل به فارسی کنه»"
+noe = "motaghayer"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "22"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3034"]
+jaye = ["claude-ui-buttons.js:3847"]
 
 [ravand_akhar]
 yani = "روندهایی که الان در کادر نشان داده می‌شوند؛ هر کدام با حرف‌های عینیِ حبیب"
 meghdar = ""
+chera = "حبیب ۲ نوا «این روند باشه … حبیب میخواد سیستم کلاً چطوری باشه»"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["ravand_zade_shode"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["bargardandan_akharin", "hads_ba_fork", "register", "tasvir_akharin", "tik_zadan"]
-jaye = ["mods/hads/hooks/register.js:15"]
+jaye = ["mods/hads/hooks/register.js:17"]
 
 [ravand_zade_shode]
 yani = "متنِ روندهایی که دکمهٔ ⤵ آن‌ها زده شد؛ این متن‌ها حرفِ حبیب حساب نمی‌شوند تا روند خودش را تقویت نکند"
 meghdar = ""
+chera = "نقدِ ساب‌ایجنت ۲ نوا: دکمه را می‌زند و متنش شاهدِ بعدی می‌شود"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["ravand_akhar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["khandan_ravand_zade"]
-jaye = ["mods/hads/hooks/register.js:17"]
+jaye = ["mods/hads/hooks/register.js:19"]
 
 [prompt_fork_ravand]
 yani = "قالبی که فورک برای کلیدِ ravand باید برگرداند"
 meghdar = ""
+chera = "حبیب ۲ نوا «کلاً یک تماس یا یک کش گرم»"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["ravand_akhar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["ghaede_khodkar", "prompt_fork_bakhsh_ha"]
 jaye = ["mods/hads/hooks/register.js:238"]
 
 [payam_dastgah]
 yani = "پیام‌هایی که از طرفِ کاربر می‌آیند ولی حرفِ حبیب نیستند (پلاگین، task-notification، ادامهٔ خودکار)؛ شاهدِ روند نمی‌شوند"
 meghdar = ""
+chera = "نقدِ ساب‌ایجنت ۲ نوا: در یک چت ۵۳ از ۸۱ پیام از ایجنتِ دیگر بود"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["ravand_akhar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["payam_ha_ye_habib", "tamiz_naghl"]
 jaye = ["mods/hads/hooks/register.js:303"]
 
 [had_tedad_ravand_zade_radif]
 yani = "کجا: «روند» · چیه: چند متنِ دکمهٔ زده‌شده برای هر چت نگه داشته شود تا شاهد نشود · مثال: 50"
 meghdar = "50"
+chera = "بازبینیِ ساب‌ایجنت ۲ نوا: بعد از ریلود متنِ دکمه دوباره شاهد می‌شد"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["ravand_zade_shode"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["zadan_ravand"]
-jaye = ["mods/hads/hooks/register.js:18"]
+jaye = ["mods/hads/hooks/register.js:20"]
 
 [shekast_fork_har_chat]
 yani = "برای هر چت: چند فورکِ پشتِ هم چیزِ به‌دردبخوری نداد"
 meghdar = ""
+chera = "بازبینیِ ساب‌ایجنت ۲ نوا: فورکِ خراب بی‌ترمز روی هر جواب دوباره می‌خورد"
+noe = "vaziat"
+ozv = "hads"
+ba_motaghayerha = ["had_tedad_shekast_fork_bar"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["akhar_javab", "hads_ba_fork"]
-jaye = ["mods/hads/hooks/register.js:20"]
+jaye = ["mods/hads/hooks/register.js:22"]
 
 [had_tedad_shekast_fork_bar]
 yani = "کجا: آخرِ جواب · چیه: بعد از این تعداد فورکِ بی‌نتیجهٔ پشتِ هم، فورکِ بعدی تا نوبتِ عادی‌اش صبر می‌کند · مثال: 2"
 meghdar = "2"
+chera = "بازبینیِ ساب‌ایجنت ۲ نوا"
+noe = "sabet"
+ozv = "hads"
+ba_motaghayerha = ["shekast_fork_har_chat", "hads_har_chand_javab"]
+tarif = "23"
+tayid = "حبیب ۲ نوا «بزن همه رو»"
 khanandeha = ["akhar_javab"]
-jaye = ["mods/hads/hooks/register.js:21"]
+jaye = ["mods/hads/hooks/register.js:23"]
 
 [payam_transcript_grep]
 yani = "کجا: «روند» · چیه: دو شکلِ خطی که در فایلِ چت پیامِ تایپ‌شدهٔ حبیب است (پیامِ عادی و پیامی که وسطِ کار فرستاده)"
 meghdar = ""
+chera = "حبیب ۳ نوامبر «اصلا نیددیدم روندی پیشنهاد بده»"
+noe = "sabet"
+ozv = "ravand"
+ba_motaghayerha = ["had_tedad_payam_transcript_khat"]
+tarif = "23"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-11-03 04:40)"
 khanandeha = ["payam_ha_az_file", "zakhire_payam"]
 jaye = ["mods/hads/hooks/register.js:355"]
 
 [had_tedad_payam_transcript_khat]
 yani = "کجا: «روند» · چیه: از فایلِ چت فقط این تعداد از آخرین پیام‌های حبیب خوانده می‌شود · مثال: 3000"
 meghdar = "3000"
+chera = "حبیب ۳ نوامبر «اصلا نیددیدم روندی پیشنهاد بده»"
+noe = "sabet"
+ozv = "ravand"
+ba_motaghayerha = ["payam_transcript_grep"]
+tarif = "23"
+tayid = "پیشنهاد — تأییدنشده (آمده 2026-11-03 04:40)"
 khanandeha = ["payam_ha_az_file", "zakhire_payam"]
 jaye = ["mods/hads/hooks/register.js:356"]
 
 [had_tedad_hads_ghabli_khat]
 yani = "چند حدسِ آخر به کپیِ چت داده می‌شود تا تکرارشان نکند: 12"
 meghdar = "12"
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["baraye_hads_ghabli", "cut"]
 jaye = ["mods/hads/hooks/register.js:139"]
 
 [had_hads_ghabli_harf]
 yani = "سقفِ حرفِ هر حدسِ قبلی که به کپیِ چت داده می‌شود: 200"
 meghdar = "200"
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["baraye_hads_ghabli", "cut"]
 jaye = ["mods/hads/hooks/register.js:140"]
 
 [hads_ghabli_har_chat]
 yani = "حدس‌های قبلیِ هر چت در حافظهٔ برنامه؛ با ریلود خالی می‌شود"
 meghdar = ""
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["cut", "hads_ba_fork"]
 jaye = ["mods/hads/hooks/register.js:141"]
 
 [had_tedad_payam_zakhire_khat]
 yani = "سقفِ تعدادِ حرف‌های حبیب که برای هر چت نگه داشته می‌شود: 3000"
 meghdar = "3000"
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["afzudan_payam", "payam_ha_ye_habib"]
 jaye = ["mods/hads/hooks/register.js:315"]
 
 [had_payam_zakhire_harf]
 yani = "سقفِ جمعِ حرفِ پیام‌های نگه‌داشته‌شده، زیرِ محدودیتِ فایل: 1500000"
 meghdar = "1500000"
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["afzudan_payam", "payam_ha_ye_habib"]
 jaye = ["mods/hads/hooks/register.js:316"]
 
 [payam_zakhire_har_chat]
 yani = "حرف‌های نگه‌داشته‌شدهٔ حبیب برای هر چت، در حافظهٔ برنامه"
 meghdar = ""
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["afzudan_payam", "khandan_payam_zakhire", "zakhire_payam"]
 jaye = ["mods/hads/hooks/register.js:323"]
 
 [saf_payam_har_chat]
 yani = "نوشتن‌های پشتِ سرِ همِ فایلِ حرف‌های حبیب برای هر چت، تا روی هم نیفتند"
 meghdar = ""
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["afzudan_payam", "zakhire_payam"]
 jaye = ["mods/hads/hooks/register.js:324"]
 
 [had_kelid_ravand_kamtarin_harf]
 yani = "نقلِ کوتاه‌تر از 20 حرف به‌تنهایی روندِ تازه را نمی‌بندد؛ این مرز را ایجنت انتخاب کرده و از داده نیامده"
 meghdar = "20"
+chera = ""
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳، بخشِ v4"
+tayid = "حبیب ۳ نوامبر: «بزن همه رو»"
 khanandeha = ["boland_ast_naghl", "matn_ravand_dar_chat"]
-jaye = ["mods/hads/hooks/register.js:926"]
+jaye = ["mods/hads/hooks/register.js:1164"]
 
 [matn_vazhe_nasanjide]
 yani = "کجا: پرامپتِ «خودکار» · چیه: کلمه‌هایی مثلِ «نسنجیدم» و «حدسم» را در جوابِ ایجنت می‌گردد و با نگاه به معنی، برای آنچه باز است خودکار می‌سازد"
 meghdar = ""
+chera = "حبیب ۳ نوامبر: «نه اینکه هرجا اومد بدون در نظر گرفتن مفهومش یه خودکار تعریف کنه»"
+noe = ""
+ozv = ""
+ba_motaghayerha = []
+tarif = "تعریف ۲۳"
+tayid = "حبیب ۳ نوامبر: «روی اینا حساس باشه»"
 khanandeha = ["ghaede_khodkar"]
 jaye = ["mods/hads/hooks/register.js:216"]
 
 [TZ]
 yani = "کجا: تبِ تنظیمات کلود · چیه: وضعیتِ تب بیرون از پنل، تا با ساختنِ دوبارهٔ پنل گم نشود: کدام تب باز است، آخرین جوابِ میزبان، ردیف‌ها"
 meghdar = ""
-khanandeha = ["sakht_dokme_charkhdande", "sakht_tab_ha", "tz_khali", "tz_maghdar_sath", "tz_matn_alan", "tz_porsidan", "tz_resid", "tz_sakht_kontrol", "tz_sakht_radif", "tz_taze_shod"]
+chera = ""
+noe = "vaziat"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
+khanandeha = ["sakht_dokme_charkhdande", "sakht_tab_ha", "tik_chat_taze_payesh", "tik_sabt", "tz_khali", "tz_maghdar_sath", "tz_matn_alan", "tz_porsidan", "tz_resid", "tz_sakht_kontrol", "tz_sakht_radif", "tz_taze_shod"]
 jaye = ["claude-ui-buttons.js:39"]
 
 [SOAL_SABR_MS]
 yani = "کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: 250 میلی‌ثانیه"
 meghdar = "250"
+chera = "حبیب ۵ نوامبر، پنجره: «بله» روی اینکه وقتی متن یک جواب را برای کپی انتخاب می‌کند آن جواب زده نشود"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["bordan_be_other", "entekhab_matn_soal"]
-jaye = ["claude-ui-buttons.js:1500"]
+jaye = ["claude-ui-buttons.js:1720"]
 
 [TZ_BALA]
 yani = "کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت"
 meghdar = ""
+chera = "حبیب ۵ نوامبر ۰۲:۳۴ «توی همون پنجره همون کاری که برای افورت کودی برای مدل انتحابی هم بگذار و هم برای ریموت کنترل و هم برای اولتراکد»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_resid"]
-jaye = ["claude-ui-buttons.js:2188"]
+jaye = ["claude-ui-buttons.js:2420"]
 
 [TZ_NOSKHE_PISH]
 yani = "کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318)"
 meghdar = "2.1.318"
+chera = "حبیب ۵ نوامبر، پنجره: «بله، درستش کن»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["tz_khali", "tz_mani"]
-jaye = ["claude-ui-buttons.js:2353"]
+jaye = ["claude-ui-buttons.js:2964"]
 
 [TZ_CHROME]
 yani = "کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن"
 meghdar = "claudeInChromeDefaultEnabled"
+chera = "حبیب ۵ نوامبر، پنجره: «فقط تنظیمات چت بذار و فعلاً هم سراسری خاموشش کن»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_maghdar_sath", "tz_matn_alan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2187"]
+jaye = ["claude-ui-buttons.js:2419"]
 
 [TZ_SATH]
 yani = "کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت"
 meghdar = ""
+chera = "حبیب ۵ نوامبر ۰۲:۳۴ «هر سه گزینه با تیک زدن فعال بشن و فقط یکی بتونه تیک بخوره  : سراسری -- پروژه - چت»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2189"]
+jaye = ["claude-ui-buttons.js:2421"]
 
 [TZ_ESM_SATH]
 yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
-jaye = ["claude-ui-buttons.js:2190"]
+jaye = ["claude-ui-buttons.js:2422"]
 
 [TZ_ESM_MANBA]
 yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند"
 meghdar = ""
+chera = ""
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
-jaye = ["claude-ui-buttons.js:2191"]
+jaye = ["claude-ui-buttons.js:2423"]
 
 [TZ_FASELE_TOKEN]
 yani = "کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318"
 meghdar = ""
+chera = "حبیب ۵ نوامبر، پنجره: «بله» روی اینکه عددی که می‌نویسد نقطهٔ واقعیِ کامپکت باشد"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan", "tz_sakht_kontrol"]
-jaye = ["claude-ui-buttons.js:2192"]
+jaye = ["claude-ui-buttons.js:2424"]
 
 [TZ_REMEMBER_TOKEN]
 yani = "کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن"
 meghdar = ""
+chera = "حبیب ۴ نوامبر ۰۱:۰۹ «روی ۲۸۰ ۰۰۰ تا توکن رممبر زده بشه و بعدش کامپکت روی ۳۰۰ هزار تا»"
+noe = "sabet"
+ozv = "safhe"
+ba_motaghayerha = []
+tarif = "24"
+tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2193"]
+jaye = ["claude-ui-buttons.js:2425"]
+
+[UPSTREAM]
+yani = "کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد"
+meghdar = "https://opencode.ai/inference/go"
+chera = "حبیب ۲۲ نوامبر «همه مصرف بره روی اوپن کد»"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["PORT", "MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:30"]
+
+[PREFIX]
+yani = "کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: claude-oc-deepseek-v4.1-flash ⇒ deepseek-v4.1-flash"
+meghdar = "claude-oc-"
+chera = "کلود کد فقط شناسه‌هایی را در منو نگه می‌دارد که با claude- شروع شوند"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["UPSTREAM"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:31"]
+
+[SERVICE]
+yani = "کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود"
+meghdar = "habib-claude-opencode"
+chera = "حبیب ۵ نوامبر «رمزا رو بزار توی کی چین»"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["ACCOUNT", "AUTH_HEADERS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:32", "abzar/216-migration/scripts/vscode_opencode_wrapper.py:30"]
+
+[ACCOUNT]
+yani = "کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf"
+meghdar = "windsurf"
+chera = "هر هارنس حسابِ خودش را دارد"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["SERVICE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:33", "abzar/216-migration/scripts/vscode_opencode_wrapper.py:31"]
+
+[PORT]
+yani = "کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧"
+meghdar = ""
+chera = "رَپر باید بداند دروازه کجاست"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["BASE", "UPSTREAM"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:34", "abzar/216-migration/scripts/vscode_opencode_wrapper.py:36", "abzar/216-migration/scripts/opencode_picker.py:27"]
+
+[RUNTIME]
+yani = "کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl"
+meghdar = ""
+chera = "همهٔ فایل‌های داده یک جا"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["USAGE", "CAPS", "STATUS", "MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:35"]
+
+[USAGE]
+yani = "کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧"
+meghdar = ""
+chera = "حبیب ۲۲ نوامبر «هزینه‌های OpenCode رو از لاگش در بیارید»"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["RUNTIME", "STATUS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:36"]
+
+[CAPS]
+yani = "کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧"
+meghdar = ""
+chera = "برای «مانده» بدونِ حدس"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:37"]
+
+[DROP]
+yani = "کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد"
+meghdar = ""
+chera = "کلیدِ آنتروپیک نباید به سرویسِ دیگر برود"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["AUTH_HEADERS", "OR_HEADERS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:39"]
+
+[TRACE_STATE]
+yani = "کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧"
+meghdar = ""
+chera = "مسیرِ دوم (اوپن‌روتر) از همان پروکسی رد می‌شود"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["OPENROUTER_URL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:47"]
+
+[OPENROUTER_CATALOGUE]
+yani = "کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧"
+meghdar = ""
+chera = "تفکیکِ دو مسیر بدونِ تماسِ اضافه"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["OPENCODE_CACHE", "MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:48"]
+
+[OPENCODE_CACHE]
+yani = "کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧"
+meghdar = ""
+chera = "با سرویسِ مرده فهرست از ۴۱۰ به ۳۸۰ می‌افتاد"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["MERGED_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:49"]
+
+[MERGED_CACHE]
+yani = "کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧"
+meghdar = ""
+chera = "حبیب «هر دو بمانند و به سرویسِ خودشان بروند»"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["OPENCODE_CACHE", "OPENROUTER_CATALOGUE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:50"]
+
+[STATUS]
+yani = "کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧"
+meghdar = ""
+chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["ALARM_STATUSES", "USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:51"]
+
+[MESSAGE_TIMEOUT]
+yani = "کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه"
+meghdar = ""
+chera = "سقفِ کوتاه روی پاسخ‌های کندِ سالم می‌برید (۳۲ از ۸۷ بالای ۱۸ ثانیه)"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["FIRST_BYTE_TIMEOUT", "RETRY_PAUSE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:58"]
+
+[FIRST_BYTE_TIMEOUT]
+yani = "کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه"
+meghdar = ""
+chera = "ناظر-۱۳۶ ۱۵:۲۲ «۴۵ ثانیه و تمام، ۵۰۴ صدادار»"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["MESSAGE_TIMEOUT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:64"]
+
+[RETRY_PAUSE]
+yani = "کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه"
+meghdar = ""
+chera = "تلاشِ مجدد بی‌مکث به سرویسِ در حالِ بهبود فشار می‌آورد"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["MESSAGE_TIMEOUT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:65"]
+
+[ALARM_STATUSES]
+yani = "کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند"
+meghdar = ""
+chera = "همهٔ خطاها خبر ندارند؛ فقط آن‌هایی که کار را می‌خوابانند"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["STATUS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:66"]
+
+[OPENROUTER_URL]
+yani = "کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧"
+meghdar = ""
+chera = "فهرست باید از خودِ سرویس بیاید، نه از حافظه"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["OPENROUTER_CATALOGUE", "CATALOGUE_TTL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:67"]
+
+[CATALOGUE_TTL]
+yani = "کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت"
+meghdar = "3600"
+chera = "هر بار خواندن از سرویس کند است"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["OPENROUTER_CATALOGUE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:68"]
+
+[HUNTER_PATTERN]
+yani = "کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی)"
+meghdar = ""
+chera = "شکارچی با همین الگو هزینهٔ هر مدل را می‌سنجد"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:71"]
+
+[OR_HEADERS]
+yani = "کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta"
+meghdar = ""
+chera = "هدرِ مسیرِ اول نباید به مسیرِ دوم برود"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["DROP", "AUTH_HEADERS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:73"]
+
+[AUTH_HEADERS]
+yani = "کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer additionalModelOptionsCache"
+meghdar = ""
+chera = "کلید فقط در حافظه، هرگز در فایل"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["SERVICE", "KEY"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:97"]
+
+[OPENER]
+yani = "کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧"
+meghdar = ""
+chera = "پروکسیِ محیطی یک بار درخواست‌ها را به جای اشتباه برد"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["UPSTREAM"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:100"]
+
+[LOCK]
+yani = "کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧"
+meghdar = ""
+chera = "سرورِ چندرشته‌ای است"
+noe = "vaziat"
+ozv = "darvaze"
+ba_motaghayerha = ["USAGE", "KNOWN_LOCK"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:101"]
+
+[KNOWN_LOCK]
+yani = "کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧"
+meghdar = ""
+chera = "همان دلیلِ LOCK"
+noe = "vaziat"
+ozv = "darvaze"
+ba_motaghayerha = ["KNOWN", "LOCK"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:206"]
+
+[KNOWN]
+yani = "کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at}"
+meghdar = ""
+chera = "هر درخواست نباید فهرست را دوباره بخواند"
+noe = "vaziat"
+ozv = "darvaze"
+ba_motaghayerha = ["KNOWN_LOCK", "OPENCODE_CACHE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_gateway.py:207"]
+
+[GATEWAY]
+yani = "کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧"
+meghdar = ""
+chera = "افزونه نباید بی‌دروازه پیام بفرستد"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["PORT", "BASE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:35"]
+
+[BASE]
+yani = "کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧"
+meghdar = ""
+chera = "کلود کد فقط آدرسِ پایه را می‌شناسد"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["PORT", "GATEWAY"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:37", "abzar/216-migration/scripts/opencode_picker.py:28"]
+
+[MODEL]
+yani = "کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash"
+meghdar = "deepseek-v4.1-flash"
+chera = "نام‌های مستعارِ خالی به مدلِ کلودِ پولی می‌رسیدند (۳۷ درخواست، $۰٫۳۳)"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["BASE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:38"]
+
+[PREVIOUS]
+yani = "کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧"
+meghdar = ""
+chera = "زنجیرهٔ رَپرها نباید قطع شود"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["GATEWAY"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:39"]
+
+[SUBCOMMANDS]
+yani = "کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧"
+meghdar = ""
+chera = "افزودنِ پرچم به `claude auth status` خطای «unknown option» می‌داد"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["VALUE_FLAGS", "BARE_FLAGS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:164"]
+
+[BARE_FLAGS]
+yani = "کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help"
+meghdar = ""
+chera = "پاسخِ کوتاه است و پرچمِ اضافه خرابش می‌کند"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["SUBCOMMANDS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:171"]
+
+[VALUE_FLAGS]
+yani = "کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user"
+meghdar = ""
+chera = "«user» به‌جای زیرفرمان خوانده می‌شد و خطای ثبت‌نام می‌داد"
+noe = "sabet"
+ozv = "raper"
+ba_motaghayerha = ["SUBCOMMANDS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/vscode_opencode_wrapper.py:174"]
+
+[OUT]
+yani = "کجا: فایلِ مصرف و کپس · چیه: فایلی که اپ‌ها می‌خوانند (خلاصهٔ مصرف و سقف) · مثال: ⟦OUT⟧"
+meghdar = ""
+chera = "یک شکل برای هر دو اپ، نه دو محاسبهٔ جدا"
+noe = "sabet"
+ozv = "masraf"
+ba_motaghayerha = ["MIN_LINE", "USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ فایلِ مصرف، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_usage.py:24", "abzar/216-migration/scripts/opencode_caps.py:19"]
+
+[MIN_LINE]
+yani = "کجا: فایلِ مصرف · چیه: فایلِ کنارِ خروجی که آخرین خطِ خوانده‌شده را نگه می‌دارد تا هر بار کلِ لاگ خوانده نشود · مثال: ⟦MIN_LINE⟧"
+meghdar = ""
+chera = "لاگِ مصرف بزرگ می‌شود"
+noe = "sabet"
+ozv = "masraf"
+ba_motaghayerha = ["OUT", "USAGE"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ فایلِ مصرف، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_usage.py:25"]
+
+[ANSWERED]
+yani = "کجا: پیکر · چیه: کلیدی در تنظیماتِ کلاینت که «پاسخِ فهرستِ مدل داده شد» را نگه می‌دارد · مثال: additionalModelOptionsAnsweredAt"
+meghdar = "additionalModelOptionsAnsweredAt"
+chera = "کلاینت مدل‌های تازه را خودش نمی‌پرسد"
+noe = "sabet"
+ozv = "menuye_model"
+ba_motaghayerha = ["BIG", "ROOT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_picker.py:30"]
+
+[BIG]
+yani = "کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount"
+meghdar = ""
+chera = "نوشتنِ دوبارهٔ آن‌ها فایل را سنگین و خراب می‌کرد"
+noe = "sabet"
+ozv = "menuye_model"
+ba_motaghayerha = ["ANSWERED", "ROOT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_picker.py:31"]
+
+[ROOT]
+yani = "کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api"
+meghdar = ""
+chera = "همهٔ مسیرهای پیکر از آن ساخته می‌شوند"
+noe = "sabet"
+ozv = "menuye_model"
+ba_motaghayerha = ["LOG", "BIG"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_picker.py:32"]
+
+[LOG]
+yani = "کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧"
+meghdar = ""
+chera = "برای سنجیدنِ اینکه مدل بی‌صدا عوض نشود"
+noe = "sabet"
+ozv = "menuye_model"
+ba_motaghayerha = ["ROOT", "MODEL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_picker.py:33"]
+
+[URL]
+yani = "کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: https://opencode.ai/console/go"
+meghdar = "https://opencode.ai/console/go"
+chera = "سقفِ هر مدل جای دیگری منتشر نمی‌شود"
+noe = "sabet"
+ozv = "saghf"
+ba_motaghayerha = ["ROW", "VAL", "CAPS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_caps.py:18"]
+
+[UA]
+yani = "کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧"
+meghdar = ""
+chera = "کنسول به درخواستِ بی‌معرف جوابِ کامل نمی‌دهد"
+noe = "sabet"
+ozv = "saghf"
+ba_motaghayerha = ["URL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_caps.py:20"]
+
+[ROW]
+yani = "کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model"
+meghdar = ""
+chera = "جدولِ HTML است، نه API"
+noe = "sabet"
+ozv = "saghf"
+ba_motaghayerha = ["VAL", "URL"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_caps.py:21"]
+
+[VAL]
+yani = "کجا: کپس · چیه: الگوی regex برای برداشتنِ مقدارِ سقف از همان ردیف · مثال: data-plan"
+meghdar = ""
+chera = "همان دلیلِ ROW"
+noe = "sabet"
+ozv = "saghf"
+ba_motaghayerha = ["ROW"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/216-migration/scripts/opencode_caps.py:22"]
+
+[path]
+yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧"
+meghdar = ""
+chera = "اپ فقط می‌خواند؛ هیچ عددی نمی‌سازد"
+noe = "sabet"
+ozv = "ap186"
+ba_motaghayerha = ["statusPath", "OUT"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:8"]
+
+[names]
+yani = "کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash"
+meghdar = ""
+chera = "کاربر نامِ خوانا ببیند"
+noe = "sabet"
+ozv = "ap186"
+ba_motaghayerha = ["path"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:11"]
+
+[statusPath]
+yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧"
+meghdar = ""
+chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
+noe = "sabet"
+ozv = "ap186"
+ba_motaghayerha = ["path", "STATUS"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/OpenCode.swift:82"]
+
+[kBundleID]
+yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
+meghdar = ""
+chera = "دو نسخه هم‌زمان دو نوار می‌ساختند"
+noe = "sabet"
+ozv = "ap186"
+ba_motaghayerha = ["alarms"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:4"]
+
+[alarms]
+yani = "کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧"
+meghdar = ""
+chera = "هشدار جدا از نمایشِ نوار است"
+noe = "sabet"
+ozv = "ap186"
+ba_motaghayerha = ["kBundleID"]
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["~/1-MY-WORK/186-claude-subscription-usage/swift/Sources/App.swift:12"]

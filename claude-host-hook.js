@@ -827,6 +827,73 @@
       return Object.assign({ type: m.type, reqId: m.reqId, ok: true }, helper.handle(m));
     }
 
+    /* ---------------- شناسنامهٔ متغیرها، به تفکیکِ پوشه (Habib, 22 Nov 2026) ----------------
+     * «هر پنجره وی اس کد مال فولدر خودش رو نشون بده». The card's data used to be baked
+     * into the bundle from one config list, so every window showed 91th-minimal-2's 540
+     * cards. Now the page asks here and this side answers for the folder the chat
+     * belongs to:
+     *  · the folder: m.cwd ← the channel's cwd ← the session record ← workspace folder;
+     *  · the build: build-glossary.py --cwd DIR through the shared interpreter picker
+     *    abzar/py_tomllib.sh (launchd's python3 is 3.9 and cannot read TOML);
+     *  · the cache: one build per folder per window, keyed by the mtimes of the three
+     *    files it reads. A missing file counts as 0 — most projects have only the TOML.
+     * Every build leaves one line in ~/crtl_gloss.log, which is how the two-window
+     * "each window shows its own folder" claim is checked without a screenshot.
+     */
+    var CRTL_REPO = path.dirname(path.dirname(PRV_ROOT));
+    var GLOSS = { py: null, pyErr: '', cache: {} };
+    function glossLog(text) {
+      try {
+        var f = path.join(HOME, 'crtl_gloss.log');
+        try { if (fs.statSync(f).size > 262144) fs.truncateSync(f, 0); } catch (e) {}
+        fs.appendFileSync(f, new Date().toISOString() + ' ' + text + '\n');
+      } catch (e) {}
+    }
+    function glossPy() {
+      if (GLOSS.py !== null) return GLOSS.py;
+      try {
+        GLOSS.py = String(require('child_process').execFileSync(
+          path.join(CRTL_REPO, 'abzar', 'py_tomllib.sh'), { encoding: 'utf8', timeout: 4000 }) || '').trim();
+      } catch (e) {
+        GLOSS.py = '';
+        GLOSS.pyErr = String((e && e.stderr) || (e && e.message) || e).trim().split('\n').pop();
+      }
+      return GLOSS.py;
+    }
+    function glossCwd(m) {
+      var yaft = kanalBaraye(SID_RE.test(String(m.sid || '')) ? m.sid : '', m.channel), ch = yaft && yaft.ch;
+      var c = (typeof m.cwd === 'string' && m.cwd) || (ch && ch.cwd) || sessionRecord(String(m.sid || '')).cwd || poshePishfarzTik();
+      return c ? path.resolve(c) : '';
+    }
+    function glossJavab(webview, m) {
+      var cwd = glossCwd(m);
+      function reply(o) { try { webview.postMessage(Object.assign({ type: 'crtl-glossary', cwd: cwd }, o)); } catch (e) {} }
+      if (!cwd) { glossLog('cwd? — پوشهٔ چت معلوم نیست'); return reply({ ok: false, error: 'پوشهٔ این چت معلوم نیست' }); }
+      var py = glossPy();
+      if (!py) return reply({ ok: false, error: 'پایتونِ tomllibدار پیدا نشد — ' + GLOSS.pyErr });
+      function mt(f) { try { return fs.statSync(f).mtimeMs; } catch (e) { return 0; } }
+      var sn = path.join(cwd, 'doc', 'shenasname_motaghayerha.toml');
+      var sig = [mt(sn), mt(path.join(cwd, 'doc', 'vazhename_takhte.md')), mt(path.join(cwd, 'barge', 'barge.toml'))].join(':');
+      var hit = GLOSS.cache[cwd];
+      if (hit && hit.sig === sig) { glossLog(cwd + ' · ' + hit.n + ' کارت · کش'); return reply({ ok: true, cards: hit.data, cached: true }); }
+      var t0 = Date.now();
+      require('child_process').execFile(py, [path.join(CRTL_REPO, 'build-glossary.py'), '--cwd', cwd],
+        { timeout: 2000, maxBuffer: 8 << 20, encoding: 'utf8' }, function (e, out, stderr) {
+          var ms = Date.now() - t0;
+          if (e) {
+            var err = String(stderr || (e && e.message) || e).trim() || String(e && e.message || e);
+            glossLog(cwd + ' · خطا · ' + ms + 'ms · ' + err.split('\n')[0]);
+            return reply({ ok: false, error: err });
+          }
+          var data;
+          try { data = JSON.parse(out); } catch (x) { return reply({ ok: false, error: 'خروجیِ واژه‌نامه JSON نبود' }); }
+          var n = Object.keys(data).length;
+          GLOSS.cache[cwd] = { sig: sig, data: data, n: n };
+          glossLog(cwd + ' · ' + n + ' کارت · ' + ms + 'ms · ' + py);
+          reply({ ok: true, cards: data });
+        });
+    }
+
     function wire(webview) {
       if (!webview || webview.__crtlHost) return;
       webview.__crtlHost = true;
@@ -866,6 +933,12 @@
           catch (e) { webview.postMessage({ type: m.type, reqId: m.reqId, ok: false, khata: String(e && e.message || e) }); }
           return;
         }
+        if (m && m.type === 'crtl-glossary') {
+          // کارتِ شناسنامهٔ همین پوشه؛ ساخت/کش در glossJavab، جواب crtl-glossary
+          try { glossJavab(webview, m); }
+          catch (e) { try { webview.postMessage({ type: 'crtl-glossary', ok: false, error: String(e && e.message || e) }); } catch (x) {} }
+          return;
+        }
         if (m && m.type === 'crtl-navar') {
           // «نوارِ اطلاعات»: this chat's numbers from its transcript (the navar block at the end of this file)
           try { if (globalThis.__crtl_navar) globalThis.__crtl_navar.javab(String(m.sid || ''), m.kelid, function (r) { webview.postMessage(r); }); } catch (e) {}
@@ -885,9 +958,10 @@
         var ok = /^[0-9a-f-]{36}$/.test(sid);
         if (!ok) return webview.postMessage({ type: 'crtl-session-info', sid: sid, name: '', title: '', remote: '', card: '' });
         var rec = sessionRecord(sid);
+        // cwd هم می‌رود: صفحه با آن کارت‌های پختهٔ پشتیبان را به همین پوشه محدود می‌کند
         title(sid, function (t, pending) {
           var c = card(sid, rec, t);
-          webview.postMessage({ type: 'crtl-session-info', sid: sid, name: rec.name || '', title: t, pending: pending, remote: c.remote, card: c.text });
+          webview.postMessage({ type: 'crtl-session-info', sid: sid, name: rec.name || '', title: t, pending: pending, remote: c.remote, card: c.text, cwd: rec.cwd || poshePishfarzTik() });
         });
       });
     }

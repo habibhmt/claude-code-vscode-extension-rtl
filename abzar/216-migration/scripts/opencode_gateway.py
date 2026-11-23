@@ -56,6 +56,12 @@ STATUS = RUNTIME / 'status.json'
 # می‌خورد (نگاه `open_upstream`). count_tokens ارزان است و تایم‌اوتِ کوتاه‌ترِ
 # خودش را دارد.
 MESSAGE_TIMEOUT = int(os.environ.get('OPENCODE_GATEWAY_TIMEOUT', '180'))
+# دو مرحله‌ای (ناظر-۱۳۶، ۲۳ نوامبر ۱۵:۱۰: «هم‌نظر شدیم، اجرا کن»): سقفِ ۱۸۰
+# برای مُرده‌بودن هم اعمال می‌شد و ۲۸ ردیفِ ۵۰۴ با ۲۰۴٬۶۰۴ تا ۳۶۶٬۹۳۱ms
+# ساخت؛ ولی ۲۰ ثانیهٔ قبلی روی لبه بود (۳۲ از ۸۷ پاسخِ سالم بالای ۱۸ ثانیه).
+# حالا: بایتِ اول حداکثر ۴۵ ثانیه (p99 سالم ۱۸٬۴۷۹ms؛ فقط ۱ از ۶۹۴ بالای ۴۵)،
+# بعد از آن استریم تا ۱۸۰ ثانیه آزاد است. count_tokens دست‌نخورده می‌ماند.
+FIRST_BYTE_TIMEOUT = int(os.environ.get('OPENCODE_GATEWAY_FIRST_BYTE', '45'))
 RETRY_PAUSE = float(os.environ.get('OPENCODE_GATEWAY_RETRY_PAUSE', '1.5'))
 ALARM_STATUSES = {401, 402, 403, 429, 500, 502, 503, 504}
 OPENROUTER_URL = 'https://openrouter.ai/api/v1/models?endpoints=/api/v1/messages'
@@ -385,10 +391,27 @@ def open_upstream(request, timeout):
             # خطای HTTP خودش پاسخ است (۴۰۱/۴۲۹/۴۰۰…) — نه شکستِ انتقال.
             return error, attempt
         except (TimeoutError, OSError, urllib.error.URLError) as error:
+            # تایم‌اوتِ بایتِ اول تلاشِ مجدد ندارد (ناظر-۱۳۶، ۲۳ نوامبر ۱۵:۲۲):
+            # ۴۵ ثانیه خودش سخاوتمندانه است و مدلِ مُرده نباید ۹۰ ثانیه منتظر بماند.
+            # خطای برقراری/انتقال همان تلاشِ مجددِ قبلی را دارد (درمانِ ۵۰۲های ۰۰:۳۲).
+            if is_timeout(error):
+                raise
             last = error
         if attempt == 1:
             time.sleep(RETRY_PAUSE)
     raise last
+
+
+def relax(response, timeout):
+    """سقفِ سوکت را برای ادامهٔ استریم برمی‌گرداند (بایتِ اول رسیده است).
+
+    `open()` با سقفِ کوتاهِ بایتِ اول باز می‌شود؛ اگر همان سقف روی استریمِ
+    سالم بماند، پاسخِ کندِ ولی سالم هم در ۴۵ ثانیه بریده می‌شود.
+    """
+    try:
+        response.fp.raw._sock.settimeout(timeout)
+    except (AttributeError, OSError, ValueError):
+        pass
 
 
 def spend_from(raw):
@@ -442,6 +465,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.path.startswith('/v1/'):
             return self.reply(404, b'{"error":"not found"}')
+        # ثبتِ تشخیصی (شرطِ ناظر-۱۳۶، ۰۵:۱۷): فقط اندازه و زمان‌ها؛ محتوای بدنه
+        # و هیچ هدرِ کلید/توکن هرگز نوشته نمی‌شود.
+        t0 = time.monotonic()
+        session_id = self.headers.get('x-claude-code-session-id') or None
         try:
             size = int(self.headers.get('Content-Length', '-1'))
             if not 0 <= size <= 32 * 1024 * 1024:
@@ -461,7 +488,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             wanted = body.get('model')
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'work_type': 'messages', 'model': None, 'requested': wanted,
-                  'status': 400, 'error': 'unknown_model'})
+                  'status': 400, 'error': 'unknown_model',
+                  'session_id': session_id, 'request_bytes': size})
             payload = json.dumps({'type': 'error', 'error': {
                 'type': 'invalid_request_error',
                 'message': f'مدلِ «{wanted}» در اوپن کد نیست؛ هیچ مدلی جای آن جواب نمی‌دهد.'}},
@@ -469,6 +497,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self.reply(400, payload)
         body['model'] = sent
         started = time.monotonic()
+        upload_ms = round((started - t0) * 1000)
         if provider == 'openrouter':
             # مسیرِ دوم: همان پروکسیِ ۵۰۹۶۷ (چرخشِ حساب، ردیفِ requests.jsonl و
             # count_tokensِ محلی مالِ اوست). هدرها فقط از فهرستِ مجازِ این مسیر
@@ -494,21 +523,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
         request = urllib.request.Request(
             target, data=json.dumps(body, ensure_ascii=False).encode(),
             headers=headers, method='POST')
+        # دو مرحله‌ای: بایتِ اول ۴۵ ثانیه، استریمِ بعد از آن ۱۸۰. count_tokens
+        # دست‌نخورده می‌ماند (شرطِ ناظر-۱۳۶، ۱۵:۱۰).
+        count_tokens_call = self.path.endswith('count_tokens')
+        first_byte_cap = MESSAGE_TIMEOUT if count_tokens_call else FIRST_BYTE_TIMEOUT
         try:
-            response, attempts = open_upstream(request, MESSAGE_TIMEOUT)
+            response, attempts = open_upstream(request, first_byte_cap)
         except (TimeoutError, OSError, urllib.error.URLError) as error:
             elapsed = round((time.monotonic() - started) * 1000)
             if is_timeout(error):
                 note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                       'provider': provider, 'work_type': 'messages', 'model': sent,
                       'requested': original_model, 'status': 504,
-                      'duration_ms': elapsed, 'attempts': 2,
+                      'duration_ms': elapsed, 'attempts': 1,
                       'error': 'timeout'})
-                set_status(provider, 504, f'مدلِ «{sent}» تا {MESSAGE_TIMEOUT} ثانیه جواب نداد')
+                set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
                 return self.reply(504, json.dumps({'type': 'error', 'error': {
                     'type': 'api_error',
-                    'message': f'مدلِ «{sent}» تا {MESSAGE_TIMEOUT} ثانیه جواب نداد '
-                               f'(دو بار تلاش شد)؛ به سرویسِ بعدی وصل نشد.'}},
+                    'message': f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد؛ '
+                               f'سرویس جواب نداد، ارتباط نشکست.'}},
                     ensure_ascii=False).encode())
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': provider, 'work_type': 'messages', 'model': sent,
@@ -525,22 +558,50 @@ class Handler(http.server.BaseHTTPRequestHandler):
         whole = b''
         stream_error = None
         client_gone = False
+        first_byte = None
+        first_byte_timeout = False
         with response:
             status = response.status
-            self.send_response(status)
-            self.send_header('Content-Type', response.headers.get('Content-Type', 'application/json'))
-            self.send_header('Connection', 'close')
-            self.end_headers()
+            headers_sent = False
+
+            def send_head():
+                """هدرها فقط وقتی به کلاینت می‌روند که بدانیم پاسخ واقعاً شروع شده.
+
+                برای ۲۰۰، تا رسیدنِ بایتِ اول صبر می‌کنیم؛ وگرنه اگر بایتِ اول
+                نرسد هدرِ ۲۰۰ رفته بود و ۵۰۴ دیگر قابلِ گفتن نبود (شرطِ ناظر).
+                """
+                nonlocal headers_sent
+                if headers_sent:
+                    return
+                headers_sent = True
+                self.send_response(status)
+                self.send_header('Content-Type', response.headers.get('Content-Type', 'application/json'))
+                self.send_header('Connection', 'close')
+                self.end_headers()
+
+            if status != 200:
+                # خطای سرویس (۴۰۱/۴۲۹/۵۰۰…) خودش پاسخ است و باید فوراً برود.
+                send_head()
             while True:
                 try:
                     chunk = response.read1(65536)
                 except (TimeoutError, OSError) as error:
+                    if first_byte is None and status == 200:
+                        # مرحلهٔ بایتِ اول تمام شد: هیچ هدری نرفته، پس ۵۰۴ پاک است.
+                        first_byte_timeout = True
+                        stream_error = 'first-byte: ' + str(error)[:140]
+                        break
                     # وسطِ استریم ساکت ماند: ردیف ثبت می‌شود، نه استثنای ناخوانده
                     # (قبلاً ۱۹ بار همین‌جا traceback ریخته بود و ردیفی نمانده بود).
                     stream_error = 'stream: ' + str(error)[:140]
                     break
                 if not chunk:
                     break
+                if first_byte is None:
+                    first_byte = time.monotonic()
+                    send_head()
+                    # بایتِ اول رسید؛ از این‌جا سقفِ بلندِ استریم برمی‌گردد.
+                    relax(response, MESSAGE_TIMEOUT)
                 try:
                     self.wfile.write(chunk)
                     self.wfile.flush()
@@ -572,14 +633,35 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         spend = found
                 if len(pending) > 1 << 20:
                     pending = b''
+        if first_byte_timeout:
+            elapsed = round((time.monotonic() - started) * 1000)
+            note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                  'provider': provider, 'work_type': 'messages', 'model': sent,
+                  'requested': original_model, 'status': 504,
+                  'session_id': session_id, 'request_bytes': size,
+                  'duration_ms': elapsed, 'attempts': attempts,
+                  'error': 'first_byte_timeout'})
+            set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
+            return self.reply(504, json.dumps({'type': 'error', 'error': {
+                'type': 'api_error',
+                'message': f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد؛ '
+                           f'سرویس جواب نداد، ارتباط نشکست.'}},
+                ensure_ascii=False).encode())
         if spend is None and status == 200:
             spend = spend_from(whole)
+        t_end = time.monotonic()
+        wait_ms = round(((first_byte or t_end) - started) * 1000)
+        stream_ms = round((t_end - (first_byte or t_end)) * 1000)
         row = {'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                'provider': provider,
                'work_type': 'count_tokens' if self.path.endswith('count_tokens') else 'messages',
                'model': sent,
                'requested': original_model, 'status': status,
-               'duration_ms': round((time.monotonic() - started) * 1000),
+               'session_id': session_id, 'request_bytes': size,
+               'upload_ms': upload_ms, 'wait_ms': wait_ms, 'stream_ms': stream_ms,
+               # مدتِ کل مستقل از سه جزء اندازه‌گیری می‌شود تا آزمونِ
+               # «جمع = کل» واقعاً چیزی را بسنجد (خرابکاریِ اولش کور بود).
+               'duration_ms': round((t_end - t0) * 1000),
                'attempts': attempts}
         if stream_error:
             row['stream_error'] = stream_error
@@ -592,7 +674,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if spend and provider == 'opencode':
             row.update({k: v for k, v in spend.items() if v is not None})
         if status >= 400:
-            row['error'] = whole[:200].decode('utf8', 'replace')
+            row['error'] = whole[:300].decode('utf8', 'replace')
         if status in ALARM_STATUSES:
             set_status(provider, status, f'پاسخِ {status} از سرویسِ {provider}')
         elif status == 200:

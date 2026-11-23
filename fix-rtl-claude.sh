@@ -336,6 +336,16 @@ patch_ide() {
     local ext_pattern=$2
 
     for ext_dir in $ext_pattern; do
+        # پوشهٔ افزونهٔ IDEی که اپش نصب نیست: پچ نکن و در چکِ مدل‌پیکر هم نشمار
+        # (پوشهٔ ~/.cursor/extensions بعد از پاک‌شدنِ Cursor می‌ماند و FAIL می‌داد).
+        ide_data=$(bash "$REPO_DIR/abzar/ide_data_name.sh" "$ext_dir")
+        nasb_rc=0
+        bash "$REPO_DIR/abzar/ide_nasb.sh" "$ide_data" || nasb_rc=$?
+        if [ "$nasb_rc" -eq 1 ]; then
+            echo "[SKIP] $ide_name: اپِ $ide_data نصب نیست — پوشهٔ تنهاماندهٔ افزونه پچ نشد" >&2
+            skipped=$((skipped + 1))
+            continue
+        fi
         if [ -f "$ext_dir/index.css" ]; then
             # Skip work that would produce byte-identical output. The launchd
             # agent fires on every extensions-folder touch, and re-patching each
@@ -559,6 +569,13 @@ PYEOF
                 # rebuilt from its backup on every run, so this must come after
                 # the rebuild. A drifted anchor only costs the headers — the
                 # picker itself keeps working — hence a warning, not a failure.
+                # افزونهٔ نسخهٔ کهنه (نه هم‌نسخه با بقیهٔ IDEها): لنگرش زورکی ساخته
+                # نمی‌شود و در شمارشِ FAIL هم نمی‌آید — فقط پیام (حبیب ۲۳ نوامبر ۱۹:۰۷؛
+                # نمونهٔ واقعی: Cursor با ۲٫۱٫۳۰۲ در برابرِ ۲٫۱٫۳۲۸ بقیه).
+                ext_ver=$(basename "$(dirname "$ext_dir")" | sed 's/^anthropic\.claude-code-//; s/-darwin.*$//; s/-universal$//')
+                if [ -n "${VARDE_MAX:-}" ] && [ "$ext_ver" != "$VARDE_MAX" ]; then
+                    echo "[SKIP] Model picker: $ide_name نسخهٔ $ext_ver (نه $VARDE_MAX) ⇒ رد شد، لنگر ساخته نشد" >&2
+                else
                 MODEL_GROUPS_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_model_groups.py"
                 if [ -f "$MODEL_GROUPS_PATCH" ] && command -v python3 >/dev/null 2>&1; then
                     if ! python3 "$MODEL_GROUPS_PATCH" "$ext_dir/index.js"; then
@@ -571,6 +588,7 @@ PYEOF
                 if ! grep -q 'ccgh' "$ext_dir/index.js" 2>/dev/null; then
                     echo "[WARN] Model picker headers are missing from $ext_dir/index.js" >&2
                     MODEL_GROUPS_FAILED=1
+                fi
                 fi
             fi
 
@@ -601,6 +619,21 @@ PYEOF
 START_MSG="
 === RTL Fix for Claude Code Extension === [$(date '+%Y-%m-%d %H:%M:%S')]
 "
+
+# بیشترین نسخهٔ افزونهٔ کلود بینِ همهٔ IDEها: ملاکِ «هم‌نسخه» برای پچِ مدل‌پیکر.
+# افزونهٔ کهنه‌تر (مثلِ Cursor ۲٫۱٫۳۰۲ در برابرِ ۲٫۱٫۳۲۸) لنگرِ آن پچ را ندارد و
+# نباید `[FAIL]` بدهد (حبیب ۲۳ نوامبر ۱۹:۰۷).
+VARDE_MAX=""
+for g in "$HOME"/.vscode/extensions/anthropic.claude-code-* \
+         "$HOME"/.vscode-insiders/extensions/anthropic.claude-code-* \
+         "$HOME"/.cursor/extensions/anthropic.claude-code-* \
+         "$HOME"/.windsurf/extensions/anthropic.claude-code-* \
+         "$HOME"/.windsurf-next/extensions/anthropic.claude-code-* \
+         "$HOME"/.devin/extensions/anthropic.claude-code-*; do
+    [ -d "$g" ] || continue
+    v=$(basename "$g" | sed 's/^anthropic\.claude-code-//; s/-darwin.*$//; s/-universal$//')
+    VARDE_MAX=$(printf '%s\n%s\n' "$VARDE_MAX" "$v" | sort -V | tail -1)
+done
 
 # Patch all supported IDEs
 # NOTE: patterns are quoted so the glob expands inside patch_ide's own loop;

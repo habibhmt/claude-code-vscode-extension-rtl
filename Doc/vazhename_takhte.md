@@ -99,9 +99,9 @@
 | `had_hook_bozorg_radif` | همان در حالتِ بزرگ | ☑ had_hook_bozorg_radif: `mods/hads/hooks/register.js:1624` |
 | `had_hook_bozorg_harf` | بیشترین حرفِ هر هوک در حالتِ بزرگ | ☑ had_hook_bozorg_harf: `mods/hads/hooks/register.js:1625` |
 | `ERRORS` | خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل | ☑ ERRORS: `claude-ui-buttons.js:22` |
-| `SESSION` | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | ☑ SESSION: `claude-ui-buttons.js:37`؛ `abzar/216-migration/scripts/opencode_gateway.py:38` |
+| `SESSION` | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | ☑ SESSION: `claude-ui-buttons.js:37`؛ `abzar/216-migration/scripts/opencode_gateway.py:39` |
 | `DEFAULT_COMMANDS` | دکمه‌های پیش‌فرضِ نوارِ بالا | ☑ DEFAULT_COMMANDS: `claude-ui-buttons.js:145` |
-| `KEY` | کلیدِ localStorage ِ تنظیم‌های پنل | ☑ KEY: `claude-ui-buttons.js:206`؛ `abzar/216-migration/scripts/opencode_gateway.py:96`؛ `abzar/216-migration/scripts/opencode_picker.py:29` |
+| `KEY` | کلیدِ localStorage ِ تنظیم‌های پنل | ☑ KEY: `claude-ui-buttons.js:206`؛ `abzar/216-migration/scripts/opencode_gateway.py:97`؛ `abzar/216-migration/scripts/opencode_picker.py:29` |
 | `DEF` | تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها) | ☑ DEF: `claude-ui-buttons.js:207` |
 | `LIMITS` | کمترین و بیشترینِ هر اندازه در پنل | ☑ LIMITS: `claude-ui-buttons.js:234` |
 | `PRESETS` | حالت‌های آمادهٔ اندازه‌ها | ☑ PRESETS: `claude-ui-buttons.js:235` |
@@ -109,23 +109,23 @@
 | `CSS` | همهٔ قاعده‌های ظاهرِ پنل که به صفحه تزریق می‌شوند | ☑ CSS: `claude-ui-buttons.js:335` |
 | `HOVER_DELAY` | کجا: پیام‌های جمع‌شده · چیه: موس چند میلی‌ثانیه روی پیام بماند تا باز شود · مثال: 700 | ☑ HOVER_DELAY: `claude-ui-buttons.js:806` |
 | `GLOSS_DELAY` | کجا: اسم‌های واژه‌نامه در چت · چیه: موس چند میلی‌ثانیه بماند تا کارتِ معنی بیاید · مثال: 600 | ☑ GLOSS_DELAY: `claude-ui-buttons.js:1007` |
-| `counterTimer` | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | ☑ counterTimer: `claude-ui-buttons.js:1427` |
-| `usageCache` | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | ☑ usageCache: `claude-ui-buttons.js:1427` |
-| `usageTick` | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | ☑ usageTick: `claude-ui-buttons.js:1427` |
-| `FILE_NAME` | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | ☑ FILE_NAME: `claude-ui-buttons.js:1614` |
-| `DRAG_PX` | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل | ☑ DRAG_PX: `claude-ui-buttons.js:1780` |
-| `topWatch` | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | ☑ topWatch: `claude-ui-buttons.js:1867` |
-| `draftCommands` | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | ☑ draftCommands: `claude-ui-buttons.js:1920` |
-| `draftProfileName` | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | ☑ draftProfileName: `claude-ui-buttons.js:1921` |
-| `NESHANE_AMAR` | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | ☑ NESHANE_AMAR: `claude-ui-buttons.js:3729` |
-| `KELID_JA_AMAR` | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | ☑ KELID_JA_AMAR: `claude-ui-buttons.js:3729` |
-| `sotun_amar` | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | ☑ sotun_amar: `claude-ui-buttons.js:3730` |
-| `radif_amar` | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | ☑ radif_amar: `claude-ui-buttons.js:3732` |
-| `amar_matn_akhar` | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | ☑ amar_matn_akhar: `claude-ui-buttons.js:3733` |
-| `amar_bozorg` | جدولِ «تماس‌ها» در حالتِ بزرگ است | ☑ amar_bozorg: `claude-ui-buttons.js:3733` |
-| `ja_kuchak_amar` | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | ☑ ja_kuchak_amar: `claude-ui-buttons.js:3733` |
-| `amar_dar_rah` | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | ☑ amar_dar_rah: `claude-ui-buttons.js:3848` |
-| `timer` | زمان‌سنجِ همان گشتن | ☑ timer: `claude-ui-buttons.js:4125` |
+| `counterTimer` | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | ☑ counterTimer: `claude-ui-buttons.js:1452` |
+| `usageCache` | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | ☑ usageCache: `claude-ui-buttons.js:1452` |
+| `usageTick` | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | ☑ usageTick: `claude-ui-buttons.js:1452` |
+| `FILE_NAME` | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | ☑ FILE_NAME: `claude-ui-buttons.js:1639` |
+| `DRAG_PX` | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل | ☑ DRAG_PX: `claude-ui-buttons.js:1805` |
+| `topWatch` | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | ☑ topWatch: `claude-ui-buttons.js:1892` |
+| `draftCommands` | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | ☑ draftCommands: `claude-ui-buttons.js:1945` |
+| `draftProfileName` | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | ☑ draftProfileName: `claude-ui-buttons.js:1946` |
+| `NESHANE_AMAR` | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | ☑ NESHANE_AMAR: `claude-ui-buttons.js:3771` |
+| `KELID_JA_AMAR` | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | ☑ KELID_JA_AMAR: `claude-ui-buttons.js:3771` |
+| `sotun_amar` | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | ☑ sotun_amar: `claude-ui-buttons.js:3772` |
+| `radif_amar` | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | ☑ radif_amar: `claude-ui-buttons.js:3774` |
+| `amar_matn_akhar` | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | ☑ amar_matn_akhar: `claude-ui-buttons.js:3775` |
+| `amar_bozorg` | جدولِ «تماس‌ها» در حالتِ بزرگ است | ☑ amar_bozorg: `claude-ui-buttons.js:3775` |
+| `ja_kuchak_amar` | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | ☑ ja_kuchak_amar: `claude-ui-buttons.js:3775` |
+| `amar_dar_rah` | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | ☑ amar_dar_rah: `claude-ui-buttons.js:3890` |
+| `timer` | زمان‌سنجِ همان گشتن | ☑ timer: `claude-ui-buttons.js:4167` |
 | `gorooh_hook` | نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند | ☑ gorooh_hook: `claude-host-hook.js:1081` |
 | `neshane_hook` | بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا | ☑ neshane_hook: `claude-host-hook.js:1094` |
 | `had_tedad_kamtarin_zaban_harf` | کجا: آخرِ جواب، بخشِ «زبان» · چیه: جوابِ کوتاه‌تر از این تعداد حرف (فارسی + لاتین، بی کد و لینک) سنجیده نمی‌شود · مثال: 40 | ☑ had_tedad_kamtarin_zaban_harf: `mods/hads/hooks/register.js:677` |
@@ -136,9 +136,9 @@
 | `ghaede_tarjome` | قاعدهٔ ترجمهٔ جواب: قالب‌بندی و کد و فرمان دست‌نخورده، چیزی کم یا زیاد نشود | ☑ ghaede_tarjome: `mods/hads/hooks/register.js:696` |
 | `had_tedad_tarjome_radif` | چند ترجمهٔ آخر در فایلِ tarjome.jsonl هر چت می‌ماند: 200 | ☑ had_tedad_tarjome_radif: `mods/hads/hooks/register.js:704` |
 | `tarjome_kadr_dar_kar` | دکمهٔ «ترجمه به انگلیسی» در راه است؛ زدنِ دوباره کاری نمی‌کند | ☑ tarjome_kadr_dar_kar: `mods/hads/hooks/register.js:736` |
-| `tarjome_ha` | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | ☑ tarjome_ha: `claude-ui-buttons.js:3860` |
-| `tarjome_mt` | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | ☑ tarjome_mt: `claude-ui-buttons.js:3860` |
-| `tarjome_sid` | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | ☑ tarjome_sid: `claude-ui-buttons.js:3860` |
+| `tarjome_ha` | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | ☑ tarjome_ha: `claude-ui-buttons.js:3902` |
+| `tarjome_mt` | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | ☑ tarjome_mt: `claude-ui-buttons.js:3902` |
+| `tarjome_sid` | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | ☑ tarjome_sid: `claude-ui-buttons.js:3902` |
 | `ravand_akhar` | روندهایی که الان در کادر نشان داده می‌شوند؛ هر کدام با حرف‌های عینیِ حبیب | ☑ ravand_akhar: `mods/hads/hooks/register.js:17` |
 | `ravand_zade_shode` | متنِ روندهایی که دکمهٔ ⤵ آن‌ها زده شد؛ این متن‌ها حرفِ حبیب حساب نمی‌شوند تا روند خودش را تقویت نکند | ☑ ravand_zade_shode: `mods/hads/hooks/register.js:19` |
 | `prompt_fork_ravand` | قالبی که فورک برای کلیدِ ravand باید برگرداند | ☑ prompt_fork_ravand: `mods/hads/hooks/register.js:238` |
@@ -158,42 +158,42 @@
 | `had_kelid_ravand_kamtarin_harf` | نقلِ کوتاه‌تر از 20 حرف به‌تنهایی روندِ تازه را نمی‌بندد؛ این مرز را ایجنت انتخاب کرده و از داده نیامده | ☑ had_kelid_ravand_kamtarin_harf: `mods/hads/hooks/register.js:1164` |
 | `matn_vazhe_nasanjide` | کجا: پرامپتِ «خودکار» · چیه: کلمه‌هایی مثلِ «نسنجیدم» و «حدسم» را در جوابِ ایجنت می‌گردد و با نگاه به معنی، برای آنچه باز است خودکار می‌سازد | ☑ matn_vazhe_nasanjide: `mods/hads/hooks/register.js:216` |
 | `TZ` | کجا: تبِ تنظیمات کلود · چیه: وضعیتِ تب بیرون از پنل، تا با ساختنِ دوبارهٔ پنل گم نشود: کدام تب باز است، آخرین جوابِ میزبان، ردیف‌ها | ☑ TZ: `claude-ui-buttons.js:39` |
-| `SOAL_SABR_MS` | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: 250 میلی‌ثانیه | ☑ SOAL_SABR_MS: `claude-ui-buttons.js:1729` |
-| `TZ_BALA` | کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | ☑ TZ_BALA: `claude-ui-buttons.js:2429` |
-| `TZ_NOSKHE_PISH` | کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318) | ☑ TZ_NOSKHE_PISH: `claude-ui-buttons.js:2973` |
-| `TZ_CHROME` | کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن | ☑ TZ_CHROME: `claude-ui-buttons.js:2428` |
-| `TZ_SATH` | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | ☑ TZ_SATH: `claude-ui-buttons.js:2430` |
-| `TZ_ESM_SATH` | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | ☑ TZ_ESM_SATH: `claude-ui-buttons.js:2431` |
-| `TZ_ESM_MANBA` | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | ☑ TZ_ESM_MANBA: `claude-ui-buttons.js:2432` |
-| `TZ_FASELE_TOKEN` | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | ☑ TZ_FASELE_TOKEN: `claude-ui-buttons.js:2433` |
-| `TZ_REMEMBER_TOKEN` | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | ☑ TZ_REMEMBER_TOKEN: `claude-ui-buttons.js:2434` |
-| `UPSTREAM` | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد | ☑ UPSTREAM: `abzar/216-migration/scripts/opencode_gateway.py:30` |
-| `PREFIX` | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: claude-oc-deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | ☑ PREFIX: `abzar/216-migration/scripts/opencode_gateway.py:31` |
-| `SERVICE` | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | ☑ SERVICE: `abzar/216-migration/scripts/opencode_gateway.py:32`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:30` |
-| `ACCOUNT` | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf | ☑ ACCOUNT: `abzar/216-migration/scripts/opencode_gateway.py:33`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:31` |
-| `PORT` | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | ☑ PORT: `abzar/216-migration/scripts/opencode_gateway.py:34`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:36`؛ `abzar/216-migration/scripts/opencode_picker.py:27` |
-| `RUNTIME` | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | ☑ RUNTIME: `abzar/216-migration/scripts/opencode_gateway.py:35` |
-| `USAGE` | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | ☑ USAGE: `abzar/216-migration/scripts/opencode_gateway.py:36` |
-| `CAPS` | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | ☑ CAPS: `abzar/216-migration/scripts/opencode_gateway.py:37` |
-| `DROP` | کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد | ☑ DROP: `abzar/216-migration/scripts/opencode_gateway.py:39` |
-| `TRACE_STATE` | کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧ | ☑ TRACE_STATE: `abzar/216-migration/scripts/opencode_gateway.py:47` |
-| `OPENROUTER_CATALOGUE` | کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧ | ☑ OPENROUTER_CATALOGUE: `abzar/216-migration/scripts/opencode_gateway.py:48` |
-| `OPENCODE_CACHE` | کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧ | ☑ OPENCODE_CACHE: `abzar/216-migration/scripts/opencode_gateway.py:49` |
-| `MERGED_CACHE` | کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧ | ☑ MERGED_CACHE: `abzar/216-migration/scripts/opencode_gateway.py:50` |
-| `STATUS` | کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧ | ☑ STATUS: `abzar/216-migration/scripts/opencode_gateway.py:51` |
-| `MESSAGE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه | ☑ MESSAGE_TIMEOUT: `abzar/216-migration/scripts/opencode_gateway.py:58` |
-| `FIRST_BYTE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه | ☑ FIRST_BYTE_TIMEOUT: `abzar/216-migration/scripts/opencode_gateway.py:64` |
-| `RETRY_PAUSE` | کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه | ☑ RETRY_PAUSE: `abzar/216-migration/scripts/opencode_gateway.py:65` |
-| `ALARM_STATUSES` | کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند | ☑ ALARM_STATUSES: `abzar/216-migration/scripts/opencode_gateway.py:66` |
-| `OPENROUTER_URL` | کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧ | ☑ OPENROUTER_URL: `abzar/216-migration/scripts/opencode_gateway.py:67` |
-| `CATALOGUE_TTL` | کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت | ☑ CATALOGUE_TTL: `abzar/216-migration/scripts/opencode_gateway.py:68` |
-| `HUNTER_PATTERN` | کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی) | ☑ HUNTER_PATTERN: `abzar/216-migration/scripts/opencode_gateway.py:71` |
-| `OR_HEADERS` | کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta | ☑ OR_HEADERS: `abzar/216-migration/scripts/opencode_gateway.py:73` |
-| `AUTH_HEADERS` | کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer additionalModelOptionsCache | ☑ AUTH_HEADERS: `abzar/216-migration/scripts/opencode_gateway.py:97` |
-| `OPENER` | کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧ | ☑ OPENER: `abzar/216-migration/scripts/opencode_gateway.py:100` |
-| `LOCK` | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | ☑ LOCK: `abzar/216-migration/scripts/opencode_gateway.py:101` |
-| `KNOWN_LOCK` | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | ☑ KNOWN_LOCK: `abzar/216-migration/scripts/opencode_gateway.py:206` |
-| `KNOWN` | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | ☑ KNOWN: `abzar/216-migration/scripts/opencode_gateway.py:207` |
+| `SOAL_SABR_MS` | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: 250 میلی‌ثانیه | ☑ SOAL_SABR_MS: `claude-ui-buttons.js:1754` |
+| `TZ_BALA` | کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | ☑ TZ_BALA: `claude-ui-buttons.js:2454` |
+| `TZ_NOSKHE_PISH` | کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318) | ☑ TZ_NOSKHE_PISH: `claude-ui-buttons.js:2998` |
+| `TZ_CHROME` | کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن | ☑ TZ_CHROME: `claude-ui-buttons.js:2453` |
+| `TZ_SATH` | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | ☑ TZ_SATH: `claude-ui-buttons.js:2455` |
+| `TZ_ESM_SATH` | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | ☑ TZ_ESM_SATH: `claude-ui-buttons.js:2456` |
+| `TZ_ESM_MANBA` | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | ☑ TZ_ESM_MANBA: `claude-ui-buttons.js:2457` |
+| `TZ_FASELE_TOKEN` | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | ☑ TZ_FASELE_TOKEN: `claude-ui-buttons.js:2458` |
+| `TZ_REMEMBER_TOKEN` | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | ☑ TZ_REMEMBER_TOKEN: `claude-ui-buttons.js:2459` |
+| `UPSTREAM` | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد | ☑ UPSTREAM: `abzar/216-migration/scripts/opencode_gateway.py:31` |
+| `PREFIX` | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: claude-oc-deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | ☑ PREFIX: `abzar/216-migration/scripts/opencode_gateway.py:32` |
+| `SERVICE` | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | ☑ SERVICE: `abzar/216-migration/scripts/opencode_gateway.py:33`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:30` |
+| `ACCOUNT` | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf | ☑ ACCOUNT: `abzar/216-migration/scripts/opencode_gateway.py:34`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:31` |
+| `PORT` | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | ☑ PORT: `abzar/216-migration/scripts/opencode_gateway.py:35`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:36`؛ `abzar/216-migration/scripts/opencode_picker.py:27` |
+| `RUNTIME` | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | ☑ RUNTIME: `abzar/216-migration/scripts/opencode_gateway.py:36` |
+| `USAGE` | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | ☑ USAGE: `abzar/216-migration/scripts/opencode_gateway.py:37` |
+| `CAPS` | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | ☑ CAPS: `abzar/216-migration/scripts/opencode_gateway.py:38` |
+| `DROP` | کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد | ☑ DROP: `abzar/216-migration/scripts/opencode_gateway.py:40` |
+| `TRACE_STATE` | کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧ | ☑ TRACE_STATE: `abzar/216-migration/scripts/opencode_gateway.py:48` |
+| `OPENROUTER_CATALOGUE` | کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧ | ☑ OPENROUTER_CATALOGUE: `abzar/216-migration/scripts/opencode_gateway.py:49` |
+| `OPENCODE_CACHE` | کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧ | ☑ OPENCODE_CACHE: `abzar/216-migration/scripts/opencode_gateway.py:50` |
+| `MERGED_CACHE` | کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧ | ☑ MERGED_CACHE: `abzar/216-migration/scripts/opencode_gateway.py:51` |
+| `STATUS` | کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧ | ☑ STATUS: `abzar/216-migration/scripts/opencode_gateway.py:52` |
+| `MESSAGE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه | ☑ MESSAGE_TIMEOUT: `abzar/216-migration/scripts/opencode_gateway.py:59` |
+| `FIRST_BYTE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه | ☑ FIRST_BYTE_TIMEOUT: `abzar/216-migration/scripts/opencode_gateway.py:65` |
+| `RETRY_PAUSE` | کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه | ☑ RETRY_PAUSE: `abzar/216-migration/scripts/opencode_gateway.py:66` |
+| `ALARM_STATUSES` | کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند | ☑ ALARM_STATUSES: `abzar/216-migration/scripts/opencode_gateway.py:67` |
+| `OPENROUTER_URL` | کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧ | ☑ OPENROUTER_URL: `abzar/216-migration/scripts/opencode_gateway.py:68` |
+| `CATALOGUE_TTL` | کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت | ☑ CATALOGUE_TTL: `abzar/216-migration/scripts/opencode_gateway.py:69` |
+| `HUNTER_PATTERN` | کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی) | ☑ HUNTER_PATTERN: `abzar/216-migration/scripts/opencode_gateway.py:72` |
+| `OR_HEADERS` | کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta | ☑ OR_HEADERS: `abzar/216-migration/scripts/opencode_gateway.py:74` |
+| `AUTH_HEADERS` | کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer additionalModelOptionsCache | ☑ AUTH_HEADERS: `abzar/216-migration/scripts/opencode_gateway.py:98` |
+| `OPENER` | کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧ | ☑ OPENER: `abzar/216-migration/scripts/opencode_gateway.py:101` |
+| `LOCK` | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | ☑ LOCK: `abzar/216-migration/scripts/opencode_gateway.py:102` |
+| `KNOWN_LOCK` | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | ☑ KNOWN_LOCK: `abzar/216-migration/scripts/opencode_gateway.py:207` |
+| `KNOWN` | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | ☑ KNOWN: `abzar/216-migration/scripts/opencode_gateway.py:208` |
 | `GATEWAY` | کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧ | ☑ GATEWAY: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:35` |
 | `BASE` | کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧ | ☑ BASE: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:37`؛ `abzar/216-migration/scripts/opencode_picker.py:28` |
 | `MODEL` | کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash | ☑ MODEL: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:38` |
@@ -221,21 +221,21 @@
 | `session_id` | کجا: ردیفِ مصرف · چیه: شناسهٔ چت (گفتگو) که کلود کد در هدرِ x-claude-code-session-id می‌فرستد · مثال: 7aa0e8a2-… | ☑ session_id: `claude-ui-buttons.js:34` |
 | `provider` | کجا: ردیفِ مصرف · چیه: سرویسی که پول از آن کم شد: opencode یا openrouter · مثال: opencode | ☑ provider: `mods/hads/hooks/register.js:44` |
 | `model` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash | ☑ model: `mods/hads/hooks/register.js:2` |
-| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/216-migration/scripts/opencode_gateway.py:481` |
-| `mapped_from` | کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus | ☑ mapped_from: `abzar/216-migration/scripts/opencode_gateway.py:283` |
+| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/216-migration/scripts/opencode_gateway.py:496` |
+| `mapped_from` | کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus | ☑ mapped_from: `abzar/216-migration/scripts/opencode_gateway.py:284` |
 | `list_cost` | کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021 | ☑ list_cost: `abzar/216-migration/scripts/opencode_gateway.py:13` |
-| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/216-migration/scripts/opencode_gateway.py:740` |
-| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/216-migration/scripts/opencode_gateway.py:741` |
-| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/216-migration/scripts/opencode_gateway.py:492` |
-| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/216-migration/scripts/opencode_gateway.py:500` |
-| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/216-migration/scripts/opencode_gateway.py:653` |
-| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/216-migration/scripts/opencode_gateway.py:654` |
-| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/216-migration/scripts/opencode_gateway.py:538` |
+| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/216-migration/scripts/opencode_gateway.py:755` |
+| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/216-migration/scripts/opencode_gateway.py:756` |
+| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/216-migration/scripts/opencode_gateway.py:507` |
+| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/216-migration/scripts/opencode_gateway.py:515` |
+| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/216-migration/scripts/opencode_gateway.py:668` |
+| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/216-migration/scripts/opencode_gateway.py:669` |
+| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/216-migration/scripts/opencode_gateway.py:553` |
 | `chat_cost` | کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders} | ☑ chat_cost: `abzar/216-migration/scripts/opencode_usage.py:159` |
-| `schema` | کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1 | ☑ schema: `claude-ui-buttons.js:2427` |
+| `schema` | کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1 | ☑ schema: `claude-ui-buttons.js:2452` |
 | `total` | کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148 | ☑ total: `abzar/216-migration/scripts/opencode_usage.py:134` |
 | `unknown` | کجا: chat_cost · چیه: گروهِ ردیف‌های بی‌شناسه؛ پولی که به هیچ چتی نسبت داده نمی‌شود · مثال: {label, cost, requests} | ☑ unknown: `mods/hads/hooks/register.js:44` |
-| `sessions` | کجا: chat_cost · چیه: فهرستِ چت‌ها با شناسه، مسیر، دلار و شمارِ درخواست · مثال: [{session_id, cwd, cost, requests}] | ☑ sessions: `claude-ui-buttons.js:2632` |
+| `sessions` | کجا: chat_cost · چیه: فهرستِ چت‌ها با شناسه، مسیر، دلار و شمارِ درخواست · مثال: [{session_id, cwd, cost, requests}] | ☑ sessions: `claude-ui-buttons.js:2657` |
 | `folders` | کجا: chat_cost · چیه: فهرستِ فولدرها؛ دلارِ هر فولدر = جمعِ چت‌هایش · مثال: [{label, cost, chats}] | ☑ folders: `claude-host-hook.js:1353` |
 | `USAGE_LOG` | کجا: فایلِ مصرف · چیه: مسیرِ usage.jsonl که هزینهٔ چت و فولدر از آن خوانده می‌شود · مثال: ⟦USAGE_LOG⟧ | ☑ USAGE_LOG: `abzar/216-migration/scripts/opencode_usage.py:30` |
 | `SESSIONS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ سشن‌های زنده که نام و مسیرِ هر چت از آن می‌آید · مثال: ~/.claude/sessions | ☑ SESSIONS_DIR: `abzar/216-migration/scripts/opencode_usage.py:31` |
@@ -262,5 +262,22 @@
 | `had_chat` | کجا: نگهبانِ یادآوری · چیه: آستانهٔ پیامِ «یادداشت بنویس» برای همین چت: پنجرهٔ مؤثر − ۳۳٬۰۰۰ − ۲۰٬۰۰۰ (و کف و پیش‌فرض) · مثال: ۵۳۳٬۰۰۰ ⇒ ۴۸۰٬۰۰۰ | ☑ had_chat: `/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:80` |
 | `kharj_az_row_darvaze` | کجا: فشرده‌سازیِ یادداشت · چیه: هزینهٔ واقعیِ یک تماس را با امضای توکن (input + cache_read + output) از ردیفِ دروازه پیدا می‌کند؛ نبود ⇒ «—» · مثال: 5726+8192cache->163out ⇒ $0.00098 | ☑ kharj_az_row_darvaze: `/Users/habib/.claude/plugins-local/remember-habib/pipeline/haiku.py:73` |
 | `model_ha_ye_chat` | کجا: فشرده‌سازیِ یادداشت · چیه: مدلِ تماسِ یادداشت = مدلِ همان چت (`ANTHROPIC_MODEL`) یا `REMEMBER_MODEL`؛ نبود ⇒ هیچ مدلی فرستاده نمی‌شود، نه haiku · مثال: deepseek-v4.1-flash | ☑ model_ha_ye_chat: `/Users/habib/.claude/plugins-local/remember-habib/pipeline/haiku.py:101` |
-| `autoCompactWindow` | کجا: تبِ «تنظیمات کلود» (دکمهٔ Aa) · چیه: کلیدِ پنجرهٔ کامپکت؛ مقدارِ مؤثر = ثبتِ پوشه بر سراسری مقدم · مثال: پوشهٔ ۱۳۶ = ۵۳۳٬۰۰۰ (کامپکت سر ۵۰۰٬۰۰۰؛ یادآوری سر ۴۸۰٬۰۰۰) | ☑ autoCompactWindow: `claude-ui-buttons.js:2429` |
+| `autoCompactWindow` | کجا: تبِ «تنظیمات کلود» (دکمهٔ Aa) · چیه: کلیدِ پنجرهٔ کامپکت؛ مقدارِ مؤثر = ثبتِ پوشه بر سراسری مقدم · مثال: پوشهٔ ۱۳۶ = ۵۳۳٬۰۰۰ (کامپکت سر ۵۰۰٬۰۰۰؛ یادآوری سر ۴۸۰٬۰۰۰) | ☑ autoCompactWindow: `claude-ui-buttons.js:2454` |
 | `GLOSS_TAZE_MS` | کجا: پنلِ چت · چیه: هر چند میلی‌ثانیه واژه‌نامه دوباره پرسیده شود تا بلوکِ تازهٔ شناسنامه بی‌ریلود دیده شود · مثال: 30000 (۳۰ ثانیه) | ☑ GLOSS_TAZE_MS: `claude-ui-buttons.js:1043` |
+| `afzune_claude_code` | کجا: هارنس‌های حبیب · چیه: افزونهٔ کلود کد که داخلِ VS Code و Windsurf می‌نشیند · مثال: شناسهٔ Anthropic.claude-code نسخهٔ ۲٫۱٫۳۲۸ در هر دو | ☑ afzune_claude_code: `/Users/habib/.vscode/extensions/anthropic.claude-code-2.1.328-darwin-arm64/webview/index.js`؛ `/Users/habib/.windsurf/extensions/anthropic.claude-code-2.1.328` |
+| `harness` | کجا: هارنس‌های حبیب · چیه: کارتِ چتر — هر پوسته‌ای که مدل داخلش اجرا می‌شود؛ کارتِ هر کدام جدا آمده: `harness-vscode-…` / `harness-cli-…` / `harness-desktop-…` · مثال: VS Code و Windsurf افزونهٔ ۲٫۱٫۳۲۸، ترمینال ۲٫۱٫۳۲۷ | ☑ harness: `claude-ui-buttons.js:1059` |
+| `harness-vscode-claude-code-extension` | کجا: VS Code · چیه: افزونهٔ رسمیِ کلود کد که باینریِ نیتیوِ خودش را هم همراه دارد · مثال: نسخهٔ ۲٫۱٫۳۲۸؛ سوکتِ پیامِ بین‌سشنی مالِ همان باینری است، نه فایلِ JS افزونه | ☑ harness-vscode-claude-code-extension: `/Users/habib/.vscode/extensions/anthropic.claude-code-2.1.328-darwin-arm64` |
+| `harness-windsurf-claude-code-extension` | کجا: Windsurf · چیه: همان افزونهٔ کلود کد در پوشهٔ افزونه‌های Windsurf · مثال: نسخهٔ ۲٫۱٫۳۲۸، همان نسخهٔ VS Code | ☑ harness-windsurf-claude-code-extension: `/Users/habib/.windsurf/extensions/anthropic.claude-code-2.1.328` |
+| `harness-cli-claude-code` | کجا: ترمینال · چیه: خودِ کلود کدِ خط فرمان؛ همین سوکتِ `/tmp/cc-socks/<pid>.sock` را می‌سازد · مثال: `claude --version` ⇒ 2.1.327 | ☑ harness-cli-claude-code: `claude-ui-buttons.js:1059` |
+| `harness-cli-opencode` | کجا: ترمینال · چیه: موتورِ OpenCode که `~/.local/bin/opencode` به آن وصل است (روی OpenRouter، مدلِ فلش) · مثال: بستهٔ ۱٫۱۴٫۱۸ در `~/harness2/dependencies/opencode` | ☑ harness-cli-opencode: `/Users/habib/.local/bin/opencode`؛ `/Users/habib/harness2/dependencies/opencode/packages/opencode/package.json` |
+| `harness-cli-codex` | کجا: ترمینال · چیه: CLIِ کدکس · مثال: `codex --version` ⇒ codex-cli 0.166.0 | ☑ harness-cli-codex: `/Users/habib/.local/bin/codex` |
+| `harness-cli-dsh` | کجا: ترمینال · چیه: CLIِ دیپ‌سیک هارنس · مثال: `dsh --version` ⇒ 0.2.2-rc.5 | ☑ harness-cli-dsh: `/usr/local/bin/dsh` |
+| `harness-cli-cursor-agent` | کجا: ترمینال · چیه: عاملِ خط فرمانِ Cursor · مثال: `cursor-agent --version` ⇒ 2025.08.15-dbc8d73 | ☑ harness-cli-cursor-agent: `/Users/habib/.local/bin/cursor-agent` |
+| `harness-cli-ori-openrouter` | کجا: ترمینال · چیه: ابزارِ رسمیِ OpenRouter برای راندنِ عامل‌های کدنویسی روی OpenRouter (`Run coding agents through OpenRouter` از `ori --help`) · مثال: `ori --version` ⇒ 0.17.1+1f502b9 (نسخهٔ تازه‌ترِ موجود 0.17.4-alpha) | ☑ harness-cli-ori-openrouter: `/Users/habib/.local/bin/ori` |
+| `harness-cli-hermes` | کجا: ترمینال · چیه: خانوادهٔ Hermes (دو فرمانِ هم‌خانواده، یک بلوک) · مثال: `hermes --version` ⇒ Hermes Agent v0.20.1 (2026.8.13) | ☑ harness-cli-hermes: `/Users/habib/.local/bin/hermes`؛ `/Users/habib/.local/bin/hermes-agent` |
+| `harness-cli-aside` | کجا: ترمینال · چیه: عاملِ مرورگر از خط فرمان (`aside [options] [prompt...]`) · مثال: `aside --version` ⇒ 1.26.1115.1556 | ☑ harness-cli-aside: `/Users/habib/.local/bin/aside` |
+| `harness-cli-harness2` | کجا: ترمینال · چیه: ابزاری — اجرای بنچمارک (`run_sweep --bench {jb,wb,lab}`)؛ خودش مدل اجرا نمی‌کند · مثال: بستهٔ 0.1.0 در `~/.local/share/uv/tools/harness2` | ☑ harness-cli-harness2: `/Users/habib/.local/share/harness2/bin/harness2` |
+| `harness-cli-phone-harness` | کجا: ترمینال · چیه: ابزاری — کنترلِ گوشی (زیرفرمان‌های doctor/skill/config/update/cloud/android)؛ خودش مدل اجرا نمی‌کند · مثال: `phone-harness --version` ⇒ 0.3.3 | ☑ harness-cli-phone-harness: `/Users/habib/.local/bin/phone-harness` |
+| `harness-cli-browser-harness` | کجا: ترمینال · چیه: ابزاری — کارِ مرورگر با `SKILL.md`؛ خودش مدل اجرا نمی‌کند · مثال: `browser-harness --version` ⇒ 0.1.8 | ☑ harness-cli-browser-harness: `/Users/habib/.local/bin/browser-harness` |
+| `harness-desktop-claude` | کجا: اپِ دسکتاپ · چیه: Claude.app · مثال: نسخهٔ ۵٫۱۱۴۹۲٫۰ از `CFBundleShortVersionString` | ☑ harness-desktop-claude: `/Applications/Claude.app` |
+| `harness-desktop-opencode` | کجا: اپِ دسکتاپ · چیه: OpenCode.app · مثال: نسخهٔ ۲٫۳٫۲ از `CFBundleShortVersionString` | ☑ harness-desktop-opencode: `/Applications/OpenCode.app` |

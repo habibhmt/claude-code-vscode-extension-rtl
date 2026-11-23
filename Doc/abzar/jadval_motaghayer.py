@@ -44,7 +44,13 @@ def sakht_shenasname_sakhte():
             loc = m.jaye_tabe(esm) or m.jaye_name(esm)
             if loc:
                 jaye = [f'{loc[0]}:{loc[1]}']
-        out += ['[' + esm + ']', 'yani = ' + q(yani), 'meghdar = ' + q(meghdar.get(esm, '')),
+        if not jaye and b.get('jaye'):
+            jv = b['jaye']
+            jaye = jv if isinstance(jv, list) else [jv]
+        mq = meghdar.get(esm, '')
+        if not mq and b.get('meghdar'):
+            mq = str(b['meghdar'])
+        out += ['[' + esm + ']', 'yani = ' + q(yani), 'meghdar = ' + q(mq),
                 'chera = ' + q(b.get('chera', '')), 'noe = ' + q(b.get('noe', '')),
                 'ozv = ' + q(b.get('ozv', '')),
                 'ba_motaghayerha = [' + ', '.join(q(x) for x in ba) + ']',

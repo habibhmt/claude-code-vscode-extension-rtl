@@ -90,9 +90,16 @@ def main():
             bad.append(f'تابع در کد نیست: {esm}')
     # کلیدِ تنظیم (noe = "vaziat"): اسم باید واقعاً در کدِ اسکن‌شده باشد.
     vaziat = {esm for esm, b in sh.items() if str(b.get('noe', '')).strip() == 'vaziat'}
+    import os as _os
     for esm in vaziat:
-        if not m.dar_code(esm):
-            bad.append(f'کلید در کد نیست: {esm}')
+        b = sh.get(esm) or {}
+        jv = b.get('jaye')
+        jv = jv if isinstance(jv, list) else ([jv] if jv else [])
+        # یا در کدِ اسکن‌شده هست، یا خودِ بلوک مسیرِ واقعیِ روی دیسک را می‌دهد (فایل:خط یا مسیر).
+        ok = m.dar_code(esm) or any(_os.path.expanduser(str(p).split(':')[0]) and
+                                    _os.path.exists(_os.path.expanduser(str(p).split(':')[0])) for p in jv)
+        if not ok:
+            bad.append(f'کلید در کد و روی دیسک نیست: {esm}')
     for esm in sh:
         if esm not in esm_ha and esm not in dadeh and esm not in tabe_ha and esm not in vaziat:
             bad.append(f'شناسنامهٔ کهنه: {esm} در کد نیست')

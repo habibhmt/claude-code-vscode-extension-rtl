@@ -2209,3 +2209,197 @@ noe = "sabet"
 ba_motaghayerha = ["GLOSS_TAZE_MS", "GLOSS_DELAY"]
 tarif = "20"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ (از راهِ ناظر-۱۳۶ ۲۲:۱۰)"
+
+[afzune_claude_code]
+yani = "کجا: هارنس‌های حبیب · چیه: افزونهٔ کلود کد که داخلِ VS Code و Windsurf می‌نشیند · مثال: شناسهٔ Anthropic.claude-code نسخهٔ ۲٫۱٫۳۲۸ در هر دو"
+meghdar = "VS Code: anthropic.claude-code-2.1.328-darwin-arm64 · Windsurf: anthropic.claude-code-2.1.328 · Cursor (کهنه، اپ نصب نیست): 2.1.302"
+jaye = ["~/.vscode/extensions/anthropic.claude-code-2.1.328-darwin-arm64/webview/index.js", "~/.windsurf/extensions/anthropic.claude-code-2.1.328"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۲:۳۹: «این چرا توی تعاریف نیست که هاور داشته باشه»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["afzune_claude_code", "autoCompactWindow", "GLOSS_TAZE_MS"]
+tarif = "0"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۲:۵۱ («بزن» — از راهِ ناظر-۱۳۶)"
+
+[harness]
+yani = "کجا: هارنس‌های حبیب · چیه: کارتِ چتر — هر پوسته‌ای که مدل داخلش اجرا می‌شود؛ کارتِ هر کدام جدا آمده: `harness-vscode-…` / `harness-cli-…` / `harness-desktop-…` · مثال: VS Code و Windsurf افزونهٔ ۲٫۱٫۳۲۸، ترمینال ۲٫۱٫۳۲۷"
+meghdar = "پانزده هارنسِ جدا: vscode/windsurf extension 2.1.328 · cli claude-code 2.1.327 · opencode 1.14.18 · codex 0.166.0 · dsh 0.2.2-rc.5 · cursor-agent 2025.08.15-dbc8d73 · ori 0.17.1+1f502b9 · hermes 0.20.1 · aside 1.26.1115.1556 · harness2 0.1.0 · phone-harness 0.3.3 · browser-harness 0.1.8 · desktop claude 5.11492.0 · desktop opencode 2.3.2"
+jaye = ["~/.vscode/extensions/anthropic.claude-code-2.1.328-darwin-arm64", "~/.windsurf/extensions/anthropic.claude-code-2.1.328", "~/.local/share/claude/versions/2.1.327"]
+chera = "همان درخواستِ حبیب ۲۲:۳۹: مفاهیمِ پایه باید کارتِ هاور داشته باشند"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness", "afzune_claude_code"]
+tarif = "0"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۲:۵۱ («بزن») · قالبِ نام ۲۳:۲۶: «اول همه شون کلمه هارنس بعدش محیط بعدش نام تجاری»"
+
+# ── نُه هارنس، هر کدام یک بلوکِ جدا (حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶) ──────────────
+# قالبِ نامِ خودش: harness-<محیط>-<نام تجاری>. نسخه‌ها از خودِ مسیر خوانده شده‌اند،
+# دستی نوشته نشده‌اند (ناظر-۱۳۶: «عدد را دستی ننویس»).
+
+[harness-vscode-claude-code-extension]
+yani = "کجا: VS Code · چیه: افزونهٔ رسمیِ کلود کد که باینریِ نیتیوِ خودش را هم همراه دارد · مثال: نسخهٔ ۲٫۱٫۳۲۸؛ سوکتِ پیامِ بین‌سشنی مالِ همان باینری است، نه فایلِ JS افزونه"
+meghdar = "2.1.328"
+jaye = ["~/.vscode/extensions/anthropic.claude-code-2.1.328-darwin-arm64"]
+chera = "حبیب ۲۳ نوامبر ۲۳:۲۶: «اول همه شون کلمه هارنس بعدش محیط بعدش نام تجاری»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness", "afzune_claude_code"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-windsurf-claude-code-extension]
+yani = "کجا: Windsurf · چیه: همان افزونهٔ کلود کد در پوشهٔ افزونه‌های Windsurf · مثال: نسخهٔ ۲٫۱٫۳۲۸، همان نسخهٔ VS Code"
+meghdar = "2.1.328"
+jaye = ["~/.windsurf/extensions/anthropic.claude-code-2.1.328"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness", "afzune_claude_code"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-claude-code]
+yani = "کجا: ترمینال · چیه: خودِ کلود کدِ خط فرمان؛ همین سوکتِ `/tmp/cc-socks/<pid>.sock` را می‌سازد · مثال: `claude --version` ⇒ 2.1.327"
+meghdar = "2.1.327"
+jaye = ["~/.local/bin/claude", "~/.local/share/claude/versions/2.1.327"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness", "peygham_bine_seshni"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-opencode]
+yani = "کجا: ترمینال · چیه: موتورِ OpenCode که `~/.local/bin/opencode` به آن وصل است (روی OpenRouter، مدلِ فلش) · مثال: بستهٔ ۱٫۱۴٫۱۸ در `~/harness2/dependencies/opencode`"
+meghdar = "1.14.18"
+jaye = ["~/.local/bin/opencode", "~/harness2/dependencies/opencode/packages/opencode/package.json"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-codex]
+yani = "کجا: ترمینال · چیه: CLIِ کدکس · مثال: `codex --version` ⇒ codex-cli 0.166.0"
+meghdar = "0.166.0"
+jaye = ["~/.local/bin/codex"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-dsh]
+yani = "کجا: ترمینال · چیه: CLIِ دیپ‌سیک هارنس · مثال: `dsh --version` ⇒ 0.2.2-rc.5"
+meghdar = "0.2.2-rc.5"
+jaye = ["/usr/local/bin/dsh"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-cursor-agent]
+yani = "کجا: ترمینال · چیه: عاملِ خط فرمانِ Cursor · مثال: `cursor-agent --version` ⇒ 2025.08.15-dbc8d73"
+meghdar = "2025.08.15-dbc8d73"
+jaye = ["~/.local/bin/cursor-agent"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-ori-openrouter]
+yani = "کجا: ترمینال · چیه: ابزارِ رسمیِ OpenRouter برای راندنِ عامل‌های کدنویسی روی OpenRouter (`Run coding agents through OpenRouter` از `ori --help`) · مثال: `ori --version` ⇒ 0.17.1+1f502b9 (نسخهٔ تازه‌ترِ موجود 0.17.4-alpha)"
+meghdar = "0.17.1+1f502b9"
+jaye = ["~/.local/bin/ori"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸: «هر شش تا»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness", "harness-cli-claude-code"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-hermes]
+yani = "کجا: ترمینال · چیه: خانوادهٔ Hermes (دو فرمانِ هم‌خانواده، یک بلوک) · مثال: `hermes --version` ⇒ Hermes Agent v0.20.1 (2026.8.13)"
+meghdar = "0.20.1"
+jaye = ["~/.local/bin/hermes", "~/.local/bin/hermes-agent"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸: «هر شش تا»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-aside]
+yani = "کجا: ترمینال · چیه: عاملِ مرورگر از خط فرمان (`aside [options] [prompt...]`) · مثال: `aside --version` ⇒ 1.26.1115.1556"
+meghdar = "1.26.1115.1556"
+jaye = ["~/.local/bin/aside"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸: «هر شش تا»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸ (از راهِ ناظر-۱۳۶)"
+
+# سه ابزارِ زیر هارنس‌اند ولی خودشان مدل اجرا نمی‌کنند؛ نباید با ایجنت‌ها قاطی شوند
+# (ناظر-۱۳۶ ۲۳:۳۸: «در yani همین را بنویس»).
+
+[harness-cli-harness2]
+yani = "کجا: ترمینال · چیه: ابزاری — اجرای بنچمارک (`run_sweep --bench {jb,wb,lab}`)؛ خودش مدل اجرا نمی‌کند · مثال: بستهٔ 0.1.0 در `~/.local/share/uv/tools/harness2`"
+meghdar = "0.1.0"
+jaye = ["~/.local/share/harness2/bin/harness2"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸: «هر شش تا»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-phone-harness]
+yani = "کجا: ترمینال · چیه: ابزاری — کنترلِ گوشی (زیرفرمان‌های doctor/skill/config/update/cloud/android)؛ خودش مدل اجرا نمی‌کند · مثال: `phone-harness --version` ⇒ 0.3.3"
+meghdar = "0.3.3"
+jaye = ["~/.local/bin/phone-harness"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸: «هر شش تا»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸ (از راهِ ناظر-۱۳۶)"
+
+[harness-cli-browser-harness]
+yani = "کجا: ترمینال · چیه: ابزاری — کارِ مرورگر با `SKILL.md`؛ خودش مدل اجرا نمی‌کند · مثال: `browser-harness --version` ⇒ 0.1.8"
+meghdar = "0.1.8"
+jaye = ["~/.local/bin/browser-harness"]
+chera = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸: «هر شش تا»"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۳۸ (از راهِ ناظر-۱۳۶)"
+
+[harness-desktop-claude]
+yani = "کجا: اپِ دسکتاپ · چیه: Claude.app · مثال: نسخهٔ ۵٫۱۱۴۹۲٫۰ از `CFBundleShortVersionString`"
+meghdar = "5.11492.0"
+jaye = ["/Applications/Claude.app"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[harness-desktop-opencode]
+yani = "کجا: اپِ دسکتاپ · چیه: OpenCode.app · مثال: نسخهٔ ۲٫۳٫۲ از `CFBundleShortVersionString`"
+meghdar = "2.3.2"
+jaye = ["/Applications/OpenCode.app"]
+chera = "همان قالبِ نامِ حبیب ۲۳:۲۶"
+ozv = "harness"
+noe = "vaziat"
+ba_motaghayerha = ["harness"]
+tarif = "31"
+tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"

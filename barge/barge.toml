@@ -1,12 +1,31 @@
 # ساخته با abzar/barge_saz.py — «مقدار فعلی در برگه» ی کارتِ هاور؛ دستی عوض نکن
 # هر خط: NAME = مقدار   # از <فایل>:<خط> — مقدار از خودِ کد خوانده شده، نه از حافظه
 
+[provider]
+# تعریف ۳۵ — پرووایدرِ پیش‌فرضِ هر هارنس، از پیکربندیِ خودش (بی کلید و توکن)
+# دلیلِ انتخابِ راهِ «ب»: مقدارِ provider در کدِ این مخزن متغیر نیست (فیلدِ داده است)،
+# پس ساختنِ متغیرِ قلابی در دروازه فقط برای برگه، حقیقت را جعل می‌کرد.
+provider_harness_cli_claude_code = "opencode (دروازهٔ محلی)"   # از ~/.claude/claude_env.sh (ANTHROPIC_BASE_URL="http://127.0.0.1:50990")
+provider_harness_cli_opencode = "openrouter"   # از ~/.local/bin/opencode (export OPENROUTER_API_KEY="$KEY")
+provider_harness_cli_codex = "openai"   # از ~/.codex/config.toml (model = "gpt-6.2-astra")
+provider_harness_cli_dsh = "deepseek (پیش‌فرض)"   # از ~/.dsh/.env (OPENROUTER_API_KEY)
+provider_harness_cli_ori = "openrouter"   # از ~/.ori/config.json ("loginMode": "oauth",)
+provider_harness_cli_hermes = "anthropic"   # از ~/.hermes/config.yaml (provider: anthropic)
+provider_harness_cli_cursor_agent = "openai"   # از ~/.cursor/cli-config.json ("modelId": "gpt-5",)
+
 [bi_ozv]
 had_hads_ghabli_harf = 200   # از mods/hads/hooks/register.js:140
 had_kelid_ravand_kamtarin_harf = 20   # از mods/hads/hooks/register.js:1164
 had_payam_zakhire_harf = 1500000   # از mods/hads/hooks/register.js:316
 had_tedad_hads_ghabli_khat = 12   # از mods/hads/hooks/register.js:139
 had_tedad_payam_zakhire_khat = 3000   # از mods/hads/hooks/register.js:315
+
+[dadeh]
+total = 0   # از dsh-side-panel/cost-log.js:294
+unknown = 0   # از dsh-side-panel/cost-log.js:295
+
+[gloss]
+GLOSS_TAZE_MS = 30000   # از claude-ui-buttons.js:1043
 
 [hads]
 akhar_javab_dar_kar = false   # از mods/hads/hooks/register.js:59
@@ -51,13 +70,14 @@ zaman_khandan_hook = 0   # از mods/hads/hooks/register.js:1586
 had_tedad_payam_transcript_khat = 3000   # از mods/hads/hooks/register.js:356
 
 [safhe]
-DRAG_PX = 5   # از claude-ui-buttons.js:1771
-FILE_NAME = "claude-rtl-settings.json"   # از claude-ui-buttons.js:1605
+DRAG_PX = 5   # از claude-ui-buttons.js:1805
+FILE_NAME = "claude-rtl-settings.json"   # از claude-ui-buttons.js:1639
 GLOSS_DELAY = 600   # از claude-ui-buttons.js:1007
+GLOSS_DELAY_T = 3000   # از claude-ui-buttons.js:1053
 HOVER_DELAY = 700   # از claude-ui-buttons.js:806
 KEY = "crtl-sizes"   # از claude-ui-buttons.js:206
-SOAL_SABR_MS = 250   # از claude-ui-buttons.js:1720
-TZ_CHROME = "claudeInChromeDefaultEnabled"   # از claude-ui-buttons.js:2419
-TZ_NOSKHE_PISH = "2.1.318"   # از claude-ui-buttons.js:2964
-amar_dar_rah = false   # از claude-ui-buttons.js:3835
+SOAL_SABR_MS = 250   # از claude-ui-buttons.js:1754
+TZ_CHROME = "claudeInChromeDefaultEnabled"   # از claude-ui-buttons.js:2453
+TZ_NOSKHE_PISH = "2.1.318"   # از claude-ui-buttons.js:2998
+amar_dar_rah = false   # از claude-ui-buttons.js:3873
 timer = 0   # از dsh-rtl/client.js:1267

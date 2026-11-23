@@ -88,12 +88,60 @@ def toml_str(s):
     return '"' + s.replace('\\', '\\\\').replace('"', '\\"') + '"'
 
 
+# ── پرووایدرِ هر هارنس (تعریف ۳۵) ───────────────────────────────────────────
+# مقادیر از پیکربندیِ خودِ همان هارنس خوانده می‌شوند، نه از کدِ این مخزن؛ برای همین
+# اسکنرِ بالا نمی‌بیندشان. ناظر-۱۳۶ ۲۴ نوامبر ۲۰۲۶ ۰۰:۳۹: «یا الف یا ب، دلیلش را بنویس».
+# انتخاب: **ب** — تا وقتی مقدارِ provider در کدِ این مخزن متغیر نیست (فیلدِ داده است،
+# `noe="dadeh"`)، ساختنِ متغیرِ قلابی در دروازه فقط برای برگه، حقیقت را جعل می‌کند.
+# هر ردیف: (نام، فایلِ پیکربندی، نشانه‌ای که باید در فایل باشد، نامِ پرووایدر)
+# نامِ پرووایدر از معنیِ همان نشانه می‌آید، نه از حافظه: اگر نشانه نبود، خطی نوشته نمی‌شود.
+HARNESS_CONFIG = [
+    ('provider_harness_cli_claude_code', '~/.claude/claude_env.sh', 'ANTHROPIC_BASE_URL', 'opencode (دروازهٔ محلی)'),
+    ('provider_harness_cli_opencode', '~/.local/bin/opencode', 'OPENROUTER_API_KEY', 'openrouter'),
+    ('provider_harness_cli_codex', '~/.codex/config.toml', 'model =', 'openai'),
+    ('provider_harness_cli_dsh', '~/.dsh/.env', 'OPENROUTER_API_KEY', 'deepseek (پیش‌فرض)'),
+    ('provider_harness_cli_ori', '~/.ori/config.json', 'loginMode', 'openrouter'),
+    ('provider_harness_cli_hermes', '~/.hermes/config.yaml', 'provider: anthropic', 'anthropic'),
+    ('provider_harness_cli_cursor_agent', '~/.cursor/cli-config.json', 'modelId', 'openai'),
+]
+
+
+def _darad(masir, neshane):
+    p = os.path.expanduser(masir)
+    if not os.path.exists(p):
+        return None
+    try:
+        text = open(p, encoding='utf-8', errors='replace').read()
+    except OSError:
+        return None
+    m = re.search(r'^.*' + re.escape(neshane) + r'.*$', text, re.M)
+    return m.group(0).strip()[:60] if m else None
+
+
+def bakhsh_provider():
+    """خطِ provider هر هارنس، از پیکربندیِ خودش؛ بی کلید و توکن (فقط خطِ نشانه)."""
+    kh = ['[provider]',
+          '# تعریف ۳۵ — پرووایدرِ پیش‌فرضِ هر هارنس، از پیکربندیِ خودش (بی کلید و توکن)',
+          '# دلیلِ انتخابِ راهِ «ب»: مقدارِ provider در کدِ این مخزن متغیر نیست (فیلدِ داده است)،',
+          '# پس ساختنِ متغیرِ قلابی در دروازه فقط برای برگه، حقیقت را جعل می‌کرد.']
+    for nom, masir, neshane, provider in HARNESS_CONFIG:
+        khat = _darad(masir, neshane)
+        if khat is None:
+            continue
+        if re.search(r'sk-|secret|token', khat, re.I):
+            khat = neshane
+        kh.append(f'{nom} = {toml_str(provider)}   # از {masir} ({khat})')
+    kh.append('')
+    return kh
+
+
 def benevis(cards, natije):
     bakhsh = collections.defaultdict(list)
     for n, v in natije.items():
         bakhsh[v[6] or 'bi_ozv'].append((n, v))
     kh = ['# ساخته با abzar/barge_saz.py — «مقدار فعلی در برگه» ی کارتِ هاور؛ دستی عوض نکن',
           '# هر خط: NAME = مقدار   # از <فایل>:<خط> — مقدار از خودِ کد خوانده شده، نه از حافظه', '']
+    kh.extend(bakhsh_provider())
     for s in sorted(bakhsh):
         kh.append(f'[{s}]')
         for n, (_, val, num, rel, i, _, _) in sorted(bakhsh[s]):

@@ -136,12 +136,12 @@
 | 130 | `neshane_shenavar` | sabet | — | mods/hads/hooks/register.js:1670 | tik_zadan | — | — | — |
 | 131 | `akharin_har_bakhsh` | vaziat | — | mods/hads/hooks/register.js:1679 | dade_shenavar, ejra_ba_shart | — | — | — |
 | 132 | `ERRORS` | sabet | خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل | claude-ui-buttons.js:22 | gloss_nasb, negahban_khata, neshan_shenase_chat, tashkhis_khata, vazhe_name_ru_kalame | 04 | — | ✓ |
-| 133 | `SESSION` | sabet | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | claude-ui-buttons.js:37, abzar/216-migration/scripts/opencode_gateway.py:38 | aaSend, fekr_bi_kadr, gloss_darkhast, navar_keshidan, navar_porsidan, neshan_shenase_chat …+10 | 02 | — | ✓ |
+| 133 | `SESSION` | sabet | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | claude-ui-buttons.js:37, abzar/216-migration/scripts/opencode_gateway.py:39 | aaSend, fekr_bi_kadr, gloss_darkhast, navar_keshidan, navar_porsidan, neshan_shenase_chat …+10 | 02 | — | ✓ |
 | 134 | `TZ` | vaziat | کجا: تبِ تنظیمات کلود · چیه: وضعیتِ تب بیرون از پنل، تا با ساختنِ دوبارهٔ پنل گم نشود: کدام تب باز است، آخرین جوابِ میزبان، ردیف‌ها | claude-ui-buttons.js:39 | sakht_dokme_charkhdande, sakht_tab_ha, tik_chat_taze_payesh, tik_sabt, tz_khali, tz_maghdar_sath …+6 | 24 | — | ؟ |
 | 135 | `DEFAULT_COMMANDS` | sabet | دکمه‌های پیش‌فرضِ نوارِ بالا | claude-ui-buttons.js:145 | aaOverlay, aaSend, dokme_ha, gozashtan_dokme_pishfarz_bala, khandan_tanzim, negahban_khata | 02 | `DEF` | ✓ |
 | 136 | `AA` | sabet | — | claude-ui-buttons.js:178 | aaOverlay, aaSend, negahban_khata, sakht_panel_aa, tik_chat_taze_payesh, zakhire_tanzim | — | — | — |
 | 137 | `AA_KEYS` | sabet | — | claude-ui-buttons.js:179 | aaCanonical, aaOverlay, negahban_khata, zakhire_tanzim | — | — | — |
-| 138 | `KEY` | sabet | کلیدِ localStorage ِ تنظیم‌های پنل | claude-ui-buttons.js:206, abzar/216-migration/scripts/opencode_gateway.py:96, abzar/216-migration/scripts/opencode_picker.py:29 | aaSend, khandan_tanzim, zakhire_tanzim | 04 | `DEF` | ✓ |
+| 138 | `KEY` | sabet | کلیدِ localStorage ِ تنظیم‌های پنل | claude-ui-buttons.js:206, abzar/216-migration/scripts/opencode_gateway.py:97, abzar/216-migration/scripts/opencode_picker.py:29 | aaSend, khandan_tanzim, zakhire_tanzim | 04 | `DEF` | ✓ |
 | 139 | `DEF` | sabet | تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها) | claude-ui-buttons.js:207 | aaSend, esm_profile_moshtarak, khandan_tanzim, radif_andaze, tanzim_pishfarz | 04 | `LIMITS`, `PRESETS`, `KEY` | ✓ |
 | 140 | `LIMITS` | sabet | کمترین و بیشترینِ هر اندازه در پنل | claude-ui-buttons.js:234 | aaSend, khandan_tanzim, radif_andaze, sakht_panel_aa | 04 | `DEF` | ✓ |
 | 141 | `PRESETS` | sabet | حالت‌های آمادهٔ اندازه‌ها | claude-ui-buttons.js:235 | aaSend, sakht_panel_aa | 04 | `DEF` | ✓ |
@@ -152,80 +152,80 @@
 | 146 | `GLOSS` | vaziat | کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده | claude-ui-buttons.js:1008 | bastan_panel, gloss_cwd_shod, gloss_darkhast, gloss_nasb, gloss_prepare, vazhe_name_ru_kalame | 20 | `GLOSS_DELAY`, `GLOSS_DELAY_T` | ✓ |
 | 147 | `GLOSS_TAZE_MS` | sabet | کجا: پنلِ چت · چیه: هر چند میلی‌ثانیه واژه‌نامه دوباره پرسیده شود تا بلوکِ تازهٔ شناسنامه بی‌ریلود دیده شود · مثال: ⟦GLOSS_TAZE_MS⟧ (۳۰ ثانیه) | claude-ui-buttons.js:1043 | gloss_cwd_shod, gloss_darkhast | 20 | `GLOSS_TAZE_MS`, `GLOSS_DELAY` | ✓ |
 | 148 | `GLOSS_DELAY_T` | sabet | کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: ⟦GLOSS_DELAY_T⟧ میلی‌ثانیه | claude-ui-buttons.js:1053 | gloss_darkhast, vazhe_name_ru_kalame | 20 | `GLOSS_DELAY`, `GLOSS` | ✓ |
-| 149 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1427 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
-| 150 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1427 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 151 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1427 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 152 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1614 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
-| 153 | `SOAL_SABR_MS` | sabet | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: ⟦SOAL_SABR_MS⟧ میلی‌ثانیه | claude-ui-buttons.js:1729 | bordan_be_other, entekhab_matn_soal | 24 | — | ؟ |
-| 154 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1780 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
-| 155 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1867 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
-| 156 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1920 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
-| 157 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1921 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
-| 158 | `TZ_CHROME` | sabet | کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن | claude-ui-buttons.js:2428 | sakht_panel_aa, tz_maghdar_sath, tz_matn_alan, tz_sakht_radif | 24 | — | ؟ |
-| 159 | `TZ_BALA` | sabet | کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | claude-ui-buttons.js:2429 | sakht_panel_aa, tz_resid | 24 | — | ؟ |
-| 160 | `TZ_SATH` | sabet | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | claude-ui-buttons.js:2430 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
-| 161 | `TZ_ESM_SATH` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | claude-ui-buttons.js:2431 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
-| 162 | `TZ_ESM_MANBA` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | claude-ui-buttons.js:2432 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
-| 163 | `TZ_FASELE_TOKEN` | sabet | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | claude-ui-buttons.js:2433 | sakht_panel_aa, tz_matn_alan, tz_sakht_kontrol | 24 | — | ؟ |
-| 164 | `TZ_REMEMBER_TOKEN` | sabet | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | claude-ui-buttons.js:2434 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
-| 165 | `PRV` | sabet | — | claude-ui-buttons.js:2502 | prv_hast, prv_navari, prv_porsidan, prv_provider, prv_resid, prv_sabt …+3 | — | — | — |
-| 166 | `TIK` | sabet | — | claude-ui-buttons.js:2626 | prv_sakht_safhe, tik_chat_taze_payesh, tik_neshan_dokme, tik_neshan_sath, tik_porsidan, tik_resid …+4 | — | — | — |
-| 167 | `TIK_GOROOH` | sabet | — | claude-ui-buttons.js:2627 | prv_sakht_safhe, tik_resid | — | — | — |
-| 168 | `TIK_ESM_SATH` | sabet | — | claude-ui-buttons.js:2628 | prv_sakht_safhe, tik_sakht_radif | — | — | — |
-| 169 | `TZ_NOSKHE_PISH` | sabet | کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318) | claude-ui-buttons.js:2973 | tz_khali, tz_mani | 24 | — | ؟ |
-| 170 | `BARCHASB_FEKR` | sabet | — | claude-ui-buttons.js:3525 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
-| 171 | `fekr_akhar` | vaziat | — | claude-ui-buttons.js:3525 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
-| 172 | `NESHANE_SHENAVAR` | sabet | — | claude-ui-buttons.js:3528 | khandan_khat_shenavar, neshan_hook_va_hads | — | — | — |
-| 173 | `KELID_TARIKHCHE_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3590 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
-| 174 | `HAD_TARIKHCHE_FEKR` | sabet | — | claude-ui-buttons.js:3590 | shenavar_fekr | — | — | — |
-| 175 | `tarikhche_bi_shenase` | vaziat | — | claude-ui-buttons.js:3590 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
-| 176 | `KELID_META_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3613 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
-| 177 | `meta_bi_shenase` | vaziat | — | claude-ui-buttons.js:3613 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
-| 178 | `ZAMAN_FEKR` | sabet | — | claude-ui-buttons.js:3626 | matn_shomare_fekr, zakhire_meta_fekr | — | — | — |
-| 179 | `KELID_JA_FEKR` | sabet | — | claude-ui-buttons.js:3666 | ja_fekr, sakhtan_shenavar | — | — | — |
-| 180 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:3729 | fekr_bi_kadr, jadval_tamas | 19 | `neshane_amar` | ؟ |
-| 181 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:3729 | fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
-| 182 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:3730 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `radif_amar` | ؟ |
-| 183 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:3732 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `sotun_amar` | ؟ |
-| 184 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:3733 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | — | ؟ |
-| 185 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:3733 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
-| 186 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:3733 | amar_bozorgi, fekr_bi_kadr | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
-| 187 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:3848 | jadval_tamas | 19 | — | ؟ |
-| 188 | `tarjome_ha` | motaghayer | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | claude-ui-buttons.js:3860 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 189 | `tarjome_mt` | motaghayer | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | claude-ui-buttons.js:3860 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 190 | `tarjome_sid` | motaghayer | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | claude-ui-buttons.js:3860 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 191 | `NAVAR` | sabet | — | claude-ui-buttons.js:3958 | navar_bozorgi, navar_ja_pishfarz, navar_jabe, navar_keshidan, navar_porsidan, neshan_tarjome | — | — | — |
-| 192 | `KELID_JA_NAVAR` | sabet | — | claude-ui-buttons.js:3958 | navar_jabe, neshan_tarjome | — | — | — |
-| 193 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:4125 | baz_shodan_ba_hover, gloss_nasb, menu_naghl, navar_keshidan, tz_sakht_radif | 04 | — | ✓ |
+| 149 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1452 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
+| 150 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1452 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 151 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1452 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 152 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1639 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
+| 153 | `SOAL_SABR_MS` | sabet | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: ⟦SOAL_SABR_MS⟧ میلی‌ثانیه | claude-ui-buttons.js:1754 | bordan_be_other, entekhab_matn_soal | 24 | — | ؟ |
+| 154 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1805 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
+| 155 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1892 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
+| 156 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1945 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
+| 157 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1946 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
+| 158 | `TZ_CHROME` | sabet | کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن | claude-ui-buttons.js:2453 | sakht_panel_aa, tz_maghdar_sath, tz_matn_alan, tz_sakht_radif | 24 | — | ؟ |
+| 159 | `TZ_BALA` | sabet | کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | claude-ui-buttons.js:2454 | sakht_panel_aa, tz_resid | 24 | — | ؟ |
+| 160 | `TZ_SATH` | sabet | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | claude-ui-buttons.js:2455 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
+| 161 | `TZ_ESM_SATH` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | claude-ui-buttons.js:2456 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
+| 162 | `TZ_ESM_MANBA` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | claude-ui-buttons.js:2457 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
+| 163 | `TZ_FASELE_TOKEN` | sabet | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | claude-ui-buttons.js:2458 | sakht_panel_aa, tz_matn_alan, tz_sakht_kontrol | 24 | — | ؟ |
+| 164 | `TZ_REMEMBER_TOKEN` | sabet | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | claude-ui-buttons.js:2459 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
+| 165 | `PRV` | sabet | — | claude-ui-buttons.js:2527 | prv_hast, prv_navari, prv_porsidan, prv_provider, prv_resid, prv_sabt …+3 | — | — | — |
+| 166 | `TIK` | sabet | — | claude-ui-buttons.js:2651 | prv_sakht_safhe, tik_chat_taze_payesh, tik_neshan_dokme, tik_neshan_sath, tik_porsidan, tik_resid …+4 | — | — | — |
+| 167 | `TIK_GOROOH` | sabet | — | claude-ui-buttons.js:2652 | prv_sakht_safhe, tik_resid | — | — | — |
+| 168 | `TIK_ESM_SATH` | sabet | — | claude-ui-buttons.js:2653 | prv_sakht_safhe, tik_sakht_radif | — | — | — |
+| 169 | `TZ_NOSKHE_PISH` | sabet | کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318) | claude-ui-buttons.js:2998 | tz_khali, tz_mani | 24 | — | ؟ |
+| 170 | `BARCHASB_FEKR` | sabet | — | claude-ui-buttons.js:3567 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
+| 171 | `fekr_akhar` | vaziat | — | claude-ui-buttons.js:3567 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
+| 172 | `NESHANE_SHENAVAR` | sabet | — | claude-ui-buttons.js:3570 | khandan_khat_shenavar, neshan_hook_va_hads | — | — | — |
+| 173 | `KELID_TARIKHCHE_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3632 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
+| 174 | `HAD_TARIKHCHE_FEKR` | sabet | — | claude-ui-buttons.js:3632 | shenavar_fekr | — | — | — |
+| 175 | `tarikhche_bi_shenase` | vaziat | — | claude-ui-buttons.js:3632 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
+| 176 | `KELID_META_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3655 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
+| 177 | `meta_bi_shenase` | vaziat | — | claude-ui-buttons.js:3655 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
+| 178 | `ZAMAN_FEKR` | sabet | — | claude-ui-buttons.js:3668 | matn_shomare_fekr, zakhire_meta_fekr | — | — | — |
+| 179 | `KELID_JA_FEKR` | sabet | — | claude-ui-buttons.js:3708 | ja_fekr, sakhtan_shenavar | — | — | — |
+| 180 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:3771 | fekr_bi_kadr, jadval_tamas | 19 | `neshane_amar` | ؟ |
+| 181 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:3771 | fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
+| 182 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:3772 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `radif_amar` | ؟ |
+| 183 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:3774 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `sotun_amar` | ؟ |
+| 184 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:3775 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | — | ؟ |
+| 185 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:3775 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
+| 186 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:3775 | amar_bozorgi, fekr_bi_kadr | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
+| 187 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:3890 | jadval_tamas | 19 | — | ؟ |
+| 188 | `tarjome_ha` | motaghayer | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | claude-ui-buttons.js:3902 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 189 | `tarjome_mt` | motaghayer | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | claude-ui-buttons.js:3902 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 190 | `tarjome_sid` | motaghayer | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | claude-ui-buttons.js:3902 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 191 | `NAVAR` | sabet | — | claude-ui-buttons.js:4000 | navar_bozorgi, navar_ja_pishfarz, navar_jabe, navar_keshidan, navar_porsidan, neshan_tarjome | — | — | — |
+| 192 | `KELID_JA_NAVAR` | sabet | — | claude-ui-buttons.js:4000 | navar_jabe, neshan_tarjome | — | — | — |
+| 193 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:4167 | baz_shodan_ba_hover, gloss_nasb, menu_naghl, navar_keshidan, tz_sakht_radif | 04 | — | ✓ |
 | 194 | `gorooh_hook` | sabet | نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند | claude-host-hook.js:1081 | khat_ha_ye_hook_dar_file, sakht_khat_hook | 11 | `neshane_hook` | ✓ |
 | 195 | `neshane_hook` | sabet | بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا | claude-host-hook.js:1094 | khat_ha_ye_hook_dar_file, masir_transcript | 11 | `gorooh_hook` | ✓ |
-| 196 | `UPSTREAM` | sabet | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به ⟦UPSTREAM⟧ می‌رسد | abzar/216-migration/scripts/opencode_gateway.py:30 | — | 00 | `PORT`, `MERGED_CACHE` | ؟ |
-| 197 | `PREFIX` | sabet | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: ⟦PREFIX⟧deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | abzar/216-migration/scripts/opencode_gateway.py:31 | — | 00 | `UPSTREAM` | ؟ |
-| 198 | `SERVICE` | sabet | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | abzar/216-migration/scripts/opencode_gateway.py:32, abzar/216-migration/scripts/vscode_opencode_wrapper.py:30 | — | 00 | `ACCOUNT`, `AUTH_HEADERS` | ؟ |
-| 199 | `ACCOUNT` | sabet | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: ⟦ACCOUNT⟧ | abzar/216-migration/scripts/opencode_gateway.py:33, abzar/216-migration/scripts/vscode_opencode_wrapper.py:31 | — | 00 | `SERVICE` | ؟ |
-| 200 | `PORT` | sabet | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | abzar/216-migration/scripts/opencode_gateway.py:34, abzar/216-migration/scripts/vscode_opencode_wrapper.py:36, abzar/216-migration/scripts/opencode_picker.py:27 | — | 00 | `BASE`, `UPSTREAM` | ؟ |
-| 201 | `RUNTIME` | sabet | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | abzar/216-migration/scripts/opencode_gateway.py:35 | — | 00 | `USAGE`, `CAPS`, `STATUS`, `MERGED_CACHE` | ؟ |
-| 202 | `USAGE` | sabet | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | abzar/216-migration/scripts/opencode_gateway.py:36 | — | 00 | `RUNTIME`, `STATUS` | ؟ |
-| 203 | `CAPS` | sabet | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | abzar/216-migration/scripts/opencode_gateway.py:37 | — | 00 | `USAGE` | ؟ |
-| 204 | `DROP` | sabet | کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد | abzar/216-migration/scripts/opencode_gateway.py:39 | — | 00 | `AUTH_HEADERS`, `OR_HEADERS` | ؟ |
-| 205 | `TRACE_STATE` | sabet | کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧ | abzar/216-migration/scripts/opencode_gateway.py:47 | — | 00 | `OPENROUTER_URL` | ؟ |
-| 206 | `OPENROUTER_CATALOGUE` | sabet | کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧ | abzar/216-migration/scripts/opencode_gateway.py:48 | — | 00 | `OPENCODE_CACHE`, `MERGED_CACHE` | ؟ |
-| 207 | `OPENCODE_CACHE` | sabet | کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧ | abzar/216-migration/scripts/opencode_gateway.py:49 | — | 00 | `MERGED_CACHE` | ؟ |
-| 208 | `MERGED_CACHE` | sabet | کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧ | abzar/216-migration/scripts/opencode_gateway.py:50 | — | 00 | `OPENCODE_CACHE`, `OPENROUTER_CATALOGUE` | ؟ |
-| 209 | `STATUS` | sabet | کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧ | abzar/216-migration/scripts/opencode_gateway.py:51 | — | 00 | `ALARM_STATUSES`, `USAGE` | ؟ |
-| 210 | `MESSAGE_TIMEOUT` | sabet | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه | abzar/216-migration/scripts/opencode_gateway.py:58 | — | 00 | `FIRST_BYTE_TIMEOUT`, `RETRY_PAUSE` | ؟ |
-| 211 | `FIRST_BYTE_TIMEOUT` | sabet | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه | abzar/216-migration/scripts/opencode_gateway.py:64 | — | 00 | `MESSAGE_TIMEOUT` | ؟ |
-| 212 | `RETRY_PAUSE` | sabet | کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه | abzar/216-migration/scripts/opencode_gateway.py:65 | — | 00 | `MESSAGE_TIMEOUT` | ؟ |
-| 213 | `ALARM_STATUSES` | sabet | کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند | abzar/216-migration/scripts/opencode_gateway.py:66 | — | 00 | `STATUS` | ؟ |
-| 214 | `OPENROUTER_URL` | sabet | کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧ | abzar/216-migration/scripts/opencode_gateway.py:67 | — | 00 | `OPENROUTER_CATALOGUE`, `CATALOGUE_TTL` | ؟ |
-| 215 | `CATALOGUE_TTL` | sabet | کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت | abzar/216-migration/scripts/opencode_gateway.py:68 | — | 00 | `OPENROUTER_CATALOGUE` | ؟ |
-| 216 | `HUNTER_PATTERN` | sabet | کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی) | abzar/216-migration/scripts/opencode_gateway.py:71 | — | 00 | `USAGE` | ؟ |
-| 217 | `OR_HEADERS` | sabet | کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta | abzar/216-migration/scripts/opencode_gateway.py:73 | — | 00 | `DROP`, `AUTH_HEADERS` | ؟ |
-| 218 | `AUTH_HEADERS` | sabet | کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer ⟦KEY⟧ | abzar/216-migration/scripts/opencode_gateway.py:97 | — | 00 | `SERVICE`, `KEY` | ؟ |
-| 219 | `OPENER` | sabet | کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧ | abzar/216-migration/scripts/opencode_gateway.py:100 | — | 00 | `UPSTREAM` | ؟ |
-| 220 | `LOCK` | vaziat | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | abzar/216-migration/scripts/opencode_gateway.py:101 | — | 00 | `USAGE`, `KNOWN_LOCK` | ؟ |
-| 221 | `KNOWN_LOCK` | vaziat | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | abzar/216-migration/scripts/opencode_gateway.py:206 | — | 00 | `KNOWN`, `LOCK` | ؟ |
-| 222 | `KNOWN` | vaziat | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | abzar/216-migration/scripts/opencode_gateway.py:207 | — | 00 | `KNOWN_LOCK`, `OPENCODE_CACHE` | ؟ |
+| 196 | `UPSTREAM` | sabet | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به ⟦UPSTREAM⟧ می‌رسد | abzar/216-migration/scripts/opencode_gateway.py:31 | — | 00 | `PORT`, `MERGED_CACHE` | ؟ |
+| 197 | `PREFIX` | sabet | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: ⟦PREFIX⟧deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | abzar/216-migration/scripts/opencode_gateway.py:32 | — | 00 | `UPSTREAM` | ؟ |
+| 198 | `SERVICE` | sabet | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | abzar/216-migration/scripts/opencode_gateway.py:33, abzar/216-migration/scripts/vscode_opencode_wrapper.py:30 | — | 00 | `ACCOUNT`, `AUTH_HEADERS` | ؟ |
+| 199 | `ACCOUNT` | sabet | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: ⟦ACCOUNT⟧ | abzar/216-migration/scripts/opencode_gateway.py:34, abzar/216-migration/scripts/vscode_opencode_wrapper.py:31 | — | 00 | `SERVICE` | ؟ |
+| 200 | `PORT` | sabet | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | abzar/216-migration/scripts/opencode_gateway.py:35, abzar/216-migration/scripts/vscode_opencode_wrapper.py:36, abzar/216-migration/scripts/opencode_picker.py:27 | — | 00 | `BASE`, `UPSTREAM` | ؟ |
+| 201 | `RUNTIME` | sabet | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | abzar/216-migration/scripts/opencode_gateway.py:36 | — | 00 | `USAGE`, `CAPS`, `STATUS`, `MERGED_CACHE` | ؟ |
+| 202 | `USAGE` | sabet | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | abzar/216-migration/scripts/opencode_gateway.py:37 | — | 00 | `RUNTIME`, `STATUS` | ؟ |
+| 203 | `CAPS` | sabet | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | abzar/216-migration/scripts/opencode_gateway.py:38 | — | 00 | `USAGE` | ؟ |
+| 204 | `DROP` | sabet | کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد | abzar/216-migration/scripts/opencode_gateway.py:40 | — | 00 | `AUTH_HEADERS`, `OR_HEADERS` | ؟ |
+| 205 | `TRACE_STATE` | sabet | کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧ | abzar/216-migration/scripts/opencode_gateway.py:48 | — | 00 | `OPENROUTER_URL` | ؟ |
+| 206 | `OPENROUTER_CATALOGUE` | sabet | کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧ | abzar/216-migration/scripts/opencode_gateway.py:49 | — | 00 | `OPENCODE_CACHE`, `MERGED_CACHE` | ؟ |
+| 207 | `OPENCODE_CACHE` | sabet | کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧ | abzar/216-migration/scripts/opencode_gateway.py:50 | — | 00 | `MERGED_CACHE` | ؟ |
+| 208 | `MERGED_CACHE` | sabet | کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧ | abzar/216-migration/scripts/opencode_gateway.py:51 | — | 00 | `OPENCODE_CACHE`, `OPENROUTER_CATALOGUE` | ؟ |
+| 209 | `STATUS` | sabet | کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧ | abzar/216-migration/scripts/opencode_gateway.py:52 | — | 00 | `ALARM_STATUSES`, `USAGE` | ؟ |
+| 210 | `MESSAGE_TIMEOUT` | sabet | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه | abzar/216-migration/scripts/opencode_gateway.py:59 | — | 00 | `FIRST_BYTE_TIMEOUT`, `RETRY_PAUSE` | ؟ |
+| 211 | `FIRST_BYTE_TIMEOUT` | sabet | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه | abzar/216-migration/scripts/opencode_gateway.py:65 | — | 00 | `MESSAGE_TIMEOUT` | ؟ |
+| 212 | `RETRY_PAUSE` | sabet | کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه | abzar/216-migration/scripts/opencode_gateway.py:66 | — | 00 | `MESSAGE_TIMEOUT` | ؟ |
+| 213 | `ALARM_STATUSES` | sabet | کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند | abzar/216-migration/scripts/opencode_gateway.py:67 | — | 00 | `STATUS` | ؟ |
+| 214 | `OPENROUTER_URL` | sabet | کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧ | abzar/216-migration/scripts/opencode_gateway.py:68 | — | 00 | `OPENROUTER_CATALOGUE`, `CATALOGUE_TTL` | ؟ |
+| 215 | `CATALOGUE_TTL` | sabet | کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت | abzar/216-migration/scripts/opencode_gateway.py:69 | — | 00 | `OPENROUTER_CATALOGUE` | ؟ |
+| 216 | `HUNTER_PATTERN` | sabet | کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی) | abzar/216-migration/scripts/opencode_gateway.py:72 | — | 00 | `USAGE` | ؟ |
+| 217 | `OR_HEADERS` | sabet | کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta | abzar/216-migration/scripts/opencode_gateway.py:74 | — | 00 | `DROP`, `AUTH_HEADERS` | ؟ |
+| 218 | `AUTH_HEADERS` | sabet | کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer ⟦KEY⟧ | abzar/216-migration/scripts/opencode_gateway.py:98 | — | 00 | `SERVICE`, `KEY` | ؟ |
+| 219 | `OPENER` | sabet | کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧ | abzar/216-migration/scripts/opencode_gateway.py:101 | — | 00 | `UPSTREAM` | ؟ |
+| 220 | `LOCK` | vaziat | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | abzar/216-migration/scripts/opencode_gateway.py:102 | — | 00 | `USAGE`, `KNOWN_LOCK` | ؟ |
+| 221 | `KNOWN_LOCK` | vaziat | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | abzar/216-migration/scripts/opencode_gateway.py:207 | — | 00 | `KNOWN`, `LOCK` | ؟ |
+| 222 | `KNOWN` | vaziat | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | abzar/216-migration/scripts/opencode_gateway.py:208 | — | 00 | `KNOWN_LOCK`, `OPENCODE_CACHE` | ؟ |
 | 223 | `GATEWAY` | sabet | کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧ | abzar/216-migration/scripts/vscode_opencode_wrapper.py:35 | — | 00 | `PORT`, `BASE` | ؟ |
 | 224 | `BASE` | sabet | کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧ | abzar/216-migration/scripts/vscode_opencode_wrapper.py:37, abzar/216-migration/scripts/opencode_picker.py:28 | — | 00 | `PORT`, `GATEWAY` | ؟ |
 | 225 | `MODEL` | sabet | کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: ⟦MODEL⟧ | abzar/216-migration/scripts/vscode_opencode_wrapper.py:38 | — | 00 | `BASE` | ؟ |

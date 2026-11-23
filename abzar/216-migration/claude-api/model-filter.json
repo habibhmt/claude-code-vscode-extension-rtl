@@ -1,0 +1,20 @@
+{
+ "version": 1,
+ "providers": [],
+ "hiddenFamilies": [
+  "claude-opus",
+  "claude-sonnet",
+  "claude-haiku",
+  "aion-2.0",
+  "aion-rp-llama-3.1-8b",
+  "aion-3.0",
+  "aion-3.0-mini",
+  "aion-3.5",
+  "aion-3.5-mini",
+  "nova-2-lite-v1",
+  "nova-pro-v1",
+  "nova-lite-v1",
+  "nova-micro-v1",
+  "nova-premier-v1"
+ ]
+}

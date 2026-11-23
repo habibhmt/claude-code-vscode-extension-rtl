@@ -52,3 +52,10 @@ abzar/216-migration/.runtime/
 
 # Model files are fetched and sha256-verified by scripts/fetch_deepseek_v41.py
 abzar/216-migration/claude-api/deepseek-v41/
+
+# کارهای موقتِ ورک‌فلو و ابزارِ ori — نه دادهٔ پروژه
+.claude/worktrees/
+.ori/
+
+# نسخه‌های پیش از دست‌زدن به فایلِ سشنِ دیگران
+*.crtl-bak

@@ -67,6 +67,7 @@ run "claude navar" env NODE_PATH=node_modules node test_claude_navar.cjs
 run "claude tik ha" env NODE_PATH=node_modules node test_claude_tik_ha.cjs
 run "codex tanzimat" env NODE_PATH=node_modules node test_codex_tanzimat.cjs
 run "reset ha" node test_reset_ha.mjs
+run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
 
 printf '\n=== SUMMARY: %d passed, %d skipped, %d failed ===\n' "$pass" "$skip" "$fail"

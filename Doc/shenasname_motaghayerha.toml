@@ -1126,7 +1126,7 @@ ba_motaghayerha = ["usageCache", "usageTick"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise"]
-jaye = ["claude-ui-buttons.js:1452"]
+jaye = ["claude-ui-buttons.js:1454"]
 
 [usageCache]
 yani = "آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید"
@@ -1138,7 +1138,7 @@ ba_motaghayerha = ["counterTimer"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1452"]
+jaye = ["claude-ui-buttons.js:1454"]
 
 [usageTick]
 yani = "شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار)"
@@ -1150,7 +1150,7 @@ ba_motaghayerha = ["counterTimer"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["menu_naghl", "shomarande_nevise", "shomarande_nevise_tik"]
-jaye = ["claude-ui-buttons.js:1452"]
+jaye = ["claude-ui-buttons.js:1454"]
 
 [FILE_NAME]
 yani = "اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند"
@@ -1162,7 +1162,7 @@ ba_motaghayerha = ["DEF"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["emal_tanzim_vared_shode", "neveshtan_yaddasht_panel"]
-jaye = ["claude-ui-buttons.js:1639"]
+jaye = ["claude-ui-buttons.js:1641"]
 
 [DRAG_PX]
 yani = "کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: 5 پیکسل"
@@ -1174,7 +1174,7 @@ ba_motaghayerha = []
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["ejraye_dokme", "keshidan_navar_bala", "keshidan_tik_hads", "sakht_hame"]
-jaye = ["claude-ui-buttons.js:1805"]
+jaye = ["claude-ui-buttons.js:1807"]
 
 [topWatch]
 yani = "نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش"
@@ -1186,7 +1186,7 @@ ba_motaghayerha = []
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["bardashtan_jaygozin", "payesh_navar_bala"]
-jaye = ["claude-ui-buttons.js:1892"]
+jaye = ["claude-ui-buttons.js:1894"]
 
 [draftCommands]
 yani = "متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها"
@@ -1198,7 +1198,7 @@ ba_motaghayerha = ["DEFAULT_COMMANDS"]
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["emal_tanzim_vared_shode", "keshidan_navar_bala", "sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1945"]
+jaye = ["claude-ui-buttons.js:1947"]
 
 [draftProfileName]
 yani = "اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده"
@@ -1210,7 +1210,7 @@ ba_motaghayerha = []
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["sakht_dokme_kenar", "sakht_panel_aa"]
-jaye = ["claude-ui-buttons.js:1946"]
+jaye = ["claude-ui-buttons.js:1948"]
 
 [NESHANE_AMAR]
 yani = "همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند"
@@ -1222,7 +1222,7 @@ ba_motaghayerha = ["neshane_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3771"]
+jaye = ["claude-ui-buttons.js:3773"]
 
 [KELID_JA_AMAR]
 yani = "کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد"
@@ -1234,7 +1234,7 @@ ba_motaghayerha = ["ja_kuchak_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3771"]
+jaye = ["claude-ui-buttons.js:3773"]
 
 [sotun_amar]
 yani = "ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام"
@@ -1246,7 +1246,7 @@ ba_motaghayerha = ["radif_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_bozorg", "jadval_kuchak"]
-jaye = ["claude-ui-buttons.js:3772"]
+jaye = ["claude-ui-buttons.js:3774"]
 
 [radif_amar]
 yani = "ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل"
@@ -1258,7 +1258,7 @@ ba_motaghayerha = ["sotun_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["fekr_bi_kadr", "jadval_bozorg", "jadval_kuchak"]
-jaye = ["claude-ui-buttons.js:3774"]
+jaye = ["claude-ui-buttons.js:3776"]
 
 [amar_matn_akhar]
 yani = "آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود"
@@ -1270,7 +1270,7 @@ ba_motaghayerha = []
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["amar_bozorgi", "fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3775"]
+jaye = ["claude-ui-buttons.js:3777"]
 
 [amar_bozorg]
 yani = "جدولِ «تماس‌ها» در حالتِ بزرگ است"
@@ -1282,7 +1282,7 @@ ba_motaghayerha = ["ja_kuchak_amar"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 22:08)"
 khanandeha = ["amar_bozorgi", "fekr_bi_kadr", "jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3775"]
+jaye = ["claude-ui-buttons.js:3777"]
 
 [ja_kuchak_amar]
 yani = "جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند"
@@ -1294,7 +1294,7 @@ ba_motaghayerha = ["amar_bozorg", "KELID_JA_AMAR"]
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:48)"
 khanandeha = ["amar_bozorgi", "fekr_bi_kadr"]
-jaye = ["claude-ui-buttons.js:3775"]
+jaye = ["claude-ui-buttons.js:3777"]
 
 [amar_dar_rah]
 yani = "یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه)"
@@ -1306,7 +1306,7 @@ ba_motaghayerha = []
 tarif = "19"
 tayid = "پیشنهاد — تأییدنشده (آمده 2026-10-26 23:18)"
 khanandeha = ["jadval_tamas"]
-jaye = ["claude-ui-buttons.js:3890"]
+jaye = ["claude-ui-buttons.js:3892"]
 
 [timer]
 yani = "زمان‌سنجِ همان گشتن"
@@ -1318,7 +1318,7 @@ ba_motaghayerha = []
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["baz_shodan_ba_hover", "gloss_nasb", "menu_naghl", "navar_keshidan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:4167"]
+jaye = ["claude-ui-buttons.js:4169"]
 
 [gorooh_hook]
 yani = "نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند"
@@ -1450,7 +1450,7 @@ ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3902"]
+jaye = ["claude-ui-buttons.js:3904"]
 
 [tarjome_mt]
 yani = "زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد"
@@ -1462,7 +1462,7 @@ ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3902"]
+jaye = ["claude-ui-buttons.js:3904"]
 
 [tarjome_sid]
 yani = "ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند"
@@ -1474,7 +1474,7 @@ ba_motaghayerha = []
 tarif = "22"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["jadval_tamas", "neshan_tarjome"]
-jaye = ["claude-ui-buttons.js:3902"]
+jaye = ["claude-ui-buttons.js:3904"]
 
 [ravand_akhar]
 yani = "روندهایی که الان در کادر نشان داده می‌شوند؛ هر کدام با حرف‌های عینیِ حبیب"
@@ -1714,7 +1714,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["bordan_be_other", "entekhab_matn_soal"]
-jaye = ["claude-ui-buttons.js:1754"]
+jaye = ["claude-ui-buttons.js:1756"]
 
 [TZ_BALA]
 yani = "کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت"
@@ -1726,7 +1726,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_resid"]
-jaye = ["claude-ui-buttons.js:2454"]
+jaye = ["claude-ui-buttons.js:2456"]
 
 [TZ_NOSKHE_PISH]
 yani = "کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318)"
@@ -1738,7 +1738,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["tz_khali", "tz_mani"]
-jaye = ["claude-ui-buttons.js:2998"]
+jaye = ["claude-ui-buttons.js:3000"]
 
 [TZ_CHROME]
 yani = "کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن"
@@ -1750,7 +1750,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_maghdar_sath", "tz_matn_alan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2453"]
+jaye = ["claude-ui-buttons.js:2455"]
 
 [TZ_SATH]
 yani = "کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت"
@@ -1762,7 +1762,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2455"]
+jaye = ["claude-ui-buttons.js:2457"]
 
 [TZ_ESM_SATH]
 yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح"
@@ -1774,7 +1774,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
-jaye = ["claude-ui-buttons.js:2456"]
+jaye = ["claude-ui-buttons.js:2458"]
 
 [TZ_ESM_MANBA]
 yani = "کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند"
@@ -1786,7 +1786,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan"]
-jaye = ["claude-ui-buttons.js:2457"]
+jaye = ["claude-ui-buttons.js:2459"]
 
 [TZ_FASELE_TOKEN]
 yani = "کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318"
@@ -1798,7 +1798,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_matn_alan", "tz_sakht_kontrol"]
-jaye = ["claude-ui-buttons.js:2458"]
+jaye = ["claude-ui-buttons.js:2460"]
 
 [TZ_REMEMBER_TOKEN]
 yani = "کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن"
@@ -1810,7 +1810,7 @@ ba_motaghayerha = []
 tarif = "24"
 tayid = "پیشنهاد — اسم را حبیب هنوز تأیید نکرده"
 khanandeha = ["sakht_panel_aa", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:2459"]
+jaye = ["claude-ui-buttons.js:2461"]
 
 [UPSTREAM]
 yani = "کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد"
@@ -2506,7 +2506,7 @@ ba_motaghayerha = ["list_cost", "remaining"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:755"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:762"]
 
 [remaining]
 yani = "کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18"
@@ -2518,7 +2518,7 @@ ba_motaghayerha = ["monthly_cap", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:756"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:763"]
 
 [request_bytes]
 yani = "کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452"
@@ -2542,7 +2542,7 @@ ba_motaghayerha = ["wait_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:515"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:516"]
 
 [wait_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709"
@@ -2554,7 +2554,7 @@ ba_motaghayerha = ["upload_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:668"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:673"]
 
 [stream_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157"
@@ -2566,7 +2566,7 @@ ba_motaghayerha = ["wait_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:669"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:674"]
 
 [duration_ms]
 yani = "کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870"
@@ -2578,7 +2578,7 @@ ba_motaghayerha = ["upload_ms", "wait_ms", "stream_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:553"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:554"]
 
 [chat_cost]
 yani = "کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders}"
@@ -2602,7 +2602,7 @@ ba_motaghayerha = ["chat_cost"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["claude-ui-buttons.js:2452"]
+jaye = ["claude-ui-buttons.js:2454"]
 
 [total]
 yani = "کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148"
@@ -2638,7 +2638,7 @@ ba_motaghayerha = ["session_id", "folders"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["claude-ui-buttons.js:2657"]
+jaye = ["claude-ui-buttons.js:2659"]
 
 [folders]
 yani = "کجا: chat_cost · چیه: فهرستِ فولدرها؛ دلارِ هر فولدر = جمعِ چت‌هایش · مثال: [{label, cost, chats}]"
@@ -2962,7 +2962,7 @@ ba_motaghayerha = ["autoCompactWindow", "TZ_FASELE_TOKEN", "had_chat"]
 tarif = "30"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۰:۲۳ (از راهِ ناظر-۱۳۶)"
 khanandeha = []
-jaye = ["claude-ui-buttons.js:2454"]
+jaye = ["claude-ui-buttons.js:2456"]
 
 [GLOSS_TAZE_MS]
 yani = "کجا: پنلِ چت · چیه: هر چند میلی‌ثانیه واژه‌نامه دوباره پرسیده شود تا بلوکِ تازهٔ شناسنامه بی‌ریلود دیده شود · مثال: 30000 (۳۰ ثانیه)"
@@ -2998,7 +2998,7 @@ ba_motaghayerha = ["harness", "afzune_claude_code"]
 tarif = "0"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۲:۵۱ («بزن») · قالبِ نام ۲۳:۲۶: «اول همه شون کلمه هارنس بعدش محیط بعدش نام تجاری»"
 khanandeha = []
-jaye = ["claude-ui-buttons.js:1059"]
+jaye = ["claude-ui-buttons.js:1061"]
 
 [harness-vscode-claude-code-extension]
 yani = "کجا: VS Code · چیه: افزونهٔ رسمیِ کلود کد که باینریِ نیتیوِ خودش را هم همراه دارد · مثال: نسخهٔ ۲٫۱٫۳۲۸؛ سوکتِ پیامِ بین‌سشنی مالِ همان باینری است، نه فایلِ JS افزونه"
@@ -3034,7 +3034,7 @@ ba_motaghayerha = ["harness", "peygham_bine_seshni"]
 tarif = "31"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
 khanandeha = []
-jaye = ["claude-ui-buttons.js:1059"]
+jaye = ["claude-ui-buttons.js:1061"]
 
 [harness-cli-opencode]
 yani = "کجا: ترمینال · چیه: موتورِ OpenCode که `~/.local/bin/opencode` به آن وصل است (روی OpenRouter، مدلِ فلش) · مثال: بستهٔ ۱٫۱۴٫۱۸ در `~/harness2/dependencies/opencode`"

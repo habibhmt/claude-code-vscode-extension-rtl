@@ -152,51 +152,51 @@
 | 146 | `GLOSS` | vaziat | کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده | claude-ui-buttons.js:1008 | bastan_panel, gloss_cwd_shod, gloss_darkhast, gloss_nasb, gloss_prepare, vazhe_name_ru_kalame | 20 | `GLOSS_DELAY`, `GLOSS_DELAY_T` | ✓ |
 | 147 | `GLOSS_TAZE_MS` | sabet | کجا: پنلِ چت · چیه: هر چند میلی‌ثانیه واژه‌نامه دوباره پرسیده شود تا بلوکِ تازهٔ شناسنامه بی‌ریلود دیده شود · مثال: ⟦GLOSS_TAZE_MS⟧ (۳۰ ثانیه) | claude-ui-buttons.js:1043 | gloss_cwd_shod, gloss_darkhast | 20 | `GLOSS_TAZE_MS`, `GLOSS_DELAY` | ✓ |
 | 148 | `GLOSS_DELAY_T` | sabet | کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: ⟦GLOSS_DELAY_T⟧ میلی‌ثانیه | claude-ui-buttons.js:1053 | gloss_darkhast, vazhe_name_ru_kalame | 20 | `GLOSS_DELAY`, `GLOSS` | ✓ |
-| 149 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1452 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
-| 150 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1452 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 151 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1452 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
-| 152 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1639 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
-| 153 | `SOAL_SABR_MS` | sabet | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: ⟦SOAL_SABR_MS⟧ میلی‌ثانیه | claude-ui-buttons.js:1754 | bordan_be_other, entekhab_matn_soal | 24 | — | ؟ |
-| 154 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1805 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
-| 155 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1892 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
-| 156 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1945 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
-| 157 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1946 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
-| 158 | `TZ_CHROME` | sabet | کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن | claude-ui-buttons.js:2453 | sakht_panel_aa, tz_maghdar_sath, tz_matn_alan, tz_sakht_radif | 24 | — | ؟ |
-| 159 | `TZ_BALA` | sabet | کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | claude-ui-buttons.js:2454 | sakht_panel_aa, tz_resid | 24 | — | ؟ |
-| 160 | `TZ_SATH` | sabet | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | claude-ui-buttons.js:2455 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
-| 161 | `TZ_ESM_SATH` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | claude-ui-buttons.js:2456 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
-| 162 | `TZ_ESM_MANBA` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | claude-ui-buttons.js:2457 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
-| 163 | `TZ_FASELE_TOKEN` | sabet | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | claude-ui-buttons.js:2458 | sakht_panel_aa, tz_matn_alan, tz_sakht_kontrol | 24 | — | ؟ |
-| 164 | `TZ_REMEMBER_TOKEN` | sabet | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | claude-ui-buttons.js:2459 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
-| 165 | `PRV` | sabet | — | claude-ui-buttons.js:2527 | prv_hast, prv_navari, prv_porsidan, prv_provider, prv_resid, prv_sabt …+3 | — | — | — |
-| 166 | `TIK` | sabet | — | claude-ui-buttons.js:2651 | prv_sakht_safhe, tik_chat_taze_payesh, tik_neshan_dokme, tik_neshan_sath, tik_porsidan, tik_resid …+4 | — | — | — |
-| 167 | `TIK_GOROOH` | sabet | — | claude-ui-buttons.js:2652 | prv_sakht_safhe, tik_resid | — | — | — |
-| 168 | `TIK_ESM_SATH` | sabet | — | claude-ui-buttons.js:2653 | prv_sakht_safhe, tik_sakht_radif | — | — | — |
-| 169 | `TZ_NOSKHE_PISH` | sabet | کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318) | claude-ui-buttons.js:2998 | tz_khali, tz_mani | 24 | — | ؟ |
-| 170 | `BARCHASB_FEKR` | sabet | — | claude-ui-buttons.js:3567 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
-| 171 | `fekr_akhar` | vaziat | — | claude-ui-buttons.js:3567 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
-| 172 | `NESHANE_SHENAVAR` | sabet | — | claude-ui-buttons.js:3570 | khandan_khat_shenavar, neshan_hook_va_hads | — | — | — |
-| 173 | `KELID_TARIKHCHE_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3632 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
-| 174 | `HAD_TARIKHCHE_FEKR` | sabet | — | claude-ui-buttons.js:3632 | shenavar_fekr | — | — | — |
-| 175 | `tarikhche_bi_shenase` | vaziat | — | claude-ui-buttons.js:3632 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
-| 176 | `KELID_META_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3655 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
-| 177 | `meta_bi_shenase` | vaziat | — | claude-ui-buttons.js:3655 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
-| 178 | `ZAMAN_FEKR` | sabet | — | claude-ui-buttons.js:3668 | matn_shomare_fekr, zakhire_meta_fekr | — | — | — |
-| 179 | `KELID_JA_FEKR` | sabet | — | claude-ui-buttons.js:3708 | ja_fekr, sakhtan_shenavar | — | — | — |
-| 180 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:3771 | fekr_bi_kadr, jadval_tamas | 19 | `neshane_amar` | ؟ |
-| 181 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:3771 | fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
-| 182 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:3772 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `radif_amar` | ؟ |
-| 183 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:3774 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `sotun_amar` | ؟ |
-| 184 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:3775 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | — | ؟ |
-| 185 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:3775 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
-| 186 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:3775 | amar_bozorgi, fekr_bi_kadr | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
-| 187 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:3890 | jadval_tamas | 19 | — | ؟ |
-| 188 | `tarjome_ha` | motaghayer | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | claude-ui-buttons.js:3902 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 189 | `tarjome_mt` | motaghayer | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | claude-ui-buttons.js:3902 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 190 | `tarjome_sid` | motaghayer | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | claude-ui-buttons.js:3902 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
-| 191 | `NAVAR` | sabet | — | claude-ui-buttons.js:4000 | navar_bozorgi, navar_ja_pishfarz, navar_jabe, navar_keshidan, navar_porsidan, neshan_tarjome | — | — | — |
-| 192 | `KELID_JA_NAVAR` | sabet | — | claude-ui-buttons.js:4000 | navar_jabe, neshan_tarjome | — | — | — |
-| 193 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:4167 | baz_shodan_ba_hover, gloss_nasb, menu_naghl, navar_keshidan, tz_sakht_radif | 04 | — | ✓ |
+| 149 | `counterTimer` | vaziat | زمان‌سنجِ شمارندهٔ «نویسه»؛ فقط وقتی شمارنده روشن است | claude-ui-buttons.js:1454 | menu_naghl, shomarande_nevise | 04 | `usageCache`, `usageTick` | ✓ |
+| 150 | `usageCache` | vaziat | آخرین متنِ مصرفِ کانتکست که کنارِ «نویسه» می‌آید | claude-ui-buttons.js:1454 | menu_naghl, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 151 | `usageTick` | vaziat | شمارِ معکوس تا گشتنِ دوبارهٔ متنِ مصرف (گران است، هر چند ثانیه یک بار) | claude-ui-buttons.js:1454 | menu_naghl, shomarande_nevise, shomarande_nevise_tik | 04 | `counterTimer` | ✓ |
+| 152 | `FILE_NAME` | sabet | اسمِ فایلِ تنظیم‌هایی که پنل ذخیره و بار می‌کند | claude-ui-buttons.js:1641 | emal_tanzim_vared_shode, neveshtan_yaddasht_panel | 04 | `DEF` | ✓ |
+| 153 | `SOAL_SABR_MS` | sabet | کجا: پنجرهٔ سؤال · چیه: کلیک روی متنِ یک جواب این‌قدر صبر می‌کند تا اگر کلیکِ دوم آمد، جواب زده نشود و فقط کلمه انتخاب شود · مثال: ⟦SOAL_SABR_MS⟧ میلی‌ثانیه | claude-ui-buttons.js:1756 | bordan_be_other, entekhab_matn_soal | 24 | — | ؟ |
+| 154 | `DRAG_PX` | sabet | کجا: دکمه‌های نوارِ بالا · چیه: کمتر از این حرکت کلیک است، بیشتر کشیدن · مثال: ⟦DRAG_PX⟧ پیکسل | claude-ui-buttons.js:1807 | ejraye_dokme, keshidan_navar_bala, keshidan_tik_hads, sakht_hame | 02 | — | ✓ |
+| 155 | `topWatch` | vaziat | نگهبانِ نوارِ بالا که بعد از عوض شدنِ چت دوباره می‌سازدش | claude-ui-buttons.js:1894 | bardashtan_jaygozin, payesh_navar_bala | 02 | — | ✓ |
+| 156 | `draftCommands` | vaziat | متنِ ذخیره‌نشدهٔ ویرایشگرِ JSON ِ دکمه‌ها | claude-ui-buttons.js:1947 | emal_tanzim_vared_shode, keshidan_navar_bala, sakht_dokme_kenar, sakht_panel_aa | 02 | `DEFAULT_COMMANDS` | ✓ |
+| 157 | `draftProfileName` | vaziat | اسمِ پروفایلی که تایپ شده و هنوز ذخیره نشده | claude-ui-buttons.js:1948 | sakht_dokme_kenar, sakht_panel_aa | 04 | — | ✓ |
+| 158 | `TZ_CHROME` | sabet | کجا: تبِ تنظیمات کلود · چیه: کلیدِ افزونهٔ کروم (همان نوارِ Browser connected)؛ در settings.json نیست و در ~/.claude.json است، پس در تب جدا خوانده و با خودِ اپ نوشته می‌شود · مثال: سراسری خاموش و همین چت روشن | claude-ui-buttons.js:2455 | sakht_panel_aa, tz_maghdar_sath, tz_matn_alan, tz_sakht_radif | 24 | — | ؟ |
+| 159 | `TZ_BALA` | sabet | کجا: تبِ تنظیمات کلود · چیه: شش تنظیمی که بالای تب می‌آیند: افورت، مدل، ریموت کنترل، اولتراکد، اتوکامپکت | claude-ui-buttons.js:2456 | sakht_panel_aa, tz_resid | 24 | — | ؟ |
+| 160 | `TZ_SATH` | sabet | کجا: هر ردیفِ تب · چیه: سه تیک به ترتیب: سراسری، پروژه، چت | claude-ui-buttons.js:2457 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
+| 161 | `TZ_ESM_SATH` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: اسمِ فارسیِ هر سطح | claude-ui-buttons.js:2458 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
+| 162 | `TZ_ESM_MANBA` | sabet | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | claude-ui-buttons.js:2459 | sakht_panel_aa, tz_matn_alan | 24 | — | ؟ |
+| 163 | `TZ_FASELE_TOKEN` | sabet | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | claude-ui-buttons.js:2460 | sakht_panel_aa, tz_matn_alan, tz_sakht_kontrol | 24 | — | ؟ |
+| 164 | `TZ_REMEMBER_TOKEN` | sabet | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | claude-ui-buttons.js:2461 | sakht_panel_aa, tz_sakht_radif | 24 | — | ؟ |
+| 165 | `PRV` | sabet | — | claude-ui-buttons.js:2529 | prv_hast, prv_navari, prv_porsidan, prv_provider, prv_resid, prv_sabt …+3 | — | — | — |
+| 166 | `TIK` | sabet | — | claude-ui-buttons.js:2653 | prv_sakht_safhe, tik_chat_taze_payesh, tik_neshan_dokme, tik_neshan_sath, tik_porsidan, tik_resid …+4 | — | — | — |
+| 167 | `TIK_GOROOH` | sabet | — | claude-ui-buttons.js:2654 | prv_sakht_safhe, tik_resid | — | — | — |
+| 168 | `TIK_ESM_SATH` | sabet | — | claude-ui-buttons.js:2655 | prv_sakht_safhe, tik_sakht_radif | — | — | — |
+| 169 | `TZ_NOSKHE_PISH` | sabet | کجا: تبِ تنظیمات کلود · چیه: نسخه‌ای که پیش‌فرض‌های فهرست روی آن سنجیده شد، وقتی مهرِ ~/.claude/crtl_pish_sanjide.json هنوز نیست · مثال: روشن (پیش‌فرض نسخهٔ 2.1.318) | claude-ui-buttons.js:3000 | tz_khali, tz_mani | 24 | — | ؟ |
+| 170 | `BARCHASB_FEKR` | sabet | — | claude-ui-buttons.js:3569 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
+| 171 | `fekr_akhar` | vaziat | — | claude-ui-buttons.js:3569 | neshan_hook_va_hads, shenavar_fekr | — | — | — |
+| 172 | `NESHANE_SHENAVAR` | sabet | — | claude-ui-buttons.js:3572 | khandan_khat_shenavar, neshan_hook_va_hads | — | — | — |
+| 173 | `KELID_TARIKHCHE_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3634 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
+| 174 | `HAD_TARIKHCHE_FEKR` | sabet | — | claude-ui-buttons.js:3634 | shenavar_fekr | — | — | — |
+| 175 | `tarikhche_bi_shenase` | vaziat | — | claude-ui-buttons.js:3634 | shenavar_fekr, tarikhche_fekr, zakhire_tarikhche_fekr | — | — | — |
+| 176 | `KELID_META_FEKR_PAYE` | sabet | — | claude-ui-buttons.js:3657 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
+| 177 | `meta_bi_shenase` | vaziat | — | claude-ui-buttons.js:3657 | meta_fekr, yeksan_ba_ghabli, zakhire_meta_fekr | — | — | — |
+| 178 | `ZAMAN_FEKR` | sabet | — | claude-ui-buttons.js:3670 | matn_shomare_fekr, zakhire_meta_fekr | — | — | — |
+| 179 | `KELID_JA_FEKR` | sabet | — | claude-ui-buttons.js:3710 | ja_fekr, sakhtan_shenavar | — | — | — |
+| 180 | `NESHANE_AMAR` | sabet | همان neshane_amar ِ مود، در صفحه: خطِ پنهانِ دادهٔ جدولِ «تماس‌ها» را پیدا می‌کند | claude-ui-buttons.js:3773 | fekr_bi_kadr, jadval_tamas | 19 | `neshane_amar` | ؟ |
+| 181 | `KELID_JA_AMAR` | sabet | کلیدِ localStorage که جای جدولِ «تماس‌ها» را نگه می‌دارد | claude-ui-buttons.js:3773 | fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
+| 182 | `sotun_amar` | sabet | ستون‌های جدولِ «تماس‌ها» و اسمِ فارسیِ هر کدام | claude-ui-buttons.js:3774 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `radif_amar` | ؟ |
+| 183 | `radif_amar` | sabet | ردیف‌های جدولِ «تماس‌ها»: ۱ ساعت، ۲۴ ساعت، کل | claude-ui-buttons.js:3776 | fekr_bi_kadr, jadval_bozorg, jadval_kuchak | 19 | `sotun_amar` | ؟ |
+| 184 | `amar_matn_akhar` | vaziat | آخرین دادهٔ کشیده‌شده؛ بی‌تغییر دوباره کشیده نمی‌شود | claude-ui-buttons.js:3777 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | — | ؟ |
+| 185 | `amar_bozorg` | vaziat | جدولِ «تماس‌ها» در حالتِ بزرگ است | claude-ui-buttons.js:3777 | amar_bozorgi, fekr_bi_kadr, jadval_tamas | 19 | `ja_kuchak_amar` | ؟ |
+| 186 | `ja_kuchak_amar` | vaziat | جای جدولِ کوچک پیش از بزرگ شدن، تا × یا کلیکِ بیرون آن را همان‌جا برگرداند | claude-ui-buttons.js:3777 | amar_bozorgi, fekr_bi_kadr | 19 | `amar_bozorg`, `KELID_JA_AMAR` | ؟ |
+| 187 | `amar_dar_rah` | vaziat | یک رسمِ دوبارهٔ جدول در فریمِ بعد در راه است (دو تا پشتِ هم نه) | claude-ui-buttons.js:3892 | jadval_tamas | 19 | — | ؟ |
+| 188 | `tarjome_ha` | motaghayer | ترجمه‌های همین چت، به کلیدِ اولِ متنِ جواب | claude-ui-buttons.js:3904 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 189 | `tarjome_mt` | motaghayer | زمانِ آخرین نسخهٔ فایلِ ترجمه که رسید؛ میزبان فقط اگر عوض شده بفرستد | claude-ui-buttons.js:3904 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 190 | `tarjome_sid` | motaghayer | ترجمه‌ها مالِ کدام چت‌اند؛ چت که عوض شد از نو گرفته می‌شوند | claude-ui-buttons.js:3904 | jadval_tamas, neshan_tarjome | 22 | — | ؟ |
+| 191 | `NAVAR` | sabet | — | claude-ui-buttons.js:4002 | navar_bozorgi, navar_ja_pishfarz, navar_jabe, navar_keshidan, navar_porsidan, neshan_tarjome | — | — | — |
+| 192 | `KELID_JA_NAVAR` | sabet | — | claude-ui-buttons.js:4002 | navar_jabe, neshan_tarjome | — | — | — |
+| 193 | `timer` | vaziat | زمان‌سنجِ همان گشتن | claude-ui-buttons.js:4169 | baz_shodan_ba_hover, gloss_nasb, menu_naghl, navar_keshidan, tz_sakht_radif | 04 | — | ✓ |
 | 194 | `gorooh_hook` | sabet | نوع‌های پیامِ هوک که بعد از ریلود از فایلِ چت دوباره به صفحه داده می‌شوند | claude-host-hook.js:1081 | khat_ha_ye_hook_dar_file, sakht_khat_hook | 11 | `neshane_hook` | ✓ |
 | 195 | `neshane_hook` | sabet | بایت‌های نشانِ خطِ هوک در فایلِ چت؛ فایل تکه‌تکه گشته می‌شود، نه یک‌جا | claude-host-hook.js:1094 | khat_ha_ye_hook_dar_file, masir_transcript | 11 | `gorooh_hook` | ✓ |
 | 196 | `UPSTREAM` | sabet | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به ⟦UPSTREAM⟧ می‌رسد | abzar/darvaze/scripts/opencode_gateway.py:31 | — | 00 | `PORT`, `MERGED_CACHE` | ؟ |

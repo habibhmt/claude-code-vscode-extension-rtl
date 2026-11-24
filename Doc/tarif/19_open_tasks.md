@@ -164,7 +164,6 @@
 
 | ۱۱۰ | نُه اصطلاحِ روزمره کارتِ هاور گرفتند | حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷: «بله، هر نُه تا» (از راهِ ناظر-۱۳۶) | **ثبت شد — کامیت‌نشده** | نُه بلوکِ `vaziat` با واژهٔ حبیب: `workflow` · `barge` · `shenasname` · `kharabkari` · `zanjire_azmoon` · `skill` · `nazer` · `mojri` · `darvaze`. پذیرش: ۹ از ۹ کارت · چکر ۰ ایراد · خرابکاریِ `jaye` ⇒ «کلید در کد و روی دیسک نیست». سه کامیتِ ابزارها پوش شد: `03f6170` · `07e99bc` · `66e25fe`. `autoCompactWindow` ⇒ ۵۳۳٬۰۰۰. | **سنجش:** `build-glossary.py --cwd .` و `chek_motaghayer.py` |
 
-| ۱۱۰ | نُه اصطلاحِ روزمره کارتِ هاور گرفتند | حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷: «بله، هر نُه تا» (از راهِ ناظر-۱۳۶) | **ثبت شد — کامیت‌نشده** | نُه بلوکِ `vaziat` با واژهٔ خودِ حبیب و `jaye` فایل:خط: `workflow` · `barge` · `shenasname` · `kharabkari` · `zanjire_azmoon` · `skill` · `nazer` · `mojri` · `darvaze`. **پذیرش:** ۹ از ۹ کارت از `build-glossary.py` · چکر ۰ ایراد · خرابکاری (`jaye` ناموجود برای `kharabkari`) ⇒ «کلید در کد و روی دیسک نیست». **سه کامیتِ پیشین پوش شد:** `03f6170` · `07e99bc` · `66e25fe`. `autoCompactWindow` ۲۳۳٬۰۰۰ ⇒ ۵۳۳٬۰۰۰. | **سنجش:** `python3 build-glossary.py --cwd .` · `chek_motaghayer.py` |
 
 ## ریسک‌های auth (از بازبینی اصولی)
 | # | ریسک | درمان | وضعیت |

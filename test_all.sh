@@ -53,6 +53,7 @@ run "claude amar" node test_claude_amar.cjs
 run "claude code rangi" env NODE_PATH=node_modules node test_claude_code_rangi.cjs
 run "claude code ink" node test_claude_code_ink.cjs
 run "claude hover open" env NODE_PATH=node_modules node test_claude_hover_baz.cjs
+run "hover farsi" node Doc/abzar/test_hover_farsi.cjs
 run "claude hover khattire" env NODE_PATH=node_modules node Doc/abzar/test_hover_khattire.cjs
 run "payam bine seshni" env PYTHONDONTWRITEBYTECODE=1 python3 Doc/abzar/test_peer_send.py
 run "claude ask width" node test_claude_ask_width.cjs
@@ -70,6 +71,13 @@ run "reset ha" node test_reset_ha.mjs
 run "nam kohne" python3 Doc/abzar/chek_nam_kohne.py
 run "service ha" python3 Doc/abzar/chek_service_ha.py
 run "rename gate" bash Doc/abzar/rename_ba_check.sh --selftest
+# پیامِ ناظر-۱۳۶ ۲۴ نوامبر ۱۸:۲۴ (تاییدِ حبیب): سازنده‌ها پیش از چکر، وگرنه
+# «بلوک اضافه شد، جدول ساخته نشد» چکر را قرمزِ گمراه‌کننده می‌کند (دو بار در دو روز).
+# تلهٔ شمارشِ پروسه: grep روی ps پوسته‌ها را هم می‌شمارد؛ برای شمردنِ آزمون از pgrep -f استفاده کن.
+run "shenasname saz" python3 Doc/abzar/jadval_motaghayer.py
+run "barge saz" python3 abzar/barge_saz.py
+run "motaghayer" python3 Doc/abzar/chek_motaghayer.py
+run "remembr cache" python3 Doc/abzar/test_remembr_cache.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
 

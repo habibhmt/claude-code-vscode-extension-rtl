@@ -512,6 +512,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self.reply(400, payload)
         body['model'] = sent
         started = time.monotonic()
+        or_id = None      # شناسهٔ پاسخِ OpenRouter برای خواندنِ هزینه با api/v1/generation
         upload_ms = round((started - t0) * 1000)
         if provider == 'openrouter':
             # مسیرِ دوم: همان پروکسیِ ۵۰۹۶۷ (چرخشِ حساب، ردیفِ requests.jsonl و
@@ -624,6 +625,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     # کلاینت خودش قطع کرد (کلود کد بی‌خیال شد) — نه خطای دروازه.
                     client_gone = True
                     break
+                if provider == 'openrouter' and or_id is None:
+                    m = re.search(rb'"id"\s*:\s*"(msg_[A-Za-z0-9]+)"', chunk)
+                    if m:
+                        or_id = m.group(1).decode()
                 if len(whole) < 1 << 20:
                     whole += chunk
                 pending += chunk
@@ -684,6 +689,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             row['client_gone'] = True
         if mapped_from and mapped_from != sent:
             row['mapped_from'] = mapped_from
+        if provider == 'openrouter' and or_id:
+            row['or_response_id'] = or_id
         # پولِ OpenRouter فقط در requests.jsonlِ پروکسی شمرده می‌شود؛ ردیفِ
         # دروازه برای آن مسیر عددِ هزینه ندارد (شرطِ ناظر-۱۳۶، ۱۹:۴۲).
         if spend and provider == 'opencode':

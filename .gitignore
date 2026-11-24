@@ -65,3 +65,7 @@ claude-workflow-*.md
 
 # گزارشِ ساخته‌شدهٔ سرویس‌ها (هر اجرای chek_service_ha.py نو می‌شود)
 Doc/service_ha.md
+
+# رونوشتِ گفتگوهای دیگر (نه کد، نه سند): ابزارِ نامِ کهنه را قرمز می‌کردند
+nazer.txt
+mojri.txt

@@ -5,7 +5,7 @@ Standard of ۹۱ (۲۰۳'s copy: 203th-day-imac-cpu-tracker/doc/estandard-tarif-
 import os, re
 
 RISHE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-# مسیر: هر فایلی که با «~» شروع شود از خانه باز می‌شود (اپِ ۱۸۶ بیرونِ این مخزن است).
+# مسیر: هر فایلی که با «~» شروع شود از خانه باز می‌شود (اپِ مصرف بیرونِ این مخزن است).
 FILE_HA = [
     # (file, pattern of a file-level declaration)
     ('mods/hads/hooks/register.js', re.compile(r'^(?:export )?(const|let) ([A-Za-z_$][\w$]*) = (.*)$')),
@@ -18,6 +18,10 @@ FILE_HA = [
     ('abzar/darvaze/scripts/opencode_usage.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     ('abzar/darvaze/scripts/opencode_picker.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     ('abzar/darvaze/scripts/opencode_caps.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    # ابزارهای پیشگیری (تعریف ۴۱–۴۳): نام‌های تأییدشدهٔ حبیب ۲۴ نوامبر ۰۶:۴۸
+    ('Doc/abzar/chek_nam_kohne.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
+    ('Doc/abzar/restart_service.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
+    ('Doc/abzar/chek_service_ha.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     # ثابت‌های رممبر: افزونهٔ فعال از ~/.claude/plugins-local می‌خوانَد، نه از cache.
     ('~/.claude/plugins-local/remember-habib/pipeline/haiku.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     ('~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),

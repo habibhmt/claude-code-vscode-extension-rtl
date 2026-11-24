@@ -2341,7 +2341,7 @@ khanandeha = []
 jaye = ["abzar/darvaze/scripts/opencode_caps.py:22"]
 
 [path]
-yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧"
+yani = "کجا: اپِ مصرف · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧"
 meghdar = ""
 chera = "اپ فقط می‌خواند؛ هیچ عددی نمی‌سازد"
 noe = "sabet"
@@ -2353,7 +2353,7 @@ khanandeha = []
 jaye = ["apps/claude-usage/swift/Sources/OpenCode.swift:8"]
 
 [names]
-yani = "کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash"
+yani = "کجا: اپِ مصرف · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash"
 meghdar = ""
 chera = "کاربر نامِ خوانا ببیند"
 noe = "sabet"
@@ -2365,7 +2365,7 @@ khanandeha = []
 jaye = ["apps/claude-usage/swift/Sources/OpenCode.swift:11"]
 
 [statusPath]
-yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧"
+yani = "کجا: اپِ مصرف · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧"
 meghdar = ""
 chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
 noe = "sabet"
@@ -2377,7 +2377,7 @@ khanandeha = []
 jaye = ["apps/claude-usage/swift/Sources/OpenCode.swift:173"]
 
 [kBundleID]
-yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
+yani = "کجا: اپِ مصرف · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
 meghdar = ""
 chera = "دو نسخه هم‌زمان دو نوار می‌ساختند"
 noe = "sabet"
@@ -2389,7 +2389,7 @@ khanandeha = []
 jaye = ["apps/claude-usage/swift/Sources/App.swift:4"]
 
 [alarms]
-yani = "کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧"
+yani = "کجا: اپِ مصرف · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧"
 meghdar = ""
 chera = "هشدار جدا از نمایشِ نوار است"
 noe = "sabet"
@@ -2713,7 +2713,7 @@ khanandeha = []
 jaye = ["abzar/darvaze/scripts/opencode_usage.py:34"]
 
 [panelController]
-yani = "کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧"
+yani = "کجا: اپِ مصرف · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧"
 meghdar = ""
 chera = "حبیب ۲۳ نوامبر ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
 noe = "sabet"
@@ -3203,3 +3203,75 @@ tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۴ نوامبر ۲۰۲۶)"
 khanandeha = []
 jaye = ["abzar/darvaze/scripts/opencode_picker.py:31"]
+
+[masir_darvaze]
+yani = "کجا: چشمِ نامِ قدیم · چیه: مسیرِ درستِ دروازه که جای نامِ بازنشسته نشسته · مثال: abzar/darvaze"
+meghdar = "abzar/darvaze"
+chera = "حادثهٔ ۲۴ نوامبر ۲۰۲۶: تغییرِ نام، دروازه را کشت؛ مسیرِ درست باید یک‌جا تعریف شود"
+noe = "sabet"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "41"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+khanandeha = []
+jaye = ["Doc/abzar/chek_nam_kohne.py:27"]
+
+[nam_kohne_ha]
+yani = "کجا: چشمِ نامِ قدیم · چیه: فهرستِ نام‌های بازنشسته که هیچ‌جا نباید بمانند · مثال: 216-migration 186-montaghel"
+meghdar = "216-migration 186-montaghel"
+chera = "دستی به‌خاطر سپردنِ فهرست، همان چیزی بود که جا افتاد"
+noe = "sabet"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "41"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+khanandeha = []
+jaye = ["Doc/abzar/chek_nam_kohne.py:26"]
+
+[label_service_gateway]
+yani = "کجا: ری‌استارت · چیه: نامِ سرویسِ دروازه در launchd · مثال: com.habib.opencode-gateway"
+meghdar = "com.habib.opencode-gateway"
+chera = "ری‌استارت با نامِ سرویس کار می‌کند، نه با مسیرِ فایل"
+noe = "sabet"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "42"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+khanandeha = []
+jaye = ["Doc/abzar/restart_service.py:23"]
+
+[ravesh_restart]
+yani = "کجا: ری‌استارت · چیه: روشِ مجازِ بالا آوردنِ سرویس · مثال: enable bootout bootstrap"
+meghdar = "enable bootout bootstrap"
+chera = "kickstart -k تعریفِ کش‌شده را اجرا می‌کند و سرویس را می‌کشد؛ سه گامِ درست جای آن"
+noe = "sabet"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "42"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+khanandeha = []
+jaye = ["Doc/abzar/restart_service.py:25"]
+
+[code_salamat_gateway]
+yani = "کجا: ری‌استارت · چیه: کدِ HTTPِ سالم برای دروازه · مثال: 200"
+meghdar = "200"
+chera = "بی این عدد، «سالم شد» حدس است"
+noe = "sabet"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "42"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+khanandeha = []
+jaye = ["Doc/abzar/restart_service.py:24"]
+
+[gozaresh_service_khabide]
+yani = "کجا: گزارشِ سرویسِ خفته · چیه: فایلی که وضعیتِ همهٔ سرویس‌های com.habib در آن می‌نشیند · مثال: Doc/service_ha.md"
+meghdar = "Doc/service_ha.md"
+chera = "سرویسِ خاموشی که کسی نمی‌بیند، هفته‌ها خاموش می‌ماند"
+noe = "sabet"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "43"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+khanandeha = []
+jaye = ["Doc/abzar/chek_service_ha.py:18"]

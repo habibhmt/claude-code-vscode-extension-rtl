@@ -27,6 +27,7 @@ SKIP_DIRS = {'.git', 'node_modules', '.claude', 'Doc', 'doc', '.ori', 'archive',
 # اسمِ حساس ⇒ کنار؛ ولی `had_fork_context_token` عددِ آستانه است، نه توکن ⇒ فقط اسم‌های صریح.
 HASAS = re.compile(r'(secret|password|passwd|ramz|api[_-]?key|apikey|credential|access[_-]?token)', re.I)
 DEF = re.compile(r'^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z_]\w*)\s*=\s*(.+?);?\s*$')
+DEF_PY = re.compile(r'^([A-Za-z_]\w*)\s*=\s*(.+?)\s*$')
 LIT = re.compile(r"^(?:'([^'\\]*)'|\"([^\"\\]*)\"|(-?\d+(?:\.\d+)?)|(true|false))$")
 
 
@@ -34,7 +35,12 @@ def kandidaha():
     cards = tomllib.load(open(SHENASNAME, 'rb'))
     out = collections.defaultdict(list)
     for dp, dn, fn in os.walk(ROOT):
-        dn[:] = [d for d in dn if d not in SKIP_DIRS]
+        if os.path.abspath(dp) == ROOT:
+            dn[:] = [d for d in dn if d not in SKIP_DIRS or d == 'Doc']
+        elif os.path.basename(dp) == 'Doc':
+            dn[:] = [d for d in dn if d == 'abzar']      # ابزارهای Doc/abzar کارت دارند (تعریف ۴۱–۴۳)
+        else:
+            dn[:] = [d for d in dn if d not in SKIP_DIRS]
         for f in fn:
             p = os.path.join(dp, f)
             if '/worktrees/' in p or not f.endswith(('.js', '.mjs', '.cjs', '.py')):
@@ -48,7 +54,7 @@ def kandidaha():
             for i, line in enumerate(lines, 1):
                 if f.endswith('.py'):
                     line = line.split('#')[0]
-                m = DEF.match(line)
+                m = (DEF_PY if f.endswith('.py') else DEF).match(line)
                 if not m or m.group(1) not in cards:
                     continue
                 lm = LIT.match(m.group(2).strip())

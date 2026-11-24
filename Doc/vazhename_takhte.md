@@ -12,7 +12,7 @@
 
 **چرا این فایل جداست:** `jaye` در شناسنامه هم می‌ماند (منبعِ ساخت)، ولی کارت آن را نمی‌خواند؛ این فایل شکلِ استانداردِ ۹۱ را دارد. **دستی عوض نکن** — با `python3 Doc/abzar/jadval_motaghayer.py` ساخته می‌شود.
 
-**مسیرها:** فایل‌های داخلِ مخزن نسبت به ریشه‌اند؛ فایل‌های بیرونِ مخزن (اپِ ۱۸۶) **مطلق** نوشته می‌شوند، چون کارت مسیرِ مطلق را خودش می‌شناسد (کامیتِ `49a2385`).
+**مسیرها:** فایل‌های داخلِ مخزن نسبت به ریشه‌اند؛ فایل‌های بیرونِ مخزن (اپِ مصرف) **مطلق** نوشته می‌شوند، چون کارت مسیرِ مطلق را خودش می‌شناسد (کامیتِ `49a2385`).
 
 | متغیر | یعنی | فایل:خط |
 |---|---|---|
@@ -211,11 +211,11 @@
 | `UA` | کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧ | ☑ UA: `abzar/darvaze/scripts/opencode_caps.py:20` |
 | `ROW` | کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model | ☑ ROW: `abzar/darvaze/scripts/opencode_caps.py:21` |
 | `VAL` | کجا: کپس · چیه: الگوی regex برای برداشتنِ مقدارِ سقف از همان ردیف · مثال: data-plan | ☑ VAL: `abzar/darvaze/scripts/opencode_caps.py:22` |
-| `path` | کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧ | ☑ path: `apps/claude-usage/swift/Sources/OpenCode.swift:8` |
-| `names` | کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash | ☑ names: `apps/claude-usage/swift/Sources/OpenCode.swift:11` |
-| `statusPath` | کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧ | ☑ statusPath: `apps/claude-usage/swift/Sources/OpenCode.swift:173` |
-| `kBundleID` | کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧ | ☑ kBundleID: `apps/claude-usage/swift/Sources/App.swift:4` |
-| `alarms` | کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧ | ☑ alarms: `apps/claude-usage/swift/Sources/App.swift:12` |
+| `path` | کجا: اپِ مصرف · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧ | ☑ path: `apps/claude-usage/swift/Sources/OpenCode.swift:8` |
+| `names` | کجا: اپِ مصرف · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash | ☑ names: `apps/claude-usage/swift/Sources/OpenCode.swift:11` |
+| `statusPath` | کجا: اپِ مصرف · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧ | ☑ statusPath: `apps/claude-usage/swift/Sources/OpenCode.swift:173` |
+| `kBundleID` | کجا: اپِ مصرف · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧ | ☑ kBundleID: `apps/claude-usage/swift/Sources/App.swift:4` |
+| `alarms` | کجا: اپِ مصرف · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧ | ☑ alarms: `apps/claude-usage/swift/Sources/App.swift:12` |
 | `GLOSS` | کجا: کارتِ هاورِ نامِ متغیر در چت · چیه: خانهٔ دادهٔ کارت‌های همین پوشه و وضعیتِ نصبش (داده، الگوی جست‌وجو، برجسته‌سازی، پوشه، پاسخ‌گرفته) · مثال: ⟦GLOSS⟧.got یعنی داده رسیده | ☑ GLOSS: `claude-ui-buttons.js:1008` |
 | `GLOSS_DELAY_T` | کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: 3000 میلی‌ثانیه | ☑ GLOSS_DELAY_T: `claude-ui-buttons.js:1053` |
 | `session_id` | کجا: ردیفِ مصرف · چیه: شناسهٔ چت (گفتگو) که کلود کد در هدرِ x-claude-code-session-id می‌فرستد · مثال: 7aa0e8a2-… | ☑ session_id: `claude-ui-buttons.js:34` |
@@ -242,7 +242,7 @@
 | `PROJECTS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ رونوشت‌ها؛ نامِ پوشه مسیرِ پروژه را می‌دهد، بدونِ خواندنِ محتوا · مثال: ~/.claude/projects | ☑ PROJECTS_DIR: `abzar/darvaze/scripts/opencode_usage.py:32` |
 | `UNKNOWN_CHAT` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ ردیف‌های بی‌شناسه در chat_cost · مثال: نامعلوم (پیش از ثبت) | ☑ UNKNOWN_CHAT: `abzar/darvaze/scripts/opencode_usage.py:33` |
 | `UNKNOWN_FOLDER` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ چت‌هایی که مسیرشان پیدا نشد · مثال: نامعلوم (بی‌مسیر) | ☑ UNKNOWN_FOLDER: `abzar/darvaze/scripts/opencode_usage.py:34` |
-| `panelController` | کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧ | ☑ panelController: `apps/claude-usage/swift/Sources/App.swift:20` |
+| `panelController` | کجا: اپِ مصرف · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧ | ☑ panelController: `apps/claude-usage/swift/Sources/App.swift:20` |
 | `TITLE_MAX` | کجا: فایلِ مصرف · چیه: بیشترین طولِ عنوانِ چت که از اولین پیامِ آدم کوتاه می‌شود · مثال: 42 | ☑ TITLE_MAX: `abzar/darvaze/scripts/opencode_usage.py:74` |
 | `HADS_LOG` | کجا: فایلِ مصرف · چیه: پوشهٔ لاگِ کارِ کمکیِ افزونهٔ حدس؛ توکنِ هر چت از آن خوانده می‌شود · مثال: ~/.claude/hads-log | ☑ HADS_LOG: `abzar/darvaze/scripts/opencode_usage.py:119` |
 | `title` | کجا: chat_cost.sessions[] · چیه: نامِ چت: نامِ سشن، وگرنه اولین پیامِ آدم، وگرنه تهی · مثال: مجری-۱۳۶ | ☑ title: `claude-ui-buttons.js:36` |
@@ -283,3 +283,9 @@
 | `harness-desktop-opencode` | کجا: اپِ دسکتاپ · چیه: OpenCode.app · مثال: نسخهٔ ۲٫۳٫۲ از `CFBundleShortVersionString` | ☑ harness-desktop-opencode: `/Applications/OpenCode.app` |
 | `LOCAL_OPENER` | کجا: رَپرِ VS Code · چیه: openerِ بی‌پروکسی برای درخواست‌های loopback به دروازه · مثال: ⟦LOCAL_OPENER⟧ | ☑ LOCAL_OPENER: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:35` |
 | `PICKER_OPENER` | کجا: opencode_picker · چیه: openerِ بی‌پروکسی برای فراخوانی loopback دروازه · مثال: ⟦PICKER_OPENER⟧ | ☑ PICKER_OPENER: `abzar/darvaze/scripts/opencode_picker.py:31` |
+| `masir_darvaze` | کجا: چشمِ نامِ قدیم · چیه: مسیرِ درستِ دروازه که جای نامِ بازنشسته نشسته · مثال: abzar/darvaze | ☑ masir_darvaze: `Doc/abzar/chek_nam_kohne.py:27` |
+| `nam_kohne_ha` | کجا: چشمِ نامِ قدیم · چیه: فهرستِ نام‌های بازنشسته که هیچ‌جا نباید بمانند · مثال: 216-migration 186-montaghel | ☑ nam_kohne_ha: `Doc/abzar/chek_nam_kohne.py:26` |
+| `label_service_gateway` | کجا: ری‌استارت · چیه: نامِ سرویسِ دروازه در launchd · مثال: com.habib.opencode-gateway | ☑ label_service_gateway: `Doc/abzar/restart_service.py:23` |
+| `ravesh_restart` | کجا: ری‌استارت · چیه: روشِ مجازِ بالا آوردنِ سرویس · مثال: enable bootout bootstrap | ☑ ravesh_restart: `Doc/abzar/restart_service.py:25` |
+| `code_salamat_gateway` | کجا: ری‌استارت · چیه: کدِ HTTPِ سالم برای دروازه · مثال: 200 | ☑ code_salamat_gateway: `Doc/abzar/restart_service.py:24` |
+| `gozaresh_service_khabide` | کجا: گزارشِ سرویسِ خفته · چیه: فایلی که وضعیتِ همهٔ سرویس‌های com.habib در آن می‌نشیند · مثال: Doc/service_ha.md | ☑ gozaresh_service_khabide: `Doc/abzar/chek_service_ha.py:18` |

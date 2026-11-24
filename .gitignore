@@ -62,3 +62,6 @@ abzar/darvaze/claude-api/deepseek-v41/
 
 # گزارش‌های «Claude Code Workflow Dashboard» — افزونه هنگامِ Export در ریشهٔ مخزن می‌ریزد
 claude-workflow-*.md
+
+# گزارشِ ساخته‌شدهٔ سرویس‌ها (هر اجرای chek_service_ha.py نو می‌شود)
+Doc/service_ha.md

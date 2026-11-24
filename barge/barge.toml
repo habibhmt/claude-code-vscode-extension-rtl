@@ -13,6 +13,14 @@ provider_harness_cli_ori = "openrouter"   # از ~/.ori/config.json ("loginMode"
 provider_harness_cli_hermes = "anthropic"   # از ~/.hermes/config.yaml (provider: anthropic)
 provider_harness_cli_cursor_agent = "openai"   # از ~/.cursor/cli-config.json ("modelId": "gpt-5",)
 
+[abzar]
+code_salamat_gateway = 200   # از Doc/abzar/restart_service.py:24
+gozaresh_service_khabide = "Doc/service_ha.md"   # از Doc/abzar/chek_service_ha.py:18
+label_service_gateway = "com.habib.opencode-gateway"   # از Doc/abzar/restart_service.py:23
+masir_darvaze = "abzar/darvaze"   # از Doc/abzar/chek_nam_kohne.py:27
+nam_kohne_ha = "216-migration 186-montaghel"   # از Doc/abzar/chek_nam_kohne.py:26
+ravesh_restart = "enable bootout bootstrap"   # از Doc/abzar/restart_service.py:25
+
 [bi_ozv]
 had_hads_ghabli_harf = 200   # از mods/hads/hooks/register.js:140
 had_kelid_ravand_kamtarin_harf = 20   # از mods/hads/hooks/register.js:1164
@@ -23,6 +31,11 @@ had_tedad_payam_zakhire_khat = 3000   # از mods/hads/hooks/register.js:315
 [dadeh]
 total = 0   # از dsh-side-panel/cost-log.js:294
 unknown = 0   # از dsh-side-panel/cost-log.js:295
+
+[darvaze]
+CATALOGUE_TTL = 3600   # از abzar/darvaze/scripts/opencode_gateway.py:69
+PREFIX = "claude-oc-"   # از abzar/darvaze/scripts/opencode_gateway.py:32
+UPSTREAM = "https://opencode.ai/inference/go"   # از abzar/darvaze/scripts/opencode_gateway.py:31
 
 [gloss]
 GLOSS_TAZE_MS = 30000   # از claude-ui-buttons.js:1043
@@ -66,6 +79,11 @@ zaman_akharin_kar = 0   # از mods/hads/hooks/register.js:63
 zaman_do_jomle_akhar = 0   # از mods/hads/hooks/register.js:56
 zaman_khandan_hook = 0   # از mods/hads/hooks/register.js:1586
 
+[masraf]
+TITLE_MAX = 42   # از abzar/darvaze/scripts/opencode_usage.py:74
+UNKNOWN_CHAT = "Unattributed (before tracking)"   # از abzar/darvaze/scripts/opencode_usage.py:33
+UNKNOWN_FOLDER = "Unattributed (no path)"   # از abzar/darvaze/scripts/opencode_usage.py:34
+
 [ravand]
 had_tedad_payam_transcript_khat = 3000   # از mods/hads/hooks/register.js:356
 
@@ -75,7 +93,7 @@ FILE_NAME = "claude-rtl-settings.json"   # از claude-ui-buttons.js:1639
 GLOSS_DELAY = 600   # از claude-ui-buttons.js:1007
 GLOSS_DELAY_T = 3000   # از claude-ui-buttons.js:1053
 HOVER_DELAY = 700   # از claude-ui-buttons.js:806
-KEY = "crtl-sizes"   # از claude-ui-buttons.js:206
+SESSION = "claude-code-opencode-gateway"   # از abzar/darvaze/scripts/opencode_gateway.py:39
 SOAL_SABR_MS = 250   # از claude-ui-buttons.js:1754
 TZ_CHROME = "claudeInChromeDefaultEnabled"   # از claude-ui-buttons.js:2453
 TZ_NOSKHE_PISH = "2.1.318"   # از claude-ui-buttons.js:2998

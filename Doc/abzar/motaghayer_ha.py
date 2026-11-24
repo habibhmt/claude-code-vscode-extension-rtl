@@ -22,6 +22,10 @@ FILE_HA = [
     ('Doc/abzar/chek_nam_kohne.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     ('Doc/abzar/restart_service.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     ('Doc/abzar/chek_service_ha.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
+    # سازندهٔ برگه: هشت نامِ پرووایدر (حبیب ۲۴ نوامبر ۲۰:۱۳ «بله، هر هشت نام») این‌جا
+    # تعریف می‌شوند و `bakhsh_provider()` مقدارِ زنده را از خودِ فایلِ پیکربندی می‌خواند.
+    # الگو عمداً فقط `provider_` را می‌گیرد: بقیهٔ متغیرهای این سازنده کارت نمی‌خواهند.
+    ('abzar/barge_saz.py', re.compile(r'^(provider_[a-z0-9_]*) = (.*)$')),
     # ثابت‌های رممبر: افزونهٔ فعال از ~/.claude/plugins-local می‌خوانَد، نه از cache.
     ('~/.claude/plugins-local/remember-habib/pipeline/haiku.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     ('~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),

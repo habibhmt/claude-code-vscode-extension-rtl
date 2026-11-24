@@ -5,13 +5,14 @@
 # تعریف ۳۵ — پرووایدرِ پیش‌فرضِ هر هارنس، از پیکربندیِ خودش (بی کلید و توکن)
 # دلیلِ انتخابِ راهِ «ب»: مقدارِ provider در کدِ این مخزن متغیر نیست (فیلدِ داده است)،
 # پس ساختنِ متغیرِ قلابی در دروازه فقط برای برگه، حقیقت را جعل می‌کرد.
-provider_harness_cli_claude_code = "opencode (دروازهٔ محلی)"   # از ~/.claude/claude_env.sh (ANTHROPIC_BASE_URL="http://127.0.0.1:50990")
-provider_harness_cli_opencode = "openrouter"   # از ~/.local/bin/opencode (export OPENROUTER_API_KEY="$KEY")
-provider_harness_cli_codex = "openai"   # از ~/.codex/config.toml (model = "gpt-6.2-astra")
-provider_harness_cli_dsh = "deepseek (پیش‌فرض)"   # از ~/.dsh/.env (OPENROUTER_API_KEY)
-provider_harness_cli_ori = "openrouter"   # از ~/.ori/config.json ("loginMode": "oauth",)
-provider_harness_cli_hermes = "anthropic"   # از ~/.hermes/config.yaml (provider: anthropic)
-provider_harness_cli_cursor_agent = "openai"   # از ~/.cursor/cli-config.json ("modelId": "gpt-5",)
+provider_pishfarz_kol = "opencode"   # از ~/.claude/claude_env.sh:1 (ANTHROPIC_BASE_URL="http://127.0.0.1:50990")
+provider_jaygozin_harness_1 = "opencode (دروازهٔ محلی)"   # از ~/.claude/claude_env.sh:1 (ANTHROPIC_BASE_URL="http://127.0.0.1:50990")
+provider_jaygozin_harness_2 = "openrouter"   # از ~/.local/bin/opencode:1 (export OPENROUTER_API_KEY="$KEY")
+provider_jaygozin_harness_3 = "openai"   # از ~/.codex/config.toml:1 (model = "gpt-6.2-astra")
+provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از ~/.dsh/.env:1 (OPENROUTER_API_KEY)
+provider_jaygozin_harness_5 = "openrouter"   # از ~/.ori/config.json:1 ("loginMode": "oauth",)
+provider_jaygozin_harness_6 = "anthropic"   # از ~/.hermes/config.yaml:1 (provider: anthropic)
+provider_jaygozin_harness_7 = "openai"   # از ~/.cursor/cli-config.json:1 ("modelId": "gpt-5",)
 
 [abzar]
 code_salamat_gateway = 200   # از Doc/abzar/restart_service.py:24
@@ -78,6 +79,16 @@ zaman_akhar_javab = 0   # از mods/hads/hooks/register.js:58
 zaman_akharin_kar = 0   # از mods/hads/hooks/register.js:63
 zaman_do_jomle_akhar = 0   # از mods/hads/hooks/register.js:56
 zaman_khandan_hook = 0   # از mods/hads/hooks/register.js:1586
+
+[harness]
+provider_jaygozin_harness_1 = "opencode (دروازهٔ محلی)"   # از abzar/barge_saz.py:110
+provider_jaygozin_harness_2 = "openrouter"   # از abzar/barge_saz.py:111
+provider_jaygozin_harness_3 = "openai"   # از abzar/barge_saz.py:112
+provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از abzar/barge_saz.py:113
+provider_jaygozin_harness_5 = "openrouter"   # از abzar/barge_saz.py:114
+provider_jaygozin_harness_6 = "anthropic"   # از abzar/barge_saz.py:115
+provider_jaygozin_harness_7 = "openai"   # از abzar/barge_saz.py:116
+provider_pishfarz_kol = "opencode"   # از abzar/barge_saz.py:109
 
 [masraf]
 TITLE_MAX = 42   # از abzar/darvaze/scripts/opencode_usage.py:74

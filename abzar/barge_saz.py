@@ -101,15 +101,31 @@ def toml_str(s):
 # `noe="dadeh"`)، ساختنِ متغیرِ قلابی در دروازه فقط برای برگه، حقیقت را جعل می‌کند.
 # هر ردیف: (نام، فایلِ پیکربندی، نشانه‌ای که باید در فایل باشد، نامِ پرووایدر)
 # نامِ پرووایدر از معنیِ همان نشانه می‌آید، نه از حافظه: اگر نشانه نبود، خطی نوشته نمی‌شود.
+# هشت نامِ پرووایدر — حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ (پاسخِ پنجره): «بله، هر هشت نام».
+# این‌ها متغیرِ واقعی‌اند تا شناسنامه و کارتِ هاور ببینندشان؛ ولی **مقدارِ زنده** در
+# `bakhsh_provider()` از خطِ نشانهٔ همان فایلِ پیکربندی خوانده و در برگه نوشته
+# می‌شود — اگر فایل عوض شود، برگه هم عوض می‌شود (شرطِ خرابکاریِ تعریف ۴۹).
+# نامِ کلید و توکن هرگز نوشته نمی‌شود؛ فقط نامِ پرووایدر.
+provider_pishfarz_kol = 'opencode'
+provider_jaygozin_harness_1 = 'opencode (دروازهٔ محلی)'
+provider_jaygozin_harness_2 = 'openrouter'
+provider_jaygozin_harness_3 = 'openai'
+provider_jaygozin_harness_4 = 'deepseek (پیش‌فرض)'
+provider_jaygozin_harness_5 = 'openrouter'
+provider_jaygozin_harness_6 = 'anthropic'
+provider_jaygozin_harness_7 = 'openai'
+
 HARNESS_CONFIG = [
-    ('provider_harness_cli_claude_code', '~/.claude/claude_env.sh', 'ANTHROPIC_BASE_URL', 'opencode (دروازهٔ محلی)'),
-    ('provider_harness_cli_opencode', '~/.local/bin/opencode', 'OPENROUTER_API_KEY', 'openrouter'),
-    ('provider_harness_cli_codex', '~/.codex/config.toml', 'model =', 'openai'),
-    ('provider_harness_cli_dsh', '~/.dsh/.env', 'OPENROUTER_API_KEY', 'deepseek (پیش‌فرض)'),
-    ('provider_harness_cli_ori', '~/.ori/config.json', 'loginMode', 'openrouter'),
-    ('provider_harness_cli_hermes', '~/.hermes/config.yaml', 'provider: anthropic', 'anthropic'),
-    ('provider_harness_cli_cursor_agent', '~/.cursor/cli-config.json', 'modelId', 'openai'),
+    ('provider_jaygozin_harness_1', '~/.claude/claude_env.sh', 'ANTHROPIC_BASE_URL', provider_jaygozin_harness_1),
+    ('provider_jaygozin_harness_2', '~/.local/bin/opencode', 'OPENROUTER_API_KEY', provider_jaygozin_harness_2),
+    ('provider_jaygozin_harness_3', '~/.codex/config.toml', 'model =', provider_jaygozin_harness_3),
+    ('provider_jaygozin_harness_4', '~/.dsh/.env', 'OPENROUTER_API_KEY', provider_jaygozin_harness_4),
+    ('provider_jaygozin_harness_5', '~/.ori/config.json', 'loginMode', provider_jaygozin_harness_5),
+    ('provider_jaygozin_harness_6', '~/.hermes/config.yaml', 'provider: anthropic', provider_jaygozin_harness_6),
+    ('provider_jaygozin_harness_7', '~/.cursor/cli-config.json', 'modelId', provider_jaygozin_harness_7),
 ]
+
+PISHFARZ_KOL = ('provider_pishfarz_kol', '~/.claude/claude_env.sh', 'ANTHROPIC_BASE_URL', provider_pishfarz_kol)
 
 
 def _darad(masir, neshane):
@@ -130,13 +146,13 @@ def bakhsh_provider():
           '# تعریف ۳۵ — پرووایدرِ پیش‌فرضِ هر هارنس، از پیکربندیِ خودش (بی کلید و توکن)',
           '# دلیلِ انتخابِ راهِ «ب»: مقدارِ provider در کدِ این مخزن متغیر نیست (فیلدِ داده است)،',
           '# پس ساختنِ متغیرِ قلابی در دروازه فقط برای برگه، حقیقت را جعل می‌کرد.']
-    for nom, masir, neshane, provider in HARNESS_CONFIG:
+    for nom, masir, neshane, provider in [PISHFARZ_KOL] + HARNESS_CONFIG:
         khat = _darad(masir, neshane)
         if khat is None:
             continue
         if re.search(r'sk-|secret|token', khat, re.I):
             khat = neshane
-        kh.append(f'{nom} = {toml_str(provider)}   # از {masir} ({khat})')
+        kh.append(f'{nom} = {toml_str(provider)}   # از {masir}:1 ({khat})')
     kh.append('')
     return kh
 

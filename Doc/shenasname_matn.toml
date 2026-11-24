@@ -1812,6 +1812,91 @@ ba_motaghayerha = ["session_id", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 
+# ── هشت نامِ پرووایدر — حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ (پاسخِ پنجره): «بله، هر هشت نام» ──
+# مقدار در سند نوشته نمی‌شود: `abzar/barge_saz.py` آن را از خطِ نشانهٔ همان فایلِ
+# پیکربندی می‌خواند. نامِ کلید و توکن هرگز ذخیره نمی‌شود — فقط نامِ پرووایدر.
+# اگر فایل نبود، خطی هم نوشته نمی‌شود (هیچ مقدارِ حدسی).
+
+[provider_pishfarz_kol]
+yani = "کجا: فهرستِ پرووایدرها · چیه: پرووایدرِ پیش‌فرضِ همهٔ هارنس‌ها — همان که حبیب گفت «همون که گفتم فعلا از اون بره همه چی» · مثال: opencode"
+chera = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳: «بله، هر هشت نام»"
+jaye = ["~/.claude/claude_env.sh:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_jaygozin_harness_1", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام» — از راهِ ناظر-۱۳۶)"
+
+[provider_jaygozin_harness_1]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۱ — کلود کد · مثال: opencode از راهِ دروازهٔ محلی"
+chera = "شماره‌دار شد چون چندتاست (حبیب ۲۴ نوامبر «شماره دار باشه چون چنتا هستند»)"
+jaye = ["~/.claude/claude_env.sh:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[provider_jaygozin_harness_2]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۲ — opencode CLI · مثال: openrouter"
+chera = "همان پنجرهٔ ۲۰:۱۳"
+jaye = ["~/.local/bin/opencode:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[provider_jaygozin_harness_3]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۳ — codex · مثال: openai"
+chera = "همان پنجرهٔ ۲۰:۱۳"
+jaye = ["~/.codex/config.toml:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[provider_jaygozin_harness_4]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۴ — dsh؛ پیش‌فرضش حسابِ دیپ‌سیک است و اوپن کد ندارد (معلق م۳۶) · مثال: deepseek"
+chera = "همان پنجرهٔ ۲۰:۱۳"
+jaye = ["~/.dsh/.env:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[provider_jaygozin_harness_5]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۵ — ori · مثال: openrouter"
+chera = "همان پنجرهٔ ۲۰:۱۳"
+jaye = ["~/.ori/config.json:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[provider_jaygozin_harness_6]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic"
+chera = "همان پنجرهٔ ۲۰:۱۳"
+jaye = ["~/.hermes/config.yaml:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[provider_jaygozin_harness_7]
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۷ — cursor-agent · مثال: openai"
+chera = "همان پنجرهٔ ۲۰:۱۳"
+jaye = ["~/.cursor/cli-config.json:1"]
+ozv = "harness"
+noe = "sabet"
+ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
+tarif = "49"
+tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
 [model]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
 chera = "برای تفکیکِ هزینهٔ هر مدل"

@@ -67,6 +67,9 @@ run "claude navar" env NODE_PATH=node_modules node test_claude_navar.cjs
 run "claude tik ha" env NODE_PATH=node_modules node test_claude_tik_ha.cjs
 run "codex tanzimat" env NODE_PATH=node_modules node test_codex_tanzimat.cjs
 run "reset ha" node test_reset_ha.mjs
+run "nam kohne" python3 Doc/abzar/chek_nam_kohne.py
+run "service ha" python3 Doc/abzar/chek_service_ha.py
+run "rename gate" bash Doc/abzar/rename_ba_check.sh --selftest
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
 

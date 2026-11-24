@@ -102,9 +102,11 @@ def toml_str(s):
 # هر ردیف: (نام، فایلِ پیکربندی، نشانه‌ای که باید در فایل باشد، نامِ پرووایدر)
 # نامِ پرووایدر از معنیِ همان نشانه می‌آید، نه از حافظه: اگر نشانه نبود، خطی نوشته نمی‌شود.
 # هشت نامِ پرووایدر — حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ (پاسخِ پنجره): «بله، هر هشت نام».
-# این‌ها متغیرِ واقعی‌اند تا شناسنامه و کارتِ هاور ببینندشان؛ ولی **مقدارِ زنده** در
-# `bakhsh_provider()` از خطِ نشانهٔ همان فایلِ پیکربندی خوانده و در برگه نوشته
-# می‌شود — اگر فایل عوض شود، برگه هم عوض می‌شود (شرطِ خرابکاریِ تعریف ۴۹).
+# این‌ها متغیرِ واقعی‌اند تا شناسنامه و کارتِ هاور ببینندشان. `bakhsh_provider()`
+# فقط **وجودِ** خطِ نشانه را می‌سنجد و همین ثابت را در برگه می‌نویسد؛ **مقدارِ
+# پرووایدر از فایل خوانده نمی‌شود.** یعنی حذفِ خطِ نشانه ⇒ خط از برگه می‌رود، ولی
+# عوض‌کردنِ نامِ پرووایدر در فایل برگه را عوض نمی‌کند (نقصِ بازِ معلق م۳۴ ·
+# شرطِ ۴ ِ تعریف ۳۵، نه ۴۹).
 # نامِ کلید و توکن هرگز نوشته نمی‌شود؛ فقط نامِ پرووایدر.
 provider_pishfarz_kol = 'opencode'
 provider_jaygozin_harness_1 = 'opencode (دروازهٔ محلی)'
@@ -119,7 +121,10 @@ HARNESS_CONFIG = [
     ('provider_jaygozin_harness_1', '~/.claude/claude_env.sh', 'ANTHROPIC_BASE_URL', provider_jaygozin_harness_1),
     ('provider_jaygozin_harness_2', '~/.local/bin/opencode', 'OPENROUTER_API_KEY', provider_jaygozin_harness_2),
     ('provider_jaygozin_harness_3', '~/.codex/config.toml', 'model =', provider_jaygozin_harness_3),
-    ('provider_jaygozin_harness_4', '~/.dsh/.env', 'OPENROUTER_API_KEY', provider_jaygozin_harness_4),
+    # هارنسِ ۴ نشانه و مقدار باید هم‌خانه باشند: پیش‌فرضِ dsh حسابِ دیپ‌سیک است و
+    # خانه‌اش `.credentials.yaml` است، نه `.env` (ایرادِ ۶ ناظر-۱۳۶، ۲۱:۵۳). جایگزینِ
+    # openrouter در `.env` جداست و با همین یک نام دیده نمی‌شود — نقصِ بازِ م۳۴.
+    ('provider_jaygozin_harness_4', '~/.dsh/.credentials.yaml', 'deepseek-account-platform', provider_jaygozin_harness_4),
     ('provider_jaygozin_harness_5', '~/.ori/config.json', 'loginMode', provider_jaygozin_harness_5),
     ('provider_jaygozin_harness_6', '~/.hermes/config.yaml', 'provider: anthropic', provider_jaygozin_harness_6),
     ('provider_jaygozin_harness_7', '~/.cursor/cli-config.json', 'modelId', provider_jaygozin_harness_7),

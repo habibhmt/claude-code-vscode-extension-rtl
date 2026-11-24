@@ -2458,7 +2458,7 @@ ba_motaghayerha = ["provider_jaygozin_harness_1", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام» — از راهِ ناظر-۱۳۶)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:109"]
+jaye = ["abzar/barge_saz.py:111"]
 
 [provider_jaygozin_harness_1]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۱ — کلود کد · مثال: opencode از راهِ دروازهٔ محلی"
@@ -2470,7 +2470,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:110"]
+jaye = ["abzar/barge_saz.py:112"]
 
 [provider_jaygozin_harness_2]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۲ — opencode CLI · مثال: openrouter"
@@ -2482,7 +2482,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:111"]
+jaye = ["abzar/barge_saz.py:113"]
 
 [provider_jaygozin_harness_3]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۳ — codex · مثال: openai"
@@ -2494,7 +2494,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:112"]
+jaye = ["abzar/barge_saz.py:114"]
 
 [provider_jaygozin_harness_4]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۴ — dsh؛ پیش‌فرضش حسابِ دیپ‌سیک است و اوپن کد ندارد (معلق م۳۶) · مثال: deepseek"
@@ -2506,7 +2506,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:113"]
+jaye = ["abzar/barge_saz.py:115"]
 
 [provider_jaygozin_harness_5]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۵ — ori · مثال: openrouter"
@@ -2518,7 +2518,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:114"]
+jaye = ["abzar/barge_saz.py:116"]
 
 [provider_jaygozin_harness_6]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic"
@@ -2530,7 +2530,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:115"]
+jaye = ["abzar/barge_saz.py:117"]
 
 [provider_jaygozin_harness_7]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۷ — cursor-agent · مثال: openai"
@@ -2542,7 +2542,7 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
-jaye = ["abzar/barge_saz.py:116"]
+jaye = ["abzar/barge_saz.py:118"]
 
 [model]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
@@ -2566,7 +2566,7 @@ ba_motaghayerha = ["model", "mapped_from"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:496"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:503"]
 
 [mapped_from]
 yani = "کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus"
@@ -2602,7 +2602,7 @@ ba_motaghayerha = ["list_cost", "remaining"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:762"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:776"]
 
 [remaining]
 yani = "کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18"
@@ -2614,7 +2614,7 @@ ba_motaghayerha = ["monthly_cap", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:763"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:777"]
 
 [request_bytes]
 yani = "کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452"
@@ -2626,7 +2626,7 @@ ba_motaghayerha = ["duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:507"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:517"]
 
 [upload_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4"
@@ -2638,7 +2638,7 @@ ba_motaghayerha = ["wait_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:516"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:526"]
 
 [wait_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709"
@@ -2650,7 +2650,7 @@ ba_motaghayerha = ["upload_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:673"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:687"]
 
 [stream_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157"
@@ -2662,7 +2662,7 @@ ba_motaghayerha = ["wait_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:674"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:688"]
 
 [duration_ms]
 yani = "کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870"
@@ -2674,7 +2674,7 @@ ba_motaghayerha = ["upload_ms", "wait_ms", "stream_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:554"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:567"]
 
 [chat_cost]
 yani = "کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders}"

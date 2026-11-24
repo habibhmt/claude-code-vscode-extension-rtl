@@ -220,25 +220,25 @@
 | `GLOSS_DELAY_T` | کجا: کارتِ هاور · چیه: مهلتِ میلی‌ثانیه‌ایِ جوابِ هوک؛ بعد از آن به‌جای سکوتِ بی‌پایان، خطای دیدنی نشان داده می‌شود · مثال: 3000 میلی‌ثانیه | ☑ GLOSS_DELAY_T: `claude-ui-buttons.js:1053` |
 | `session_id` | کجا: ردیفِ مصرف · چیه: شناسهٔ چت (گفتگو) که کلود کد در هدرِ x-claude-code-session-id می‌فرستد · مثال: 7aa0e8a2-… | ☑ session_id: `claude-ui-buttons.js:34` |
 | `provider` | کجا: ردیفِ مصرف · چیه: سرویسی که پول از آن کم شد: opencode یا openrouter · مثال: opencode | ☑ provider: `mods/hads/hooks/register.js:44` |
-| `provider_pishfarz_kol` | کجا: فهرستِ پرووایدرها · چیه: پرووایدرِ پیش‌فرضِ همهٔ هارنس‌ها — همان که حبیب گفت «همون که گفتم فعلا از اون بره همه چی» · مثال: opencode | ☑ provider_pishfarz_kol: `abzar/barge_saz.py:109` |
-| `provider_jaygozin_harness_1` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۱ — کلود کد · مثال: opencode از راهِ دروازهٔ محلی | ☑ provider_jaygozin_harness_1: `abzar/barge_saz.py:110` |
-| `provider_jaygozin_harness_2` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۲ — opencode CLI · مثال: openrouter | ☑ provider_jaygozin_harness_2: `abzar/barge_saz.py:111` |
-| `provider_jaygozin_harness_3` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۳ — codex · مثال: openai | ☑ provider_jaygozin_harness_3: `abzar/barge_saz.py:112` |
-| `provider_jaygozin_harness_4` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۴ — dsh؛ پیش‌فرضش حسابِ دیپ‌سیک است و اوپن کد ندارد (معلق م۳۶) · مثال: deepseek | ☑ provider_jaygozin_harness_4: `abzar/barge_saz.py:113` |
-| `provider_jaygozin_harness_5` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۵ — ori · مثال: openrouter | ☑ provider_jaygozin_harness_5: `abzar/barge_saz.py:114` |
-| `provider_jaygozin_harness_6` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic | ☑ provider_jaygozin_harness_6: `abzar/barge_saz.py:115` |
-| `provider_jaygozin_harness_7` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۷ — cursor-agent · مثال: openai | ☑ provider_jaygozin_harness_7: `abzar/barge_saz.py:116` |
+| `provider_pishfarz_kol` | کجا: فهرستِ پرووایدرها · چیه: پرووایدرِ پیش‌فرضِ همهٔ هارنس‌ها — همان که حبیب گفت «همون که گفتم فعلا از اون بره همه چی» · مثال: opencode | ☑ provider_pishfarz_kol: `abzar/barge_saz.py:111` |
+| `provider_jaygozin_harness_1` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۱ — کلود کد · مثال: opencode از راهِ دروازهٔ محلی | ☑ provider_jaygozin_harness_1: `abzar/barge_saz.py:112` |
+| `provider_jaygozin_harness_2` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۲ — opencode CLI · مثال: openrouter | ☑ provider_jaygozin_harness_2: `abzar/barge_saz.py:113` |
+| `provider_jaygozin_harness_3` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۳ — codex · مثال: openai | ☑ provider_jaygozin_harness_3: `abzar/barge_saz.py:114` |
+| `provider_jaygozin_harness_4` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۴ — dsh؛ پیش‌فرضش حسابِ دیپ‌سیک است و اوپن کد ندارد (معلق م۳۶) · مثال: deepseek | ☑ provider_jaygozin_harness_4: `abzar/barge_saz.py:115` |
+| `provider_jaygozin_harness_5` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۵ — ori · مثال: openrouter | ☑ provider_jaygozin_harness_5: `abzar/barge_saz.py:116` |
+| `provider_jaygozin_harness_6` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic | ☑ provider_jaygozin_harness_6: `abzar/barge_saz.py:117` |
+| `provider_jaygozin_harness_7` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۷ — cursor-agent · مثال: openai | ☑ provider_jaygozin_harness_7: `abzar/barge_saz.py:118` |
 | `model` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash | ☑ model: `mods/hads/hooks/register.js:2` |
-| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/darvaze/scripts/opencode_gateway.py:496` |
+| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/darvaze/scripts/opencode_gateway.py:503` |
 | `mapped_from` | کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus | ☑ mapped_from: `abzar/darvaze/scripts/opencode_gateway.py:284` |
 | `list_cost` | کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021 | ☑ list_cost: `abzar/darvaze/scripts/opencode_gateway.py:13` |
-| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/darvaze/scripts/opencode_gateway.py:762` |
-| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/darvaze/scripts/opencode_gateway.py:763` |
-| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/darvaze/scripts/opencode_gateway.py:507` |
-| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/darvaze/scripts/opencode_gateway.py:516` |
-| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/darvaze/scripts/opencode_gateway.py:673` |
-| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/darvaze/scripts/opencode_gateway.py:674` |
-| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/darvaze/scripts/opencode_gateway.py:554` |
+| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/darvaze/scripts/opencode_gateway.py:776` |
+| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/darvaze/scripts/opencode_gateway.py:777` |
+| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/darvaze/scripts/opencode_gateway.py:517` |
+| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/darvaze/scripts/opencode_gateway.py:526` |
+| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/darvaze/scripts/opencode_gateway.py:687` |
+| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/darvaze/scripts/opencode_gateway.py:688` |
+| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/darvaze/scripts/opencode_gateway.py:567` |
 | `chat_cost` | کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders} | ☑ chat_cost: `abzar/darvaze/scripts/opencode_usage.py:159` |
 | `schema` | کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1 | ☑ schema: `claude-ui-buttons.js:2454` |
 | `total` | کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148 | ☑ total: `abzar/darvaze/scripts/opencode_usage.py:134` |

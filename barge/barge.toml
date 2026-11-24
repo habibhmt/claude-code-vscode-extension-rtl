@@ -9,7 +9,7 @@ provider_pishfarz_kol = "opencode"   # از ~/.claude/claude_env.sh:1 (ANTHROPIC
 provider_jaygozin_harness_1 = "opencode (دروازهٔ محلی)"   # از ~/.claude/claude_env.sh:1 (ANTHROPIC_BASE_URL="http://127.0.0.1:50990")
 provider_jaygozin_harness_2 = "openrouter"   # از ~/.local/bin/opencode:1 (export OPENROUTER_API_KEY="$KEY")
 provider_jaygozin_harness_3 = "openai"   # از ~/.codex/config.toml:1 (model = "gpt-6.2-astra")
-provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از ~/.dsh/.env:1 (OPENROUTER_API_KEY)
+provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از ~/.dsh/.credentials.yaml:1 (deepseek-account-platform/device:)
 provider_jaygozin_harness_5 = "openrouter"   # از ~/.ori/config.json:1 ("loginMode": "oauth",)
 provider_jaygozin_harness_6 = "anthropic"   # از ~/.hermes/config.yaml:1 (provider: anthropic)
 provider_jaygozin_harness_7 = "openai"   # از ~/.cursor/cli-config.json:1 ("modelId": "gpt-5",)
@@ -81,14 +81,14 @@ zaman_do_jomle_akhar = 0   # از mods/hads/hooks/register.js:56
 zaman_khandan_hook = 0   # از mods/hads/hooks/register.js:1586
 
 [harness]
-provider_jaygozin_harness_1 = "opencode (دروازهٔ محلی)"   # از abzar/barge_saz.py:110
-provider_jaygozin_harness_2 = "openrouter"   # از abzar/barge_saz.py:111
-provider_jaygozin_harness_3 = "openai"   # از abzar/barge_saz.py:112
-provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از abzar/barge_saz.py:113
-provider_jaygozin_harness_5 = "openrouter"   # از abzar/barge_saz.py:114
-provider_jaygozin_harness_6 = "anthropic"   # از abzar/barge_saz.py:115
-provider_jaygozin_harness_7 = "openai"   # از abzar/barge_saz.py:116
-provider_pishfarz_kol = "opencode"   # از abzar/barge_saz.py:109
+provider_jaygozin_harness_1 = "opencode (دروازهٔ محلی)"   # از abzar/barge_saz.py:112
+provider_jaygozin_harness_2 = "openrouter"   # از abzar/barge_saz.py:113
+provider_jaygozin_harness_3 = "openai"   # از abzar/barge_saz.py:114
+provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از abzar/barge_saz.py:115
+provider_jaygozin_harness_5 = "openrouter"   # از abzar/barge_saz.py:116
+provider_jaygozin_harness_6 = "anthropic"   # از abzar/barge_saz.py:117
+provider_jaygozin_harness_7 = "openai"   # از abzar/barge_saz.py:118
+provider_pishfarz_kol = "opencode"   # از abzar/barge_saz.py:111
 
 [masraf]
 TITLE_MAX = 42   # از abzar/darvaze/scripts/opencode_usage.py:74

@@ -289,3 +289,12 @@
 | `ravesh_restart` | کجا: ری‌استارت · چیه: روشِ مجازِ بالا آوردنِ سرویس · مثال: enable bootout bootstrap | ☑ ravesh_restart: `Doc/abzar/restart_service.py:25` |
 | `code_salamat_gateway` | کجا: ری‌استارت · چیه: کدِ HTTPِ سالم برای دروازه · مثال: 200 | ☑ code_salamat_gateway: `Doc/abzar/restart_service.py:24` |
 | `gozaresh_service_khabide` | کجا: گزارشِ سرویسِ خفته · چیه: فایلی که وضعیتِ همهٔ سرویس‌های com.habib در آن می‌نشیند · مثال: Doc/service_ha.md | ☑ gozaresh_service_khabide: `Doc/abzar/chek_service_ha.py:18` |
+| `workflow` | کجا: تعریف ۳۳ · چیه: ابزارِ Workflow — دو agent در یک اجرا و model روی همان فراخوانی؛ دو claude -p جدا ورک‌فلو نیست | ☑ workflow: `Doc/tarif/33_tarif_workflow_rayegan_v1.md:31` |
+| `barge` | کجا: تعریف ۳۵ · چیه: برگه — «مقدار فعلی در برگه»ی کارتِ هاور، ساخته‌شده از خودِ کد | ☑ barge: `claude-host-hook.js:876` |
+| `shenasname` | کجا: ریشه · چیه: شناسنامهٔ متغیرها — یک بلوک برای هر متغیر، با اسمِ فارسی و شرطِ باطل | ☑ shenasname: `claude-ui-buttons.js:1001` |
+| `kharabkari` | کجا: ریشه · چیه: خرابکاریِ عمدی — همان خط را بشکن؛ اگر قرمز نداد، آزمون خراب است | ☑ kharabkari: `CLAUDE.md:26` |
+| `zanjire_azmoon` | کجا: ریشه · چیه: زنجیرهٔ آزمون — test_all.sh؛ همه را اجرا می‌کند، حتی بعد از شکست | ☑ zanjire_azmoon: `test_all.sh:2` |
+| `skill` | کجا: ~/.claude/skills · چیه: اسکیل — دستورِ کارِ تکراری که ایجنتِ بعدی می‌خواند | ☑ skill: `mods/hads/hooks/register.js:221` |
+| `nazer` | کجا: جفتِ ناظر و مجری · چیه: ناظر — می‌خواند و می‌سنجد و پیام می‌دهد؛ به هیچ فایلی دست نمی‌زند | ☑ nazer: `mods/hads/hooks/register.js:186` |
+| `mojri` | کجا: جفتِ ناظر و مجری · چیه: مجری — کارِ اجرایی با اوست و گزارش به ناظر می‌دهد | ☑ mojri: `Doc/tarif/39_gozaresh_hadese_rename_v1.md:3` |
+| `darvaze` | کجا: ریشه · چیه: دروازهٔ محلی — 127.0.0.1:50990 که مدل‌ها را به اوپن کد/اوپن‌روتر می‌رساند | ☑ darvaze: `claude-host-hook.js:821` |

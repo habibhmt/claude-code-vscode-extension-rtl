@@ -2473,3 +2473,84 @@ noe = "sabet"
 jaye = "Doc/abzar/chek_service_ha.py:18"
 tarif = "43"
 tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
+
+[workflow]
+yani = "کجا: تعریف ۳۳ · چیه: ابزارِ Workflow — دو agent در یک اجرا و model روی همان فراخوانی؛ دو claude -p جدا ورک‌فلو نیست"
+chera = "واژهٔ حبیب: «این که ورک‌فلو نبود»"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "Doc/tarif/33_tarif_workflow_rayegan_v1.md:31"
+tarif = "33"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[barge]
+yani = "کجا: تعریف ۳۵ · چیه: برگه — «مقدار فعلی در برگه»ی کارتِ هاور، ساخته‌شده از خودِ کد"
+chera = "حبیب: «برگه گفت فلان، ولی از جای دیگر می‌رود» شرطِ باطلش است"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "Doc/tarif/35_tarif_provider_v1.md:12"
+tarif = "35"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[shenasname]
+yani = "کجا: ریشه · چیه: شناسنامهٔ متغیرها — یک بلوک برای هر متغیر، با اسمِ فارسی و شرطِ باطل"
+chera = "عدد فقط در یک فایل؛ شناسنامه جای اسم است، برگه جای مقدار"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "CLAUDE.md:16"
+tarif = "45"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[kharabkari]
+yani = "کجا: ریشه · چیه: خرابکاریِ عمدی — همان خط را بشکن؛ اگر قرمز نداد، آزمون خراب است"
+chera = "حبیب: «تستت چیزی را نمی‌سنجد» شرطِ باطلش است"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "CLAUDE.md:26"
+tarif = "40"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[zanjire_azmoon]
+yani = "کجا: ریشه · چیه: زنجیرهٔ آزمون — test_all.sh؛ همه را اجرا می‌کند، حتی بعد از شکست"
+chera = "سبزِ زنجیره شرطِ تغییرِ بزرگ است"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "test_all.sh:2"
+tarif = "44"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[skill]
+yani = "کجا: ~/.claude/skills · چیه: اسکیل — دستورِ کارِ تکراری که ایجنتِ بعدی می‌خواند"
+chera = "کارِ تکراری به اسکریپت و اسکیل می‌رود، نه به حافظهٔ ایجنت"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "Doc/tarif/33_tarif_workflow_rayegan_v1.md:88"
+tarif = "33"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[nazer]
+yani = "کجا: جفتِ ناظر و مجری · چیه: ناظر — می‌خواند و می‌سنجد و پیام می‌دهد؛ به هیچ فایلی دست نمی‌زند"
+chera = "ناظر به گزارشِ مجری اعتماد نمی‌کند و خودش می‌سنجد"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "Doc/tarif/39_gozaresh_hadese_rename_v1.md:20"
+tarif = "40"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[mojri]
+yani = "کجا: جفتِ ناظر و مجری · چیه: مجری — کارِ اجرایی با اوست و گزارش به ناظر می‌دهد"
+chera = "حبیب ۱۷:۰۷: کارِ اجرایی مالِ مجری است، نه ناظر"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "Doc/tarif/39_gozaresh_hadese_rename_v1.md:3"
+tarif = "40"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[darvaze]
+yani = "کجا: ریشه · چیه: دروازهٔ محلی — 127.0.0.1:50990 که مدل‌ها را به اوپن کد/اوپن‌روتر می‌رساند"
+chera = "سالم‌بودنش با ۲۰۰ روی /v1/models سنجیده می‌شود"
+ozv = "abzar"
+noe = "vaziat"
+jaye = "CLAUDE.md:15"
+tarif = "42"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"

@@ -3275,3 +3275,111 @@ tarif = "43"
 tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۰۶:۴۸"
 khanandeha = []
 jaye = ["Doc/abzar/chek_service_ha.py:18"]
+
+[workflow]
+yani = "کجا: تعریف ۳۳ · چیه: ابزارِ Workflow — دو agent در یک اجرا و model روی همان فراخوانی؛ دو claude -p جدا ورک‌فلو نیست"
+meghdar = ""
+chera = "واژهٔ حبیب: «این که ورک‌فلو نبود»"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "33"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["Doc/tarif/33_tarif_workflow_rayegan_v1.md:31"]
+
+[barge]
+yani = "کجا: تعریف ۳۵ · چیه: برگه — «مقدار فعلی در برگه»ی کارتِ هاور، ساخته‌شده از خودِ کد"
+meghdar = ""
+chera = "حبیب: «برگه گفت فلان، ولی از جای دیگر می‌رود» شرطِ باطلش است"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "35"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["claude-host-hook.js:876"]
+
+[shenasname]
+yani = "کجا: ریشه · چیه: شناسنامهٔ متغیرها — یک بلوک برای هر متغیر، با اسمِ فارسی و شرطِ باطل"
+meghdar = ""
+chera = "عدد فقط در یک فایل؛ شناسنامه جای اسم است، برگه جای مقدار"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "45"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["claude-ui-buttons.js:1001"]
+
+[kharabkari]
+yani = "کجا: ریشه · چیه: خرابکاریِ عمدی — همان خط را بشکن؛ اگر قرمز نداد، آزمون خراب است"
+meghdar = ""
+chera = "حبیب: «تستت چیزی را نمی‌سنجد» شرطِ باطلش است"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "40"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["CLAUDE.md:26"]
+
+[zanjire_azmoon]
+yani = "کجا: ریشه · چیه: زنجیرهٔ آزمون — test_all.sh؛ همه را اجرا می‌کند، حتی بعد از شکست"
+meghdar = ""
+chera = "سبزِ زنجیره شرطِ تغییرِ بزرگ است"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "44"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["test_all.sh:2"]
+
+[skill]
+yani = "کجا: ~/.claude/skills · چیه: اسکیل — دستورِ کارِ تکراری که ایجنتِ بعدی می‌خواند"
+meghdar = ""
+chera = "کارِ تکراری به اسکریپت و اسکیل می‌رود، نه به حافظهٔ ایجنت"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "33"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["mods/hads/hooks/register.js:221"]
+
+[nazer]
+yani = "کجا: جفتِ ناظر و مجری · چیه: ناظر — می‌خواند و می‌سنجد و پیام می‌دهد؛ به هیچ فایلی دست نمی‌زند"
+meghdar = ""
+chera = "ناظر به گزارشِ مجری اعتماد نمی‌کند و خودش می‌سنجد"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "40"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["mods/hads/hooks/register.js:186"]
+
+[mojri]
+yani = "کجا: جفتِ ناظر و مجری · چیه: مجری — کارِ اجرایی با اوست و گزارش به ناظر می‌دهد"
+meghdar = ""
+chera = "حبیب ۱۷:۰۷: کارِ اجرایی مالِ مجری است، نه ناظر"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "40"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["Doc/tarif/39_gozaresh_hadese_rename_v1.md:3"]
+
+[darvaze]
+yani = "کجا: ریشه · چیه: دروازهٔ محلی — 127.0.0.1:50990 که مدل‌ها را به اوپن کد/اوپن‌روتر می‌رساند"
+meghdar = ""
+chera = "سالم‌بودنش با ۲۰۰ روی /v1/models سنجیده می‌شود"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = []
+tarif = "42"
+tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+khanandeha = []
+jaye = ["claude-host-hook.js:821"]

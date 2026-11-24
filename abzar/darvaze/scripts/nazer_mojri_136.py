@@ -22,8 +22,8 @@ SESS_DIR = os.environ.get('NAZER_SESSDIR') or os.path.join(HOME, '.claude/sessio
 PROJ = (os.environ.get('NAZER_PROJ')
         or os.path.join(HOME, '.claude/projects/-Users-habib-1-MY-WORK-136th-day-fix-rtl-claude'))
 NAME = os.environ.get('NAZER_NAME') or 'مجری-۱۳۶'
-STATE = os.path.join(REPO, 'abzar/216-migration/.runtime/nazer_mojri_136_state.json')
-SENDER = os.environ.get('NAZER_SENDER') or os.path.join(REPO, 'abzar/216-migration/scripts/nazer_be_mojri_136.sh')
+STATE = os.path.join(REPO, 'abzar/darvaze/.runtime/nazer_mojri_136_state.json')
+SENDER = os.environ.get('NAZER_SENDER') or os.path.join(REPO, 'abzar/darvaze/scripts/nazer_be_mojri_136.sh')
 FA = str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')
 fa = lambda x: str(x).translate(FA)
 

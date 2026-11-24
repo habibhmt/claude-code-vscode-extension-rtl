@@ -13,11 +13,11 @@ FILE_HA = [
     ('claude-host-hook.js', re.compile(r'^  (var) ([A-Za-z_$][\w$]*) = (.*)$')),
     # دروازه و رَپر و کاتالوگِ مصرف (ناظر-۱۳۶، ۲۳ نوامبر ۱۵:۱۰: «FILE_HA را گسترش بده»،
     # محدود به همین فایل‌های واقعی؛ الگو فقط ثابتِ ماژول را می‌گیرد، نه متغیرِ محلی).
-    ('abzar/216-migration/scripts/opencode_gateway.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
-    ('abzar/216-migration/scripts/vscode_opencode_wrapper.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
-    ('abzar/216-migration/scripts/opencode_usage.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
-    ('abzar/216-migration/scripts/opencode_picker.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
-    ('abzar/216-migration/scripts/opencode_caps.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/darvaze/scripts/opencode_gateway.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/darvaze/scripts/vscode_opencode_wrapper.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/darvaze/scripts/opencode_usage.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/darvaze/scripts/opencode_picker.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
+    ('abzar/darvaze/scripts/opencode_caps.py', re.compile(r'^([A-Z][A-Z0-9_]*) = (.*)$')),
     # ثابت‌های رممبر: افزونهٔ فعال از ~/.claude/plugins-local می‌خوانَد، نه از cache.
     ('~/.claude/plugins-local/remember-habib/pipeline/haiku.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),
     ('~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py', re.compile(r'^([a-zA-Z][A-Za-z0-9_]*) = (.*)$')),

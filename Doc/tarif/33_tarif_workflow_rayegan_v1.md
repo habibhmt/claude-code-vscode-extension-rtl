@@ -6,8 +6,8 @@
 |---|---|
 | **آدرسِ تعریف** | `136th-day-fix-rtl-claude · Doc/tarif/33_tarif_workflow_rayegan_v1.md` |
 | **پروپوزالِ وابسته** | `Doc/tarif/32_prop_do_kari_v1.md` (بندِ الف — با علتِ درست بازنویسی شد) |
-| **دادهٔ سنجش** | `abzar/216-migration/.runtime/opencode-go/usage.jsonl` |
-| **کدِ دروازه** | `abzar/216-migration/scripts/opencode_gateway.py` (خط‌های ۵۰۱، ۶۳۲، ۴۱۸–۴۳۴) |
+| **دادهٔ سنجش** | `abzar/darvaze/.runtime/opencode-go/usage.jsonl` |
+| **کدِ دروازه** | `abzar/darvaze/scripts/opencode_gateway.py` (خط‌های ۵۰۱، ۶۳۲، ۴۱۸–۴۳۴) |
 
 ## وضعیتِ سنجیده — ۲۴ نوامبر ۲۰۲۶ ۰۰:۰۰
 
@@ -44,7 +44,7 @@ claude -p --no-session-persistence --model 'hy4-flash-free' --setting-sources ""
   "Reply with exactly: SALAM-OK" </dev/null
 python3 - <<'PY'      # ردیفِ مدرک
 import json
-rows=[json.loads(l) for l in open('abzar/216-migration/.runtime/opencode-go/usage.jsonl',encoding='utf-8') if l.strip()]
+rows=[json.loads(l) for l in open('abzar/darvaze/.runtime/opencode-go/usage.jsonl',encoding='utf-8') if l.strip()]
 r=[x for x in rows if x.get('model')=='hy4-flash-free'][-1]
 print({k:r.get(k) for k in ('time_utc','status','list_cost','input','output','billing_source')})
 PY

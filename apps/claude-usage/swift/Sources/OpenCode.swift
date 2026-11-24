@@ -1,6 +1,6 @@
 import Foundation
 
-/// opencode-go.json — همان فایلی که abzar/216-migration/scripts/opencode_usage.py
+/// opencode-go.json — همان فایلی که abzar/darvaze/scripts/opencode_usage.py
 /// هر ۱۵ دقیقه می‌نویسد (com.habib.opencode-usage). عددها از usage.opencode.list_cost
 /// ِ خودِ پاسخ‌ها می‌آید، پس «چقدر از هر مدل مانده» بی‌حدس است (حبیب ۲۲ نوامبر).
 /// فایل نبود یا خراب بود ⇒ nil؛ هیچ‌جا صفر نشان داده نمی‌شود (شرطِ ناظر-۱۳۶).
@@ -171,7 +171,7 @@ enum OpenCode {
     }
 
     static let statusPath = FileManager.default.homeDirectoryForCurrentUser
-        .appendingPathComponent("1-MY-WORK/136th-day-fix-rtl-claude/abzar/216-migration/.runtime/opencode-go/status.json")
+        .appendingPathComponent("1-MY-WORK/136th-day-fix-rtl-claude/abzar/darvaze/.runtime/opencode-go/status.json")
 
     static func loadStatus() -> Symptom? {
         guard let data = try? Data(contentsOf: statusPath),

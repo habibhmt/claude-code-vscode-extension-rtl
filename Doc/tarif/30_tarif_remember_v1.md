@@ -11,7 +11,7 @@
 | **کدِ تبِ تنظیمات** | `136th-day-fix-rtl-claude/claude-ui-buttons.js` (و `claude-host-hook.js:636`) |
 | **کدام نسخهٔ افزونه فعال است** | `~/.claude/plugins-local/remember-habib` — بازارچهٔ `habib-local` با `source: directory` به همین پوشه. کپی‌های `~/.claude-acc2/plugins/cache/habib-local/remember/0.20.0` (۲۲ سپتامبر) و `plugins/cache/claude-plugins-official/remember/0.43.1` و `~/.codex/plugins/…` **کهنه‌اند و ویرایش نمی‌شوند**؛ تغییر روی فعال انجام شد (سنجیده ۲۰:۵۵). |
 | **فایلِ بیرونِ این مخزن** | `hook_remember_pish.py` و `panjere_chat.py` در `~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/` هستند، نه در ۱۳۶. تغییرِ بندِ ۲ همان‌جا بود: `had_kamtarin_yad_avari_token` و کفِ آستانه در `had_chat`. |
-| **داده‌های سنجش** | `.remember/logs/memory-YYYY-MM-DD.log` · `abzar/216-migration/.runtime/opencode-go/usage.jsonl` · `~/.claude/hads-log/` |
+| **داده‌های سنجش** | `.remember/logs/memory-YYYY-MM-DD.log` · `abzar/darvaze/.runtime/opencode-go/usage.jsonl` · `~/.claude/hads-log/` |
 
 ## وضعیتِ سنجیده — ۲۳ نوامبر ۲۰۲۶ ۲۰:۱۵ (پیش از هر تغییر)
 

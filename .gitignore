@@ -45,13 +45,13 @@ abzar/openrouter-deepseek/khoroji/
 archive/
 
 # 216 migration: generated runtime artifacts
-abzar/216-migration/.runtime/
+abzar/darvaze/.runtime/
 
 # Pre-edit copies made before touching another session's files
 *.bak-*
 
 # Model files are fetched and sha256-verified by scripts/fetch_deepseek_v41.py
-abzar/216-migration/claude-api/deepseek-v41/
+abzar/darvaze/claude-api/deepseek-v41/
 
 # کارهای موقتِ ورک‌فلو و ابزارِ ori — نه دادهٔ پروژه
 .claude/worktrees/

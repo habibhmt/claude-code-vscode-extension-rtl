@@ -13,5 +13,5 @@
 در پوشهٔ بازنشستهٔ ۱۸۶ و در مخزنِ گیت‌هابِ همان می‌ماند؛ حذفِ آن با حرفِ جداگانهٔ حبیب است.
 
 **چه چیزی به مسیر وابسته نیست:** `install-autostart.sh` به `/Applications/ClaudeUsage.app` اشاره
-می‌کند و `com.habib.opencode-usage` به `abzar/216-migration/scripts/opencode_usage.py` (که در
+می‌کند و `com.habib.opencode-usage` به `abzar/darvaze/scripts/opencode_usage.py` (که در
 مخزنِ ۱۳۶ است، نه این‌جا) — هیچ‌کدام مسیرِ مخزنِ ۱۸۶ را سخت نکرده‌اند.

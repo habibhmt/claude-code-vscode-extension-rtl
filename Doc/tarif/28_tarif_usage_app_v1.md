@@ -13,8 +13,8 @@
 | | |
 |---|---|
 | **آدرسِ تعریف** | `136th-day-fix-rtl-claude · Doc/tarif/28_tarif_usage_app_v1.md` |
-| **آدرسِ کد** | اپ: `apps/claude-usage/swift/Sources/{App,OpenCode}.swift` · فایلِ مصرف: `abzar/216-migration/scripts/opencode_usage.py` · دروازه: همان‌جا `opencode_gateway.py` |
-| **آدرسِ داده** | مصرف: `abzar/216-migration/.runtime/opencode-go/usage.jsonl` · خلاصهٔ اپ: `~/Library/Application Support/claude-usage-bar/opencode-go.json` · وضعیت: همان‌جا `status.json` · OpenRouter: `~/Library/Application Support/ClaudeUsage/source-of-truth.json` |
+| **آدرسِ کد** | اپ: `apps/claude-usage/swift/Sources/{App,OpenCode}.swift` · فایلِ مصرف: `abzar/darvaze/scripts/opencode_usage.py` · دروازه: همان‌جا `opencode_gateway.py` |
+| **آدرسِ داده** | مصرف: `abzar/darvaze/.runtime/opencode-go/usage.jsonl` · خلاصهٔ اپ: `~/Library/Application Support/claude-usage-bar/opencode-go.json` · وضعیت: همان‌جا `status.json` · OpenRouter: `~/Library/Application Support/ClaudeUsage/source-of-truth.json` |
 
 ---
 
@@ -35,7 +35,7 @@
 **قاعدهٔ عدد:** هیچ عددی در اپ ساخته نمی‌شود؛ نبودِ منبع ⇒ «—»، نه صفر.
 
 ▪ باطل می‌شود اگر: جمعِ چت‌ها با جمعِ کلِ فایل یکی نباشد، **یا شمرده‌شدنِ ردیف‌ها جور نباشد**
-⇐ `python3 -c "import json,collections;ok=[json.loads(l) for l in open('abzar/216-migration/.runtime/opencode-go/usage.jsonl') if l.strip()];ok=[x for x in ok if x.get('status')==200];g=collections.defaultdict(float);n=collections.Counter();[ (g.__setitem__(x.get('session_id') or 'نامعلوم', g[x.get('session_id') or 'نامعلوم']+(x.get('list_cost') or 0)), n.__setitem__(x.get('session_id') or 'نامعلوم', n[x.get('session_id') or 'نامعلوم']+1)) for x in ok];print('ردیف', len(ok), 'در گروه‌ها', sum(n.values()), '| دلار', round(sum(x.get('list_cost') or 0 for x in ok),4), 'در گروه‌ها', round(sum(g.values()),4), '| چت', len(g))"`
+⇐ `python3 -c "import json,collections;ok=[json.loads(l) for l in open('abzar/darvaze/.runtime/opencode-go/usage.jsonl') if l.strip()];ok=[x for x in ok if x.get('status')==200];g=collections.defaultdict(float);n=collections.Counter();[ (g.__setitem__(x.get('session_id') or 'نامعلوم', g[x.get('session_id') or 'نامعلوم']+(x.get('list_cost') or 0)), n.__setitem__(x.get('session_id') or 'نامعلوم', n[x.get('session_id') or 'نامعلوم']+1)) for x in ok];print('ردیف', len(ok), 'در گروه‌ها', sum(n.values()), '| دلار', round(sum(x.get('list_cost') or 0 for x in ok),4), 'در گروه‌ها', round(sum(g.values()),4), '| چت', len(g))"`
 هر دو عددِ «ردیف» باید یکی باشند و هر دو عددِ «دلار» یکی. **شمارشِ ردیف مهم است:** با
 جمعِ دلار تنها، یک ردیفِ دوبارشمرده با ۰٫۰۰۰۰۱۵ دلار در گِردکردن گم می‌شود (سنجیده ۲۳ نوامبر
 ۱۶:۰۶) — ولی عددِ ردیف ۳٬۹۴۹ در برابرِ ۳٬۹۵۰ قرمز می‌دهد.

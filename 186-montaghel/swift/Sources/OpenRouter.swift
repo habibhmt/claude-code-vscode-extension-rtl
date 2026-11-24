@@ -418,7 +418,7 @@ enum CUPaths {
     /// and the old proxy still writes to a deleted inode. Try both, newest wins.
     static let traceCandidates = [
         home.appendingPathComponent(
-            "1-MY-WORK/136th-day-fix-rtl-claude/abzar/216-migration/.runtime/live-request-trace/requests.jsonl"),
+            "1-MY-WORK/136th-day-fix-rtl-claude/abzar/darvaze/.runtime/live-request-trace/requests.jsonl"),
         home.appendingPathComponent(
             "1-MY-WORK/216th-day-migration-to-open-source-model/.runtime/live-request-trace/requests.jsonl"),
     ]

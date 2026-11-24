@@ -10,8 +10,8 @@
 | | |
 |---|---|
 | **آدرسِ تعریف** | `136th-day-fix-rtl-claude · Doc/tarif/00_tarif_payeh_v1.md` |
-| **آدرسِ کد** | `abzar/216-migration/scripts/{opencode_gateway.py, vscode_opencode_wrapper.py, vscode_model_catalog.cjs, opencode_usage.py, nazer_mojri_136.py}` · اپ: `apps/claude-usage/swift/Sources/` |
-| **آدرسِ داده** | `abzar/216-migration/.runtime/opencode-go/{usage.jsonl, merged-models.json, model-caps.json, status.json, opencode-models.json}` · `~/Library/Application Support/claude-usage-bar/opencode-go.json` · `~/.dsh/storages/model-hunter/` |
+| **آدرسِ کد** | `abzar/darvaze/scripts/{opencode_gateway.py, vscode_opencode_wrapper.py, vscode_model_catalog.cjs, opencode_usage.py, nazer_mojri_136.py}` · اپ: `apps/claude-usage/swift/Sources/` |
+| **آدرسِ داده** | `abzar/darvaze/.runtime/opencode-go/{usage.jsonl, merged-models.json, model-caps.json, status.json, opencode-models.json}` · `~/Library/Application Support/claude-usage-bar/opencode-go.json` · `~/.dsh/storages/model-hunter/` |
 | **تاریخِ سنجش** | ۲۳ نوامبر ۲۰۲۶، ۰۵:۲۰–۰۵:۴۵ (هر عددِ این سند همان لحظه با فرمان خوانده شد) |
 
 ---
@@ -26,7 +26,7 @@
 | `hafeze_search.py --hame "تعریف پایه پرووایدر هارنس مصرف"` | ۵ چکیده (ریممبر ۲۲ و ۲۳ نوامبر) | ۲۳ نوامبر |
 | `~/.dsh/` | `sessions/`، `advisor/state.json`، `storages/workspace.json`، `storages/model-hunter/` | ۲۳ نوامبر |
 | `~/.vscode` · `~/.windsurf` · `~/.cursor` | نسخهٔ دقیقِ افزونه‌ها | ۲۳ نوامبر |
-| `abzar/216-migration/.runtime/opencode-go/` | `usage.jsonl` (۳٬۵۴۹ ردیف، سنجیده ۱۴:۵۷ — فایل زنده است و رشد می‌کند)، `merged-models.json` (۴۱۰ ردیف) | ۲۳ نوامبر |
+| `abzar/darvaze/.runtime/opencode-go/` | `usage.jsonl` (۳٬۵۴۹ ردیف، سنجیده ۱۴:۵۷ — فایل زنده است و رشد می‌کند)، `merged-models.json` (۴۱۰ ردیف) | ۲۳ نوامبر |
 
 **کجاها را نگشتم — صریح:**
 
@@ -69,7 +69,7 @@
 از `01:58:46Z` به بعد دیگر تلاشی نکرده است.
 
 ▪ باطل می‌شود اگر: ردیفی با `provider` بیرون از این دو گروه بیاید
-⇐ `python3 -c "import json,collections;r=[json.loads(l) for l in open('abzar/216-migration/.runtime/opencode-go/usage.jsonl') if l.strip()];print(collections.Counter((x.get('provider'),x.get('status')) for x in r))"`
+⇐ `python3 -c "import json,collections;r=[json.loads(l) for l in open('abzar/darvaze/.runtime/opencode-go/usage.jsonl') if l.strip()];print(collections.Counter((x.get('provider'),x.get('status')) for x in r))"`
 
 ---
 
@@ -110,7 +110,7 @@
 «نامعلوم (پیش از ثبت)» می‌ماند. حدس زدنِ صاحبِ ردیف ممنوع است.
 
 ▪ باطل می‌شود اگر: عددی به چتی نسبت داده شود که `session_id` ندارد
-⇐ `python3 -c "import json;r=[json.loads(l) for l in open('abzar/216-migration/.runtime/opencode-go/usage.jsonl') if l.strip()];print(sum(1 for x in r if not x.get('session_id')))"`
+⇐ `python3 -c "import json;r=[json.loads(l) for l in open('abzar/darvaze/.runtime/opencode-go/usage.jsonl') if l.strip()];print(sum(1 for x in r if not x.get('session_id')))"`
 
 ---
 
@@ -136,7 +136,7 @@
 هر ۱۷۹ ردیفِ `requested≠model` فیلدِ `mapped_from` دارد.
 
 ▪ باطل می‌شود اگر: بعد از آن لحظه ردیفی با `requested≠model` و بی‌`mapped_from` بیاید
-⇐ `python3 -c "import json;r=[json.loads(l) for l in open('abzar/216-migration/.runtime/opencode-go/usage.jsonl') if l.strip()];print([(x['time_utc'],x['requested'],x['model']) for x in r if x.get('status')==200 and x.get('requested') and x.get('model') and x['requested']!=x['model'] and not x.get('mapped_from') and x['time_utc']>'2026-11-22T19:08:52Z'] or 'خالی')"`
+⇐ `python3 -c "import json;r=[json.loads(l) for l in open('abzar/darvaze/.runtime/opencode-go/usage.jsonl') if l.strip()];print([(x['time_utc'],x['requested'],x['model']) for x in r if x.get('status')==200 and x.get('requested') and x.get('model') and x['requested']!=x['model'] and not x.get('mapped_from') and x['time_utc']>'2026-11-22T19:08:52Z'] or 'خالی')"`
 (سنجیده ۱۴:۵۸: «خالی»؛ با عقب‌بردنِ تاریخِ مرز به `2026-11-22T00:00:00Z` همان فرمان هر ۵۲ ردیف را
 پیدا کرد ⇒ آزمون کور نیست)
 

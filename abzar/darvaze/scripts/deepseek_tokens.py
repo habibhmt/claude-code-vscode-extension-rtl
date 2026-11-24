@@ -19,7 +19,7 @@ import math
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parents[1]          # abzar/216-migration
+HERE = Path(__file__).resolve().parents[1]          # abzar/darvaze
 MODEL_DIR = HERE / 'claude-api' / 'deepseek-v41'
 TOKENIZER_FILE = MODEL_DIR / 'tokenizer.json'
 ENCODING_FILE = MODEL_DIR / 'encoding.py'

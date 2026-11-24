@@ -576,7 +576,7 @@ PYEOF
                 if [ -n "${VARDE_MAX:-}" ] && [ "$ext_ver" != "$VARDE_MAX" ]; then
                     echo "[SKIP] Model picker: $ide_name نسخهٔ $ext_ver (نه $VARDE_MAX) ⇒ رد شد، لنگر ساخته نشد" >&2
                 else
-                MODEL_GROUPS_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_model_groups.py"
+                MODEL_GROUPS_PATCH="$REPO_DIR/abzar/darvaze/scripts/patch_model_groups.py"
                 if [ -f "$MODEL_GROUPS_PATCH" ] && command -v python3 >/dev/null 2>&1; then
                     if ! python3 "$MODEL_GROUPS_PATCH" "$ext_dir/index.js"; then
                         echo "[WARN] Model picker headers were not installed in $ext_dir" >&2
@@ -648,7 +648,7 @@ patch_ide "Devin" "$HOME/.devin/extensions/anthropic.claude-code-*/webview"
 
 # The OpenRouter model selector overlay (migrated from project 216). Reapply
 # after every RTL rebuild, including a stamp-only run. Anchor drift fails this install.
-DEEPSEEK_MODEL_PATCH="$REPO_DIR/abzar/216-migration/scripts/patch_deepseek_models.py"
+DEEPSEEK_MODEL_PATCH="$REPO_DIR/abzar/darvaze/scripts/patch_deepseek_models.py"
 if [ -f "$DEEPSEEK_MODEL_PATCH" ] && [ "$HAVE_PYTHON" = true ]; then
     selector_ok=0
     for deepseek_ext in "$HOME"/.vscode/extensions/anthropic.claude-code-*/extension.js \

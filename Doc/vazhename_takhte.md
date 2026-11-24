@@ -99,9 +99,9 @@
 | `had_hook_bozorg_radif` | همان در حالتِ بزرگ | ☑ had_hook_bozorg_radif: `mods/hads/hooks/register.js:1624` |
 | `had_hook_bozorg_harf` | بیشترین حرفِ هر هوک در حالتِ بزرگ | ☑ had_hook_bozorg_harf: `mods/hads/hooks/register.js:1625` |
 | `ERRORS` | خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل | ☑ ERRORS: `claude-ui-buttons.js:22` |
-| `SESSION` | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | ☑ SESSION: `claude-ui-buttons.js:37`؛ `abzar/216-migration/scripts/opencode_gateway.py:39` |
+| `SESSION` | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | ☑ SESSION: `claude-ui-buttons.js:37`؛ `abzar/darvaze/scripts/opencode_gateway.py:39` |
 | `DEFAULT_COMMANDS` | دکمه‌های پیش‌فرضِ نوارِ بالا | ☑ DEFAULT_COMMANDS: `claude-ui-buttons.js:145` |
-| `KEY` | کلیدِ localStorage ِ تنظیم‌های پنل | ☑ KEY: `claude-ui-buttons.js:206`؛ `abzar/216-migration/scripts/opencode_gateway.py:97`؛ `abzar/216-migration/scripts/opencode_picker.py:29` |
+| `KEY` | کلیدِ localStorage ِ تنظیم‌های پنل | ☑ KEY: `claude-ui-buttons.js:206`؛ `abzar/darvaze/scripts/opencode_gateway.py:97`؛ `abzar/darvaze/scripts/opencode_picker.py:29` |
 | `DEF` | تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها) | ☑ DEF: `claude-ui-buttons.js:207` |
 | `LIMITS` | کمترین و بیشترینِ هر اندازه در پنل | ☑ LIMITS: `claude-ui-buttons.js:234` |
 | `PRESETS` | حالت‌های آمادهٔ اندازه‌ها | ☑ PRESETS: `claude-ui-buttons.js:235` |
@@ -167,50 +167,50 @@
 | `TZ_ESM_MANBA` | کجا: نوشتهٔ «الان» زیرِ هر ردیف · چیه: وقتی مقدار از انبار نیست، اسمِ فارسیِ لایه‌ای که خودِ کلود گزارش می‌کند | ☑ TZ_ESM_MANBA: `claude-ui-buttons.js:2457` |
 | `TZ_FASELE_TOKEN` | کجا: ردیفِ اتوکامپکت · چیه: کلود این‌قدر زودتر از پنجره‌اش کامپکت می‌کند، پس عددی که حبیب می‌نویسد با این جمع می‌شود · مثال: ⟦TZ_FASELE_TOKEN⟧ توکن؛ سنجیده روی 2.1.318 | ☑ TZ_FASELE_TOKEN: `claude-ui-buttons.js:2458` |
 | `TZ_REMEMBER_TOKEN` | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | ☑ TZ_REMEMBER_TOKEN: `claude-ui-buttons.js:2459` |
-| `UPSTREAM` | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد | ☑ UPSTREAM: `abzar/216-migration/scripts/opencode_gateway.py:31` |
-| `PREFIX` | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: claude-oc-deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | ☑ PREFIX: `abzar/216-migration/scripts/opencode_gateway.py:32` |
-| `SERVICE` | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | ☑ SERVICE: `abzar/216-migration/scripts/opencode_gateway.py:33`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:30` |
-| `ACCOUNT` | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf | ☑ ACCOUNT: `abzar/216-migration/scripts/opencode_gateway.py:34`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:31` |
-| `PORT` | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | ☑ PORT: `abzar/216-migration/scripts/opencode_gateway.py:35`؛ `abzar/216-migration/scripts/vscode_opencode_wrapper.py:36`؛ `abzar/216-migration/scripts/opencode_picker.py:27` |
-| `RUNTIME` | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | ☑ RUNTIME: `abzar/216-migration/scripts/opencode_gateway.py:36` |
-| `USAGE` | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | ☑ USAGE: `abzar/216-migration/scripts/opencode_gateway.py:37` |
-| `CAPS` | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | ☑ CAPS: `abzar/216-migration/scripts/opencode_gateway.py:38` |
-| `DROP` | کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد | ☑ DROP: `abzar/216-migration/scripts/opencode_gateway.py:40` |
-| `TRACE_STATE` | کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧ | ☑ TRACE_STATE: `abzar/216-migration/scripts/opencode_gateway.py:48` |
-| `OPENROUTER_CATALOGUE` | کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧ | ☑ OPENROUTER_CATALOGUE: `abzar/216-migration/scripts/opencode_gateway.py:49` |
-| `OPENCODE_CACHE` | کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧ | ☑ OPENCODE_CACHE: `abzar/216-migration/scripts/opencode_gateway.py:50` |
-| `MERGED_CACHE` | کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧ | ☑ MERGED_CACHE: `abzar/216-migration/scripts/opencode_gateway.py:51` |
-| `STATUS` | کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧ | ☑ STATUS: `abzar/216-migration/scripts/opencode_gateway.py:52` |
-| `MESSAGE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه | ☑ MESSAGE_TIMEOUT: `abzar/216-migration/scripts/opencode_gateway.py:59` |
-| `FIRST_BYTE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه | ☑ FIRST_BYTE_TIMEOUT: `abzar/216-migration/scripts/opencode_gateway.py:65` |
-| `RETRY_PAUSE` | کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه | ☑ RETRY_PAUSE: `abzar/216-migration/scripts/opencode_gateway.py:66` |
-| `ALARM_STATUSES` | کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند | ☑ ALARM_STATUSES: `abzar/216-migration/scripts/opencode_gateway.py:67` |
-| `OPENROUTER_URL` | کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧ | ☑ OPENROUTER_URL: `abzar/216-migration/scripts/opencode_gateway.py:68` |
-| `CATALOGUE_TTL` | کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت | ☑ CATALOGUE_TTL: `abzar/216-migration/scripts/opencode_gateway.py:69` |
-| `HUNTER_PATTERN` | کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی) | ☑ HUNTER_PATTERN: `abzar/216-migration/scripts/opencode_gateway.py:72` |
-| `OR_HEADERS` | کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta | ☑ OR_HEADERS: `abzar/216-migration/scripts/opencode_gateway.py:74` |
-| `AUTH_HEADERS` | کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer additionalModelOptionsCache | ☑ AUTH_HEADERS: `abzar/216-migration/scripts/opencode_gateway.py:98` |
-| `OPENER` | کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧ | ☑ OPENER: `abzar/216-migration/scripts/opencode_gateway.py:101` |
-| `LOCK` | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | ☑ LOCK: `abzar/216-migration/scripts/opencode_gateway.py:102` |
-| `KNOWN_LOCK` | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | ☑ KNOWN_LOCK: `abzar/216-migration/scripts/opencode_gateway.py:207` |
-| `KNOWN` | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | ☑ KNOWN: `abzar/216-migration/scripts/opencode_gateway.py:208` |
-| `GATEWAY` | کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧ | ☑ GATEWAY: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:35` |
-| `BASE` | کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧ | ☑ BASE: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:37`؛ `abzar/216-migration/scripts/opencode_picker.py:28` |
-| `MODEL` | کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash | ☑ MODEL: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:38` |
-| `PREVIOUS` | کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧ | ☑ PREVIOUS: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:39` |
-| `SUBCOMMANDS` | کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧ | ☑ SUBCOMMANDS: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:164` |
-| `BARE_FLAGS` | کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help | ☑ BARE_FLAGS: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:171` |
-| `VALUE_FLAGS` | کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user | ☑ VALUE_FLAGS: `abzar/216-migration/scripts/vscode_opencode_wrapper.py:174` |
-| `OUT` | کجا: فایلِ مصرف و کپس · چیه: فایلی که اپ‌ها می‌خوانند (خلاصهٔ مصرف و سقف) · مثال: ⟦OUT⟧ | ☑ OUT: `abzar/216-migration/scripts/opencode_usage.py:25`؛ `abzar/216-migration/scripts/opencode_caps.py:19` |
-| `MIN_LINE` | کجا: فایلِ مصرف · چیه: فایلِ کنارِ خروجی که آخرین خطِ خوانده‌شده را نگه می‌دارد تا هر بار کلِ لاگ خوانده نشود · مثال: ⟦MIN_LINE⟧ | ☑ MIN_LINE: `abzar/216-migration/scripts/opencode_usage.py:26` |
-| `ANSWERED` | کجا: پیکر · چیه: کلیدی در تنظیماتِ کلاینت که «پاسخِ فهرستِ مدل داده شد» را نگه می‌دارد · مثال: additionalModelOptionsAnsweredAt | ☑ ANSWERED: `abzar/216-migration/scripts/opencode_picker.py:30` |
-| `BIG` | کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount | ☑ BIG: `abzar/216-migration/scripts/opencode_picker.py:31` |
-| `ROOT` | کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api | ☑ ROOT: `abzar/216-migration/scripts/opencode_picker.py:32` |
-| `LOG` | کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧ | ☑ LOG: `abzar/216-migration/scripts/opencode_picker.py:33`؛ `/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15` |
-| `URL` | کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: https://opencode.ai/console/go | ☑ URL: `abzar/216-migration/scripts/opencode_caps.py:18` |
-| `UA` | کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧ | ☑ UA: `abzar/216-migration/scripts/opencode_caps.py:20` |
-| `ROW` | کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model | ☑ ROW: `abzar/216-migration/scripts/opencode_caps.py:21` |
-| `VAL` | کجا: کپس · چیه: الگوی regex برای برداشتنِ مقدارِ سقف از همان ردیف · مثال: data-plan | ☑ VAL: `abzar/216-migration/scripts/opencode_caps.py:22` |
+| `UPSTREAM` | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد | ☑ UPSTREAM: `abzar/darvaze/scripts/opencode_gateway.py:31` |
+| `PREFIX` | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: claude-oc-deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | ☑ PREFIX: `abzar/darvaze/scripts/opencode_gateway.py:32` |
+| `SERVICE` | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | ☑ SERVICE: `abzar/darvaze/scripts/opencode_gateway.py:33`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:30` |
+| `ACCOUNT` | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf | ☑ ACCOUNT: `abzar/darvaze/scripts/opencode_gateway.py:34`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:31` |
+| `PORT` | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | ☑ PORT: `abzar/darvaze/scripts/opencode_gateway.py:35`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:36`؛ `abzar/darvaze/scripts/opencode_picker.py:27` |
+| `RUNTIME` | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | ☑ RUNTIME: `abzar/darvaze/scripts/opencode_gateway.py:36` |
+| `USAGE` | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | ☑ USAGE: `abzar/darvaze/scripts/opencode_gateway.py:37` |
+| `CAPS` | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | ☑ CAPS: `abzar/darvaze/scripts/opencode_gateway.py:38` |
+| `DROP` | کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد | ☑ DROP: `abzar/darvaze/scripts/opencode_gateway.py:40` |
+| `TRACE_STATE` | کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧ | ☑ TRACE_STATE: `abzar/darvaze/scripts/opencode_gateway.py:48` |
+| `OPENROUTER_CATALOGUE` | کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧ | ☑ OPENROUTER_CATALOGUE: `abzar/darvaze/scripts/opencode_gateway.py:49` |
+| `OPENCODE_CACHE` | کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧ | ☑ OPENCODE_CACHE: `abzar/darvaze/scripts/opencode_gateway.py:50` |
+| `MERGED_CACHE` | کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧ | ☑ MERGED_CACHE: `abzar/darvaze/scripts/opencode_gateway.py:51` |
+| `STATUS` | کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧ | ☑ STATUS: `abzar/darvaze/scripts/opencode_gateway.py:52` |
+| `MESSAGE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه | ☑ MESSAGE_TIMEOUT: `abzar/darvaze/scripts/opencode_gateway.py:59` |
+| `FIRST_BYTE_TIMEOUT` | کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه | ☑ FIRST_BYTE_TIMEOUT: `abzar/darvaze/scripts/opencode_gateway.py:65` |
+| `RETRY_PAUSE` | کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه | ☑ RETRY_PAUSE: `abzar/darvaze/scripts/opencode_gateway.py:66` |
+| `ALARM_STATUSES` | کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند | ☑ ALARM_STATUSES: `abzar/darvaze/scripts/opencode_gateway.py:67` |
+| `OPENROUTER_URL` | کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧ | ☑ OPENROUTER_URL: `abzar/darvaze/scripts/opencode_gateway.py:68` |
+| `CATALOGUE_TTL` | کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت | ☑ CATALOGUE_TTL: `abzar/darvaze/scripts/opencode_gateway.py:69` |
+| `HUNTER_PATTERN` | کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی) | ☑ HUNTER_PATTERN: `abzar/darvaze/scripts/opencode_gateway.py:72` |
+| `OR_HEADERS` | کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta | ☑ OR_HEADERS: `abzar/darvaze/scripts/opencode_gateway.py:74` |
+| `AUTH_HEADERS` | کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer additionalModelOptionsCache | ☑ AUTH_HEADERS: `abzar/darvaze/scripts/opencode_gateway.py:98` |
+| `OPENER` | کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧ | ☑ OPENER: `abzar/darvaze/scripts/opencode_gateway.py:101` |
+| `LOCK` | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | ☑ LOCK: `abzar/darvaze/scripts/opencode_gateway.py:102` |
+| `KNOWN_LOCK` | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | ☑ KNOWN_LOCK: `abzar/darvaze/scripts/opencode_gateway.py:207` |
+| `KNOWN` | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | ☑ KNOWN: `abzar/darvaze/scripts/opencode_gateway.py:208` |
+| `GATEWAY` | کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧ | ☑ GATEWAY: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:35` |
+| `BASE` | کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧ | ☑ BASE: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:37`؛ `abzar/darvaze/scripts/opencode_picker.py:28` |
+| `MODEL` | کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash | ☑ MODEL: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:38` |
+| `PREVIOUS` | کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧ | ☑ PREVIOUS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:39` |
+| `SUBCOMMANDS` | کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧ | ☑ SUBCOMMANDS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:164` |
+| `BARE_FLAGS` | کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help | ☑ BARE_FLAGS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:171` |
+| `VALUE_FLAGS` | کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user | ☑ VALUE_FLAGS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:174` |
+| `OUT` | کجا: فایلِ مصرف و کپس · چیه: فایلی که اپ‌ها می‌خوانند (خلاصهٔ مصرف و سقف) · مثال: ⟦OUT⟧ | ☑ OUT: `abzar/darvaze/scripts/opencode_usage.py:25`؛ `abzar/darvaze/scripts/opencode_caps.py:19` |
+| `MIN_LINE` | کجا: فایلِ مصرف · چیه: فایلِ کنارِ خروجی که آخرین خطِ خوانده‌شده را نگه می‌دارد تا هر بار کلِ لاگ خوانده نشود · مثال: ⟦MIN_LINE⟧ | ☑ MIN_LINE: `abzar/darvaze/scripts/opencode_usage.py:26` |
+| `ANSWERED` | کجا: پیکر · چیه: کلیدی در تنظیماتِ کلاینت که «پاسخِ فهرستِ مدل داده شد» را نگه می‌دارد · مثال: additionalModelOptionsAnsweredAt | ☑ ANSWERED: `abzar/darvaze/scripts/opencode_picker.py:30` |
+| `BIG` | کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount | ☑ BIG: `abzar/darvaze/scripts/opencode_picker.py:31` |
+| `ROOT` | کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api | ☑ ROOT: `abzar/darvaze/scripts/opencode_picker.py:32` |
+| `LOG` | کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧ | ☑ LOG: `abzar/darvaze/scripts/opencode_picker.py:33`؛ `/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15` |
+| `URL` | کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: https://opencode.ai/console/go | ☑ URL: `abzar/darvaze/scripts/opencode_caps.py:18` |
+| `UA` | کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧ | ☑ UA: `abzar/darvaze/scripts/opencode_caps.py:20` |
+| `ROW` | کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model | ☑ ROW: `abzar/darvaze/scripts/opencode_caps.py:21` |
+| `VAL` | کجا: کپس · چیه: الگوی regex برای برداشتنِ مقدارِ سقف از همان ردیف · مثال: data-plan | ☑ VAL: `abzar/darvaze/scripts/opencode_caps.py:22` |
 | `path` | کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧ | ☑ path: `apps/claude-usage/swift/Sources/OpenCode.swift:8` |
 | `names` | کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash | ☑ names: `apps/claude-usage/swift/Sources/OpenCode.swift:11` |
 | `statusPath` | کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧ | ☑ statusPath: `apps/claude-usage/swift/Sources/OpenCode.swift:173` |
@@ -221,30 +221,30 @@
 | `session_id` | کجا: ردیفِ مصرف · چیه: شناسهٔ چت (گفتگو) که کلود کد در هدرِ x-claude-code-session-id می‌فرستد · مثال: 7aa0e8a2-… | ☑ session_id: `claude-ui-buttons.js:34` |
 | `provider` | کجا: ردیفِ مصرف · چیه: سرویسی که پول از آن کم شد: opencode یا openrouter · مثال: opencode | ☑ provider: `mods/hads/hooks/register.js:44` |
 | `model` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash | ☑ model: `mods/hads/hooks/register.js:2` |
-| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/216-migration/scripts/opencode_gateway.py:496` |
-| `mapped_from` | کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus | ☑ mapped_from: `abzar/216-migration/scripts/opencode_gateway.py:284` |
-| `list_cost` | کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021 | ☑ list_cost: `abzar/216-migration/scripts/opencode_gateway.py:13` |
-| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/216-migration/scripts/opencode_gateway.py:755` |
-| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/216-migration/scripts/opencode_gateway.py:756` |
-| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/216-migration/scripts/opencode_gateway.py:507` |
-| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/216-migration/scripts/opencode_gateway.py:515` |
-| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/216-migration/scripts/opencode_gateway.py:668` |
-| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/216-migration/scripts/opencode_gateway.py:669` |
-| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/216-migration/scripts/opencode_gateway.py:553` |
-| `chat_cost` | کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders} | ☑ chat_cost: `abzar/216-migration/scripts/opencode_usage.py:159` |
+| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/darvaze/scripts/opencode_gateway.py:496` |
+| `mapped_from` | کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus | ☑ mapped_from: `abzar/darvaze/scripts/opencode_gateway.py:284` |
+| `list_cost` | کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021 | ☑ list_cost: `abzar/darvaze/scripts/opencode_gateway.py:13` |
+| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/darvaze/scripts/opencode_gateway.py:755` |
+| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/darvaze/scripts/opencode_gateway.py:756` |
+| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/darvaze/scripts/opencode_gateway.py:507` |
+| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/darvaze/scripts/opencode_gateway.py:515` |
+| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/darvaze/scripts/opencode_gateway.py:668` |
+| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/darvaze/scripts/opencode_gateway.py:669` |
+| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/darvaze/scripts/opencode_gateway.py:553` |
+| `chat_cost` | کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders} | ☑ chat_cost: `abzar/darvaze/scripts/opencode_usage.py:159` |
 | `schema` | کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1 | ☑ schema: `claude-ui-buttons.js:2452` |
-| `total` | کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148 | ☑ total: `abzar/216-migration/scripts/opencode_usage.py:134` |
+| `total` | کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148 | ☑ total: `abzar/darvaze/scripts/opencode_usage.py:134` |
 | `unknown` | کجا: chat_cost · چیه: گروهِ ردیف‌های بی‌شناسه؛ پولی که به هیچ چتی نسبت داده نمی‌شود · مثال: {label, cost, requests} | ☑ unknown: `mods/hads/hooks/register.js:44` |
 | `sessions` | کجا: chat_cost · چیه: فهرستِ چت‌ها با شناسه، مسیر، دلار و شمارِ درخواست · مثال: [{session_id, cwd, cost, requests}] | ☑ sessions: `claude-ui-buttons.js:2657` |
 | `folders` | کجا: chat_cost · چیه: فهرستِ فولدرها؛ دلارِ هر فولدر = جمعِ چت‌هایش · مثال: [{label, cost, chats}] | ☑ folders: `claude-host-hook.js:1353` |
-| `USAGE_LOG` | کجا: فایلِ مصرف · چیه: مسیرِ usage.jsonl که هزینهٔ چت و فولدر از آن خوانده می‌شود · مثال: ⟦USAGE_LOG⟧ | ☑ USAGE_LOG: `abzar/216-migration/scripts/opencode_usage.py:30` |
-| `SESSIONS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ سشن‌های زنده که نام و مسیرِ هر چت از آن می‌آید · مثال: ~/.claude/sessions | ☑ SESSIONS_DIR: `abzar/216-migration/scripts/opencode_usage.py:31` |
-| `PROJECTS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ رونوشت‌ها؛ نامِ پوشه مسیرِ پروژه را می‌دهد، بدونِ خواندنِ محتوا · مثال: ~/.claude/projects | ☑ PROJECTS_DIR: `abzar/216-migration/scripts/opencode_usage.py:32` |
-| `UNKNOWN_CHAT` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ ردیف‌های بی‌شناسه در chat_cost · مثال: نامعلوم (پیش از ثبت) | ☑ UNKNOWN_CHAT: `abzar/216-migration/scripts/opencode_usage.py:33` |
-| `UNKNOWN_FOLDER` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ چت‌هایی که مسیرشان پیدا نشد · مثال: نامعلوم (بی‌مسیر) | ☑ UNKNOWN_FOLDER: `abzar/216-migration/scripts/opencode_usage.py:34` |
+| `USAGE_LOG` | کجا: فایلِ مصرف · چیه: مسیرِ usage.jsonl که هزینهٔ چت و فولدر از آن خوانده می‌شود · مثال: ⟦USAGE_LOG⟧ | ☑ USAGE_LOG: `abzar/darvaze/scripts/opencode_usage.py:30` |
+| `SESSIONS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ سشن‌های زنده که نام و مسیرِ هر چت از آن می‌آید · مثال: ~/.claude/sessions | ☑ SESSIONS_DIR: `abzar/darvaze/scripts/opencode_usage.py:31` |
+| `PROJECTS_DIR` | کجا: فایلِ مصرف · چیه: پوشهٔ رونوشت‌ها؛ نامِ پوشه مسیرِ پروژه را می‌دهد، بدونِ خواندنِ محتوا · مثال: ~/.claude/projects | ☑ PROJECTS_DIR: `abzar/darvaze/scripts/opencode_usage.py:32` |
+| `UNKNOWN_CHAT` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ ردیف‌های بی‌شناسه در chat_cost · مثال: نامعلوم (پیش از ثبت) | ☑ UNKNOWN_CHAT: `abzar/darvaze/scripts/opencode_usage.py:33` |
+| `UNKNOWN_FOLDER` | کجا: فایلِ مصرف · چیه: برچسبِ گروهِ چت‌هایی که مسیرشان پیدا نشد · مثال: نامعلوم (بی‌مسیر) | ☑ UNKNOWN_FOLDER: `abzar/darvaze/scripts/opencode_usage.py:34` |
 | `panelController` | کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧ | ☑ panelController: `apps/claude-usage/swift/Sources/App.swift:20` |
-| `TITLE_MAX` | کجا: فایلِ مصرف · چیه: بیشترین طولِ عنوانِ چت که از اولین پیامِ آدم کوتاه می‌شود · مثال: 42 | ☑ TITLE_MAX: `abzar/216-migration/scripts/opencode_usage.py:74` |
-| `HADS_LOG` | کجا: فایلِ مصرف · چیه: پوشهٔ لاگِ کارِ کمکیِ افزونهٔ حدس؛ توکنِ هر چت از آن خوانده می‌شود · مثال: ~/.claude/hads-log | ☑ HADS_LOG: `abzar/216-migration/scripts/opencode_usage.py:119` |
+| `TITLE_MAX` | کجا: فایلِ مصرف · چیه: بیشترین طولِ عنوانِ چت که از اولین پیامِ آدم کوتاه می‌شود · مثال: 42 | ☑ TITLE_MAX: `abzar/darvaze/scripts/opencode_usage.py:74` |
+| `HADS_LOG` | کجا: فایلِ مصرف · چیه: پوشهٔ لاگِ کارِ کمکیِ افزونهٔ حدس؛ توکنِ هر چت از آن خوانده می‌شود · مثال: ~/.claude/hads-log | ☑ HADS_LOG: `abzar/darvaze/scripts/opencode_usage.py:119` |
 | `title` | کجا: chat_cost.sessions[] · چیه: نامِ چت: نامِ سشن، وگرنه اولین پیامِ آدم، وگرنه تهی · مثال: مجری-۱۳۶ | ☑ title: `claude-ui-buttons.js:36` |
 | `hads` | کجا: chat_cost.sessions[] · چیه: توکنِ کارِ کمکیِ حدس برای همان چت: total و parts (هر bakhsh) · مثال: total ۲۵۹۰۵۹۲ | ☑ hads: `mods/hads/hooks/register.js:3` |
 | `had_kamtarin_yad_avari_token` | کجا: نگهبانِ یادآوری · چیه: کفِ آستانهٔ پیامِ «یادداشت بنویس» تا پنجرهٔ کوچک آستانهٔ منفی نسازد · مثال: 30000 | ☑ had_kamtarin_yad_avari_token: `/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:14` |

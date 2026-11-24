@@ -27,6 +27,13 @@ from claude_deepseek import PilotError
 import claude_json_guard
 import opencode_picker as picker
 
+# The gateway is loopback, so no proxy may sit in front of it. Measured
+# ۲۴ نوامبر ۲۰۲۶ ۰۴:۴۵: macOS system proxy was on (127.0.0.1:1087) but nothing
+# was listening — urllib honored it, every /health call was refused, and the
+# wrapper blamed the Keychain while the key was there. Loopback requests go
+# through this opener; upstream calls keep the normal one.
+LOCAL_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
 SERVICE = 'habib-claude-opencode'
 ACCOUNT = 'windsurf'
 # The local gateway (opencode_gateway.py) sits in front of opencode.ai: it
@@ -41,7 +48,7 @@ PREVIOUS = Path.home() / '.claude/claude_abzar_kam.sh'
 
 def gateway_up():
     try:
-        with urllib.request.urlopen(f'{BASE}/health', timeout=2) as response:
+        with LOCAL_OPENER.open(f'{BASE}/health', timeout=2) as response:
             return response.status == 200
     except OSError:
         return False
@@ -77,13 +84,13 @@ def read_key():
     find.restype = ctypes.c_int32
     if find(None, len(service), service, len(account), account,
             ctypes.byref(length), ctypes.byref(data), None):
-        raise PilotError('credential unavailable')
+        raise PilotError('کلید OpenCode Go در Keychain نیست (habib-claude-opencode / windsurf).')
     try:
         key = ctypes.string_at(data, length.value).decode().strip()
     finally:
         sec.SecKeychainItemFreeContent(None, data)
     if not key or any(c.isspace() for c in key):
-        raise PilotError('Invalid credential')
+        raise PilotError('کلید OpenCode Go در Keychain خراب است (خالی یا دارای فاصله).')
     return key
 
 
@@ -96,7 +103,7 @@ def seed_discovery_cache():
     {baseUrl, fetchedAt, models:[{id, display_name}]}.
     """
     try:
-        with urllib.request.urlopen(f'{BASE}/local/models.json', timeout=10) as response:
+        with LOCAL_OPENER.open(f'{BASE}/local/models.json', timeout=10) as response:
             rows = json.loads(response.read()).get('models', [])
     except (OSError, ValueError):
         return False
@@ -127,7 +134,7 @@ def picker_settings(entries=None):
     rows = entries
     if rows is None:
         try:
-            with urllib.request.urlopen(f'{BASE}/local/models.json', timeout=10) as response:
+            with LOCAL_OPENER.open(f'{BASE}/local/models.json', timeout=10) as response:
                 rows = json.loads(response.read()).get('models', [])
         except (OSError, ValueError):
             return None
@@ -290,7 +297,7 @@ def drop_alias_model(argv, rows):
 def prepare(argv):
     env = os.environ.copy()
     if not ensure_gateway():
-        raise PilotError('دروازهٔ محلی بالا نیامد')
+        raise PilotError(f'دروازهٔ محلی {BASE} بالا نیامد؛ opencode_gateway.py اجرا نشد.')
     seed_discovery_cache()
     env['ANTHROPIC_BASE_URL'] = BASE
     # Discovering /v1/models is what makes the full list appear in the picker;
@@ -322,7 +329,7 @@ def prepare(argv):
 def exec_previous(argv, env):
     """Hand over to the tool-policy wrapper; never returns on success."""
     if not PREVIOUS.is_file():
-        raise PilotError('Previous tool-policy wrapper unavailable')
+        raise PilotError(f'رَپرِ قبلی نیست: {PREVIOUS}')
     os.execve(str(PREVIOUS), [str(PREVIOUS), *argv], env)
     return 1  # execve only returns on failure
 
@@ -330,7 +337,7 @@ def exec_previous(argv, env):
 def main():
     try:
         if len(sys.argv) < 2:
-            raise PilotError('Missing native binary')
+            raise PilotError('برنامهٔ کلود کد داده نشد (آرگومانِ اول خالی است).')
         argv, env = prepare([sys.argv[1], *sys.argv[2:]])
         claude_json_guard.drop()
         if is_subcommand(argv):
@@ -347,9 +354,14 @@ def main():
         if dropped:
             picker.log(f'--model حذف شد (مدلِ اوپن کد نیست): {dropped}')
         return exec_previous(argv, env)
-    except (OSError, ValueError, PilotError):
-        print('کلید OpenCode Go در Keychain نیست؛ وینسرف فعلاً باید روی Standard Compute بماند.',
-              file=sys.stderr)
+    except PilotError as error:
+        # One honest line per real cause. Before ۲۴ نوامبر every failure here
+        # printed the Keychain line, which sent Habib hunting for a key that
+        # was already in Keychain while the gateway was the thing that failed.
+        print(str(error), file=sys.stderr)
+        return 1
+    except (OSError, ValueError) as error:
+        print(f'رَپرِ کلود کد شکست خورد: {type(error).__name__}: {error}', file=sys.stderr)
         return 1
 
 

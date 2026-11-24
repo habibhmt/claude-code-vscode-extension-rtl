@@ -818,7 +818,7 @@
      * A tick writes claude-api/model-filter.json; the picker reads that file on every
      * rebuild, so the menu changes without touching the extension bundle.
      */
-    var PRV_ROOT = '/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/abzar/216-migration';
+    var PRV_ROOT = '/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/abzar/darvaze';
 
     // The tree and the file writing live in a module so they can be tested
     // without VS Code; this function is only the transport.

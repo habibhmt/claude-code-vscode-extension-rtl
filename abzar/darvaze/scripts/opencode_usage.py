@@ -230,7 +230,7 @@ def chat_costs():
 def snapshot():
     if not wrapper.ensure_gateway():
         raise SystemExit('دروازهٔ محلی بالا نیامد')
-    with urllib.request.urlopen(f'{wrapper.BASE}/local/usage.json', timeout=30) as response:
+    with wrapper.LOCAL_OPENER.open(f'{wrapper.BASE}/local/usage.json', timeout=30) as response:
         return json.loads(response.read())
 
 

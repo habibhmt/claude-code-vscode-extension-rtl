@@ -18,7 +18,7 @@ def dadeh_fields():
     """کلیدهایی که واقعاً در داده هستند: ردیف‌های usage.jsonl + کلیدهای opencode-go.json (تودرتو)."""
     import json
     out = set()
-    usage = os.path.join(m.RISHE, 'abzar/216-migration/.runtime/opencode-go/usage.jsonl')
+    usage = os.path.join(m.RISHE, 'abzar/darvaze/.runtime/opencode-go/usage.jsonl')
     if os.path.exists(usage):
         # کلِ فایل، نه فقط چند ردیف: فیلدهای تشخیصی تازه‌اند و ردیف‌های قدیمی ندارندشان،
         # و `mapped_from` فقط در ردیف‌های نگاشت‌شده هست (سنجیده ۲۳ نوامبر ۱۷:۳۴).

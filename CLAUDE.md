@@ -12,7 +12,7 @@
 > |---|---|
 > | `Doc/tarif/` | تعریف‌ها و پروپوزال‌ها (`31` تا `38`) + `19_open_tasks.md` (دفتر) |
 > | `Doc/abzar/` | ابزارهای سنجش (`peer_send.py`، `websearch_brave.py`، `chek_motaghayer.py`، `jadval_motaghayer.py`) |
-> | `abzar/216-migration/scripts/` | دروازهٔ محلی (`opencode_gateway.py`) |
+> | `abzar/darvaze/scripts/` | دروازهٔ محلی (`opencode_gateway.py`) |
 > | `Doc/shenasname_*.toml` + `Doc/jadval_motaghayerha.md` | شناسنامهٔ متغیرها (ساخته‌شده) |
 > | `barge/barge.toml` | «مقدار فعلی در برگه» (ساخته‌شده با `abzar/barge_saz.py`) |
 > | `claude-ui-buttons.js` | افزونهٔ UI (هاور، پنل) |
@@ -33,7 +33,7 @@
 > ▪ باطل می‌شود اگر: حبیب بگوید «بدونِ چک رد شدی» ⇐ در گزارش باید خطِ «بایست و بازبینی» باشد، نه فقط «انجام شد».
 
 > ## 📌 عدد فقط در یک فایل
-> مقدارهای فعلی در `barge/barge.toml` (ساخته‌شده)؛ اسم‌ها در `Doc/shenasname_motaghayerha.toml`؛ مصرف در `abzar/216-migration/.runtime/opencode-go/usage.jsonl`. هیچ عددی در گزارش از حافظه نمی‌آید.
+> مقدارهای فعلی در `barge/barge.toml` (ساخته‌شده)؛ اسم‌ها در `Doc/shenasname_motaghayerha.toml`؛ مصرف در `abzar/darvaze/.runtime/opencode-go/usage.jsonl`. هیچ عددی در گزارش از حافظه نمی‌آید.
 > ▪ باطل می‌شود اگر: حبیب بگوید «این عدد از کجا آمد» ⇐ `python3 Doc/abzar/chek_motaghayer.py` و دیدنِ خطِ `# از <فایل>:<خط>`.
 
 > ## 📌 سرویس‌ها و کلیدها
@@ -45,6 +45,12 @@
 > | کلیدِ Brave | Keychain: `ramz-web:api.search.brave.com` (۲۰۰۰/۳۰روز) |
 > | جست‌وجوی وب | Brave MCP / `exa` بیکلید / `Doc/abzar/websearch_brave.py` — `WebSearch`ِ درونی روی دروازه کار نمی‌کند |
 > ▪ باطل می‌شود اگر: حبیب بگوید «باز رمز از من پرسیدی» یا «پنجره آمد جلو» ⇐ `security find-generic-password -s habib-claude-code-openrouter -w | wc -c` (فقط طول) و `lsof -iTCP:9226 -sTCP:LISTEN | wc -l`.
+
+> ## 📌 تغییرِ نام یا جابه‌جایی = شکستنِ همهٔ اتصال‌ها
+> پیش از هر `mv` یا rename، اول این پنج جا را بگرد، بعد جابه‌جا کن:
+> ۱ · `~/Library/Application Support/Code/User/settings.json` (مثلِ `claudeCode.claudeProcessWrapper`) · ۲ · `~/Library/LaunchAgents/*.plist` (هم مسیرِ برنامه، هم WorkingDirectory، هم مسیرِ لاگ) · ۳ · `~/.claude/*` و استارت‌آپ‌ها · ۴ · اسکریپت‌هایی که با `exec "$@"` برنامه را صدا می‌زنند · ۵ · `git grep -n "<نامِ قدیمی>"`.
+> **ری‌استارتِ درست:** بعد از تغییرِ plist، `launchctl kickstart -k` تعریفِ **کش‌شده** را اجرا می‌کند، نه فایلِ تازه ⇒ `launchctl bootout gui/501/<label>` سپس `launchctl bootstrap gui/501 <plist>`.
+> ▪ باطل می‌شود اگر: حبیب بگوید «چت باز نمی‌شود» یا «سرویس مرد» ⇐ `grep -rn "<نامِ قدیمی>"` روی آن پنج جا = ۰ · `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:50990/v1/models` = ۲۰۰ · `launchctl print gui/501/com.habib.opencode-gateway | grep state` = running.
 
 > ## 📌 کامیت و پوش فقط با «بله»
 > هیچ کامیت، تگ یا پوشی بی گفتنِ صریحِ حبیب نیست. کامیتِ فایل‌های ساخته‌شده همیشه همراهِ سازنده‌شان.

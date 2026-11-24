@@ -78,6 +78,10 @@ run "shenasname saz" python3 Doc/abzar/jadval_motaghayer.py
 run "barge saz" python3 abzar/barge_saz.py
 run "motaghayer" python3 Doc/abzar/chek_motaghayer.py
 run "tatbigh" python3 Doc/abzar/tatbigh_opencode.py
+# تعریف ۴۹: امروز گزارش‌گر است، نه گیت (حبیب ۲۴ نوامبر ۲۲:۱۵ «گزارش‌گر شود»):
+# بدهیِ «استریمِ خالی» درمان نشده و قرمزِ همیشگی یعنی قرمزی که کسی نگاهش نمی‌کند.
+# عدد در ردیفِ ۱۱۳ دفتر ۱۹ می‌ماند؛ گیت‌کردن روزی که بدهی صفر شد.
+run "log kamel" python3 Doc/abzar/chek_log_kamel.py --az 2026-11-24T18:46:00Z --report
 run "remembr cache" python3 Doc/abzar/test_remembr_cache.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh

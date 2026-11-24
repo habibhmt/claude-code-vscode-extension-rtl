@@ -483,7 +483,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         # ثبتِ تشخیصی (شرطِ ناظر-۱۳۶، ۰۵:۱۷): فقط اندازه و زمان‌ها؛ محتوای بدنه
         # و هیچ هدرِ کلید/توکن هرگز نوشته نمی‌شود.
         t0 = time.monotonic()
+        # تعریف ۴۹: ردیفِ بی‌صاحب ممنوع. اگر کلاینت شناسه نفرستاد، دروازه خودش
+        # می‌سازد و `session_source` می‌گوید ساختگی است — هیچ ردیفی بی‌صاحب نمی‌ماند.
         session_id = self.headers.get('x-claude-code-session-id') or None
+        if not session_id:
+            session_id = 'gen-' + uuid.uuid4().hex[:16]
+            session_source = 'generated'
+        else:
+            session_source = 'client'
         try:
             size = int(self.headers.get('Content-Length', '-1'))
             if not 0 <= size <= 32 * 1024 * 1024:
@@ -501,10 +508,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         # رشتهٔ ورودی است و تهی‌بودنش ملاک نیست (ایرادِ سنجیده‌شده در ۲۰:۱۰).
         if provider is None or sent is None:
             wanted = body.get('model')
+            # `provider` همیشه نوشته می‌شود (تعریف ۴۹): مدل پیش از انتخابِ پرووایدر رد
+            # شده، پس پرووایدر `none` است، نه تهی — تهی با «نمی‌دانیم» قاطی می‌شد.
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                  'provider': 'none', 'provider_reason': 'unknown_model',
                   'work_type': 'messages', 'model': None, 'requested': wanted,
                   'status': 400, 'error': 'unknown_model',
-                  'session_id': session_id, 'request_bytes': size})
+                  'session_id': session_id, 'session_source': session_source, 'request_bytes': size})
             payload = json.dumps({'type': 'error', 'error': {
                 'type': 'invalid_request_error',
                 'message': f'مدلِ «{wanted}» در اوپن کد نیست؛ هیچ مدلی جای آن جواب نمی‌دهد.'}},
@@ -548,9 +558,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         except (TimeoutError, OSError, urllib.error.URLError) as error:
             elapsed = round((time.monotonic() - started) * 1000)
             if is_timeout(error):
+                # `session_id` هم نوشته می‌شود: ردیفِ تایم‌اوت هم باید بداند مالِ کدام
+                # چت بود (تعریف ۴۹ — بی‌صاحبِ امروز از همین مسیر می‌آمد).
                 note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                       'provider': provider, 'work_type': 'messages', 'model': sent,
                       'requested': original_model, 'status': 504,
+                      'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                       'duration_ms': elapsed, 'attempts': 1,
                       'error': 'timeout'})
                 set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
@@ -562,6 +575,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': provider, 'work_type': 'messages', 'model': sent,
                   'requested': original_model, 'status': 502,
+                  'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                   'duration_ms': elapsed, 'attempts': 2,
                   'error': 'transport_error: ' + str(error)[:180]})
             set_status(provider, 502, 'خطای انتقال به سرویس')
@@ -658,7 +672,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': provider, 'work_type': 'messages', 'model': sent,
                   'requested': original_model, 'status': 504,
-                  'session_id': session_id, 'request_bytes': size,
+                  'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                   'duration_ms': elapsed, 'attempts': attempts,
                   'error': 'first_byte_timeout'})
             set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
@@ -677,7 +691,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                'work_type': 'count_tokens' if self.path.endswith('count_tokens') else 'messages',
                'model': sent,
                'requested': original_model, 'status': status,
-               'session_id': session_id, 'request_bytes': size,
+               'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                'upload_ms': upload_ms, 'wait_ms': wait_ms, 'stream_ms': stream_ms,
                # مدتِ کل مستقل از سه جزء اندازه‌گیری می‌شود تا آزمونِ
                # «جمع = کل» واقعاً چیزی را بسنجد (خرابکاریِ اولش کور بود).

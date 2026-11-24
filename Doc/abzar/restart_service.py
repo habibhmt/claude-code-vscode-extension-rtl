@@ -124,8 +124,20 @@ def main():
             ['launchctl', 'bootout', f'gui/{uid}/{label}'],
             ['launchctl', 'bootstrap', f'gui/{uid}', plist_of(label)]]
     for cmd in cmds:
+        # بین bootout و bootstrap باید نفس کشید: سرویسِ در حالِ خروج،
+        # «5: Input/output error» می‌دهد (سنجیده ۲۴ نوامبر ۲۲:۱۴).
+        if cmd[1] == 'bootstrap':
+            time.sleep(3)
         rc, out = run(cmd)
         print(' '.join(cmd), '⇒', rc, out)
+        if cmd[1] == 'bootstrap' and rc != 0:
+            # دو تلاشِ دیگر با فاصله، پیش از برگشت به پشتیبان.
+            for _ in range(2):
+                time.sleep(3)
+                rc, out = run(cmd)
+                print('  تلاشِ دوباره bootstrap ⇒', rc, out)
+                if rc == 0:
+                    break
         if cmd[1] == 'bootstrap' and rc != 0:
             print('❌ bootstrap نشد — برگشت به پشتیبان')
             shutil.copy2(os.path.join(d, os.path.basename(plist_of(label))), plist_of(label))

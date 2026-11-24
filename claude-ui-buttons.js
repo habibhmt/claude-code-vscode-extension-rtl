@@ -1015,7 +1015,7 @@
     var names = Object.keys(G);
     // `_` counts as part of a word so post_buy_gate never lights up inside post_buy_gate_1_s
     GLOSS.RE = names.length
-      ? new RegExp('(^|[^A-Za-z0-9_])(' + names.sort(function (a, b) { return b.length - a.length; }).join('|') + ')(?![A-Za-z0-9_])', 'g')
+      ? new RegExp('(^|[^A-Za-z0-9_\\u0600-\\u06FF\\u200C])(' + names.sort(function (a, b) { return b.length - a.length; }).join('|') + ')(?![A-Za-z0-9_\\u0600-\\u06FF\\u200C])', 'g')
       : null;
     if (GLOSS.HL) GLOSS.HL.clear();
     if (GLOSS.HL_PEND) GLOSS.HL_PEND.clear();
@@ -1055,12 +1055,14 @@
     if (GLOSS.wired) return;
     GLOSS.wired = true;
     var SKIP = 'pre,textarea,input,script,style,#crtl-gloss,#crtl-panel,[class*="messageInputContainer_"],[contenteditable="true"]';
-    var WORD = /[A-Za-z0-9_]/;
+    // فارسی هم کلمه است: حروفِ عربی/فارسی U+0600–U+06FF و نیم‌فاصله U+200C
+    // (حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۵۴: «بزن» برای م۱۹ — نُه کارتِ فارسی دیده نمی‌شدند).
+    var WORD = /[A-Za-z0-9_\u0600-\u06FF\u200C]/;
     // نام‌های خط‌تیره‌دار (`harness-cli-claude-code`) با WORDِ بالا هرگز کامل
     // نمی‌شوند، پس کارتشان نمی‌آمد (ناظر-۱۳۶ ۲۳:۲۶). حالا تا انتهای خط‌تیره‌ها
     // باز می‌شود، ولی فقط اگر عیناً یکی از نام‌های ثبت‌شده باشد؛ وگرنه هر جملهٔ
     // خط‌تیره‌دار کارت می‌گرفت.
-    var WORD_DASH = /[A-Za-z0-9_-]/;
+    var WORD_DASH = /[A-Za-z0-9_\u0600-\u06FF\u200C-]/;
     // INVARIANT — never add, remove or replace a node inside the chat. The
     // messages are React's; rewriting a text node to wrap a match in a <span>
     // made React lose track of its own children and the whole panel died with

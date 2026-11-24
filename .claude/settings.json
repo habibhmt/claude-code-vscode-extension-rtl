@@ -2,8 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(echo \"exit=$?\")",
-      "Bash(git -C /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/186-montaghel/app status --short)",
-      "Bash(git -C /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/186-montaghel/app log --oneline -5)",
+      "Bash(git -C /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/apps/claude-usage/app status --short)",
+      "Bash(git -C /Users/habib/1-MY-WORK/136th-day-fix-rtl-claude/apps/claude-usage/app log --oneline -5)",
       "Bash(python3 -I -)"
     ]
   }

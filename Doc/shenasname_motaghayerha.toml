@@ -1030,7 +1030,7 @@ ba_motaghayerha = ["DEF"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["aaSend", "khandan_tanzim", "zakhire_tanzim"]
-jaye = ["claude-ui-buttons.js:206", "abzar/darvaze/scripts/opencode_gateway.py:97", "abzar/darvaze/scripts/opencode_picker.py:29"]
+jaye = ["claude-ui-buttons.js:206", "abzar/darvaze/scripts/opencode_gateway.py:97", "abzar/darvaze/scripts/opencode_picker.py:35"]
 
 [DEF]
 yani = "تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها)"
@@ -1846,7 +1846,7 @@ ba_motaghayerha = ["ACCOUNT", "AUTH_HEADERS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:33", "abzar/darvaze/scripts/vscode_opencode_wrapper.py:30"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:33", "abzar/darvaze/scripts/vscode_opencode_wrapper.py:37"]
 
 [ACCOUNT]
 yani = "کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf"
@@ -1858,7 +1858,7 @@ ba_motaghayerha = ["SERVICE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:34", "abzar/darvaze/scripts/vscode_opencode_wrapper.py:31"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:34", "abzar/darvaze/scripts/vscode_opencode_wrapper.py:38"]
 
 [PORT]
 yani = "کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧"
@@ -1870,7 +1870,7 @@ ba_motaghayerha = ["BASE", "UPSTREAM"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:35", "abzar/darvaze/scripts/vscode_opencode_wrapper.py:36", "abzar/darvaze/scripts/opencode_picker.py:27"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:35", "abzar/darvaze/scripts/vscode_opencode_wrapper.py:43", "abzar/darvaze/scripts/opencode_picker.py:33"]
 
 [RUNTIME]
 yani = "کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl"
@@ -2146,7 +2146,7 @@ ba_motaghayerha = ["PORT", "BASE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:35"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:42"]
 
 [BASE]
 yani = "کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧"
@@ -2158,7 +2158,7 @@ ba_motaghayerha = ["PORT", "GATEWAY"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:37", "abzar/darvaze/scripts/opencode_picker.py:28"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:44", "abzar/darvaze/scripts/opencode_picker.py:34"]
 
 [MODEL]
 yani = "کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash"
@@ -2170,7 +2170,7 @@ ba_motaghayerha = ["BASE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:38"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:45"]
 
 [PREVIOUS]
 yani = "کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧"
@@ -2182,7 +2182,7 @@ ba_motaghayerha = ["GATEWAY"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:39"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:46"]
 
 [SUBCOMMANDS]
 yani = "کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧"
@@ -2194,7 +2194,7 @@ ba_motaghayerha = ["VALUE_FLAGS", "BARE_FLAGS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:164"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:171"]
 
 [BARE_FLAGS]
 yani = "کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help"
@@ -2206,7 +2206,7 @@ ba_motaghayerha = ["SUBCOMMANDS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:171"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:178"]
 
 [VALUE_FLAGS]
 yani = "کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user"
@@ -2218,7 +2218,7 @@ ba_motaghayerha = ["SUBCOMMANDS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ رَپر، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:174"]
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:181"]
 
 [OUT]
 yani = "کجا: فایلِ مصرف و کپس · چیه: فایلی که اپ‌ها می‌خوانند (خلاصهٔ مصرف و سقف) · مثال: ⟦OUT⟧"
@@ -2254,7 +2254,7 @@ ba_motaghayerha = ["BIG", "ROOT"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_picker.py:30"]
+jaye = ["abzar/darvaze/scripts/opencode_picker.py:36"]
 
 [BIG]
 yani = "کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount"
@@ -2266,7 +2266,7 @@ ba_motaghayerha = ["ANSWERED", "ROOT"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_picker.py:31"]
+jaye = ["abzar/darvaze/scripts/opencode_picker.py:37"]
 
 [ROOT]
 yani = "کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api"
@@ -2278,7 +2278,7 @@ ba_motaghayerha = ["LOG", "BIG"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_picker.py:32"]
+jaye = ["abzar/darvaze/scripts/opencode_picker.py:38"]
 
 [LOG]
 yani = "کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧"
@@ -2290,7 +2290,7 @@ ba_motaghayerha = ["ROOT", "MODEL"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ منوی مدل، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_picker.py:33", "~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15"]
+jaye = ["abzar/darvaze/scripts/opencode_picker.py:39", "~/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15"]
 
 [URL]
 yani = "کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: https://opencode.ai/console/go"
@@ -2345,7 +2345,7 @@ yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که �
 meghdar = ""
 chera = "اپ فقط می‌خواند؛ هیچ عددی نمی‌سازد"
 noe = "sabet"
-ozv = "ap186"
+ozv = "app_usage"
 ba_motaghayerha = ["statusPath", "OUT"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
@@ -2357,7 +2357,7 @@ yani = "کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛
 meghdar = ""
 chera = "کاربر نامِ خوانا ببیند"
 noe = "sabet"
-ozv = "ap186"
+ozv = "app_usage"
 ba_motaghayerha = ["path"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
@@ -2369,7 +2369,7 @@ yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ در
 meghdar = ""
 chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
 noe = "sabet"
-ozv = "ap186"
+ozv = "app_usage"
 ba_motaghayerha = ["path", "STATUS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
@@ -2381,7 +2381,7 @@ yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برا
 meghdar = ""
 chera = "دو نسخه هم‌زمان دو نوار می‌ساختند"
 noe = "sabet"
-ozv = "ap186"
+ozv = "app_usage"
 ba_motaghayerha = ["alarms"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
@@ -2393,7 +2393,7 @@ yani = "کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Ala
 meghdar = ""
 chera = "هشدار جدا از نمایشِ نوار است"
 noe = "sabet"
-ozv = "ap186"
+ozv = "app_usage"
 ba_motaghayerha = ["kBundleID"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوامبر ۲۰۲۶)"
@@ -2717,7 +2717,7 @@ yani = "کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌
 meghdar = ""
 chera = "حبیب ۲۳ نوامبر ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
 noe = "sabet"
-ozv = "ap186"
+ozv = "app_usage"
 ba_motaghayerha = ["chat_cost"]
 tarif = "28"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
@@ -3179,3 +3179,27 @@ tarif = "31"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
 khanandeha = []
 jaye = ["/Applications/OpenCode.app"]
+
+[LOCAL_OPENER]
+yani = "کجا: رَپرِ VS Code · چیه: openerِ بی‌پروکسی برای درخواست‌های loopback به دروازه · مثال: ⟦LOCAL_OPENER⟧"
+meghdar = ""
+chera = "۲۴ نوامبر ۲۰۲۶: پروکسیِ سیستم روی ۱۲۷٫۰٫۰٫۱:۱۰۸۷ کسی گوش نمی‌داد ولی urllib از آن رد می‌شد و هر /health رد می‌شد"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = []
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۴ نوامبر ۲۰۲۶ ۰۴:۴۵)"
+khanandeha = []
+jaye = ["abzar/darvaze/scripts/vscode_opencode_wrapper.py:35"]
+
+[PICKER_OPENER]
+yani = "کجا: opencode_picker · چیه: openerِ بی‌پروکسی برای فراخوانی loopback دروازه · مثال: ⟦PICKER_OPENER⟧"
+meghdar = ""
+chera = "پروکسیِ خاموشِ سیستم نباید درخواستِ محلی را ببلعد (همان شکستِ ۲۴ نوامبر ۲۰۲۶)"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = []
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۴ نوامبر ۲۰۲۶)"
+khanandeha = []
+jaye = ["abzar/darvaze/scripts/opencode_picker.py:31"]

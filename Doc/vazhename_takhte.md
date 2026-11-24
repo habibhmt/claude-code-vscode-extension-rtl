@@ -101,7 +101,7 @@
 | `ERRORS` | خطاهای خودِ اسکریپتِ صفحه، برای دکمهٔ «تست» ِ پنل | ☑ ERRORS: `claude-ui-buttons.js:22` |
 | `SESSION` | چتِ این برگه: شناسه، اسم، تیتر (بعد از /clear یا resume عوض می‌شود) | ☑ SESSION: `claude-ui-buttons.js:37`؛ `abzar/darvaze/scripts/opencode_gateway.py:39` |
 | `DEFAULT_COMMANDS` | دکمه‌های پیش‌فرضِ نوارِ بالا | ☑ DEFAULT_COMMANDS: `claude-ui-buttons.js:145` |
-| `KEY` | کلیدِ localStorage ِ تنظیم‌های پنل | ☑ KEY: `claude-ui-buttons.js:206`؛ `abzar/darvaze/scripts/opencode_gateway.py:97`؛ `abzar/darvaze/scripts/opencode_picker.py:29` |
+| `KEY` | کلیدِ localStorage ِ تنظیم‌های پنل | ☑ KEY: `claude-ui-buttons.js:206`؛ `abzar/darvaze/scripts/opencode_gateway.py:97`؛ `abzar/darvaze/scripts/opencode_picker.py:35` |
 | `DEF` | تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها) | ☑ DEF: `claude-ui-buttons.js:207` |
 | `LIMITS` | کمترین و بیشترینِ هر اندازه در پنل | ☑ LIMITS: `claude-ui-buttons.js:234` |
 | `PRESETS` | حالت‌های آمادهٔ اندازه‌ها | ☑ PRESETS: `claude-ui-buttons.js:235` |
@@ -169,9 +169,9 @@
 | `TZ_REMEMBER_TOKEN` | کجا: راهنمای زیرِ ردیفِ اتوکامپکت · چیه: رممبر این‌قدر پیش از کامپکت می‌آید · مثال: ⟦TZ_REMEMBER_TOKEN⟧ توکن | ☑ TZ_REMEMBER_TOKEN: `claude-ui-buttons.js:2459` |
 | `UPSTREAM` | کجا: دروازه · چیه: آدرسِ پایهٔ اوپن‌کد که پیام‌ها به آن می‌رود · مثال: پیامِ کلود کد به https://opencode.ai/inference/go می‌رسد | ☑ UPSTREAM: `abzar/darvaze/scripts/opencode_gateway.py:31` |
 | `PREFIX` | کجا: دروازه · چیه: پیشوندِ دورهٔ اولِ شناسهٔ مدل‌ها؛ دروازه پیش از فرستادن برشش می‌دهد · مثال: claude-oc-deepseek-v4.1-flash ⇒ deepseek-v4.1-flash | ☑ PREFIX: `abzar/darvaze/scripts/opencode_gateway.py:32` |
-| `SERVICE` | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | ☑ SERVICE: `abzar/darvaze/scripts/opencode_gateway.py:33`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:30` |
-| `ACCOUNT` | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf | ☑ ACCOUNT: `abzar/darvaze/scripts/opencode_gateway.py:34`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:31` |
-| `PORT` | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | ☑ PORT: `abzar/darvaze/scripts/opencode_gateway.py:35`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:36`؛ `abzar/darvaze/scripts/opencode_picker.py:27` |
+| `SERVICE` | کجا: دروازه و رَپر · چیه: نامِ سرویس در Keychain که کلیدِ اوپن‌کد زیرِ آن است · مقدار هرگز خوانده یا نوشته نمی‌شود | ☑ SERVICE: `abzar/darvaze/scripts/opencode_gateway.py:33`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:37` |
+| `ACCOUNT` | کجا: دروازه و رَپر · چیه: حسابِ همان سرویس در Keychain (کدام هارنس) · مثال: windsurf | ☑ ACCOUNT: `abzar/darvaze/scripts/opencode_gateway.py:34`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:38` |
+| `PORT` | کجا: دروازه، رَپر و پیکر · چیه: پورتِ محلیِ دروازه که هر سه یکی است · مثال: 127.0.0.1:⟦PORT⟧ | ☑ PORT: `abzar/darvaze/scripts/opencode_gateway.py:35`؛ `abzar/darvaze/scripts/vscode_opencode_wrapper.py:43`؛ `abzar/darvaze/scripts/opencode_picker.py:33` |
 | `RUNTIME` | کجا: دروازه · چیه: پوشهٔ دادهٔ دروازه (فایلِ مصرف، سقف، وضعیت، کشِ مدل‌ها) · مثال: ⟦RUNTIME⟧/usage.jsonl | ☑ RUNTIME: `abzar/darvaze/scripts/opencode_gateway.py:36` |
 | `USAGE` | کجا: دروازه · چیه: فایلِ مصرف؛ هر درخواست یک ردیف با provider و مدل و هزینه و زمان‌ها · مثال: ⟦USAGE⟧ | ☑ USAGE: `abzar/darvaze/scripts/opencode_gateway.py:37` |
 | `CAPS` | کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧ | ☑ CAPS: `abzar/darvaze/scripts/opencode_gateway.py:38` |
@@ -194,19 +194,19 @@
 | `LOCK` | کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧ | ☑ LOCK: `abzar/darvaze/scripts/opencode_gateway.py:102` |
 | `KNOWN_LOCK` | کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧ | ☑ KNOWN_LOCK: `abzar/darvaze/scripts/opencode_gateway.py:207` |
 | `KNOWN` | کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at} | ☑ KNOWN: `abzar/darvaze/scripts/opencode_gateway.py:208` |
-| `GATEWAY` | کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧ | ☑ GATEWAY: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:35` |
-| `BASE` | کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧ | ☑ BASE: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:37`؛ `abzar/darvaze/scripts/opencode_picker.py:28` |
-| `MODEL` | کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash | ☑ MODEL: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:38` |
-| `PREVIOUS` | کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧ | ☑ PREVIOUS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:39` |
-| `SUBCOMMANDS` | کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧ | ☑ SUBCOMMANDS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:164` |
-| `BARE_FLAGS` | کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help | ☑ BARE_FLAGS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:171` |
-| `VALUE_FLAGS` | کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user | ☑ VALUE_FLAGS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:174` |
+| `GATEWAY` | کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧ | ☑ GATEWAY: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:42` |
+| `BASE` | کجا: رَپر و پیکر · چیه: آدرسِ محلیِ دروازه که به کلود کد داده می‌شود · مثال: ⟦BASE⟧ | ☑ BASE: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:44`؛ `abzar/darvaze/scripts/opencode_picker.py:34` |
+| `MODEL` | کجا: رَپر · چیه: مدلِ پیش‌فرض و مدلِ همهٔ نام‌های مستعار (opus/sonnet/haiku) · مثال: deepseek-v4.1-flash | ☑ MODEL: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:45` |
+| `PREVIOUS` | کجا: رَپر · چیه: رَپرِ بعدیِ زنجیره (سیاستِ ابزارها) که اجرا به آن سپرده می‌شود · مثال: ⟦PREVIOUS⟧ | ☑ PREVIOUS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:46` |
+| `SUBCOMMANDS` | کجا: رَپر · چیه: زیرفرمان‌هایی که باید دست‌نخورده رد شوند (auth، mcp، workspace-trust …) · مثال: ⟦SUBCOMMANDS⟧ | ☑ SUBCOMMANDS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:171` |
+| `BARE_FLAGS` | کجا: رَپر · چیه: پرچم‌های تنهای پرسشی که کلاینت را نباید دست بزنیم · مثال: --version و --help | ☑ BARE_FLAGS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:178` |
+| `VALUE_FLAGS` | کجا: رَپر · چیه: پرچم‌هایی که یک مقدار می‌گیرند تا مقدارشان به‌جای زیرفرمان خوانده نشود · مثال: --setting-sources user | ☑ VALUE_FLAGS: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:181` |
 | `OUT` | کجا: فایلِ مصرف و کپس · چیه: فایلی که اپ‌ها می‌خوانند (خلاصهٔ مصرف و سقف) · مثال: ⟦OUT⟧ | ☑ OUT: `abzar/darvaze/scripts/opencode_usage.py:25`؛ `abzar/darvaze/scripts/opencode_caps.py:19` |
 | `MIN_LINE` | کجا: فایلِ مصرف · چیه: فایلِ کنارِ خروجی که آخرین خطِ خوانده‌شده را نگه می‌دارد تا هر بار کلِ لاگ خوانده نشود · مثال: ⟦MIN_LINE⟧ | ☑ MIN_LINE: `abzar/darvaze/scripts/opencode_usage.py:26` |
-| `ANSWERED` | کجا: پیکر · چیه: کلیدی در تنظیماتِ کلاینت که «پاسخِ فهرستِ مدل داده شد» را نگه می‌دارد · مثال: additionalModelOptionsAnsweredAt | ☑ ANSWERED: `abzar/darvaze/scripts/opencode_picker.py:30` |
-| `BIG` | کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount | ☑ BIG: `abzar/darvaze/scripts/opencode_picker.py:31` |
-| `ROOT` | کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api | ☑ ROOT: `abzar/darvaze/scripts/opencode_picker.py:32` |
-| `LOG` | کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧ | ☑ LOG: `abzar/darvaze/scripts/opencode_picker.py:33`؛ `/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15` |
+| `ANSWERED` | کجا: پیکر · چیه: کلیدی در تنظیماتِ کلاینت که «پاسخِ فهرستِ مدل داده شد» را نگه می‌دارد · مثال: additionalModelOptionsAnsweredAt | ☑ ANSWERED: `abzar/darvaze/scripts/opencode_picker.py:36` |
+| `BIG` | کجا: پیکر · چیه: کلیدهای سنگینِ فایلِ تنظیمات که هنگامِ نوشتن کنار گذاشته می‌شوند · مثال: projects و oauthAccount | ☑ BIG: `abzar/darvaze/scripts/opencode_picker.py:37` |
+| `ROOT` | کجا: پیکر · چیه: ریشهٔ پوشهٔ ابزار (یک پله بالاتر از scripts) · مثال: ⟦ROOT⟧/claude-api | ☑ ROOT: `abzar/darvaze/scripts/opencode_picker.py:38` |
+| `LOG` | کجا: پیکر · چیه: فایلِ لاگِ منوی مدل؛ «حذف شد» و «نگاشت شد» در آن می‌آید · مثال: ⟦LOG⟧ | ☑ LOG: `abzar/darvaze/scripts/opencode_picker.py:39`؛ `/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar/hook_remember_pish.py:15` |
 | `URL` | کجا: کپس · چیه: صفحهٔ کنسولِ اوپن‌کد که سقفِ هر مدل از آن خوانده می‌شود · مثال: https://opencode.ai/console/go | ☑ URL: `abzar/darvaze/scripts/opencode_caps.py:18` |
 | `UA` | کجا: کپس · چیه: معرفِ کلاینت هنگامِ خواندنِ کنسول · مثال: ⟦UA⟧ | ☑ UA: `abzar/darvaze/scripts/opencode_caps.py:20` |
 | `ROW` | کجا: کپس · چیه: الگوی regex برای برداشتنِ شناسهٔ مدل از هر ردیفِ جدولِ کنسول · مثال: data-model | ☑ ROW: `abzar/darvaze/scripts/opencode_caps.py:21` |
@@ -281,3 +281,5 @@
 | `harness-cli-browser-harness` | کجا: ترمینال · چیه: ابزاری — کارِ مرورگر با `SKILL.md`؛ خودش مدل اجرا نمی‌کند · مثال: `browser-harness --version` ⇒ 0.1.8 | ☑ harness-cli-browser-harness: `/Users/habib/.local/bin/browser-harness` |
 | `harness-desktop-claude` | کجا: اپِ دسکتاپ · چیه: Claude.app · مثال: نسخهٔ ۵٫۱۱۴۹۲٫۰ از `CFBundleShortVersionString` | ☑ harness-desktop-claude: `/Applications/Claude.app` |
 | `harness-desktop-opencode` | کجا: اپِ دسکتاپ · چیه: OpenCode.app · مثال: نسخهٔ ۲٫۳٫۲ از `CFBundleShortVersionString` | ☑ harness-desktop-opencode: `/Applications/OpenCode.app` |
+| `LOCAL_OPENER` | کجا: رَپرِ VS Code · چیه: openerِ بی‌پروکسی برای درخواست‌های loopback به دروازه · مثال: ⟦LOCAL_OPENER⟧ | ☑ LOCAL_OPENER: `abzar/darvaze/scripts/vscode_opencode_wrapper.py:35` |
+| `PICKER_OPENER` | کجا: opencode_picker · چیه: openerِ بی‌پروکسی برای فراخوانی loopback دروازه · مثال: ⟦PICKER_OPENER⟧ | ☑ PICKER_OPENER: `abzar/darvaze/scripts/opencode_picker.py:31` |

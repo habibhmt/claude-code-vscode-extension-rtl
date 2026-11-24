@@ -1,6 +1,6 @@
-// Compact mode of the 186 panel: only the worst number stays, everything comes
+// Compact mode of the usage panel: only the worst number stays, everything comes
 // back on hover. Runs the real index.html in headless Chrome with a fake api.
-// Run: NODE_PATH=node_modules node test_compact_186.cjs
+// Run: NODE_PATH=node_modules node test_usage_compact.cjs
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
@@ -23,7 +23,7 @@ const { chromium } = require('playwright');
         toggleExpand() {}, setSort() {}, setOpacity() {}, quit() {},
       };
     });
-    const html = fs.readFileSync(path.join(__dirname, '186-montaghel/app/index.html'), 'utf8');
+    const html = fs.readFileSync(path.join(__dirname, 'apps/claude-usage/app/index.html'), 'utf8');
     await page.route('http://t.local/', (r) => r.fulfill({ contentType: 'text/html; charset=utf-8', body: html }));
     await page.goto('http://t.local/');
     await page.waitForTimeout(200);

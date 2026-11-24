@@ -79,5 +79,5 @@ KEY = "crtl-sizes"   # از claude-ui-buttons.js:206
 SOAL_SABR_MS = 250   # از claude-ui-buttons.js:1754
 TZ_CHROME = "claudeInChromeDefaultEnabled"   # از claude-ui-buttons.js:2453
 TZ_NOSKHE_PISH = "2.1.318"   # از claude-ui-buttons.js:2998
-amar_dar_rah = false   # از claude-ui-buttons.js:3873
+amar_dar_rah = false   # از claude-ui-buttons.js:3890
 timer = 0   # از dsh-rtl/client.js:1267

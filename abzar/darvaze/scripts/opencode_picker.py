@@ -28,7 +28,7 @@ import urllib.request
 # sit in front of the gateway. Measured ۲۴ نوامبر ۲۰۲۶ ۰۴:۴۵ — proxy enabled at
 # 127.0.0.1:1087, nothing listening, urllib refused every call, the picker
 # silently lost the whole model list.
-LOCAL_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+PICKER_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 PORT = int(os.environ.get('OPENCODE_GATEWAY_PORT', '50990'))
 BASE = f'http://127.0.0.1:{PORT}'
@@ -60,7 +60,7 @@ def _hash(value):
 
 def fetch_models(timeout=10):
     try:
-        with LOCAL_OPENER.open(f'{BASE}/local/models.json', timeout=timeout) as response:
+        with PICKER_OPENER.open(f'{BASE}/local/models.json', timeout=timeout) as response:
             rows = json.loads(response.read()).get('models', [])
     except (OSError, ValueError):
         return []

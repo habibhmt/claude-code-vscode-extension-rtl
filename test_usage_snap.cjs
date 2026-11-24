@@ -1,7 +1,7 @@
-// Edge snapping of the 186 floating panel: pure function, no Electron needed.
-// Run: node test_snap_186.cjs
+// Edge snapping of the usage floating panel: pure function, no Electron needed.
+// Run: node test_usage_snap.cjs
 const assert = require('node:assert/strict');
-const { snapToEdges, MARGIN } = require('./186-montaghel/app/snap.js');
+const { snapToEdges, MARGIN } = require('./apps/claude-usage/app/snap.js');
 
 const area = { x: 0, y: 25, width: 1440, height: 875 }; // menu bar on top
 const win = { width: 190, height: 118 };

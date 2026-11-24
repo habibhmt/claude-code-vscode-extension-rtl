@@ -1,5 +1,5 @@
-// XSS regression for the 186 app: a chat title/folder/model is data, never HTML.
-// Run: NODE_PATH=node_modules node test_xss_186.cjs
+// XSS regression for the usage app: a chat title/folder/model is data, never HTML.
+// Run: NODE_PATH=node_modules node test_usage_xss.cjs
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
         toggleExpand() {}, setSort() {}, setOpacity() {}, quit() {},
       };
     });
-    const html = fs.readFileSync(path.join(__dirname, '186-montaghel/app/index.html'), 'utf8');
+    const html = fs.readFileSync(path.join(__dirname, 'apps/claude-usage/app/index.html'), 'utf8');
     await page.route('http://t.local/', (r) => r.fulfill({ contentType: 'text/html; charset=utf-8', body: html }));
     await page.route('**/invalid-image', (r) => r.fulfill({ status: 404, contentType: 'text/plain', body: '' }));
     await page.goto('http://t.local/');

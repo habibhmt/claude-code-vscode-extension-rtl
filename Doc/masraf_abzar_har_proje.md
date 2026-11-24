@@ -426,7 +426,7 @@
 |---|---|
 | whatsapp | 1 |
 
-## 186-claude-subscription-usage
+## apps/claude-usage
 
 فایلِ چت: 8 · تماسِ ابزار: 1,261
 

@@ -57,9 +57,9 @@ run "claude hover khattire" env NODE_PATH=node_modules node Doc/abzar/test_hover
 run "payam bine seshni" env PYTHONDONTWRITEBYTECODE=1 python3 Doc/abzar/test_peer_send.py
 run "claude ask width" node test_claude_ask_width.cjs
 run "claude tanzimat" env NODE_PATH=node_modules node test_claude_tanzimat.cjs
-run "xss 186" env NODE_PATH=node_modules node test_xss_186.cjs
-run "snap 186" node test_snap_186.cjs
-run "compact 186" env NODE_PATH=node_modules node test_compact_186.cjs
+run "usage xss" env NODE_PATH=node_modules node test_usage_xss.cjs
+run "usage snap" node test_usage_snap.cjs
+run "usage compact" env NODE_PATH=node_modules node test_usage_compact.cjs
 
 # Root tests that were outside the old chain.
 run "claude fekr shenavar" env NODE_PATH=node_modules node test_claude_fekr_shenavar.cjs

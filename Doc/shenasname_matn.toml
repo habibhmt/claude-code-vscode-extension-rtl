@@ -1728,7 +1728,7 @@ tayid = "پیشنهاد — تأییدنشده (متغیرِ سقف، ۲۳ نو�
 [path]
 yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ خلاصهٔ مصرف که اپ هر دقیقه می‌خواند · مثال: ⟦path⟧"
 chera = "اپ فقط می‌خواند؛ هیچ عددی نمی‌سازد"
-ozv = "ap186"
+ozv = "app_usage"
 noe = "sabet"
 ba_motaghayerha = ["statusPath", "OUT"]
 tarif = "00"
@@ -1737,7 +1737,7 @@ tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوا�
 [names]
 yani = "کجا: اپِ ۱۸۶ · چیه: نامِ نمایشیِ مدل‌ها؛ نبود ⇒ خودِ شناسه نشان داده می‌شود · مثال: deepseek-v4.1-flash ⇒ DeepSeek V4.1 Flash"
 chera = "کاربر نامِ خوانا ببیند"
-ozv = "ap186"
+ozv = "app_usage"
 noe = "sabet"
 ba_motaghayerha = ["path"]
 tarif = "00"
@@ -1746,7 +1746,7 @@ tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوا�
 [statusPath]
 yani = "کجا: اپِ ۱۸۶ · چیه: فایلِ وضعیتِ قرمزِ دروازه؛ بود ⇒ ضربدرِ قرمز در نوار و یک اعلان · مثال: ⟦statusPath⟧"
 chera = "حبیب ۲۲ نوامبر «بایست و خبر بده»"
-ozv = "ap186"
+ozv = "app_usage"
 noe = "sabet"
 ba_motaghayerha = ["path", "STATUS"]
 tarif = "00"
@@ -1755,7 +1755,7 @@ tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوا�
 [kBundleID]
 yani = "کجا: اپِ ۱۸۶ · چیه: شناسهٔ باندلِ اپ؛ برای بستنِ نسخه‌های قبلیِ همان اپ هنگامِ بالا آمدن · مثال: ⟦kBundleID⟧"
 chera = "دو نسخه هم‌زمان دو نوار می‌ساختند"
-ozv = "ap186"
+ozv = "app_usage"
 noe = "sabet"
 ba_motaghayerha = ["alarms"]
 tarif = "00"
@@ -1764,7 +1764,7 @@ tayid = "پیشنهاد — تأییدنشده (متغیرِ اپ، ۲۳ نوا�
 [alarms]
 yani = "کجا: اپِ ۱۸۶ · چیه: موتورِ هشدارهای اپ (Alarms.swift) که هر چند ثانیه تیک می‌خورد · مثال: ⟦alarms⟧"
 chera = "هشدار جدا از نمایشِ نوار است"
-ozv = "ap186"
+ozv = "app_usage"
 noe = "sabet"
 ba_motaghayerha = ["kBundleID"]
 tarif = "00"
@@ -2015,7 +2015,7 @@ tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 [panelController]
 yani = "کجا: اپِ ۱۸۶ · چیه: کنترلرِ پنجرهٔ شیشه‌ایِ دو‌تبی؛ با کلیک روی نوار باز/بسته می‌شود · مثال: ⟦panelController⟧"
 chera = "حبیب ۲۳ نوامبر ۱۷:۲۱ «با زدن روی اون قسمتِ منوبار یه پنل … باز بشه»"
-ozv = "ap186"
+ozv = "app_usage"
 noe = "sabet"
 ba_motaghayerha = ["chat_cost"]
 tarif = "28"
@@ -2403,3 +2403,19 @@ noe = "vaziat"
 ba_motaghayerha = ["harness"]
 tarif = "31"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۲۳:۲۶ (از راهِ ناظر-۱۳۶)"
+
+[LOCAL_OPENER]
+yani = "کجا: رَپرِ VS Code · چیه: openerِ بی‌پروکسی برای درخواست‌های loopback به دروازه · مثال: ⟦LOCAL_OPENER⟧"
+chera = "۲۴ نوامبر ۲۰۲۶: پروکسیِ سیستم روی ۱۲۷٫۰٫۰٫۱:۱۰۸۷ کسی گوش نمی‌داد ولی urllib از آن رد می‌شد و هر /health رد می‌شد"
+ozv = "darvaze"
+noe = "sabet"
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۴ نوامبر ۲۰۲۶ ۰۴:۴۵)"
+
+[PICKER_OPENER]
+yani = "کجا: opencode_picker · چیه: openerِ بی‌پروکسی برای فراخوانی loopback دروازه · مثال: ⟦PICKER_OPENER⟧"
+chera = "پروکسیِ خاموشِ سیستم نباید درخواستِ محلی را ببلعد (همان شکستِ ۲۴ نوامبر ۲۰۲۶)"
+ozv = "darvaze"
+noe = "sabet"
+tarif = "00"
+tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۴ نوامبر ۲۰۲۶)"

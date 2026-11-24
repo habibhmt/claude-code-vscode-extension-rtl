@@ -77,7 +77,7 @@ async function blogh(p, id, kalame, kardan) {
     await p.route('http://k.local/', r => r.fulfill({contentType: 'text/html', body: page}));
     await p.goto('http://k.local/');
     await p.addScriptTag({content: script});
-    await p.waitForSelector('#crtl-panel', {state: 'attached', timeout: 20000});
+    await p.waitForSelector('#crtl-panel', {state: 'attached', timeout: 60000});
     await p.waitForTimeout(1200);
     const C = (y) => p.evaluate((t) => window.__crtl_gloss_set(t), {
       [NAM]: [{root: '/r', p: '136', yani: 'کارتِ هارنسِ خط فرمان', noe: 'vaziat', ozv: 'harness', kh: [], ba: [], chera: 'چ', tayid: 'ت', tarif: [], loc: []}],

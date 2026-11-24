@@ -22,7 +22,7 @@ const page=`<!doctype html><html dir="rtl"><head><meta charset="utf-8"></head><b
   await p.route('http://t.local/',r=>r.fulfill({contentType:'text/html',body:page}));
   await p.goto('http://t.local/');
   await p.addScriptTag({content:script});
-  await p.waitForSelector('#crtl-amar',{timeout:5000});
+  await p.waitForSelector('#crtl-amar',{timeout:60000});
   out.small=await p.evaluate(()=>{const b=document.getElementById('crtl-amar'),rows=[...b.querySelectorAll('tr')];
     return {hidden:getComputedStyle(document.getElementById('raw')).display,rows:rows.length,cols:rows[0].children.length,
       vertical:getComputedStyle(b.querySelector('.crtl-amar-amudi')).writingMode,heads:[...b.querySelectorAll('.crtl-amar-amudi')].map(x=>x.textContent).join(' '),

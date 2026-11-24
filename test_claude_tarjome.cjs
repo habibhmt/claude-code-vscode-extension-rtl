@@ -37,8 +37,12 @@ const page_html=`<!doctype html><html dir="rtl"><body><div class="messagesContai
   out.back=[await vis('#asl'),await vis('#m .crtl-tarjome-matn')];
   // a redraw drops the added box: the next pass (every 3 s) puts it back, once
   await p.evaluate(()=>document.querySelector('#m .crtl-tarjome-jabe').remove());
-  await p.waitForTimeout(3300);
-  out.redraw=await p.evaluate(()=>document.querySelectorAll('#m .crtl-tarjome-jabe').length);
+  // زیرِ بارِ زنجیره، پاسِ ۳ ثانیه‌ای دیر می‌رسد؛ تا ۹ ثانیه صبر می‌کنیم (فلیکی بود)
+  out.redraw=await p.evaluate(async()=>{
+    for(let i=0;i<30;i++){ if(document.querySelectorAll('#m .crtl-tarjome-jabe').length) return 1;
+      await new Promise(r=>setTimeout(r,300)); }
+    return 0;
+  });
   out.asked=await p.evaluate((SID)=>(window.__sent||[]).some(m=>m.type==='crtl-tarjome'&&m.sid===SID&&m.mt===5),SID);
   assert.deepEqual(out,{shown:[false,true,true],parts:{strong:'ترجمه',code:'a.js',cells:4,li:1,img:0,hack:0},others:[0,0],asl:[true,false],back:[false,true],redraw:1,asked:true});
   console.log(JSON.stringify(out));

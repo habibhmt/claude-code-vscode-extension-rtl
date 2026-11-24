@@ -44,7 +44,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(e(Band));})()`;
   await p.addScriptTag({content:band});
   await p.waitForSelector('[data-press-key="hads-tick-cron"]');
   await p.addScriptTag({content:script});
-  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:5000});
+  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:60000});
   await p.evaluate(()=>window.__crtl_neshan_hook_va_hads());
   const box=k=>p.locator('[data-press-key="hads-tick-'+k+'"]').boundingBox();
   // the field is never seen

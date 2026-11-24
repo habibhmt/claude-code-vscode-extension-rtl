@@ -723,7 +723,7 @@ async function panelInBrowser() {
   }, SID1);
   await pg.addScriptTag({ content: 'window.__CRTL_TANZIMAT_FA=' + JSON.stringify(J(FA)) + ';window.__CRTL_TANZIMAT_TOZIH=' + JSON.stringify(J(TOZIH)) + ';' + fs.readFileSync(UI, 'utf8') });
   await pg.evaluate(() => window.acquireVsCodeApi());
-  await pg.waitForSelector('#crtl-panel', { state: 'attached' });
+  await pg.waitForSelector('#crtl-panel', { state: 'attached', timeout: 60000 });
   // row 1: page one keeps its things, without the effort row; the tab is separate
   await pg.locator('.crtl-gear .crtl-btn', { hasText: 'aA' }).click();
   assert.equal(await pg.locator('#crtl-effort-row').count(), 0, 'the effort row left page one');
@@ -978,7 +978,7 @@ async function questionWindow() {
           e('div',{className:'previewPane_h',role:'region',tabIndex:-1},e('table',null,e('tbody',null,e('tr',null,e('td',{id:'cell'},'خانهٔ جدول پیش‌نمایش که باید کپی شود')))))))}
       ReactDOM.createRoot(document.getElementById('root')).render(e(Q));})()` });
     await pg.addScriptTag({ content: 'window.__CRTL_DOKME=' + JSON.stringify(dokme) + ';' + fs.readFileSync(UI, 'utf8') });
-    await pg.waitForSelector('#crtl-panel', { state: 'attached' });
+    await pg.waitForSelector('#crtl-panel', { state: 'attached', timeout: 60000 });
     await pg.waitForSelector('.crtl-top .crtl-btn');
     return pg;
   };

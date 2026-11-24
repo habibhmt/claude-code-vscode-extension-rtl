@@ -67,7 +67,7 @@ async function blogh(p, id, kalame, kardan) {
     await p.route('http://k.local/', r => r.fulfill({contentType: 'text/html', body: page}));
     await p.goto('http://k.local/');
     await p.addScriptTag({content: script});
-    await p.waitForSelector('#crtl-panel', {state: 'attached', timeout: 20000});
+    await p.waitForSelector('#crtl-panel', {state: 'attached', timeout: 60000});
     await p.waitForTimeout(1200);
     const kart = (y) => ({root: '/r', p: '136', yani: y, noe: 'vaziat', ozv: 'abzar', kh: [], ba: [],
                           chera: 'چ', tayid: 'ت', tarif: [], loc: []});

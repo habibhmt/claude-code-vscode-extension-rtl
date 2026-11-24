@@ -77,6 +77,7 @@ run "rename gate" bash Doc/abzar/rename_ba_check.sh --selftest
 run "shenasname saz" python3 Doc/abzar/jadval_motaghayer.py
 run "barge saz" python3 abzar/barge_saz.py
 run "motaghayer" python3 Doc/abzar/chek_motaghayer.py
+run "tatbigh" python3 Doc/abzar/tatbigh_opencode.py
 run "remembr cache" python3 Doc/abzar/test_remembr_cache.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh

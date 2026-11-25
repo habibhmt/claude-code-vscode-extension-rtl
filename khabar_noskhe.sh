@@ -81,7 +81,10 @@ $tekke
 ۲. جدولِ «به کارِ حبیب می‌خورد»: | تغییر (ساده) | کدام پوشه/کار | چه کنیم (پیشنهاد، هنوز انجام نشده) | اعتبار: 📏 دیده‌شده در کد / 🧩 حدس |. فقط ردیف‌هایی که واقعاً به یکی از کارها می‌خورد؛ هیچ نبود ⇒ یک خط «هیچ‌کدام به کارهای فهرست نمی‌خورد».
 ۳. جدولِ «بقیهٔ تغییرهای مهم» (حداکثر ۸ ردیف): | تغییر (ساده) | مثالِ ساده |.
 ۴. یک خطِ آخر: «هیچ تغییری در کد داده نشد؛ هر پیشنهاد با «بله» ِ حبیب.»"
-        javab="$(cd "$REPO_DIR" && env -u CLAUDE_CODE_CHILD_SESSION -u CLAUDE_CODE_SESSION_ID -u CLAUDECODE \
+        # launchd هیچ‌کدام از متغیرهای کلید/دروازه را ندارد: بی این source، claude با
+        # authentication_failed و خرجِ صفر تمام می‌شود (همان تله‌ای که ۶۱ اجرای
+        # nazer-mojri را کشت — CLAUDE.md سراسری، ۲۰ نوامبر ۲۰۲۶).
+        javab="$(cd "$REPO_DIR" && { . "$HOME/.claude/claude_env.sh" >/dev/null 2>&1 || true; } && env -u CLAUDE_CODE_CHILD_SESSION -u CLAUDE_CODE_SESSION_ID -u CLAUDECODE \
             perl -e 'alarm shift; exec @ARGV' "$had_entezar_claude_s" \
             "$C" -p --model sonnet --permission-mode dontAsk --strict-mcp-config --setting-sources "" \
             --allowedTools Read,Grep,Glob --max-budget-usd "$had_kharj_claude_usd" "$prompt" 2>&1)" \

@@ -125,6 +125,31 @@ fetch_vsix() {
     return 1
 }
 
+# ---------------------------------------------------------------- پیش‌پروازِ لنگر
+# پیش از هر نصب، پچ‌ها روی همان vsixِ دانلودنشده خشک زده می‌شوند (حبیب ۲۵ نوامبر
+# ۲۰۲۶: مواظب باشیم آپدیت، پچ را نصفه نشکند). قرمز ⇒ هیچ چیز نصب نمی‌شود.
+PREFLIGHT="$REPO_DIR/abzar/chek_langar_pish_az_nasb.py"
+if [ "$DRY_RUN" != true ] && [ -f "$PREFLIGHT" ]; then
+    behind=false
+    while IFS='|' read -r name dir by_id; do
+        [ -z "$name" ] && continue
+        [ -d "$dir/extensions" ] || continue
+        bin="$(cli_for "$name")"
+        [ -x "$bin" ] || [ -x "$by_id" ] || continue
+        newer_than "$LATEST" "$(installed_version "$dir")" && behind=true
+    done <<< "$IDES"
+    if [ "$behind" = true ]; then
+        fetch_vsix || exit 1
+        if python3 "$PREFLIGHT" --vsix "$VSIX" --version "$LATEST" > "$TMP_DIR/preflight.md" 2>&1; then
+            say "پیش‌پروازِ لنگر سبز: $LATEST با پچ‌های فعلی می‌نشیند"
+        else
+            say "⛔ پیش‌پروازِ لنگر قرمز شد — $LATEST نصب نشد. گزارش:"
+            sed 's/^/    /' "$TMP_DIR/preflight.md" >> "$LOG_FILE"
+            exit 1
+        fi
+    fi
+fi
+
 # ---------------------------------------------------------------- work
 updated=0
 checked=0

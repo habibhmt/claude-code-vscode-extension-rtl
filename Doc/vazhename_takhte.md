@@ -226,8 +226,9 @@
 | `provider_jaygozin_harness_3` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۳ — codex · مثال: openai | ☑ provider_jaygozin_harness_3: `abzar/barge_saz.py:114` |
 | `provider_jaygozin_harness_4` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۴ — dsh؛ پیش‌فرضش حسابِ دیپ‌سیک است و اوپن کد ندارد (معلق م۳۶) · مثال: deepseek | ☑ provider_jaygozin_harness_4: `abzar/barge_saz.py:115` |
 | `provider_jaygozin_harness_5` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۵ — ori · مثال: openrouter | ☑ provider_jaygozin_harness_5: `abzar/barge_saz.py:116` |
-| `provider_jaygozin_harness_6` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic | ☑ provider_jaygozin_harness_6: `abzar/barge_saz.py:117` |
+| `provider_jaygozin_harness_6` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: opencode از راهِ دروازهٔ محلی | ☑ provider_jaygozin_harness_6: `abzar/barge_saz.py:117` |
 | `provider_jaygozin_harness_7` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۷ — cursor-agent · مثال: openai | ☑ provider_jaygozin_harness_7: `abzar/barge_saz.py:118` |
+| `chek_takhmin` | کجا: Doc/abzar · چیه: ابزاری که می‌سنجد هیچ عددِ دلاریِ تخمینی در تعریف‌ها نمانده · مثال: کدِ ۰ یعنی پاک | ☑ chek_takhmin: `Doc/abzar/chek_takhmin.py:1` |
 | `fekr_shenavar` | کجا: claude-ui-buttons.js · چیه: لایهٔ شفافِ بالای کارتِ حدس که واژه‌های مود را یکی‌یکی نشان می‌دهد · مثال: شناسهٔ crtl-fekr-shenavar | ☑ fekr_shenavar: `claude-ui-buttons.js:372` |
 | `radif_fekr_shenavar` | کجا: claude-ui-buttons.js · چیه: سه ردیفی که در حالتِ تک‌دکمه داخلِ کارت پنهان می‌مانند و واژه‌هایشان به لایهٔ شناور می‌رود · مثال: کلاسِ crtl-fekr-radif | ☑ radif_fekr_shenavar: `claude-ui-buttons.js:3592` |
 | `aval_byte_pasokh` | کجا: ردیفِ usage.jsonl · چیه: ۶۰ بایتِ اولِ پاسخِ سرویس، تا معلوم شود آن ۲۱ بایتِ بی‌مصرف جواب بود یا خطا · مثال: دادهٔ ۲۱ بایتی در end_reason=usage_missing | ☑ aval_byte_pasokh: `abzar/darvaze/scripts/opencode_gateway.py:707` |

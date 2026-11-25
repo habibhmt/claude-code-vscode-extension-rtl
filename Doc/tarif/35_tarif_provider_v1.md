@@ -32,8 +32,32 @@
 | `harness-cli-codex` | OpenAI (`gpt-6.2-astra`، بی `model_providers` ⇒ فهرستِ جایگزین ندارد) | — | `~/.codex/config.toml` |
 | `harness-cli-dsh` | **حسابِ خودِ دیپ‌سیک** (`deepseek-account-platform`) | **۱) OpenRouter** (`OPENROUTER_API_KEY` + management) · **۲) APIِ کلود کد** (`refs: ANTHROPIC_API_KEY`) · **اوپن کد: نیست** | `~/.dsh/.credentials.yaml` · `~/.dsh/.env` |
 | `harness-cli-ori-openrouter` | `openrouter` (oauth، منطقهٔ global) | — | `~/.ori/config.json` |
-| `harness-cli-hermes` | `anthropic` (`claude-opus-5`) | **`openrouter`** (`z-ai/glm-5.2`) با `provider_routing` (sort=throughput · ignore: alibaba/baidu/cloudflare) | `~/.hermes/config.yaml` |
+| `harness-cli-hermes` | **`opencode` از راهِ دروازهٔ `127.0.0.1:50990`** (`deepseek-v4.1-flash`) — قبلی، جایگزین‌شده (۲۵ نوامبر ۰۶:۰۰): `anthropic` با `claude-opus-5` | **`openrouter`** (`z-ai/glm-5.2`) با `provider_routing` (sort=throughput · ignore: alibaba/baidu/cloudflare) | `~/.hermes/config.yaml` |
 | `harness-cli-cursor-agent` | OpenAI (`gpt-5`) | — | `~/.cursor/cli-config.json` |
+
+## پوشهٔ کاریِ هرمس — `TERMINAL_CWD` کار می‌کند (۲۵ نوامبر ۲۰۲۶ ۰۶:۰۴)
+
+حبیب ۰۶:۰۱: «آن خط را برداریم و از `TERMINAL_CWD` استفاده کنیم — هر بار با یک متغیر پوشه را انتخاب می‌کنیم».
+
+**دو شرطِ لازم، هر دو با آزمون:**
+
+| شرط | چرا | مدرک |
+|---|---|---|
+| خطِ `cwd` از `terminal` در `config.yaml` **برداشته شود** | اگر کلید باشد — حتی `"."` — هرمس همان را روی `TERMINAL_CWD` می‌نویسد و متغیرِ تو را زیرِ پا می‌گذارد | `hermes_cli/cli.py:686-695` (پلِ config→env) |
+| `--safe-mode` **نباشد** | با `--safe-mode`، `TERMINAL_CWD` نادیده گرفته می‌شود | آزمونِ ۰۶:۰۳: با `--safe-mode` ⇒ خانه · بی آن ⇒ ۲۰۳ |
+
+**چهار آزمونِ نهایی (همه با فایلِ بدونِ `cwd`، بی `--safe-mode`):**
+
+| # | فرمان | نتیجه |
+|---|---|---|
+| ۱ | `cd 203 && hermes` | `…/203th-day-imac-cpu-tracker` ✅ |
+| ۲ | `cd ~ && hermes` | `/Users/habib` ✅ |
+| ۳ | `cd ~ && TERMINAL_CWD=…/203 hermes` | `…/203th-day-imac-cpu-tracker` ✅ |
+| ۴ | `cd ~ && TERMINAL_CWD=/tmp hermes` | `/tmp` ✅ |
+
+**باطل‌شده (موردِ ۰۶:۰۲ من):** «`TERMINAL_CWD` منسوخ است و کار نمی‌کند» — غلط بود. تابعِ `warn_deprecated_cwd_env_vars` فقط **هشدار** می‌دهد؛ علتِ واقعیِ قرمزی، `--safe-mode` ای بود که خودم به فرمان اضافه کرده بودم.
+
+**▪ باطل می‌شود اگر:** حبیب بگوید «باز در ۲۰۳ اجرا نشد» ⇐ `cd /tmp && TERMINAL_CWD=…/203 hermes -z "پوشهٔ کاری‌ات"`.
 
 ## ردیفِ صریحِ کارِ باز
 

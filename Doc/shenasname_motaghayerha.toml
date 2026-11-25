@@ -2521,7 +2521,7 @@ khanandeha = []
 jaye = ["abzar/barge_saz.py:116"]
 
 [provider_jaygozin_harness_6]
-yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic"
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: opencode از راهِ دروازهٔ محلی"
 meghdar = "opencode"
 chera = "همان پنجرهٔ ۲۰:۱۳"
 noe = "sabet"
@@ -2543,6 +2543,18 @@ tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
 jaye = ["abzar/barge_saz.py:118"]
+
+[chek_takhmin]
+yani = "کجا: Doc/abzar · چیه: ابزاری که می‌سنجد هیچ عددِ دلاریِ تخمینی در تعریف‌ها نمانده · مثال: کدِ ۰ یعنی پاک"
+meghdar = ""
+chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۵۴: «حدس قسمت کنسل هست و همه چی باید دقیق در بیاد»"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = ["zanjire_azmoon"]
+tarif = "50"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۰۱"
+khanandeha = []
+jaye = ["Doc/abzar/chek_takhmin.py:1"]
 
 [fekr_shenavar]
 yani = "کجا: claude-ui-buttons.js · چیه: لایهٔ شفافِ بالای کارتِ حدس که واژه‌های مود را یکی‌یکی نشان می‌دهد · مثال: شناسهٔ crtl-fekr-shenavar"

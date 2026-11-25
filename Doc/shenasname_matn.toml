@@ -1878,7 +1878,7 @@ tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 
 [provider_jaygozin_harness_6]
-yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic"
+yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: opencode از راهِ دروازهٔ محلی"
 chera = "همان پنجرهٔ ۲۰:۱۳"
 jaye = ["~/.hermes/config.yaml:1"]
 ozv = "harness"
@@ -1896,6 +1896,16 @@ noe = "sabet"
 ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
+
+[chek_takhmin]
+yani = "کجا: Doc/abzar · چیه: ابزاری که می‌سنجد هیچ عددِ دلاریِ تخمینی در تعریف‌ها نمانده · مثال: کدِ ۰ یعنی پاک"
+chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۵۴: «حدس قسمت کنسل هست و همه چی باید دقیق در بیاد»"
+jaye = ["Doc/abzar/chek_takhmin.py:1"]
+ozv = "abzar"
+noe = "vaziat"
+ba_motaghayerha = ["zanjire_azmoon"]
+tarif = "50"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۰۱"
 
 [fekr_shenavar]
 yani = "کجا: claude-ui-buttons.js · چیه: لایهٔ شفافِ بالای کارتِ حدس که واژه‌های مود را یکی‌یکی نشان می‌دهد · مثال: شناسهٔ crtl-fekr-shenavar"

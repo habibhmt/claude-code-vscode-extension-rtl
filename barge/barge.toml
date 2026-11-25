@@ -11,7 +11,7 @@ provider_jaygozin_harness_2 = "openrouter"   # از ~/.local/bin/opencode:1 (exp
 provider_jaygozin_harness_3 = "openai"   # از ~/.codex/config.toml:1 (model = "gpt-6.2-astra")
 provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از ~/.dsh/.credentials.yaml:1 (deepseek-account-platform/device:)
 provider_jaygozin_harness_5 = "openrouter"   # از ~/.ori/config.json:1 ("loginMode": "oauth",)
-provider_jaygozin_harness_6 = "opencode"   # از ~/.hermes/config.yaml:1 (provider: opencode)
+provider_jaygozin_harness_6 = "darvaze"   # از ~/.hermes/config.yaml:1 (provider: darvaze)
 provider_jaygozin_harness_7 = "openai"   # از ~/.cursor/cli-config.json:1 ("modelId": "gpt-5",)
 
 [abzar]
@@ -86,7 +86,7 @@ provider_jaygozin_harness_2 = "openrouter"   # از abzar/barge_saz.py:113
 provider_jaygozin_harness_3 = "openai"   # از abzar/barge_saz.py:114
 provider_jaygozin_harness_4 = "deepseek (پیش‌فرض)"   # از abzar/barge_saz.py:115
 provider_jaygozin_harness_5 = "openrouter"   # از abzar/barge_saz.py:116
-provider_jaygozin_harness_6 = "opencode"   # از abzar/barge_saz.py:117
+provider_jaygozin_harness_6 = "darvaze"   # از abzar/barge_saz.py:117
 provider_jaygozin_harness_7 = "openai"   # از abzar/barge_saz.py:118
 provider_pishfarz_kol = "opencode"   # از abzar/barge_saz.py:111
 

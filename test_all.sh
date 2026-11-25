@@ -84,6 +84,8 @@ run "tatbigh" python3 Doc/abzar/tatbigh_opencode.py
 run "log kamel" python3 Doc/abzar/chek_log_kamel.py --az 2026-11-25T02:20:00Z --gate بی_صاحب,بی_provider
 # «حدس کنسل شد» (حبیب ۲۵ نوامبر ۰۵:۵۴): هیچ عددِ دلاریِ تخمینی در تعریف‌ها نماند.
 run "takhmin" python3 Doc/abzar/chek_takhmin.py
+# هر هارنس باید سالم به دروازه برسد — نامِ رزروشده/آدرسِ نادرست/کلیدِ نبود (۲۵ نوامبر ۱۳:۲۵)
+run "harness ha" python3 Doc/abzar/chek_harness_ha.py
 run "remembr cache" python3 Doc/abzar/test_remembr_cache.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh

@@ -498,6 +498,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
         # نه ردیفی با `unknown`. نامِ اعلام‌شده هرچه باشد ثبت می‌شود (مثلاً `bogus`).
         sarayand = (self.headers.get('X-Harness') or '').strip()
         masir_workspace = (self.headers.get('X-Workspace') or '').strip()
+        # چت‌هایی که پیش از تغییرِ `claude_env.sh` باز شده‌اند سرآیند ندارند. به‌جای
+        # خواباندنشان، نامِ دقیق از User-Agent درمی‌آید — ولی `unknown` ساخته نمی‌شود:
+        # یا نامِ دقیق، یا رد. (ناظر-۱۳۶، ۲۵ نوامبر ۰۷:۰۲)
+        if not sarayand:
+            ua = (self.headers.get('User-Agent') or '').lower()
+            if 'claude-cli' in ua or 'claude-code' in ua:
+                sarayand = 'claude-code'
+            elif 'hermes' in ua:
+                sarayand = 'hermes'
+            elif 'opencode' in ua:
+                sarayand = 'opencode'
         agar_bedoone_sarayand = not sarayand
         client_harness = sarayand.lower() if sarayand else 'missing'
         try:

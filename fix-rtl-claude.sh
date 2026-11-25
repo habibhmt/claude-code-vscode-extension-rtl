@@ -319,8 +319,11 @@ hash_stdin() {
 
 # واژه‌نامه دیگر بخشی از stamp نیست: در باندل پخته نمی‌شود، پس تغییرش پچِ دوباره لازم
 # ندارد (هوک هر بار از دیسکِ همان پوشه می‌خواند).
-stamp="$(printf '%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
-    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)$(cat "$TANZIMAT_FA_FILE" 2>/dev/null)$(cat "$TANZIMAT_TOZIH_FILE" 2>/dev/null)" | hash_stdin)"
+# خودِ پچِ سرتیترِ مدل‌پیکر هم بخشی از stamp است: ۲۶ نوامبر ۲۰۲۶ قاعدهٔ زیرسرتیتر
+# عوض شد اما stamp عیناً همان ماند و بدونِ --force نسخهٔ کهنه سرِ جایش نشست.
+stamp="$(printf '%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
+    "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)$(cat "$TANZIMAT_FA_FILE" 2>/dev/null)$(cat "$TANZIMAT_TOZIH_FILE" 2>/dev/null)" \
+    "$(cat "$REPO_DIR/abzar/darvaze/scripts/patch_model_groups.py" 2>/dev/null)" | hash_stdin)"
 
 # The buttons live inline in extension.js; older runs also appended them to
 # index.js, so accept either as proof that a webview folder is patched.

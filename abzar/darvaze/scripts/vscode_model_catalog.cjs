@@ -122,29 +122,91 @@ function extraChoices(filter, taken) {
 }
 
 const GATEWAY_MERGED = path.join(ROOT, '.runtime/opencode-go/merged-models.json');
+const PICKER_CAPS = path.join(ROOT, 'claude-api/model-caps-picker.json');
+const PROVIDER_LABEL = { opencode: 'OpenCode Go', openrouter: 'OpenRouter' };
+
+/** Capability rows are evidence only — built by saz_model_caps_picker.py from the
+ *  OpenRouter catalogue's own `reasoning` list and the old DeepSeek catalogue.
+ *  A missing or unreadable file means "no row shows effort"; never a made-up slider. */
+function pickerCaps() {
+  const data = readJson(PICKER_CAPS);
+  if (!data || typeof data !== 'object' || !data.rows || typeof data.rows !== 'object') return {};
+  return data.rows;
+}
+
+// "DeepSeek V4.1 Flash 1017" -> "DeepSeek" · "AionLabs: Aion-2.0" -> "AionLabs".
+// A name that merely repeats its provider ("OpenRouter: Fusion") would draw the
+// same word twice; the part after the colon is used instead of lying twice.
+function gatewayFamilyLabel(name, group) {
+  const parts = name.split(/[:·—]/);
+  const head = parts[0].trim();
+  const label = head.split(/\s+/)[0] || head;
+  if (label && label.toLowerCase() !== group.toLowerCase()) return label;
+  const tail = (parts[1] || '').trim().split(/\s+/)[0];
+  if (tail) return tail;
+  return name.trim();
+}
+
+// Providers stay in blocks, families stay contiguous inside each block; an open
+// chat resolves its saved model by value, but a stable order keeps the family
+// fallback landing on the same row after every reload.
+function byProviderAndFamily(rows) {
+  const groups = [];
+  const buckets = new Map();
+  for (const row of rows) {
+    if (!groups.includes(row.group)) groups.push(row.group);
+    const key = row.group + '\u0000' + row.family;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(row);
+  }
+  return groups.flatMap(group => [...buckets.entries()]
+    .filter(([key]) => key.startsWith(group + '\u0000'))
+    .flatMap(([, mine]) => mine));
+}
 
 /** Rows from the gateway's single source (/local/models.json), shaped for this picker.
  *  حبیب ۲۱:۱۳: منوی VS Code نباید فهرستِ قدیمیِ OpenRouter را نشان بدهد؛ منبعِ
- *  حقیقت همان دروازه است. اگر فایل نبود/خراب بود، مسیرِ قبلی دست‌نخورده می‌ماند. */
+ *  حقیقت همان دروازه است. اگر فایل نبود/خراب بود، مسیرِ قبلی دست‌نخورده می‌ماند.
+ *  حبیب ۲۶ نوامبر ۰۰:۱۶ («الف»): فقط ردیف‌هایی که مدرکِ توانایی دارند اسلایدر
+ *  می‌گیرند (۱۶۰ از ۴۱۱)؛ بقیه بی‌اسلایدر می‌مانند تا اسلایدرِ دروغین ساخته نشود.
+ *  سرتیتر = پرووایدر، زیرسرتیتر = خانواده، و پرووایدر روی خودِ ردیف هم می‌آید. */
 function gatewayChoices() {
   const rows = readJson(GATEWAY_MERGED);
   if (!Array.isArray(rows) || rows.length === 0) return null;
+  const caps = pickerCaps();
   const out = [];
   for (const row of rows) {
     if (!row || typeof row.id !== 'string' || !row.id) continue;
-    const opencodeGroup = row.provider === 'opencode';
-    out.push({
+    const provider = row.provider === 'opencode' ? 'opencode' : 'openrouter';
+    const label = PROVIDER_LABEL[provider];
+    const name = row.name || row.id;
+    const label2 = gatewayFamilyLabel(name, label);
+    const entry = {
       value: row.id,
-      displayName: row.name || row.id,
+      displayName: name.endsWith('· ' + label) ? name : name + ' · ' + label,
       description: row.description || '',
-      group: opencodeGroup ? 'OpenCode Go' : 'OpenRouter',
-      family: opencodeGroup ? 'opencode' : 'openrouter',
-      familyLabel: opencodeGroup ? 'OpenCode Go' : 'OpenRouter',
-    });
+      group: label,
+      // The family key IS the drawn sub-header. Two rows sharing a family key
+      // but drawing different labels would put a second sub-header inside one
+      // block; keying by the label keeps one header per label, always.
+      family: provider + ':' + label2.toLowerCase(),
+      familyLabel: label2,
+    };
+    const capability = caps[row.id];
+    if (capability && capability.supportsEffort === true
+        && Array.isArray(capability.supportedEffortLevels)
+        && capability.supportedEffortLevels.length > 0) {
+      entry.supportsEffort = true;
+      entry.supportedEffortLevels = [...capability.supportedEffortLevels];
+      for (const key of ['supportsAdaptiveThinking', 'supportsThinkingOff', 'supportsAutoMode', 'supportsFastMode']) {
+        if (capability[key] === true) entry[key] = true;
+      }
+    }
+    out.push(entry);
   }
   if (!out.length) return null;
   if (new Set(out.map(m => m.value)).size !== out.length) return null;
-  return out;
+  return byProviderAndFamily(out);
 }
 
 function modelChoices(rows = readJson(catalog), options = {}) {

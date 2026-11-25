@@ -1,0 +1,1388 @@
+{
+  "note": "ساختهٔ saz_model_caps_picker.py — دستی ویرایش نکن",
+  "gateway_rows": 411,
+  "with_effort": 160,
+  "sources": {
+    "openrouter_catalog": 157,
+    "old_catalog": 3,
+    "skipped_not_in_gateway": 6
+  },
+  "rows": {
+    "aion-labs/aion-3.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "aion-labs/aion-3.5-mini": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "anthropic/claude-haiku-5.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "anthropic/claude-opus-4.6": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ]
+    },
+    "anthropic/claude-opus-4.7": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "anthropic/claude-opus-4.8": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "anthropic/claude-opus-5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "anthropic/claude-opus-5.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "anthropic/claude-sonnet-4.6": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ]
+    },
+    "anthropic/claude-sonnet-5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "anthropic/claude-sonnet-5.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "baidu/ernie-5.5-flash-preview:free": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "baidu/ernie-light-dt-1.0-intl": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "bytedance-seed/seed-2.0-lite": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "bytedance-seed/seed-2.0-mini": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "claude-haiku-5-5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "supportsAdaptiveThinking": true,
+      "supportsThinkingOff": true,
+      "supportsAutoMode": true,
+      "supportsFastMode": false
+    },
+    "deepseek-v4-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ],
+      "supportsAdaptiveThinking": true,
+      "supportsThinkingOff": true,
+      "supportsAutoMode": true,
+      "supportsFastMode": false
+    },
+    "deepseek-v4.1-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ],
+      "supportsAdaptiveThinking": true,
+      "supportsThinkingOff": true,
+      "supportsAutoMode": true,
+      "supportsFastMode": false
+    },
+    "deepseek/deepseek-v4-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high",
+        "xhigh"
+      ]
+    },
+    "deepseek/deepseek-v4-flash-0731": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "deepseek/deepseek-v4-flash-vision-exp": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "deepseek/deepseek-v4-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high",
+        "xhigh"
+      ]
+    },
+    "deepseek/deepseek-v4-pro-0813": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "deepseek/deepseek-v4.1-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "deepseek/deepseek-v4.1-flash-1017": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "fireworks/ember-1": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "google/gemini-3-flash-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.1-flash-image": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "google/gemini-3.1-flash-image-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "google/gemini-3.1-flash-lite": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.1-flash-lite-image": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "google/gemini-3.1-flash-lite-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.1-pro-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.1-pro-preview-customtools": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.5-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.5-flash-lite": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.6-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.7-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-3.8-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-4-argon": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-4-carbon": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "google/gemini-4-hydrogen": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "google/gemini-nano-banana-2.1": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "google/gemini-omni-1.1-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ]
+    },
+    "google/gemini-omni-1.2-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ]
+    },
+    "ibm-granite/granite-4.2-8b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ]
+    },
+    "meta/muse-ember": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "meta/muse-glimmer-30b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "meta/muse-spark-1.1": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "meta/muse-spark-1.2": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "meta/muse-spark-1.2-contributor": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "meta/muse-spark-1.3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "meta/muse-spark-1.3-contributor": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "meta/muse-spark-open": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "meta/muse-wonder": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "minimax/minimax-m3.1-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "mistralai/mistral-large-4-0": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "mistralai/mistral-medium-3-5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "mistralai/mistral-small-2603": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "moonshotai/kimi-k3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "moonshotai/kimi-k3.1-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "nex-agi/nex-n2.5-mini": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high"
+      ]
+    },
+    "nex-agi/nex-n2.5-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high"
+      ]
+    },
+    "nex-agi/nex-n2.6": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high"
+      ]
+    },
+    "nvidia/nemotron-3-super-120b-a12b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium"
+      ]
+    },
+    "nvidia/nemotron-3-ultra-550b-a55b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high"
+      ]
+    },
+    "nvidia/nemotron-3-ultra-550b-a55b:free": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5-mini": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5-nano": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "openai/gpt-5.1": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5.1-codex": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5.1-codex-max": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.1-codex-mini": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-5.2": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.2-codex": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.2-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.3-codex": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.4": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.4-image-2": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.4-mini": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.4-nano": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.4-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.5-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "openai/gpt-5.6-luna": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-5.6-luna-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-5.6-sol": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-5.6-sol-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-5.6-terra": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-5.6-terra-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6-astra": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6-astra-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6-luna": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6-luna-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6-sol": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6-sol-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.1-sol": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.1-sol-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.1-terra": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.1-terra-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.2-astra": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.2-astra-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.2-sol": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-6.2-sol-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "openai/gpt-oss-120b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "openai/gpt-oss-20b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "particle-ai/particle-1": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "particle-ai/particle-1:free": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "perceptron/perceptron-mk1.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "prism-ml/ternary-bonsai-2-27b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "medium",
+        "xhigh"
+      ]
+    },
+    "qwen/qwen3.8-2.4t-a95b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "xhigh"
+      ]
+    },
+    "qwen/qwen3.8-27b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "xhigh"
+      ]
+    },
+    "qwen/qwen3.8-max-0902": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "qwen/qwen3.8-max-prime": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "qwen/qwen4-max": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "xhigh"
+      ]
+    },
+    "reflection/beam-1.0-501b-a23b": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "sakana/fugu-max": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "sakana/fugu-ultra": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "sakana/fugu-ultra-v2": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "sakana/sakana-namazu": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ]
+    },
+    "stepfun/step-3.7-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "stepfun/step-5-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "tencent/hy3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ]
+    },
+    "tencent/hy4": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ]
+    },
+    "tencent/hy4-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ]
+    },
+    "thinkingmachines/inkling": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ]
+    },
+    "thinkingmachines/inkling-2-small": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ]
+    },
+    "thinkingmachines/inkling-small": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "max"
+      ]
+    },
+    "upstage/solar-mini4": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "upstage/solar-pro4": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "x-ai/grok-4.20-multi-agent": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "x-ai/grok-4.3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "x-ai/grok-4.5": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "x-ai/grok-4.6": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "x-ai/grok-4.7": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "z-ai/glm-5.2": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high",
+        "xhigh"
+      ]
+    },
+    "z-ai/glm-5.3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "z-ai/glm-5.3-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "z-ai/glm-5.3-flashx": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "z-ai/glm-5.3-flashx-legal": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "z-ai/glm-5.3-prime": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "~anthropic/claude-haiku-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~anthropic/claude-opus-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~anthropic/claude-sonnet-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~deepseek/deepseek-flash-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "~deepseek/deepseek-pro-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "~deepseek/deepseek-v4-flash-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "~google/gemini-flash-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "~google/gemini-pro-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "~moonshotai/kimi-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "~openai/gpt-astra-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~openai/gpt-luna-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~openai/gpt-mini-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "~openai/gpt-sol-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~openai/gpt-terra-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ]
+    },
+    "~x-ai/grok-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ]
+    },
+    "~z-ai/glm-flash-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    },
+    "~z-ai/glm-latest": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ]
+    }
+  }
+}

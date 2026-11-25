@@ -86,7 +86,14 @@ run "log kamel" python3 Doc/abzar/chek_log_kamel.py --az 2026-11-25T02:20:00Z --
 run "takhmin" python3 Doc/abzar/chek_takhmin.py
 # هر هارنس باید سالم به دروازه برسد — نامِ رزروشده/آدرسِ نادرست/کلیدِ نبود (۲۵ نوامبر ۱۳:۲۵)
 run "harness ha" python3 Doc/abzar/chek_harness_ha.py
+# یک دروازه، همهٔ پرووایدرها از providers.toml — پرووایدرِ تازه = بلوکِ تازه، نه کد (۲۵ نوامبر ۱۹:۴۹)
+run "darvaze pishfarz" python3 Doc/abzar/test_darvaze_pishfarz.py
 run "remembr cache" python3 Doc/abzar/test_remembr_cache.py
+# لانچر نباید به شمارهٔ نسخه گره خورده باشد — fallbackِ بی‌مسیر بی‌صدا کهنه اجرا می‌شد (۲۶ نوامبر)
+run "lancher noskhe" python3 Doc/abzar/test_lancher_noskhe.py
+# اسلایدرِ افورت و برچسبِ پرووایدر در منوی VS Code: فقط ردیفِ مدرک‌دار، و
+# سرتیترِ پرووایدر نباید با نامِ خانواده یکی شود (حبیب ۲۶ نوامبر: «الف»)
+run "model groups" node abzar/darvaze/scripts/test_model_groups.cjs
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
 

@@ -18,7 +18,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-MARK = '/* project216-model-groups */'
+MARK = '/* project216-model-groups v2 */'
 
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
@@ -41,7 +41,8 @@ def replacement(m):
     return (
         f'children:{shown}&&{rows}.map(({model},{index})=>{{'
         f'const __ccg1={model}.group&&({index}===0||{model}.group!=={rows}[{index}-1].group),'
-        f'__ccg2={model}.familyLabel&&({index}===0||{model}.familyLabel!=={rows}[{index}-1].familyLabel);'
+        f'__ccg2={model}.familyLabel&&({index}===0||{model}.group!=={rows}[{index}-1].group'
+        f'||{model}.familyLabel!=={rows}[{index}-1].familyLabel);'
         f'return['
         f'__ccg1?{el}("div",{{className:{css}.sectionHeader,style:{{paddingTop:{index}?8:2,fontWeight:600,opacity:.8}},'
         f'children:{model}.group}},"ccgh"+{index}):null,'
@@ -57,7 +58,9 @@ replacement.css = 'kl'
 
 
 def patch_text(text):
-    if MARK in text or ('__ccg1=' in text and '"ccgh"+' in text and '"ccgf"+' in text):
+    # Only the current mark counts: an older patch draws the family header right
+    # after a provider change without redrawing it, and must be replaced.
+    if MARK in text:
         return text, 'already patched'
     section = SECTION.search(text)
     if section is None:

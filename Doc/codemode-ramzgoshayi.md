@@ -152,7 +152,9 @@ function ahe(o){return ae()&&Fa(o)?P7t:o}
 | چیز | مقدار |
 |---|---|
 | فایل | `abzar/code-mcp/server.mjs` |
-| ثبت | `.mcp.json` ِ همین پروژه (پروژه‌ای، نه سراسری) |
+| نام | **`fork_code_mode`** (حبیب، ۲۶ نوامبر ۲۰۲۶: «اسمش رو بزار فورک کد مود کلاد») · ابزارِ درونش `code` |
+| ثبت | **سراسری** در `~/.claude.json` (`mcpServers.fork_code_mode`)، پس در همهٔ پروژه‌ها هست |
+| فراخوانی | `mcp__fork_code_mode__code` |
 | اجرا | `/opt/homebrew/bin/node abzar/code-mcp/server.mjs` |
 | جهانی‌ها | `$` (زنجیره‌ای: `.nothrow` `.throws` `.cwd` `.env` `.timeout` · خواننده: `.text()` `.lines()` `.json()`) · `read` · `write` · `edit` (تکی و دسته‌ای) · `file()` · `glob` · `grep` · `sleep` · `preview` · `log` · `console` · `atob`/`btoa` |
 | برگشت | آخرین عبارت، در `<result>`؛ خطاها در `<error>` |
@@ -161,9 +163,20 @@ function ahe(o){return ae()&&Fa(o)?P7t:o}
 
 **آزمونِ انجام‌شده:** خواندنِ دو فایل و جمعِ خطوط → `5`، برابر با `3 + 2` · `$\`wc -l < a.txt\`.text()` → `3` · `$\`printf 'p\nq\n'\`.lines()` → `2` · `(await $\`exit 7\`.nothrow()).exitCode` → `7` · `$\`grep -c zzz a.txt\`` (exit 1) → `1` بدونِ throw · `await $\`exit 4\`` → `ShellError:4` · `edit` تکی و دسته‌ای → `TWO` · `write` → `5` بایت · `preview` → `xxxxxxxxxx…[+290 chars]` · `glob('*.txt')` → سه فایل · `Promise.all` روی `file()` → `[{"f":"a.txt","n":3},{"f":"b.txt","n":2}]` · `throw` → `<error>`.
 
-**فرقش با اصلی:** ابزارهای *دیگرِ* سشن (مثلِ Workflow یا SendMessage) از داخلِ اسکریپت صدا زده نمی‌شوند؛ فقط شل و فایل و جست‌وجو. برای کارهای روزمره همین کافی است.
+**پل به سرورهای دیگر (۲۶ نوامبر ۲۰۲۶، حبیب: «پل بزن»):** `abzar/code-mcp/mcp_pool.mjs` — از داخلِ اسکریپت، ابزارِ هر سرورِ MCP ِ ثبت‌شده صدا زده می‌شود. سه جهانیِ تازه: `mcp_list()` · `mcp_tools(server)` · `mcp_pal(server, tool, args)`.
 
-**وضعیت:** `claude mcp list` → `code: … ⏸ Pending approval` — یعنی سرور سالم است و فقط منتظرِ یک‌بار تأییدِ توست.
+| آزمون (‏`node abzar/code-mcp/test_pool.mjs`) | نتیجه |
+|---|---|
+| فهرستِ سرورها از `~/.claude.json` | ✅ ۵ سرور: `hafeze · computer_use · fork_code_mode · brave-search · exa` |
+| `mcp_pal` به خودِ سرور (‏`1+1`) | ✅ جواب `2` |
+| `mcp_tools('fork_code_mode')` | ✅ `code` |
+| خرابکاری ۱: سرورِ ناموجود | ✅ خطای «ثبت نشده»، بدونِ کرش |
+| خرابکاری ۲: ابزارِ ناموجود | ✅ خطای «ابزاری به نام»، بدونِ کرش |
+| فراخوانیِ واقعیِ `hafeze.gashtan_dar_hafeze` | ✅ ۴۶۴ نویسه جوابِ واقعی از حافظه |
+
+**فرقِ باقی‌مانده با اصلی:** ابزارهای *درونیِ خودِ Claude Code* (‏Workflow، SendMessage، WebFetch) از داخلِ اسکریپت صدا زده نمی‌شوند — آن‌ها فقط داخلِ خودِ برنامه اجرا می‌شوند، نه در یک سرورِ MCP ِ جدا. هر MCP ِ ثبت‌شده اما از این پل در دسترس است.
+
+**وضعیت:** `claude mcp list` → `fork_code_mode: … ✔ Connected`.
 
 ## ۷ · دفترِ استخراج — چه پیدا شد و چه نشد
 

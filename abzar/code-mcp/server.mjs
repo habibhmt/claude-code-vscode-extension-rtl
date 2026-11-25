@@ -9,11 +9,13 @@
 // نسخهٔ متنِ آن در Doc/codemode-core.bash.d.ts.txt است. (18 نوامبر 2026)
 
 import { spawn } from "node:child_process";
+import { listServers, mcpTools, mcpCall } from "./mcp_pool.mjs";
 import { readFile, writeFile, readdir, stat, access } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { constants as FS } from "node:fs";
 
-const SERVER = { name: "code-mode-lite", version: "1.1.0" };
+// نام (حبیب، ۲۶ نوامبر ۲۰۲۶): «اسمش رو بزار فورک کد مود کلاد»؛ ابزار درونش همان `code` می‌ماند.
+const SERVER = { name: "fork_code_mode", version: "1.2.0" };
 const MAX_RESULT = 30000; // سقفِ نمایشیِ خودمان (سقفِ اصلی در باینری متغیر است)
 const SCRIPT_LIMIT_MS = 600000; // مثلِ خودِ Code Mode
 const CMD_LIMIT_MS = 600000;
@@ -77,7 +79,7 @@ function runCommand({ command, cwd, env, timeout, nothrow }) {
           output: stdout + (stderr ? `\n[stderr]\n${stderr}` : ""),
           truncated,
           whole: !truncated,
-          running: { taskId: `cmd-${child.pid}`, outputPath: "(not streamed by code-mode-lite)" },
+          running: { taskId: `cmd-${child.pid}`, outputPath: "(not streamed by fork_code_mode)" },
         }),
       );
     }, ms);
@@ -294,6 +296,10 @@ function buildGlobals() {
     setInterval,
     clearInterval,
     running: () => [],
+    // پل به سرورهای MCP (۲۶ نوامبر ۲۰۲۶، حبیب: «پل بزن»)
+    mcp_list: () => listServers(process.cwd()),
+    mcp_tools: (name) => mcpTools(name, { cwd: process.cwd() }),
+    mcp_pal: (server, tool, args, opts) => mcpCall(server, tool, args || {}, { ...(opts || {}), cwd: process.cwd() }),
   };
   return { helpers, ring };
 }
@@ -352,7 +358,9 @@ const TOOL = {
     "or `$(cmd, ms)`. A non-zero exit throws, except exit 1 from grep/rg/diff/find/test which is an outcome.\n" +
     "- `read(path)` · `write(path, data)` (returns bytes) · `edit(path, old, next, {all, soft})` or `edit(path, [[old,next],…])`\n" +
     "- `file(path)` → `.text()` `.lines()` `.json()` `.exists()` `.slice(offset, limit)`\n" +
-    "- `glob(pattern)` · `grep(pattern, path)` · `sleep(ms)` · `preview(value, n)` · `log(...)` · `console.tail(n)` · `atob`/`btoa`\n\n" +
+    "- `glob(pattern)` · `grep(pattern, path)` · `sleep(ms)` · `preview(value, n)` · `log(...)` · `console.tail(n)` · `atob`/`btoa`\n" +
+    "- `mcp_list()` → servers from ~/.claude.json · `mcp_tools(server)` → their tools · `mcp_pal(server, tool, args)` → call one and get its text.\n" +
+    "  (Other MCP servers such as hafeze, computer_use, exa. Claude Code's own built-in tools — Workflow, SendMessage — are not reachable from here.)\n\n" +
     "The last expression's value is returned; top-level `await` works; `import` does not.\n\n" +
     "Example:\n```js\nconst files = await glob('Doc/*.md');\nconst rows = await Promise.all(files.map(async f => ({ f, n: (await read(f)).split('\\n').length })));\nrows.sort((a, b) => b.n - a.n).slice(0, 5)\n```",
   inputSchema: {

@@ -192,6 +192,7 @@ const skills = {
 };
 const mcp = {'hafeze':'در حافظهٔ گفتگوهای قبلیِ حبیب جست‌وجو می‌کند',
  'computer_use':'از راهِ اتصالِ کامپیوتر، برنامه‌ها و صفحه را می‌خواند یا کنترل می‌کند — ساختِ Adam Jones · github.com/domdomegg/computer-use-mcp',
+ 'fork_code_mode':'کد مودِ کلاد، فورکِ خودمان: یک اسکریپتِ JS با شل و فایل و جست‌وجو، به‌علاوهٔ پل به ابزارِ سرورهای دیگر (hafeze، کامپیوتر) — با هر مدلی، حتی دیپ‌سیک',
  'claude-vscode':'Claude را به قابلیت‌های محیطِ VS Code وصل می‌کند',
  'claude.ai Google Sheets':'با فایل‌های Google Sheets از راهِ حسابِ متصل کار می‌کند'};
 function readJson(p){try{return JSON.parse(fs.readFileSync(p,

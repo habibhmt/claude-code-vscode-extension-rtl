@@ -611,6 +611,15 @@ PYEOF
             ok=true
             if command -v node >/dev/null 2>&1; then
                 node --check "$ext_dir/index.js" >/dev/null 2>&1 || ok=false
+                # مرورگر باندل را ماژول بار می‌کند، ولی `node --check` روی `.js`
+                # آن را CommonJS می‌خواند و خطای دستورِ ماژول را نمی‌بیند —
+                # ۲۶ نوامبر ۲۰۲۶ همین شکاف یک `}` کم را رد کرد و پنل بالا نیامد.
+                if LC_ALL=C grep -q 'import\.meta' "$ext_dir/index.js"; then
+                    _dir="$(mktemp -d -t ccg-parse)"
+                    cp "$ext_dir/index.js" "$_dir/index.mjs" 2>/dev/null \
+                        && { node --check "$_dir/index.mjs" >/dev/null 2>&1 || ok=false; }
+                    rm -rf "$_dir"
+                fi
                 node --check "$(dirname "$ext_dir")/extension.js" >/dev/null 2>&1 || ok=false
             fi
             is_patched "$ext_dir" || ok=false

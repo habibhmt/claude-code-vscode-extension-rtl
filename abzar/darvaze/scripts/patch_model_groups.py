@@ -18,7 +18,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-MARK = '/* project216-model-groups v2 */'
+MARK = '/* project216-model-groups v3 */'
 
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
@@ -34,12 +34,32 @@ MAP = re.compile(
 SECTION = re.compile(r'className:(\w+)\.sectionHeader,id:\w+,children:"Select a model"')
 
 
+# جست‌وجو: یک ورودی بالای فهرست که ردیف‌ها را با style.display پنهان می‌کند. عمداً
+# بی‌state است — باندلِ مینیفای‌شده هوک‌هایش را به نامِ کوتاه صدا می‌زند و تزریقِ
+# useState شکننده است؛ پنهان‌کردنِ DOM از هر رندرِ دوباره هم جانِ سالم به در می‌برد،
+# چون این استایل را React نمی‌نویسد. حبیب ۲۶ نوامبر ۰۰:۵۶: «برای مدل‌ها یه سرچ هم بگذار».
+SEARCH = (
+    '{el}("input",{{key:"ccgq",type:"search",dir:"auto",className:"ccg-search",'
+    'placeholder:"جست‌وجوی مدل…",spellCheck:!1,autoComplete:"off",'
+    'onKeyDown:(e)=>{{if(e.key!=="Escape")e.stopPropagation();}},'
+    'onInput:(e)=>{{const q=e.target.value.trim().toLowerCase(),'
+    'box=e.target.parentElement,'
+    'nodes=box?Array.prototype.slice.call(box.children):[];'
+    'nodes.forEach((k)=>{{if(k===e.target)return;'
+    'if(k.getAttribute&&k.getAttribute("role")==="option"){{'
+    'const hit=!q||(k.textContent||"").toLowerCase().indexOf(q)>=0;'
+    'k.style.display=hit?"":"none";}}'
+    'else{{k.style.display=q?"none":"";}}}});}}}},void 0)'
+)
+
+
 def replacement(m):
     (shown, rows, model, index, el, row, row_id, unavailable, current, active,
      item_ref, hover, pick, check) = m.groups()
     css = replacement.css
+    search = SEARCH.format(el=el)
     return (
-        f'children:{shown}&&{rows}.map(({model},{index})=>{{'
+        f'children:[{search},{shown}&&{rows}.map(({model},{index})=>{{'
         f'const __ccg1={model}.group&&({index}===0||{model}.group!=={rows}[{index}-1].group),'
         f'__ccg2={model}.familyLabel&&({index}===0||{model}.group!=={rows}[{index}-1].group'
         f'||{model}.familyLabel!=={rows}[{index}-1].familyLabel);'
@@ -51,6 +71,10 @@ def replacement(m):
         f'{el}({row},{{model:{model},id:{row_id}({index}),isUnavailable:{unavailable}.has({model}.value),'
         f'isActive:{model}.value==={current},isCurrent:{active}==={model}.value,activeItemRef:{item_ref},'
         f'onHover:()=>{hover}({model}.value),onPick:()=>{pick}({model}),check:{check}}},{model}.value)]}})'
+        # children became an array ([search, ...rows]) so the bracket that opened
+        # it must close before the props object — ۲۶ نوامبر ۲۰۲۶ همین یک `]` کم
+        # بود و باندل در VS Code با «Unexpected token '}'» بالا نمی‌آمد.
+        f']'
     )
 
 
@@ -72,6 +96,10 @@ def patch_text(text):
     patched = text[:hits[0].start()] + replacement(hits[0]) + text[hits[0].end():]
     if patched.count('"ccgh"+') != 1 or patched.count('"ccgf"+') != 1:
         raise ValueError('model group overlay damaged')
+    if patched.count('"ccg-search"') != 1:
+        raise ValueError('model search box damaged')
+    if '{el}' in patched:
+        raise ValueError('search box placeholder left unsubstituted')
     return MARK + '\n' + patched, 'patched'
 
 
@@ -89,13 +117,25 @@ def main():
     node = subprocess.run(['/usr/bin/env', 'node', '--version'], capture_output=True, text=True)
     if node.returncode != 0:
         raise FileNotFoundError('node not found')
-    with tempfile.NamedTemporaryFile('w', dir=target.parent, suffix='.js', delete=False, encoding='utf-8') as tmp:
-        tmp.write(result)
-    try:
-        subprocess.run(['/usr/bin/env', 'node', '--check', tmp.name], check=True, capture_output=True)
-        target.write_bytes(result.encode())
-    finally:
-        Path(tmp.name).unlink(missing_ok=True)
+    # `node --check` روی فایلِ `.js` آن را CommonJS می‌خواند و خطای دستورِ ماژول را
+    # نمی‌بیند؛ مرورگر باندل را ماژول بار می‌کند. ۲۶ نوامبر ۲۰۲۶ همین تفاوت باعث
+    # شد پچِ خراب تأیید شود و پنل در VS Code بالا نیاید ⇒ آزمونِ ماژول هم اجباری است.
+    suffixes = ['.js']
+    if 'import.meta' in result or re.search(r'(?m)^\s*(import|export)[\s{*]', result):
+        suffixes.append('.mjs')
+    for suffix in suffixes:
+        with tempfile.NamedTemporaryFile('w', dir=target.parent, suffix=suffix, delete=False,
+                                         encoding='utf-8') as tmp:
+            tmp.write(result)
+        try:
+            patch = subprocess.run(['/usr/bin/env', 'node', '--check', tmp.name],
+                                   capture_output=True, text=True)
+            if patch.returncode != 0:
+                raise ValueError('patched bundle does not parse as ' + suffix + ':\n'
+                                 + (patch.stderr or '').strip()[:800])
+        finally:
+            Path(tmp.name).unlink(missing_ok=True)
+    target.write_bytes(result.encode())
     print('patched model groups:', target.parent.parent.name)
 
 

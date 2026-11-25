@@ -94,6 +94,8 @@ run "lancher noskhe" python3 Doc/abzar/test_lancher_noskhe.py
 # اسلایدرِ افورت و برچسبِ پرووایدر در منوی VS Code: فقط ردیفِ مدرک‌دار، و
 # سرتیترِ پرووایدر نباید با نامِ خانواده یکی شود (حبیب ۲۶ نوامبر: «الف»)
 run "model groups" node abzar/darvaze/scripts/test_model_groups.cjs
+# خطِ مشخصاتِ زیرِ هر مدل: قیمت/کانتکست از دفترچهٔ رسمی، بی جملهٔ تبلیغاتی (۲۶ نوامبر)
+run "spec line" python3 Doc/abzar/test_spec_line.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
 

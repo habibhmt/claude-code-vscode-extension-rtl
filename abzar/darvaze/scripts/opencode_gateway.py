@@ -136,6 +136,67 @@ def redistribute(items):
     return [{**m, 'id': PREFIX + m['id']} for m in items]
 
 
+def _adad(value):
+    """عددِ قیمت با همان ریزه‌کاری که خودِ سرویس اعلام کرده — نه گردِ درشت."""
+    if value is None:
+        return None
+    if value == 0:
+        return '0'
+    if value < 0.01:
+        # شش رقم، نه چهار: قیمتِ کشِ بعضی مدل‌ها $0.0002 بر میلیون است و با
+        # چهار رقم به «$0» گرد می‌شد (آزمونِ Doc/abzar/test_spec_line.py همین را گرفت).
+        return ('%.6f' % value).rstrip('0').rstrip('.')
+    return ('%.2f' % value).rstrip('0').rstrip('.')
+
+
+def _andaze(tokens):
+    """۱٬۰۰۰٬۰۰۰ ⇒ 1M · ۳۸۴٬۰۰۰ ⇒ 384K — همان واحدی که داکیومنت رسمی می‌نویسد."""
+    try:
+        size = int(tokens)
+    except (TypeError, ValueError):
+        return None
+    if size <= 0:
+        return None
+    if size >= 1_000_000:
+        return ('%.2f' % (size / 1_000_000)).rstrip('0').rstrip('.') + 'M'
+    if size >= 1000:
+        return ('%.1f' % (size / 1000)).rstrip('0').rstrip('.') + 'K'
+    return str(size)
+
+
+def spec_line(row):
+    """یک خطِ خشک از دفترچهٔ رسمیِ خودِ سرویس: قیمتِ ورودی/خروجی/کش بر میلیون
+    توکن، پنجرهٔ متن، سقفِ خروجی، ابزار و ورودی/خروجیِ رسانه.
+
+    حبیب ۲۶ نوامبر ۰۰:۵۶: «اون توضیحات مزخرف فارسی … و اون توضیحات چرت انگلیسی
+    اوپن کد رو بردار به جاشون فقط قیمت کامل … با کانتکست و این چیزاشو بنویس و
+    طبق داکیومنت رسمی خودشون باشه». هیچ صفتِ تبلیغاتی‌ای این‌جا ساخته نمی‌شود.
+    """
+    parts = []
+    bein, borun, kesh = _num(row.get('price_in')), _num(row.get('price_out')), _num(row.get('price_cache'))
+    # صفرِ صفر یعنی رایگان — چه پرووایدر برچسبِ free گذاشته باشد چه نگذاشته.
+    if row.get('free') or (bein == 0 and borun == 0 and kesh in (None, 0)):
+        parts.append('free')
+    else:
+        for key, label in (('price_in', 'in'), ('price_out', 'out'), ('price_cache', 'cache')):
+            value = _adad(row.get(key))
+            if value is not None:
+                parts.append(f'{label} ${value}/M')
+    size = _andaze(row.get('context'))
+    if size:
+        parts.append(f'ctx {size}')
+    longest = _andaze(row.get('max_out'))
+    if longest:
+        parts.append(f'max {longest}')
+    if row.get('tools'):
+        parts.append('tools')
+    if row.get('modality'):
+        parts.append(str(row['modality']))
+    if row.get('peak'):
+        parts.append('peak x' + _adad(row['peak']))
+    return ' · '.join(parts)
+
+
 def catalogue():
     """The real OpenCode Go list, untouched: id and name exactly as served.
 
@@ -149,9 +210,39 @@ def catalogue():
     for m in json.loads(raw).get('data', []):
         if not isinstance(m.get('id'), str):
             continue
-        rows.append({'id': m['id'],
-                     'name': m.get('name') or m.get('display_name') or m['id'],
-                     'description': m.get('description') or ''})
+        limit = m.get('limit') or {}
+        cost = ((m.get('cost') or {}).get('text') or {})
+        masuk = cost.get('input') or {}
+        cache = masuk.get('cache') if isinstance(masuk.get('cache'), dict) else {}
+        caps = m.get('capabilities') or {}
+        factors = [x.get('factor') for x in (m.get('cost') or {}).get('multipliers') or []
+                   if isinstance(x, dict) and _num(x.get('factor'))]
+        masuk_list = (m.get('modalities') or {}).get('input') or []
+        keluar_list = (m.get('modalities') or {}).get('output') or []
+        if masuk_list or keluar_list:
+            def kinds(names):
+                out = []
+                for name in names:
+                    kind = str(name).split('/')[0]
+                    if kind not in out:
+                        out.append(kind)
+                return '/'.join(out)
+            modality = kinds(masuk_list) + '->' + kinds(keluar_list)
+        else:
+            modality = None
+        row = {'id': m['id'],
+               'name': m.get('name') or m.get('display_name') or m['id'],
+               'price_in': _num(masuk.get('price')),
+               'price_out': _num((cost.get('output') or {}).get('price')),
+               'price_cache': _num(cache.get('read')),
+               'context': limit.get('context'),
+               'max_out': limit.get('output'),
+               'tools': bool((caps.get('tools') or {}).get('supported')),
+               'modality': modality,
+               'effort': list((caps.get('reasoning') or {}).get('effort') or []),
+               'peak': max(factors) if factors else None}
+        row['description'] = spec_line(row)
+        rows.append(row)
     rows.sort(key=lambda r: r['name'].lower())
     return 200, rows
 
@@ -185,11 +276,9 @@ def merged_catalogue():
         # «Fable» جایی در این مک ندارد (حبیب ۲۲ نوامبر: «این چه حرفیه حذفش کن»)
         if 'fable' in row['id'].lower() or 'fable' in str(row.get('name', '')).lower():
             continue
-        cost = hunter_cost(row)
-        price = f'${cost:.4f} هر درخواست' if cost is not None else 'قیمت نامعلوم'
-        out.append({'id': row['id'], 'name': row['name'],
-                    'description': f'OpenRouter — {price} (الگوی شکارچیِ مدل)',
-                    'provider': 'openrouter'})
+        # هر ردیف همان چیزی را می‌گوید که دفترچهٔ رسمیِ OpenRouter می‌گوید:
+        # قیمتِ ورودی/خروجی/کش بر میلیون، پنجرهٔ متن، سقفِ خروجی و ابزار.
+        out.append({**row, 'provider': 'openrouter'})
         seen.add(row['id'])
     # همان فهرست برای افزونهٔ وی‌اس‌کد: پچِ `modelChoices()` (project216) این فایل را
     # می‌خواند تا منوی VS Code هم از منبعِ واحد بیاید، نه از کاتالوگِ قدیمیِ OpenRouter
@@ -259,10 +348,21 @@ def openrouter_catalogue():
             if not isinstance(m, dict) or not isinstance(m.get('id'), str):
                 continue
             p = m.get('pricing') or {}
-            rows.append({'id': m['id'], 'name': m.get('name') or m['id'],
-                         'prompt': _num(p.get('prompt')),
-                         'completion': _num(p.get('completion')),
-                         'cache': _num(p.get('input_cache_read'))})
+            # قیمتِ API بر توکن است؛ برگه و دفترچهٔ رسمی بر میلیون می‌نویسند.
+            per_million = lambda key: (lambda v: None if v is None else round(v * 1_000_000, 8))(  # noqa: E731
+                _num(p.get(key)))
+            top = m.get('top_provider') or {}
+            row = {'id': m['id'], 'name': m.get('name') or m['id'],
+                   'price_in': per_million('prompt'),
+                   'price_out': per_million('completion'),
+                   'price_cache': per_million('input_cache_read'),
+                   'context': m.get('context_length') or top.get('context_length'),
+                   'max_out': top.get('max_completion_tokens'),
+                   'tools': 'tools' in (m.get('supported_parameters') or []),
+                   'modality': (m.get('architecture') or {}).get('modality')}
+            row['free'] = bool(row['price_in'] == 0 and row['price_out'] == 0)
+            row['description'] = spec_line(row)
+            rows.append(row)
         rows.sort(key=lambda r: r['id'])
     except (OSError, ValueError, urllib.error.URLError):
         rows = []
@@ -280,13 +380,17 @@ def openrouter_catalogue():
 
 
 def hunter_cost(row):
-    """هزینهٔ هر درخواست با الگوی کالیبرهٔ شکارچیِ مدل — نه تخفیفِ اعلامی."""
-    prompt = row.get('prompt')
+    """هزینهٔ هر درخواست با الگوی کالیبرهٔ شکارچیِ مدل — نه تخفیفِ اعلامی.
+
+    از ۲۶ نوامبر ردیف‌ها قیمتِ رسمی را بر میلیون نگه می‌دارند؛ این تابع همان
+    عددها را به «دلار بر میلیون» برمی‌گرداند و الگو را روی آن می‌بندد.
+    """
+    prompt = row.get('price_in')
     if prompt is None:
         return None
-    cache = row.get('cache') if row.get('cache') is not None else prompt
+    cache = row.get('price_cache') if row.get('price_cache') is not None else prompt
     cache_t, input_t, output_t = HUNTER_PATTERN
-    return cache_t * cache + input_t * prompt + output_t * (row.get('completion') or 0)
+    return cache_t * cache + input_t * prompt + output_t * (row.get('price_out') or 0)
 
 
 def pishfarz_ha():

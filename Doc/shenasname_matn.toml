@@ -2699,3 +2699,21 @@ noe = "vaziat"
 jaye = "CLAUDE.md:15"
 tarif = "42"
 tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
+
+[PISHFARZ_FILE]
+yani = "کجا: دروازه · چیه: تنها فهرستِ پرووایدرها (`abzar/darvaze/providers.toml`) · مثال: ⟦PISHFARZ_FILE⟧"
+chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۱۹:۴۹: «چرا دروازه توش همه پرووایدر ها نیستند؟» — پرووایدرِ تازه باید بلوکِ تازه بگیرد، نه تغییرِ کد. یک دروازه، همهٔ خط‌ها"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["OPENROUTER_URL"]
+tarif = "51"
+tayid = "تأییدشده (حبیب ۲۵ نوامبر ۲۰۲۶ «چرا دروازه توش همه پرووایدر ها نیستند؟»)"
+
+[UA_OPENCODE]
+yani = "کجا: دروازه · چیه: نامِ کلاینتی که به اوپن کد فرستاده می‌شود · مثال: ⟦UA_OPENCODE⟧"
+chera = "Cloudflare جلوی opencode.ai به نامِ پیش‌فرضِ پایتون «error code: 1010» می‌دهد؛ فقط همین رشته رد می‌شود"
+ozv = "darvaze"
+noe = "sabet"
+ba_motaghayerha = ["AUTH_HEADERS"]
+tarif = "51"
+tayid = "تأییدشده (سنجیده‌شده ۲۵ نوامبر ۲۰۲۶ — ۲۰۰ در برابر ۱۰۱۰)"

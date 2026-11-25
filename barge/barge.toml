@@ -34,7 +34,7 @@ total = 0   # از dsh-side-panel/cost-log.js:294
 unknown = 0   # از dsh-side-panel/cost-log.js:295
 
 [darvaze]
-CATALOGUE_TTL = 3600   # از abzar/darvaze/scripts/opencode_gateway.py:69
+CATALOGUE_TTL = 3600   # از abzar/darvaze/scripts/opencode_gateway.py:73
 PREFIX = "claude-oc-"   # از abzar/darvaze/scripts/opencode_gateway.py:32
 UPSTREAM = "https://opencode.ai/inference/go"   # از abzar/darvaze/scripts/opencode_gateway.py:31
 
@@ -104,7 +104,7 @@ FILE_NAME = "claude-rtl-settings.json"   # از claude-ui-buttons.js:1641
 GLOSS_DELAY = 600   # از claude-ui-buttons.js:1007
 GLOSS_DELAY_T = 3000   # از claude-ui-buttons.js:1053
 HOVER_DELAY = 700   # از claude-ui-buttons.js:806
-SESSION = "claude-code-opencode-gateway"   # از abzar/darvaze/scripts/opencode_gateway.py:39
+SESSION = "claude-code-opencode-gateway"   # از abzar/darvaze/scripts/opencode_gateway.py:43
 SOAL_SABR_MS = 250   # از claude-ui-buttons.js:1756
 TZ_CHROME = "claudeInChromeDefaultEnabled"   # از claude-ui-buttons.js:2455
 TZ_NOSKHE_PISH = "2.1.318"   # از claude-ui-buttons.js:3000

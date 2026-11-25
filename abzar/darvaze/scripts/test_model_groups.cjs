@@ -19,6 +19,22 @@ const registered = JSON.parse(fs.readFileSync(path.join(extDir, 'extensions.json
 const active = registered.find(e => e.identifier.id === 'anthropic.claude-code');
 const bundle = fs.readFileSync(path.join(extDir, active.relativeLocation, 'webview/index.js'), 'utf8');
 
+// The webview loads index.js as an ES module, and `node --check` on a `.js` file
+// parses it as CommonJS — which is how a broken brace shipped on ۲۶ نوامبر ۲۰۲۶
+// and the panel died with «Unexpected token '}'». Parse it the way the browser does.
+const { execFileSync } = require('node:child_process');
+const moduleCopy = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccg-parse-')), 'index.mjs');
+fs.writeFileSync(moduleCopy, bundle);
+let parseError = null;
+try {
+  execFileSync(process.execPath, ['--check', moduleCopy], { stdio: 'pipe' });
+} catch (error) {
+  parseError = String(error.stderr || error.message).trim().slice(0, 400);
+} finally {
+  fs.rmSync(path.dirname(moduleCopy), { recursive: true, force: true });
+}
+assert.equal(parseError, null, 'the installed webview bundle does not parse as a module: ' + parseError);
+
 /* ---------- what the picker gets ---------- */
 
 const choices = modelChoices();
@@ -87,6 +103,27 @@ if (gatewayActive) {
     if (!row) continue;
     assert.ok(!row.supportsEffort, 'a model without published levels got an effort slider: ' + value);
   }
+  // هر ردیف همان چیزی را می‌گوید که دفترچهٔ رسمیِ خودِ سرویس می‌گوید — قیمتِ
+  // ورودی/خروجی/کش بر میلیون، پنجرهٔ متن، سقفِ خروجی، ابزار و جنسِ ورودی
+  // (حبیب ۲۶ نوامبر ۰۰:۵۶: «توضیحات مزخرف/چرت را بردار، فقط قیمت و کانتکست»).
+  const arabic = /[؀-ۿ]/;
+  for (const m of choices) {
+    assert.ok(m.description, 'row without a spec line: ' + m.value);
+    assert.ok(!arabic.test(m.description), 'a Persian sentence is back in the spec line: ' + m.value);
+    assert.match(m.description, /(free|in \$-?[\d.]+\/M)/, 'no published price in the spec line: ' + m.value);
+    assert.match(m.description, /ctx [\d.]+[KM]/, 'no context window in the spec line: ' + m.value);
+  }
+  const line = value => choices.find(m => m.value === value).description;
+  assert.match(line('deepseek-v4.1-flash'), /^in \$0\.15\/M · out \$0\.6\/M · cache \$0\.003\/M · ctx 1M/,
+    'the OpenCode spec line drifted from the vendor sheet');
+  assert.match(line('beam-free'), /^free · ctx /, 'a zero-priced model must read "free"');
+  // The picker shows the gateway's own line; it must not re-word it.
+  for (const row of merged) {
+    const shown = byValue.get(row.id);
+    if (!shown) continue;
+    assert.equal(shown.description, row.description || '', 'the picker changed the gateway spec line: ' + row.id);
+  }
+
   for (const m of choices) {
     const evidence = caps.rows[m.value];
     if (!evidence) {
@@ -272,6 +309,46 @@ const boundary = draw([
 ]);
 assert.deepEqual(boundary.filter(n => n.kind === 'header').map(n => n.text),
   ['Alpha', 'Same', 'Beta', 'Same'], 'the family header is not redrawn after a provider change');
+
+/* ---------- the search box over the list ---------- */
+
+// حبیب ۲۶ نوامبر ۰۰:۵۶: «برای مدل‌ها یه سرچ هم بگذار». فیلتر بی‌state است و با
+// style.display کار می‌کند، پس همین‌جا بدون مرورگر هم می‌شود سنجیدش.
+const searchAt = bundle.indexOf('"ccg-search"');
+assert.ok(searchAt > 0, 'the model search box is missing: run fix-rtl-claude.sh');
+const inputAt = bundle.indexOf('onInput:(e)=>{', searchAt);
+assert.ok(inputAt > 0, 'the search box has no input handler');
+
+function braces(text, openIndex) {
+  let depth = 0;
+  for (let i = openIndex; i < text.length; i++) {
+    if (text[i] === '{') depth += 1;
+    else if (text[i] === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(openIndex + 1, i);
+    }
+  }
+  throw Error('unbalanced search handler');
+}
+
+const handlerBody = braces(bundle, inputAt + 'onInput:(e)=>'.length);
+const filter = value => {
+  const input = { value, style: {}, getAttribute: () => null };
+  const header = { textContent: 'OpenCode Go', style: {}, getAttribute: () => null };
+  const row = (text, style = {}) => ({ textContent: text, style, getAttribute: a => (a === 'role' ? 'option' : null) });
+  const deep = row('DeepSeek V4.1 Flash 1017 · OpenCode Go');
+  const beam = row('Beam Free · OpenCode Go');
+  input.parentElement = { children: [input, header, deep, beam] };
+  new Function('e', handlerBody)({ target: input });
+  return { deep: deep.style.display, beam: beam.style.display, header: header.style.display };
+};
+
+assert.deepEqual(filter('deepseek'), { deep: '', beam: 'none', header: 'none' },
+  'typing in the search box does not hide the models that do not match');
+assert.deepEqual(filter('BEAM'), { deep: 'none', beam: '', header: 'none' },
+  'the search is case-sensitive or misses the second row');
+assert.deepEqual(filter(''), { deep: '', beam: '', header: '' },
+  'clearing the search does not bring the list back');
 
 // Sabotage: strip the fields the headers depend on. A renderer that still
 // draws headers is reading a constant, not the catalog, and proves nothing.

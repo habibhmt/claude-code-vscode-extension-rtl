@@ -1006,7 +1006,7 @@ ba_motaghayerha = []
 tarif = "02"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["aaSend", "fekr_bi_kadr", "gloss_darkhast", "navar_keshidan", "navar_porsidan", "neshan_shenase_chat", "neshan_tarjome", "porsidan_shenase_chat", "sakht_panel_aa", "shenase_fekr", "tik_kelid", "tik_porsidan", "tik_sabt", "tik_session", "tz_porsidan", "tz_sakht_radif"]
-jaye = ["claude-ui-buttons.js:37", "abzar/darvaze/scripts/opencode_gateway.py:39"]
+jaye = ["claude-ui-buttons.js:37", "abzar/darvaze/scripts/opencode_gateway.py:43"]
 
 [DEFAULT_COMMANDS]
 yani = "دکمه‌های پیش‌فرضِ نوارِ بالا"
@@ -1030,7 +1030,7 @@ ba_motaghayerha = ["DEF"]
 tarif = "04"
 tayid = "حدس — قبلاً «حبیب ۲۵ اکت … «بله»» بود؛ آن «بله» مالِ قاعدهٔ اسم‌ها بود، نه این متن (حبیب ۲۹ اکت ۰۴:۲۳ «بزن همه رو»)"
 khanandeha = ["aaSend", "khandan_tanzim", "zakhire_tanzim"]
-jaye = ["claude-ui-buttons.js:206", "abzar/darvaze/scripts/opencode_gateway.py:97", "abzar/darvaze/scripts/opencode_picker.py:35"]
+jaye = ["claude-ui-buttons.js:206", "abzar/darvaze/scripts/opencode_gateway.py:103", "abzar/darvaze/scripts/opencode_picker.py:35"]
 
 [DEF]
 yani = "تنظیم‌های پیش‌فرضِ پنل (اندازه‌ها، رنگ، روشن/خاموش‌ها)"
@@ -1894,7 +1894,7 @@ ba_motaghayerha = ["RUNTIME", "STATUS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:37"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:41"]
 
 [CAPS]
 yani = "کجا: دروازه · چیه: فایلِ سقفِ ماهانهٔ هر مدل که از کنسولِ اوپن‌کد خوانده می‌شود · مثال: ⟦CAPS⟧"
@@ -1906,7 +1906,7 @@ ba_motaghayerha = ["USAGE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:38"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:42"]
 
 [DROP]
 yani = "کجا: دروازه · چیه: هدرهایی که پیش از فرستادن به اوپن‌کد حذف می‌شوند (کلیدِ آنتروپیک و همانندها) · مثال: x-api-key همیشه می‌افتد"
@@ -1918,7 +1918,7 @@ ba_motaghayerha = ["AUTH_HEADERS", "OR_HEADERS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:40"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:44"]
 
 [TRACE_STATE]
 yani = "کجا: دروازه · چیه: فایلِ وضعیتِ پروکسیِ اوپن‌روتر که توکنِ محلی از آن خوانده می‌شود · مثال: ⟦TRACE_STATE⟧"
@@ -1930,7 +1930,7 @@ ba_motaghayerha = ["OPENROUTER_URL"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:48"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:52"]
 
 [OPENROUTER_CATALOGUE]
 yani = "کجا: دروازه · چیه: کاتالوگِ شناسه‌های اوپن‌روتر که برای تشخیصِ مسیر و فهرستِ منو استفاده می‌شود · مثال: ⟦OPENROUTER_CATALOGUE⟧"
@@ -1942,7 +1942,7 @@ ba_motaghayerha = ["OPENCODE_CACHE", "MERGED_CACHE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:49"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:53"]
 
 [OPENCODE_CACHE]
 yani = "کجا: دروازه · چیه: کشِ شناسه‌های خودِ اوپن‌کد تا فهرستِ منو با قطعیِ سرویس خالی نشود · مثال: ⟦OPENCODE_CACHE⟧"
@@ -1954,7 +1954,7 @@ ba_motaghayerha = ["MERGED_CACHE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:50"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:54"]
 
 [MERGED_CACHE]
 yani = "کجا: دروازه · چیه: فهرستِ ادغام‌شدهٔ هر دو سرویس که منوی مدلِ افزونه از آن خوانده می‌شود · مثال: ⟦MERGED_CACHE⟧"
@@ -1966,7 +1966,7 @@ ba_motaghayerha = ["OPENCODE_CACHE", "OPENROUTER_CATALOGUE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:51"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:55"]
 
 [STATUS]
 yani = "کجا: دروازه · چیه: فایلِ وضعیتِ قرمز؛ خطای سرویس در آن نوشته و با اولین پاسخِ سالمِ همان سرویس پاک می‌شود · مثال: ⟦STATUS⟧"
@@ -1978,7 +1978,7 @@ ba_motaghayerha = ["ALARM_STATUSES", "USAGE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:52"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:56"]
 
 [MESSAGE_TIMEOUT]
 yani = "کجا: دروازه · چیه: سقفِ ثانیه‌ایِ استریم پس از رسیدنِ بایتِ اول · مثال: ⟦MESSAGE_TIMEOUT⟧ ثانیه"
@@ -1990,7 +1990,7 @@ ba_motaghayerha = ["FIRST_BYTE_TIMEOUT", "RETRY_PAUSE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:59"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:63"]
 
 [FIRST_BYTE_TIMEOUT]
 yani = "کجا: دروازه · چیه: سقفِ ثانیه‌ایِ انتظارِ بایتِ اول برای پیام‌ها؛ پس از آن استریم سقفِ بلند را می‌گیرد · مثال: ⟦FIRST_BYTE_TIMEOUT⟧ ثانیه"
@@ -2002,7 +2002,7 @@ ba_motaghayerha = ["MESSAGE_TIMEOUT"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:65"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:69"]
 
 [RETRY_PAUSE]
 yani = "کجا: دروازه · چیه: مکثِ ثانیه‌ای پیش از تلاشِ مجددِ خطای انتقال · مثال: ⟦RETRY_PAUSE⟧ ثانیه"
@@ -2014,7 +2014,7 @@ ba_motaghayerha = ["MESSAGE_TIMEOUT"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:66"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:70"]
 
 [ALARM_STATUSES]
 yani = "کجا: دروازه · چیه: کدهای HTTP که وضعیتِ قرمز می‌نویسند · مثال: ۵۰۲ و ۵۰۴ هر دو در آن هستند"
@@ -2026,7 +2026,7 @@ ba_motaghayerha = ["STATUS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:67"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:71"]
 
 [OPENROUTER_URL]
 yani = "کجا: دروازه · چیه: آدرسی که کاتالوگِ اوپن‌روتر از آن خوانده می‌شود · مثال: ⟦OPENROUTER_URL⟧"
@@ -2038,7 +2038,7 @@ ba_motaghayerha = ["OPENROUTER_CATALOGUE", "CATALOGUE_TTL"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:68"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:72"]
 
 [CATALOGUE_TTL]
 yani = "کجا: دروازه · چیه: عمرِ کشِ کاتالوگ پیش از خواندنِ دوباره · مثال: یک ساعت"
@@ -2050,7 +2050,7 @@ ba_motaghayerha = ["OPENROUTER_CATALOGUE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:69"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:73"]
 
 [HUNTER_PATTERN]
 yani = "کجا: دروازه · چیه: الگوی مصرفِ کالیبرهٔ شکارچیِ مدل: توکنِ کش، ورودی و خروجیِ هر درخواست · مثال: (کش، ورودی، خروجی)"
@@ -2062,7 +2062,7 @@ ba_motaghayerha = ["USAGE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:72"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:76"]
 
 [OR_HEADERS]
 yani = "کجا: دروازه · چیه: هدرهایی که فقط در مسیرِ اوپن‌روتر معنا دارند و بقیه حذف می‌شوند · مثال: anthropic-beta"
@@ -2074,7 +2074,7 @@ ba_motaghayerha = ["DROP", "AUTH_HEADERS"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:74"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:78"]
 
 [AUTH_HEADERS]
 yani = "کجا: دروازه · چیه: هدرِ احرازِ مسیرِ اوپن‌کد که کلید را از Keychain می‌گذارد · مثال: Bearer additionalModelOptionsCache"
@@ -2086,7 +2086,7 @@ ba_motaghayerha = ["SERVICE", "KEY"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:98"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:107"]
 
 [OPENER]
 yani = "کجا: دروازه · چیه: بازکنندهٔ HTTP با پروکسیِ خالی؛ بدونِ آن، پروکسیِ سیستم مسیر را عوض می‌کند · مثال: ⟦OPENER⟧"
@@ -2098,7 +2098,7 @@ ba_motaghayerha = ["UPSTREAM"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:101"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:110"]
 
 [LOCK]
 yani = "کجا: دروازه · چیه: قفلِ نوشتنِ فایلِ مصرف تا دو رشته هم‌زمان یک ردیف را خراب نکنند · مثال: ⟦LOCK⟧"
@@ -2110,7 +2110,7 @@ ba_motaghayerha = ["USAGE", "KNOWN_LOCK"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:102"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:111"]
 
 [KNOWN_LOCK]
 yani = "کجا: دروازه · چیه: قفلِ کشِ فهرستِ مدل‌ها · مثال: ⟦KNOWN_LOCK⟧"
@@ -2122,7 +2122,7 @@ ba_motaghayerha = ["KNOWN", "LOCK"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:207"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:305"]
 
 [KNOWN]
 yani = "کجا: دروازه · چیه: کشِ شناسه‌های اوپن‌کد با لحظهٔ خواندن؛ یک دقیقه معتبر است · مثال: {ids، at}"
@@ -2134,7 +2134,7 @@ ba_motaghayerha = ["KNOWN_LOCK", "OPENCODE_CACHE"]
 tarif = "00"
 tayid = "پیشنهاد — تأییدنشده (متغیرِ دروازه، ۲۳ نوامبر ۲۰۲۶)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:208"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:306"]
 
 [GATEWAY]
 yani = "کجا: رَپر · چیه: مسیرِ فایلِ دروازه که رَپر در نبودش بالا می‌آورد · مثال: ⟦GATEWAY⟧"
@@ -2522,7 +2522,7 @@ jaye = ["abzar/barge_saz.py:116"]
 
 [provider_jaygozin_harness_6]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: opencode از راهِ دروازهٔ محلی"
-meghdar = "opencode"
+meghdar = "darvaze"
 chera = "همان پنجرهٔ ۲۰:۱۳"
 noe = "sabet"
 ozv = "harness"
@@ -2554,7 +2554,7 @@ ba_motaghayerha = ["masir_workspace", "session_id"]
 tarif = "49"
 tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۲۵"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:513"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:715"]
 
 [masir_workspace]
 yani = "کجا: ردیفِ usage.jsonl · چیه: پوشهٔ همان فراخوانی، از سرآیندِ X-Workspace · مثال: /Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker"
@@ -2566,7 +2566,7 @@ ba_motaghayerha = ["client_harness"]
 tarif = "49"
 tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۲۵"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:500"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:702"]
 
 [chek_takhmin]
 yani = "کجا: Doc/abzar · چیه: ابزاری که می‌سنجد هیچ عددِ دلاریِ تخمینی در تعریف‌ها نمانده · مثال: کدِ ۰ یعنی پاک"
@@ -2614,7 +2614,7 @@ ba_motaghayerha = ["end_reason", "stream_bytes"]
 tarif = "49"
 tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۲۰"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:752"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:948"]
 
 [model]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
@@ -2638,7 +2638,7 @@ ba_motaghayerha = ["model", "mapped_from"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:528"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:730"]
 
 [mapped_from]
 yani = "کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus"
@@ -2650,7 +2650,7 @@ ba_motaghayerha = ["requested", "model"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:284"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:477"]
 
 [list_cost]
 yani = "کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021"
@@ -2674,7 +2674,7 @@ ba_motaghayerha = ["list_cost", "remaining"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:847"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:1043"]
 
 [remaining]
 yani = "کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18"
@@ -2686,7 +2686,7 @@ ba_motaghayerha = ["monthly_cap", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:848"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:1044"]
 
 [request_bytes]
 yani = "کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452"
@@ -2698,7 +2698,7 @@ ba_motaghayerha = ["duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:532"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:734"]
 
 [upload_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4"
@@ -2710,7 +2710,7 @@ ba_motaghayerha = ["wait_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:563"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:765"]
 
 [wait_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709"
@@ -2722,7 +2722,7 @@ ba_motaghayerha = ["upload_ms", "stream_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:730"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:926"]
 
 [stream_ms]
 yani = "کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157"
@@ -2734,7 +2734,7 @@ ba_motaghayerha = ["wait_ms", "duration_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:731"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:927"]
 
 [duration_ms]
 yani = "کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870"
@@ -2746,7 +2746,7 @@ ba_motaghayerha = ["upload_ms", "wait_ms", "stream_ms"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:606"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:802"]
 
 [chat_cost]
 yani = "کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders}"
@@ -3551,3 +3551,27 @@ tarif = "42"
 tayid = "بله — حبیب ۲۴ نوامبر ۲۰۲۶ ۱۷:۰۷"
 khanandeha = []
 jaye = ["claude-host-hook.js:821"]
+
+[PISHFARZ_FILE]
+yani = "کجا: دروازه · چیه: تنها فهرستِ پرووایدرها (`abzar/darvaze/providers.toml`) · مثال: ⟦PISHFARZ_FILE⟧"
+meghdar = ""
+chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۱۹:۴۹: «چرا دروازه توش همه پرووایدر ها نیستند؟» — پرووایدرِ تازه باید بلوکِ تازه بگیرد، نه تغییرِ کد. یک دروازه، همهٔ خط‌ها"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["OPENROUTER_URL"]
+tarif = "51"
+tayid = "تأییدشده (حبیب ۲۵ نوامبر ۲۰۲۶ «چرا دروازه توش همه پرووایدر ها نیستند؟»)"
+khanandeha = []
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:40"]
+
+[UA_OPENCODE]
+yani = "کجا: دروازه · چیه: نامِ کلاینتی که به اوپن کد فرستاده می‌شود · مثال: ⟦UA_OPENCODE⟧"
+meghdar = ""
+chera = "Cloudflare جلوی opencode.ai به نامِ پیش‌فرضِ پایتون «error code: 1010» می‌دهد؛ فقط همین رشته رد می‌شود"
+noe = "sabet"
+ozv = "darvaze"
+ba_motaghayerha = ["AUTH_HEADERS"]
+tarif = "51"
+tayid = "تأییدشده (سنجیده‌شده ۲۵ نوامبر ۲۰۲۶ — ۲۰۰ در برابر ۱۰۱۰)"
+khanandeha = []
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:106"]

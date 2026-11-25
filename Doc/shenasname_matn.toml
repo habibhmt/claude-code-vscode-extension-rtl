@@ -1897,6 +1897,26 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 
+[client_harness]
+yani = "کجا: ردیفِ usage.jsonl · چیه: کدام برنامه فراخوانی را فرستاد (کلود کد · هرمس · dsh) · مثال: claude-code"
+chera = "هزینهٔ هرمس در سبدِ بی‌نشانی قاطی می‌شد؛ حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۲۴: «کار رو اصولی انجام بدید که کلاینت و پوشه‌اش مشخص باشه»"
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:497"]
+ozv = "abzar"
+noe = "dadeh"
+ba_motaghayerha = ["masir_workspace", "session_id"]
+tarif = "49"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۲۵"
+
+[masir_workspace]
+yani = "کجا: ردیفِ usage.jsonl · چیه: پوشهٔ همان فراخوانی، از سرآیندِ X-Workspace · مثال: /Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker"
+chera = "بی پوشه، هزینهٔ هر هارنس در سبدِ «Unattributed (no path)» می‌نشیند؛ همان حرفِ حبیب ۰۶:۲۴"
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:497"]
+ozv = "abzar"
+noe = "dadeh"
+ba_motaghayerha = ["client_harness"]
+tarif = "49"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۲۵"
+
 [chek_takhmin]
 yani = "کجا: Doc/abzar · چیه: ابزاری که می‌سنجد هیچ عددِ دلاریِ تخمینی در تعریف‌ها نمانده · مثال: کدِ ۰ یعنی پاک"
 chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۵۴: «حدس قسمت کنسل هست و همه چی باید دقیق در بیاد»"

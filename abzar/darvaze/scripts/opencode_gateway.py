@@ -491,6 +491,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
             session_source = 'generated'
         else:
             session_source = 'client'
+        # حبیب ۲۵ نوامبر ۰۶:۲۴: «کار رو اصولی انجام بدید که کلاینت و پوشه‌اش مشخص باشه».
+        # `X-Harness` و `X-Workspace` صریح‌اند؛ بی آن‌ها فقط از User-Agent و آن هم
+        # قبلی، جایگزین‌شده (حبیب ۲۵ نوامبر ۲۰۲۶ ۰۶:۲۶: «اصلا اون unknown قابل قبول
+        # نیست»): سرآیند اجباری است. نبودنش ⇒ ۴۰۰ با ردیفِ missing_harness_header،
+        # نه ردیفی با `unknown`. نامِ اعلام‌شده هرچه باشد ثبت می‌شود (مثلاً `bogus`).
+        sarayand = (self.headers.get('X-Harness') or '').strip()
+        masir_workspace = (self.headers.get('X-Workspace') or '').strip()
+        agar_bedoone_sarayand = not sarayand
+        client_harness = sarayand.lower() if sarayand else 'missing'
         try:
             size = int(self.headers.get('Content-Length', '-1'))
             if not 0 <= size <= 32 * 1024 * 1024:
@@ -500,6 +509,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 raise ValueError
         except (ValueError, OSError):
             return self.reply(400, b'{"error":"bad json"}')
+        if agar_bedoone_sarayand:
+            # سرآیند اجباری: پیش از هر هزینه‌ای رد می‌شود، و رد شدنش هم ثبت می‌شود.
+            note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                  'provider': 'none', 'provider_reason': 'missing_harness_header',
+                  'work_type': 'messages', 'model': body.get('model'),
+                  'requested': body.get('model'), 'status': 400,
+                  'error': 'missing_harness_header', 'end_reason': 'failed',
+                  'session_id': session_id, 'session_source': session_source,
+                  'client_harness': 'missing', 'masir_workspace': masir_workspace,
+                  'request_bytes': size})
+            return self.reply(400, json.dumps({'type': 'error', 'error': {
+                'type': 'invalid_request_error',
+                'message': 'سرآیندِ X-Harness اجباری است: کلاینتِ صداکننده باید خودش را '
+                           'معرفی کند (حبیب ۲۵ نوامبر ۲۰۲۶: «unknown قابل قبول نیست»).'}},
+                ensure_ascii=False).encode())
         # شناسهٔ ورودی پیش از بازنویسی نگه داشته می‌شود: `requested` باید همان
         # چیزی باشد که کلاینت فرستاد، نه آنچه دروازه فرستاد (سنجیده ۲۰:۳۶).
         original_model = body.get('model')
@@ -514,7 +538,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                   'provider': 'none', 'provider_reason': 'unknown_model',
                   'work_type': 'messages', 'model': None, 'requested': wanted,
                   'status': 400, 'error': 'unknown_model', 'end_reason': 'unknown_model',
-                  'session_id': session_id, 'session_source': session_source, 'request_bytes': size})
+                  'session_id': session_id, 'session_source': session_source,
+                  'client_harness': client_harness, 'masir_workspace': masir_workspace,
+                  'request_bytes': size})
             payload = json.dumps({'type': 'error', 'error': {
                 'type': 'invalid_request_error',
                 'message': f'مدلِ «{wanted}» در اوپن کد نیست؛ هیچ مدلی جای آن جواب نمی‌دهد.'}},
@@ -563,7 +589,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                       'provider': provider, 'work_type': 'messages', 'model': sent,
                       'requested': original_model, 'status': 504,
-                      'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
+                      'session_id': session_id, 'session_source': session_source,
+               'client_harness': client_harness, 'masir_workspace': masir_workspace,
+               'request_bytes': size,
                       'duration_ms': elapsed, 'attempts': 1,
                       'error': 'timeout', 'end_reason': 'failed'})
                 set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
@@ -575,7 +603,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': provider, 'work_type': 'messages', 'model': sent,
                   'requested': original_model, 'status': 502,
-                  'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
+                  'session_id': session_id, 'session_source': session_source,
+               'client_harness': client_harness, 'masir_workspace': masir_workspace,
+               'request_bytes': size,
                   'duration_ms': elapsed, 'attempts': 2,
                   'error': 'transport_error: ' + str(error)[:180], 'end_reason': 'failed'})
             set_status(provider, 502, 'خطای انتقال به سرویس')
@@ -672,7 +702,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': provider, 'work_type': 'messages', 'model': sent,
                   'requested': original_model, 'status': 504,
-                  'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
+                  'session_id': session_id, 'session_source': session_source,
+               'client_harness': client_harness, 'masir_workspace': masir_workspace,
+               'request_bytes': size,
                   'duration_ms': elapsed, 'attempts': attempts,
                   'error': 'first_byte_timeout', 'end_reason': 'failed'})
             set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
@@ -691,7 +723,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                'work_type': 'count_tokens' if self.path.endswith('count_tokens') else 'messages',
                'model': sent,
                'requested': original_model, 'status': status,
-               'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
+               'session_id': session_id, 'session_source': session_source,
+               'client_harness': client_harness, 'masir_workspace': masir_workspace,
+               'request_bytes': size,
                'upload_ms': upload_ms, 'wait_ms': wait_ms, 'stream_ms': stream_ms,
                # مدتِ کل مستقل از سه جزء اندازه‌گیری می‌شود تا آزمونِ
                # «جمع = کل» واقعاً چیزی را بسنجد (خرابکاریِ اولش کور بود).

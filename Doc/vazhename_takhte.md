@@ -228,21 +228,23 @@
 | `provider_jaygozin_harness_5` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۵ — ori · مثال: openrouter | ☑ provider_jaygozin_harness_5: `abzar/barge_saz.py:116` |
 | `provider_jaygozin_harness_6` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: opencode از راهِ دروازهٔ محلی | ☑ provider_jaygozin_harness_6: `abzar/barge_saz.py:117` |
 | `provider_jaygozin_harness_7` | کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۷ — cursor-agent · مثال: openai | ☑ provider_jaygozin_harness_7: `abzar/barge_saz.py:118` |
+| `client_harness` | کجا: ردیفِ usage.jsonl · چیه: کدام برنامه فراخوانی را فرستاد (کلود کد · هرمس · dsh) · مثال: claude-code | ☑ client_harness: `abzar/darvaze/scripts/opencode_gateway.py:502` |
+| `masir_workspace` | کجا: ردیفِ usage.jsonl · چیه: پوشهٔ همان فراخوانی، از سرآیندِ X-Workspace · مثال: /Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker | ☑ masir_workspace: `abzar/darvaze/scripts/opencode_gateway.py:500` |
 | `chek_takhmin` | کجا: Doc/abzar · چیه: ابزاری که می‌سنجد هیچ عددِ دلاریِ تخمینی در تعریف‌ها نمانده · مثال: کدِ ۰ یعنی پاک | ☑ chek_takhmin: `Doc/abzar/chek_takhmin.py:1` |
 | `fekr_shenavar` | کجا: claude-ui-buttons.js · چیه: لایهٔ شفافِ بالای کارتِ حدس که واژه‌های مود را یکی‌یکی نشان می‌دهد · مثال: شناسهٔ crtl-fekr-shenavar | ☑ fekr_shenavar: `claude-ui-buttons.js:372` |
 | `radif_fekr_shenavar` | کجا: claude-ui-buttons.js · چیه: سه ردیفی که در حالتِ تک‌دکمه داخلِ کارت پنهان می‌مانند و واژه‌هایشان به لایهٔ شناور می‌رود · مثال: کلاسِ crtl-fekr-radif | ☑ radif_fekr_shenavar: `claude-ui-buttons.js:3592` |
-| `aval_byte_pasokh` | کجا: ردیفِ usage.jsonl · چیه: ۶۰ بایتِ اولِ پاسخِ سرویس، تا معلوم شود آن ۲۱ بایتِ بی‌مصرف جواب بود یا خطا · مثال: دادهٔ ۲۱ بایتی در end_reason=usage_missing | ☑ aval_byte_pasokh: `abzar/darvaze/scripts/opencode_gateway.py:707` |
+| `aval_byte_pasokh` | کجا: ردیفِ usage.jsonl · چیه: ۶۰ بایتِ اولِ پاسخِ سرویس، تا معلوم شود آن ۲۱ بایتِ بی‌مصرف جواب بود یا خطا · مثال: دادهٔ ۲۱ بایتی در end_reason=usage_missing | ☑ aval_byte_pasokh: `abzar/darvaze/scripts/opencode_gateway.py:741` |
 | `model` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash | ☑ model: `mods/hads/hooks/register.js:2` |
-| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/darvaze/scripts/opencode_gateway.py:503` |
+| `requested` | کجا: ردیفِ مصرف · چیه: شناسه‌ای که کلاینت فرستاد، پیش از هر نگاشت · مثال: deepseek-v4.1-flash-1017@preset/… | ☑ requested: `abzar/darvaze/scripts/opencode_gateway.py:517` |
 | `mapped_from` | کجا: ردیفِ مصرف · چیه: املای دیگری که به همین مدل رسیده؛ نبود ⇒ نگاشتی نبوده · مثال: opus | ☑ mapped_from: `abzar/darvaze/scripts/opencode_gateway.py:284` |
 | `list_cost` | کجا: ردیفِ مصرف · چیه: پولی که سرویس برای همان درخواست حساب کرد (دلار) · مثال: 0.0021 | ☑ list_cost: `abzar/darvaze/scripts/opencode_gateway.py:13` |
-| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/darvaze/scripts/opencode_gateway.py:802` |
-| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/darvaze/scripts/opencode_gateway.py:803` |
-| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/darvaze/scripts/opencode_gateway.py:517` |
-| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/darvaze/scripts/opencode_gateway.py:526` |
-| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/darvaze/scripts/opencode_gateway.py:687` |
-| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/darvaze/scripts/opencode_gateway.py:688` |
-| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/darvaze/scripts/opencode_gateway.py:567` |
+| `monthly_cap` | کجا: per_model در opencode-go.json · چیه: سقفِ ماهانهٔ همان مدل (دلار) · مثال: 200 | ☑ monthly_cap: `abzar/darvaze/scripts/opencode_gateway.py:836` |
+| `remaining` | کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18 | ☑ remaining: `abzar/darvaze/scripts/opencode_gateway.py:837` |
+| `request_bytes` | کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452 | ☑ request_bytes: `abzar/darvaze/scripts/opencode_gateway.py:521` |
+| `upload_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ خواندنِ بدنه و آماده‌سازی تا لحظهٔ ارسال · مثال: 4 | ☑ upload_ms: `abzar/darvaze/scripts/opencode_gateway.py:552` |
+| `wait_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ انتظار تا بایتِ اول · مثال: 6709 | ☑ wait_ms: `abzar/darvaze/scripts/opencode_gateway.py:719` |
+| `stream_ms` | کجا: ردیفِ مصرف · چیه: میلی‌ثانیهٔ استریم پس از بایتِ اول · مثال: 1157 | ☑ stream_ms: `abzar/darvaze/scripts/opencode_gateway.py:720` |
+| `duration_ms` | کجا: ردیفِ مصرف · چیه: مدتِ کلِ درخواست، مستقل از سه جزءِ دیگر سنجیده می‌شود · مثال: 7870 | ☑ duration_ms: `abzar/darvaze/scripts/opencode_gateway.py:595` |
 | `chat_cost` | کجا: opencode-go.json · چیه: بلوکِ هزینهٔ هر چت و فولدر برای تبِ OpenCode · مثال: {schema, total, sessions, folders} | ☑ chat_cost: `abzar/darvaze/scripts/opencode_usage.py:159` |
 | `schema` | کجا: chat_cost · چیه: نسخهٔ ساختار؛ کلیدهای تازه نسخه را بالا نمی‌برند تا اپِ قدیمی نشکند · مثال: 1 | ☑ schema: `claude-ui-buttons.js:2454` |
 | `total` | کجا: chat_cost · چیه: جمعِ دلارِ همهٔ چت‌ها؛ باید با جمعِ per_model یکی باشد · مثال: 8.148 | ☑ total: `abzar/darvaze/scripts/opencode_usage.py:134` |

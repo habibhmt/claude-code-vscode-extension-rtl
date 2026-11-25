@@ -34,6 +34,10 @@ SERVICE = 'habib-claude-opencode'
 ACCOUNT = 'windsurf'
 PORT = int(os.environ.get('OPENCODE_GATEWAY_PORT', '50990'))
 RUNTIME = Path(__file__).resolve().parents[1] / '.runtime/opencode-go'
+# همهٔ پرووایدرها یک‌جا (حبیب ۲۵ نوامبر ۱۹:۴۹ «چرا دروازه توش همه پرووایدر ها نیستند؟
+# دروازه اوپن کد جدا، دروازه اوپن روتر جدا …»). پرووایدرِ تازه = یک بلوک در همین فایل،
+# نه تغییرِ کد.
+PISHFARZ_FILE = Path(__file__).resolve().parents[3] / 'abzar' / 'darvaze' / 'providers.toml'
 USAGE = RUNTIME / 'usage.jsonl'
 CAPS = RUNTIME / 'model-caps.json'
 SESSION = 'claude-code-opencode-gateway'
@@ -77,9 +81,11 @@ OR_HEADERS = {'anthropic-version', 'anthropic-beta', 'content-type', 'accept',
               'x-session-id', 'x-openrouter-session-id'}
 
 
-def read_key():
+def read_key(svc_name=None, acct_name=None):
+    """کلید از Keychain — هر پرووایدر آیتمِ خودش را دارد (نه یک کلیدِ سراسری)."""
     sec = ctypes.CDLL('/System/Library/Frameworks/Security.framework/Security')
-    svc, acct = SERVICE.encode(), ACCOUNT.encode()
+    svc = (svc_name or SERVICE).encode()
+    acct = (acct_name or ACCOUNT).encode()
     length = ctypes.c_uint32(); data = ctypes.c_void_p()
     fn = sec.SecKeychainFindGenericPassword
     fn.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_uint32,
@@ -95,9 +101,12 @@ def read_key():
 
 
 KEY = read_key()
+# Cloudflare جلوی opencode.ai به UAِ پیش‌فرضِ urllib «error code: 1010» می‌دهد؛ پس
+# همان رشته‌ای فرستاده می‌شود که خودِ کلود کد می‌فرستد.
+UA_OPENCODE = 'claude-cli/2.1.328 (external, claude-vscode, agent-sdk/0.3.328)'
 AUTH_HEADERS = {'Authorization': 'Bearer ' + (KEY or ''),
                 'x-opencode-session': SESSION,
-                'user-agent': 'claude-cli/2.1.328 (external, claude-vscode, agent-sdk/0.3.328)'}
+                'user-agent': UA_OPENCODE}
 OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 LOCK = threading.Lock()
 
@@ -280,9 +289,91 @@ def hunter_cost(row):
     return cache_t * cache + input_t * prompt + output_t * (row.get('completion') or 0)
 
 
-def route(name):
-    """(provider, شناسهٔ فرستادنی, mapped_from) — ترتیبِ چهارگانهٔ ناظر-۱۳۶.
+def pishfarz_ha():
+    """پرووایدرهای اعلام‌شده در `providers.toml` — هر بلوک یک پرووایدر.
 
+    اگر فایل نبود یا خراب بود، تهی برمی‌گردد و `route()` به رفتارِ قبلی می‌افتد؛
+    یک فایلِ خراب نباید دروازه را از کار بیندازد.
+    """
+    try:
+        import tomllib
+        with open(PISHFARZ_FILE, 'rb') as f:
+            d = tomllib.load(f)
+    except (OSError, ValueError, ImportError):
+        return {}
+    return {k: v for k, v in d.items() if isinstance(v, dict)}
+
+
+def noe_of(provider):
+    """نوعِ خطِ پرووایدر از `providers.toml` — تا رفتارِ کد به نامِ پرووایدر گره نخورد."""
+    return ((pishfarz_ha().get(provider) or {}).get('noe') or '').strip()
+
+
+def langar(provider, client_headers):
+    """مقصد و سرآیندهای یک پرووایدر — از `providers.toml`، نه از `if/else` در کد.
+
+    خروجی: `(target, headers)` یا `(None, دلیل)` وقتی آن خط بالا نیست.
+    سه `noe` هست و هر سه همین‌جا متمرکزند:
+
+      opencode  ⇒ بالادستِ اوپن کد + کلیدِ Keychain + بازنویسیِ مسیر (مثلِ `/anthropic/v1/`)
+      proxy     ⇒ از فایلِ وضعیتِ پروکسیِ OpenRouter (چرخشِ حساب مالِ اوست)؛
+                  کلید در دروازه نیست، هدرها فقط از فهرستِ مجاز می‌آیند
+      anthropic ⇒ خطِ مستقیمِ API کلود با کلیدِ `x-api-key` از Keychain
+
+    پرووایدری که `providers.toml` نمی‌شناسد ⇒ `(None, دلیل)` و دروازه ۵۰۳ صدادار
+    می‌دهد، نه اینکه بی‌صدا به خطِ دیگری بفرستد.
+    """
+    blok = pishfarz_ha().get(provider) or {}
+    noe = (blok.get('noe') or '').strip()
+
+    if noe == 'proxy':
+        base, token = proxy_state()
+        if not base:
+            return None, 'proxy_state_missing'
+        headers = {k: v for k, v in client_headers.items() if k.lower() in OR_HEADERS}
+        headers['X-Trace-Token'] = token
+        headers['content-type'] = 'application/json'
+        return base, headers
+
+    base = (blok.get('base') or '').strip()
+    if not base:
+        return None, f'provider_{provider}_base_missing'
+
+    if noe == 'opencode':
+        headers = dict(AUTH_HEADERS)
+        headers['user-agent'] = UA_OPENCODE
+        headers['content-type'] = 'application/json'
+        headers['anthropic-version'] = '2023-06-01'
+        return base, headers
+
+    if noe == 'anthropic':
+        key = os.environ.get((blok.get('key_env') or '').strip()) or read_key(
+            (blok.get('keychain') or '').strip() or None,
+            (blok.get('keychain_account') or '').strip() or None)
+        if not key:
+            return None, f'provider_{provider}_key_missing'
+        headers = {'x-api-key': key, 'anthropic-version': '2023-06-01',
+                   'content-type': 'application/json', 'user-agent': 'habib-gateway/136'}
+        return base, headers
+
+    return None, f'provider_{provider}_noe_unknown'
+
+
+def masir_baznevisi(provider, path):
+    """بازنویسیِ مسیرِ درخواست از روی `masir` در همان بلوک؛ تهی ⇒ دست‌نخورده."""
+    blok = pishfarz_ha().get(provider) or {}
+    rule = (blok.get('masir') or '').strip()
+    if not rule or ',' not in rule:
+        return path
+    az, be = rule.split(',', 1)
+    return path.replace(az.strip(), be.strip(), 1)
+
+
+def route(name):
+    """(provider, شناسهٔ فرستادنی, mapped_from) — ترتیبِ پنج‌گانه.
+
+    ۰) `providers.toml`: پیشوند یا شناسهٔ اعلام‌شده ⇒ همان پرووایدر (هر پرووایدری که
+       بعداً اضافه شود، بی تغییرِ این تابع)
     ۱) شناسهٔ واقعیِ اوپن‌کد ⇒ اوپن‌کد
     ۲) برابرِ شناخته‌شده (املای preset/`[1m]`/vendor که به همان مدل می‌رسد) ⇒ اوپن‌کد
     ۳) شناسه‌ای که در فهرستِ OpenRouter هست و برابرِ هیچ مدلِ اوپن‌کد نیست ⇒ OpenRouter
@@ -290,6 +381,13 @@ def route(name):
     """
     if not isinstance(name, str) or not name:
         return None, name, None
+    for nom, blok in pishfarz_ha().items():
+        pv = (blok.get('pishvand') or '').strip()
+        if pv and name.startswith(pv):
+            return nom, name[len(pv):], None
+        mh = blok.get('model_ha') or []
+        if name in mh:
+            return nom, name, None
     if name.startswith(PREFIX):
         return 'opencode', name[len(PREFIX):], None
     oc = known_ids()
@@ -561,28 +659,22 @@ class Handler(http.server.BaseHTTPRequestHandler):
         started = time.monotonic()
         or_id = None      # شناسهٔ پاسخِ OpenRouter برای خواندنِ هزینه با api/v1/generation
         upload_ms = round((started - t0) * 1000)
-        if provider == 'openrouter':
-            # مسیرِ دوم: همان پروکسیِ ۵۰۹۶۷ (چرخشِ حساب، ردیفِ requests.jsonl و
-            # count_tokensِ محلی مالِ اوست). هدرها فقط از فهرستِ مجازِ این مسیر
-            # می‌آیند و توکنِ محلیِ پروکسی اضافه می‌شود؛ هیچ کلیدِ دومی این‌جا نیست.
-            base, token = proxy_state()
-            if not base:
-                note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-                      'provider': 'openrouter', 'work_type': 'messages',
-                      'model': sent, 'requested': sent, 'status': 503,
-                      'error': 'proxy_state_missing', 'end_reason': 'failed'})
-                return self.reply(503, json.dumps({'type': 'error', 'error': {
-                    'type': 'api_error',
-                    'message': 'پروکسیِ OpenRouter بالا نیست (فایلِ وضعیت نبود).'}},
-                    ensure_ascii=False).encode())
-            headers = {k: v for k, v in self.headers.items() if k.lower() in OR_HEADERS}
-            headers['X-Trace-Token'] = token
-            headers['content-type'] = 'application/json'
-            target = base + self.path
-        else:
-            headers = AUTH_HEADERS | {'content-type': 'application/json',
-                                      'anthropic-version': '2023-06-01'}
-            target = UPSTREAM + self.path.replace('/v1/', '/anthropic/v1/', 1)
+        # مقصد و سرآیندها از `providers.toml` می‌آیند (`langar`) — نه از if/elseِ
+        # کد. پرووایدرِ تازه = یک بلوکِ تازه، نه شاخهٔ تازه (حبیب ۲۵ نوامبر ۱۹:۴۹).
+        base, headers = langar(provider, self.headers)
+        if base is None:
+            note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+                  'provider': provider, 'work_type': 'messages', 'model': sent,
+                  'requested': original_model, 'status': 503,
+                  'session_id': session_id, 'session_source': session_source,
+                  'client_harness': client_harness, 'masir_workspace': masir_workspace,
+                  'request_bytes': size,
+                  'error': headers, 'end_reason': 'failed'})
+            return self.reply(503, json.dumps({'type': 'error', 'error': {
+                'type': 'api_error',
+                'message': f'خطِ پرووایدرِ «{provider}» بالا نیست: {headers}'}},
+                ensure_ascii=False).encode())
+        target = base + masir_baznevisi(provider, self.path)
         request = urllib.request.Request(
             target, data=json.dumps(body, ensure_ascii=False).encode(),
             headers=headers, method='POST')
@@ -680,7 +772,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     # کلاینت خودش قطع کرد (کلود کد بی‌خیال شد) — نه خطای دروازه.
                     client_gone = True
                     break
-                if provider == 'openrouter' and or_id is None:
+                if noe_of(provider) == 'proxy' and or_id is None:
                     m = re.search(rb'"id"\s*:\s*"(msg_[A-Za-z0-9]+)"', chunk)
                     if m:
                         or_id = m.group(1).decode()
@@ -774,7 +866,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             row['client_gone'] = True
         if mapped_from and mapped_from != sent:
             row['mapped_from'] = mapped_from
-        if provider == 'openrouter' and or_id:
+        if noe_of(provider) == 'proxy' and or_id:
             row['or_response_id'] = or_id
         # پولِ OpenRouter فقط در requests.jsonlِ پروکسی شمرده می‌شود؛ ردیفِ
         # دروازه برای آن مسیر عددِ هزینه ندارد (شرطِ ناظر-۱۳۶، ۱۹:۴۲).

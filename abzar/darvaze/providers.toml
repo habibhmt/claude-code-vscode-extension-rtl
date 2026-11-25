@@ -1,0 +1,50 @@
+# دروازهٔ ۱۳۶ — همهٔ پرووایدرها یک‌جا
+#
+# حبیب ۲۵ نوامبر ۲۰۲۶ ۱۹:۴۹: «چرا دروازه توش همه پرووایدر ها نیستند؟ دروازه اوپن کد
+# جدا، دروازه اوپن روتر جدا، دروازه کلود کد ای پی ای جدا و همینطوری هر چی بعدا اضافه شد».
+#
+# یعنی: **یک** دروازه، و هر پرووایدری که بعداً اضافه شود فقط یک بلوک این‌جا می‌گیرد،
+# نه تغییرِ کد. `route()` و `langar()` اول همین را می‌خوانند.
+#
+# هر بلوک:
+#   noe              = opencode | proxy | anthropic   (چطور حرف بزند؛ `langar()` همین را
+#                      می‌خواند تا مقصد و سرآیندها را بسازد)
+#   base             = آدرسِ بالادست (بی مسیر). برای `proxy` تهی می‌ماند: آدرس از فایلِ
+#                      وضعیتِ پروکسی می‌آید، نه از این‌جا.
+#   masir            = «از,به» برای بازنویسیِ مسیرِ درخواست (تهی = دست‌نخورده)
+#   keychain         = نامِ آیتمِ Keychain · keychain_account = حسابِ همان آیتم
+#   key_env          = نامِ متغیرِ محیطی (اگر کلید در Keychain نیست)
+#   pishvand         = پیشوندِ شناسه در درخواستِ کلاینت، مثلِ "anthropic/"
+#   model_ha         = شناسه‌هایی که این پرووایدر می‌شناسد (تهی = از کاتالوگِ خودش)
+
+[opencode]
+noe = "opencode"
+base = "https://opencode.ai/inference/go"
+masir = "/v1/,/anthropic/v1/"
+keychain = "habib-claude-opencode"
+keychain_account = "windsurf"
+pishvand = ""
+
+# پولِ OpenRouter از همان پروکسیِ ۵۰۹۶۷ رد می‌شود (چرخشِ حساب و ردیفِ requests.jsonl
+# مالِ اوست). این‌جا فقط **اعلام** می‌شود که یک مسیرِ دروازه است، نه دو تکهٔ جدا.
+[openrouter]
+noe = "proxy"
+base = ""
+keychain = "habib-claude-code-openrouter"
+keychain_account = "default-vscode"
+pishvand = ""
+
+# خطِ کلود کد ای پی ای — کلیدش در Keychain هست (`habib-claude-code-anthropic`).
+# تا وقتی شناسه‌ای با پیشوندِ `anthropic/` نیاید، این خط دست‌نخورده می‌ماند.
+[anthropic]
+noe = "anthropic"
+base = "https://api.anthropic.com"
+masir = ""
+keychain = "habib-claude-code-anthropic"
+keychain_account = "default-vscode"
+pishvand = "anthropic/"
+# عمداً `model_ha` ندارد. شناسه‌های برهنهٔ `claude-*` امروز **از کاتالوگِ اوپن کد**
+# جواب می‌گیرند و ترافیکِ زندهٔ همین حالاست (`claude-fable-5-2` · ۱٬۸۲۰ ردیف · آخرین
+# ۲۰۲۶-۱۱-۲۵T08:08:40Z). اگر این‌جا فهرست می‌شدند، همان ترافیک به خطی می‌رفت که
+# کلیدش ۴۰۱ می‌دهد. پس این خط فقط با پیشوندِ صریحِ `anthropic/` صدا زده می‌شود.
+model_ha = []

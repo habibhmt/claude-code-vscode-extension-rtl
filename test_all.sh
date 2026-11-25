@@ -82,6 +82,8 @@ run "tatbigh" python3 Doc/abzar/tatbigh_opencode.py
 # برگردند قرمزِ درست. بی‌قیمت و بی‌usage بدهیِ بازند و فقط گزارش می‌شوند تا قرمزِ
 # همیشگی/سکوتِ همیشگی هیچ‌کدام پیش نیاید (ایرادِ ۷ ناظر-۱۳۶، ۲۵ نوامبر).
 run "log kamel" python3 Doc/abzar/chek_log_kamel.py --az 2026-11-25T02:20:00Z --gate بی_صاحب,بی_provider
+# «حدس کنسل شد» (حبیب ۲۵ نوامبر ۰۵:۵۴): هیچ عددِ دلاریِ تخمینی در تعریف‌ها نماند.
+run "takhmin" python3 Doc/abzar/chek_takhmin.py
 run "remembr cache" python3 Doc/abzar/test_remembr_cache.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh

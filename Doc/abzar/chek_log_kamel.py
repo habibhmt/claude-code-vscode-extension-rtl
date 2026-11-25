@@ -28,7 +28,7 @@ RISHE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 USAGE = os.path.join(RISHE, 'abzar', 'darvaze', '.runtime', 'opencode-go', 'usage.jsonl')
 # برشِ پیش‌فرض: لحظه‌ای که هر دو نقطهٔ نوشتنِ ازقلمافتاده بسته شد (۵۰۴ و ۴۰۰).
 # ردیف‌های پیش از این، میراثی‌اند و عقب‌گردکردنی نیستند.
-BRESH_PISHFARZ = '2026-11-24T18:46:00Z'
+BRESH_PISHFARZ = '2026-11-25T02:20:00Z'
 HELP = __doc__
 
 SHOMARANDE_HA = [

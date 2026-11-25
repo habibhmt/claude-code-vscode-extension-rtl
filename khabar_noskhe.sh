@@ -22,7 +22,7 @@ GOZARESH_DIR="${KHABAR_GOZARESH_DIR:-$REPO_DIR/Doc/khabar_noskhe}"
 LOG_FILE="${KHABAR_LOG_FILE:-$REPO_DIR/khabar_noskhe.log}"
 ABZAR_203=/Users/habib/1-MY-WORK/203th-day-imac-cpu-tracker/doc/abzar
 had_entezar_claude_s=300
-had_kharj_claude_usd=0.5
+had_kharj_claude_usd="${KHABAR_SAQFE_KHARJ:-2}"   # سقفِ دلاریِ CLI با قیمتِ کلود حساب می‌شود، نه دیپ‌سیک؛ ۰٫۵ زود پر می‌شد
 
 bresh() {
     local ghadim="$1" taze="$2" matn

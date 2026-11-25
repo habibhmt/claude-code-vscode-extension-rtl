@@ -235,20 +235,49 @@ done <<< "$IDES"
 # own updater (switched off in ~/.claude.json), so it drifts behind the
 # extensions unless this keeps it in step. launchd has no nvm in PATH, so the
 # binary is found by path; npm is the one next to it, never a global guess.
+# ۲۵ نوامبر ۲۰۲۶: نصبِ اصلی «native» است (~/.local/bin/claude) و npmِ Homebrew هم
+# سرِ جایش مانده (پروژهٔ ۲۰۱ با مسیرِ /opt/homebrew/bin/claude صدایش می‌زند). پس
+# هر دو هم‌نسخه نگه داشته می‌شوند: native با `claude update`، npm با npm خودش.
+# دلیلِ این‌که این‌جا فقط npm نبود: `claude --version` عوض نمی‌شد و نسخه‌ها جدا می‌افتادند.
 update_cli() {
-    local bin dir now
-    bin="$(ls -1 "$HOME"/.nvm/versions/node/*/bin/claude 2>/dev/null | sort -V | tail -1)"
-    # the MacBook has no nvm: claude and npm come from Homebrew's node there
-    [ -z "$bin" ] && [ -x "${CLAUDE_HOMEBREW_BIN:-/opt/homebrew/bin}/claude" ] && bin="${CLAUDE_HOMEBREW_BIN:-/opt/homebrew/bin}/claude"
-    if [ -z "$bin" ]; then say "CLI: FAILED, claude not found (~/.nvm or /opt/homebrew/bin)"; return 0; fi
-    dir="$(dirname "$bin")"
-    now="$(PATH="$dir:$PATH" "$bin" --version 2>/dev/null | awk '{print $1}')"
-    if ! newer_than "$LATEST" "$now"; then say "CLI: already on ${now:-?}"; return 0; fi
-    if [ "$DRY_RUN" = true ]; then say "CLI: behind (${now:-none} -> $LATEST)"; return 0; fi
-    say "CLI: updating ${now:-none} -> $LATEST"
-    PATH="$dir:$PATH" "$dir/npm" install -g "@anthropic-ai/claude-code@$LATEST" >/dev/null 2>&1 || true
-    now="$(PATH="$dir:$PATH" "$bin" --version 2>/dev/null | awk '{print $1}')"
-    if [ "$now" = "$LATEST" ]; then say "CLI: now on $LATEST"; else say "CLI: FAILED, still on ${now:-none}"; fi
+    local bin dir now rc=0 native=false npm_cli npm_dir
+    # مسیرِ native را صریح می‌سنجیم: این اسکریپت /opt/homebrew/bin را اولِ PATH
+    # می‌گذارد، پس `command -v claude` همان npmِ Homebrew را برمی‌گرداند و نصبِ
+    # اصلی هرگز به‌روز نمی‌شد (۲۵ نوامبر ۲۰۲۶).
+    for bin in "$HOME/.local/bin/claude" "$(command -v claude 2>/dev/null || true)"; do
+        [ -n "$bin" ] && [ -L "$bin" ] || continue
+        case "$(readlink "$bin")" in *".local/share/claude/versions/"*) native=true; break ;; esac
+    done
+    if [ "$native" = true ]; then
+        now="$("$bin" --version 2>/dev/null | awk '{print $1}')"
+        if newer_than "$LATEST" "$now"; then
+            if [ "$DRY_RUN" = true ]; then
+                say "CLI (native): behind (${now:-none} -> $LATEST)"
+            else
+                say "CLI (native): updating ${now:-none} -> $LATEST"
+                "$bin" update >/dev/null 2>&1 || true
+                now="$("$bin" --version 2>/dev/null | awk '{print $1}')"
+                if [ "$now" = "$LATEST" ]; then say "CLI (native): now on $LATEST"; else say "CLI (native): FAILED, still on ${now:-none}"; rc=1; fi
+            fi
+        else
+            say "CLI (native): already on ${now:-?}"
+        fi
+    fi
+    # npm side (Homebrew's node on this machine)
+    npm_cli="$(ls -1 "$HOME"/.nvm/versions/node/*/bin/claude 2>/dev/null | sort -V | tail -1)"
+    [ -z "$npm_cli" ] && [ -x "${CLAUDE_HOMEBREW_BIN:-/opt/homebrew/bin}/claude" ] && npm_cli="${CLAUDE_HOMEBREW_BIN:-/opt/homebrew/bin}/claude"
+    if [ -z "$npm_cli" ]; then
+        [ "$native" = true ] || say "CLI: FAILED, claude not found (native, ~/.nvm or /opt/homebrew/bin)"
+        return 0
+    fi
+    npm_dir="$(dirname "$npm_cli")"
+    now="$(PATH="$npm_dir:$PATH" "$npm_cli" --version 2>/dev/null | awk '{print $1}')"
+    if ! newer_than "$LATEST" "$now"; then say "CLI (npm): already on ${now:-?}"; return 0; fi
+    if [ "$DRY_RUN" = true ]; then say "CLI (npm): behind (${now:-none} -> $LATEST)"; return 0; fi
+    say "CLI (npm): updating ${now:-none} -> $LATEST"
+    PATH="$npm_dir:$PATH" "$npm_dir/npm" install -g "@anthropic-ai/claude-code@$LATEST" >/dev/null 2>&1 || true
+    now="$(PATH="$npm_dir:$PATH" "$npm_cli" --version 2>/dev/null | awk '{print $1}')"
+    if [ "$now" = "$LATEST" ]; then say "CLI (npm): now on $LATEST"; else say "CLI (npm): FAILED, still on ${now:-none}"; fi
 }
 update_cli
 

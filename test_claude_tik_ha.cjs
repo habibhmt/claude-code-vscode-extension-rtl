@@ -15,7 +15,7 @@ const P136 = '/Users/habib/1-MY-WORK/136th-day-fix-rtl-claude', PX = fs.realpath
 const env = { ...process.env, TIK_HA: STORE, TIK_HA_DIDE: DIDE };
 const py = (args, input) => JSON.parse(execFileSync('python3', [PY, ...args], { env, input: input === undefined ? '' : JSON.stringify(input) }).toString());
 const J = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
-fs.writeFileSync(DIDE, JSON.stringify({ abzar: ['Agent', 'Bash', 'Read', 'Workflow'], mcp: ['hafeze', 'kompyuter'], afzune: ['hookify@claude-plugins-official'], eskil: ['nazer', 'watch'] }));
+fs.writeFileSync(DIDE, JSON.stringify({ abzar: ['Agent', 'Bash', 'Read', 'Workflow'], mcp: ['hafeze', 'computer_use'], afzune: ['hookify@claude-plugins-official'], eskil: ['nazer', 'watch'] }));
 
 function pythonPart() {
   // before the first ticks a launch must not run open
@@ -39,25 +39,25 @@ function pythonPart() {
   // levels
   const sabt = (sath, taghir, extra = {}) => py(['sabt'], { sath, cwd: PX, taghir, ...extra });
   assert.equal(sabt('poshe', []).ok, false, 'nothing changed: nothing saved');
-  assert.equal(sabt('chat', [{ kind: 'mcp', name: 'kompyuter', on: false }]).ok, false, 'a chat level needs the chat');
-  assert.equal(sabt('poshe', [{ kind: 'mcp', name: 'kompyuter', on: false }]).ok, true);
+  assert.equal(sabt('chat', [{ kind: 'mcp', name: 'computer_use', on: false }]).ok, false, 'a chat level needs the chat');
+  assert.equal(sabt('poshe', [{ kind: 'mcp', name: 'computer_use', on: false }]).ok, true);
   assert.deepEqual(J(STORE).poshe[PX].abzar, { Agent: false, Workflow: false }, 'a folder\'s list starts as a copy of the global one');
-  assert.deepEqual(py(['settings', PX]).deniedMcpServers, [{ serverName: 'kompyuter' }], 'MCP off ⇒ deniedMcpServers');
+  assert.deepEqual(py(['settings', PX]).deniedMcpServers, [{ serverName: 'computer_use' }], 'MCP off ⇒ deniedMcpServers');
   assert.equal(py(['settings', '/tmp']).deniedMcpServers, undefined, 'another folder is not touched');
   sabt('sarasari', [{ kind: 'eskil', name: 'watch', on: false }]);
   assert.equal(py(['settings', PX]).skillOverrides, undefined, 'a folder with its own list ignores a later global tick');
   assert.deepEqual(py(['settings', '/tmp']).skillOverrides, { watch: 'off' }, 'a folder without a list takes it');
-  sabt('chat', [{ kind: 'mcp', name: 'kompyuter', on: true }, { kind: 'afzune', name: 'hookify@claude-plugins-official', on: false }], { chat: 'kanal-abc123' });
+  sabt('chat', [{ kind: 'mcp', name: 'computer_use', on: true }, { kind: 'afzune', name: 'hookify@claude-plugins-official', on: false }], { chat: 'kanal-abc123' });
   const sc = py(['settings', PX, '--chat', 'kanal-abc123']);
   assert.equal(sc.deniedMcpServers, undefined, 'the chat\'s own tick beats its folder');
   assert.deepEqual(sc.enabledPlugins, { 'hookify@claude-plugins-official': false }, 'plugin off ⇒ enabledPlugins false');
-  assert.deepEqual(py(['settings', PX]).deniedMcpServers, [{ serverName: 'kompyuter' }], 'other chats of the folder keep the folder\'s list');
+  assert.deepEqual(py(['settings', PX]).deniedMcpServers, [{ serverName: 'computer_use' }], 'other chats of the folder keep the folder\'s list');
   const SID = '0a157388-1111-2222-3333-444455556666';
   assert.equal(py(['chat-be-sid', 'kanal-abc123', SID]).ok, true);
   assert.deepEqual(py(['settings', PX, '--resume-args', '--resume', SID]).enabledPlugins, { 'hookify@claude-plugins-official': false }, 'from its first message the ticks follow the chat\'s id, --resume too');
   // the list
   const f = py(['fehrest', PX, '--chat', SID]);
-  assert.equal(f.ghalam.mcp.find((r) => r.n === 'kompyuter').sath, 'chat', 'each tick says where it came from');
+  assert.equal(f.ghalam.mcp.find((r) => r.n === 'computer_use').sath, 'chat', 'each tick says where it came from');
   assert.equal(f.ghalam.abzar.find((r) => r.n === 'Agent').on, false);
   assert.ok(f.ghalam.abzar.some((r) => r.n === 'Workflow'), 'a tool turned off still shows');
   assert.ok(!f.ghalam.abzar.some((r) => r.n === 'Task'), 'Agent and Task are one tick');
@@ -85,7 +85,7 @@ async function hostPart() {
   const H = loadHost();
   const l = await H.tikFehrest({ reqId: 7, cwd: PX, kelid: 'kanal-zzz999' });
   assert.equal(l.type, 'crtl-tik-list'); assert.equal(l.reqId, 7);
-  assert.equal(l.ghalam.mcp.find((r) => r.n === 'kompyuter').on, false, 'the host reads the shared list');
+  assert.equal(l.ghalam.mcp.find((r) => r.n === 'computer_use').on, false, 'the host reads the shared list');
   const r = await H.tikSabt({ sath: 'chat', cwd: PX, kelid: 'kanal-zzz999', taghir: [{ kind: 'eskil', name: 'nazer', on: false }] });
   assert.equal(r.ok, true);
   assert.equal((await H.tikSabt({ sath: 'chat', cwd: PX, kelid: '../bad', taghir: [{ kind: 'eskil', name: 'nazer', on: false }] })).ok, false, 'a strange chat name is not taken');
@@ -170,16 +170,16 @@ async function panelPart() {
     assert.deepEqual(heads, ['ابزارهای خودِ کلود', 'MCP', 'افزونه‌ها', 'اسکیل‌ها'], 'the four kinds');
     assert.deepEqual(await pg.$$eval('.crtl-tik-sath button', (x) => x.map((e) => e.textContent)), ['این چت', 'این پوشه', 'سراسری'], 'the three levels');
     assert.match(await pg.locator('#crtl-tik-hal').textContent(), /چتِ تازه/, 'it says the tick acts on this new chat');
-    // tick kompyuter back on for this folder, then save: the new chat restarts
+    // tick computer_use back on for this folder, then save: the new chat restarts
     const row = (n) => pg.locator('.crtl-tik-row', { hasText: n }).first();
-    assert.equal(await row('kompyuter').locator('input').isChecked(), false);
+    assert.equal(await row('computer_use').locator('input').isChecked(), false);
     assert.equal(await pg.locator('#crtl-tik-sabt').isDisabled(), true, 'nothing changed: no save');
-    await row('kompyuter').locator('input').check();
+    await row('computer_use').locator('input').check();
     await pg.waitForFunction(() => /۱ تغییر در «این پوشه»/.test(document.getElementById('crtl-tik-sabt').textContent), null, { timeout: 60000 });
     await pg.locator('#crtl-tik-sabt').click();
     await pg.waitForFunction(() => window.__restarts === 1, null, { timeout: 8000 });
     const s = sent.find((m) => m.type === 'crtl-tik-sabt');
-    assert.equal(s.sath, 'poshe'); assert.deepEqual(s.taghir, [{ kind: 'mcp', name: 'kompyuter', on: true }]);
+    assert.equal(s.sath, 'poshe'); assert.deepEqual(s.taghir, [{ kind: 'mcp', name: 'computer_use', on: true }]);
     assert.ok(sent.findIndex((m) => m.type === 'crtl-tik-badi') > sent.indexOf(s), 'the host is told before the restart');
     assert.equal(py(['settings', PX]).deniedMcpServers, undefined, 'saved in the shared list');
     // «این چت»: under the chat's own name
@@ -240,11 +240,11 @@ async function enginePart() {
   const a = await init(P136);
   const b = a.tools.filter((t) => !t.startsWith('mcp__')).sort();
   assert.ok(!b.includes('Agent') && !b.includes('Task') && !b.includes('Workflow') && !b.includes('CronCreate') && b.includes('Bash') && b.length <= 11, '136: only its list: ' + b.join(','));
-  // the folder PX (kompyuter on again, hafeze off) plus the chat's own ticks by name, as the host passes them
+  // the folder PX (computer_use on again, hafeze off) plus the chat's own ticks by name, as the host passes them
   py(['sabt'], { sath: 'chat', cwd: PX, chat: 'kanal-eng123', taghir: [{ kind: 'eskil', name: 'nazer', on: false }, { kind: 'afzune', name: 'hookify@claude-plugins-official', on: false }] });
   const c = await init(PX, { __crtl_tik_chat: 'kanal-eng123' });
   const m = c.mcp_servers.filter((x) => x.source === 'user').map((x) => x.name);
-  assert.ok(!m.includes('hafeze') && m.includes('kompyuter'), 'folder MCP ticks: ' + m.join(','));
+  assert.ok(!m.includes('hafeze') && m.includes('computer_use'), 'folder MCP ticks: ' + m.join(','));
   assert.ok(!c.skills.includes('nazer'), 'the chat\'s skill tick');
   assert.ok(!c.plugins.some((x) => x.name === 'hookify'), 'the chat\'s plugin tick');
   assert.ok(!c.tools.includes('Agent') && !c.tools.includes('Workflow'), 'the folder\'s first ticks');

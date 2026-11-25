@@ -4,7 +4,7 @@ import help from '../tool-help.cjs'
 import { collectAvailable, tikRows } from '../index.js'
 
 test('every built-in shown by the current DSH has a Persian purpose',()=>{
- const names=['create_worktree','list_mcp_resource_templates','list_mcp_resources','load_workspace_dependencies','mcp__hafeze__gashtan_dar_hafeze','mcp__kompyuter__computer','model_hunter','propose_action','read_mcp_resource','session_peers','session_reception','session_send','team_task_create','team_task_get','team_task_list','team_task_update','working_directory','bash','read','job_list','web_search']
+ const names=['create_worktree','list_mcp_resource_templates','list_mcp_resources','load_workspace_dependencies','mcp__hafeze__gashtan_dar_hafeze','mcp__computer_use__computer','model_hunter','propose_action','read_mcp_resource','session_peers','session_reception','session_send','team_task_create','team_task_get','team_task_list','team_task_update','working_directory','bash','read','job_list','web_search']
  for(const name of names){const r=help.resolveHelp('abzar_dsh',name);assert.doesNotMatch(r.usage,/هنوز/);assert.match(r.usage,/[\u0600-\u06ff]/)}
 })
 test('scope inventory includes disabled known tools without changing permission',async()=>{

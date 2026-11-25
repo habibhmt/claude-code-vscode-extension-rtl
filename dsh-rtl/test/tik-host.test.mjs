@@ -161,15 +161,15 @@ test('MCP: سرور خاموش ⇒ ابزارهایش هم با پیشوند ا�
     process.env.HOME = box.home
     const mod = await import('../index.js?' + Date.now())
     // نامِ ابزارهای MCP در DSH «mcp__<سرور>__<ابزار>» است
-    const known = ['mcp__hafeze__gashtan_dar_hafeze', 'mcp__kompyuter__computer', 'bash']
+    const known = ['mcp__hafeze__gashtan_dar_hafeze', 'mcp__computer_use__computer', 'bash']
     mod.saveTik({ home: box.home, sath: 'sarasari', changes: [{ kind: 'mcp', name: 'hafeze', on: false }] })
     // تیکِ مکپ ⇒ ابزارهای همان سرور هم می‌روند
     assert.deepEqual(mod.tikDeniedFor({ home: box.home, cwd: box.work, known: known }), ['mcp__hafeze__gashtan_dar_hafeze'])
     // ...پس برای MCP باید نام‌ها را خودمان به دستهٔ ابزار ترجمه کنیم: این کار را applyTik می‌کند.
-    const rows = mod.tikRows({ home: box.home, cwd: box.work, available: { abzar_dsh: known, mcp: ['hafeze', 'kompyuter'], afzune: [], eskil: [] } })
+    const rows = mod.tikRows({ home: box.home, cwd: box.work, available: { abzar_dsh: known, mcp: ['hafeze', 'computer_use'], afzune: [], eskil: [] } })
     const mcpRow = rows.rows.find((r) => r.kind === 'mcp')
     assert.equal(mcpRow.items.find((i) => i.name === 'hafeze').on, false, 'hafeze خاموش دیده می‌شود')
-    assert.equal(mcpRow.items.find((i) => i.name === 'kompyuter').on, true, 'kompyuter روشن می‌ماند')
+    assert.equal(mcpRow.items.find((i) => i.name === 'computer_use').on, true, 'computer_use روشن می‌ماند')
   } finally { process.env.HOME = savedHome; box.done() }
 })
 

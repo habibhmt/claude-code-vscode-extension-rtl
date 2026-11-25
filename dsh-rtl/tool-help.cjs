@@ -25,7 +25,7 @@ const builtin = {
  list_mcp_resource_templates:'قالبِ منابعِ خواندنیِ MCP را برای دریافتِ پارامتر نشان می‌دهد',
  read_mcp_resource:'محتوای یک منبعِ MCP را از نشانی‌اش می‌خواند',
  mcp__hafeze__gashtan_dar_hafeze:'در حرف‌ها و کارهای گفتگوهای قبلیِ حبیب جست‌وجو می‌کند',
- mcp__kompyuter__computer:'با اتصالِ کامپیوتر، صفحه و برنامه‌های حبیب را می‌خواند یا کنترل می‌کند',
+ mcp__computer_use__computer:'با اتصالِ کامپیوتر، صفحه و برنامه‌های حبیب را می‌خواند یا کنترل می‌کند',
  propose_action:'پیشنهاد را در کارتِ قابل تأیید به حبیب نشان می‌دهد؛ خودش اجرا نمی‌کند',
  session_reception:'دریافتِ پیام از چت‌های دیگر را برای همین چت روشن یا متوقف می‌کند',
  create_worktree:'شاخه و نسخهٔ کاریِ جدا از Git می‌سازد و پوشهٔ همین چت را به آن تغییر می‌دهد',
@@ -191,7 +191,7 @@ const skills = {
  'whatsapp':'پیام‌های واتساپ را جست‌وجو و طبق دستور پاسخ را آماده یا ارسال می‌کند'
 };
 const mcp = {'hafeze':'در حافظهٔ گفتگوهای قبلیِ حبیب جست‌وجو می‌کند',
- 'kompyuter':'از راهِ اتصالِ کامپیوتر، برنامه‌ها و صفحه را می‌خواند یا کنترل می‌کند',
+ 'computer_use':'از راهِ اتصالِ کامپیوتر، برنامه‌ها و صفحه را می‌خواند یا کنترل می‌کند — ساختِ Adam Jones · github.com/domdomegg/computer-use-mcp',
  'claude-vscode':'Claude را به قابلیت‌های محیطِ VS Code وصل می‌کند',
  'claude.ai Google Sheets':'با فایل‌های Google Sheets از راهِ حسابِ متصل کار می‌کند'};
 function readJson(p){try{return JSON.parse(fs.readFileSync(p,

@@ -26,12 +26,15 @@ READER = 'require(' + json.dumps(str(ROOT / 'scripts/vscode_model_catalog.cjs'))
 # `group`, `family` and `familyLabel` would vanish on the cached path, so the
 # picker would draw its provider headers only on a fresh window. One anchored
 # addition, proved by the fields being present exactly once afterwards.
-MODEL_SCHEMA = re.compile(r'(\{value:(\w+)\(\),resolvedModel:\w+\(\)\.optional\(\),displayName:\2\(\)'
-                          r'[^}]*?disabled:\w+\(\)\.optional\(\))')
+# ۲٫۱٫۳۳۲ هم `description` و پنج `supports*` به همین شیء اضافه کرد و نامِ تابع‌های zod
+# با `$` آمد (`disabled:$e()`)؛ `\w`ِ ساده `$e` را نمی‌گیرد و لنگر ۰ می‌داد
+# (۲۵ نوامبر ۲۰۲۶). `[\w$]+` هر دو بیلد را می‌گیرد.
+MODEL_SCHEMA = re.compile(r'(\{value:([\w$]+)\(\),resolvedModel:[\w$]+\(\)\.optional\(\),displayName:\2\(\)'
+                          r'[^}]*?disabled:[\w$]+\(\)\.optional\(\))')
 
 
 def install_model_fields(text):
-    if re.search(r'\{value:(\w+)\(\),resolvedModel:\w+\(\)\.optional\(\),displayName:\1\(\)'
+    if re.search(r'\{value:([\w$]+)\(\),resolvedModel:[\w$]+\(\)\.optional\(\),displayName:\1\(\)'
                  r'[^}]*?group:\1\(\)\.optional\(\)', text):
         return text
     found = MODEL_SCHEMA.findall(text)

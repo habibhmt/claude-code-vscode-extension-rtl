@@ -492,7 +492,9 @@ if m:
                  lambda m: '{let crtlC=globalThis.__crtl_baz_shodan&&globalThis.__crtl_baz_shodan(' + m.group(3) + ',' + m.group(2) + '.cwd);if(crtlC){if(crtlC.effort)' + m.group(2) + '.effort=crtlC.effort;if(crtlC.model)' + m.group(2) + '.model=crtlC.model;if(crtlC.settings)' + m.group(2) + '.extraArgs={...' + m.group(2) + '.extraArgs,settings:JSON.stringify(crtlC.settings)}}}globalThis.__crtlHistoryLaunch?.(' + m.group(3) + ',' + m.group(2) + ',undefined,' + trusted_tools + ');' + m.group(1), out, count=1)
     out = re.sub(r'this\.channels\.set\(([\w$]+),([\w$]+)\),this\.pendingChannels\.delete\(\1\)',
                  lambda m: 'this.channels.set(' + m.group(1) + ',' + m.group(2) + '),globalThis.__crtl_kanal_taze&&globalThis.__crtl_kanal_taze(this,' + m.group(1) + ',' + m.group(2) + '),this.pendingChannels.delete(' + m.group(1) + ')', out, count=1)
-    out = re.sub(r'async writeUserSettingsAndPush\(([\w$]+),([\w$]+),([\w$]+),([\w$]+)\)\{',
+    # ۲٫۱٫۳۳۲ یک پارامترِ پنجم به همین تابع داد؛ امضای چهارپارامتریِ سفت یعنی
+    # لنگر بخورد و تبِ «تنظیمات کلود» بی‌صدا از کار بیفتد (۲۵ نوامبر ۲۰۲۶).
+    out = re.sub(r'async writeUserSettingsAndPush\(([\w$]+),([\w$]+),([\w$]+),([\w$]+)(?:,[\w$]+)?\)\{',
                  lambda m: m.group(0) + 'if(!' + m.group(3) + '&&' + m.group(4) + '!=="localSettings"&&globalThis.__crtl_menu_chat&&globalThis.__crtl_menu_chat(this,' + m.group(1) + ',' + m.group(2) + '))' + m.group(3) + '=!0;', out, count=1)
     open(path, 'w', encoding='utf-8').write(out)
 PYEOF
@@ -540,20 +542,29 @@ s = re.sub(r'(\}\),)([\w$]+\(\(\)=>\{let [\w$]+=this\.connection\.value\?\.confi
            r'\1(globalThis.__crtl_sessions||(globalThis.__crtl_sessions=new Set)).add(this),\2', s, count=1)
 # After an answer, every option of the question window keeps its preview table, folded; the picked one open
 # (Habib, 7 Nov 03:12 «اون جدول هم کنارشون بمونه بعد از سوال» ⇒ «جدولِ همهٔ گزینه‌ها»). All three anchors or none.
+# نامِ تابعِ ساختِ عنصر (`m` تا ۲٫۱٫۳۲۸، `u` از ۲٫۱٫۳۳۲) دیگر ثابت نیست: مینیفایِر هر بیلد
+# عوضش می‌کند و لنگرِ `m`ِ سفت روی ۲٫۱٫۳۳۲ نخورد (۲۵ نوامبر ۲۰۲۶). از همین‌جا هر لنگر
+# خودش نامِ تابع را برمی‌دارد و همان را در کدِ تزریقی می‌نویسد.
 _t = s
-_mm = re.search(r'm\(([\w$]+),\{content:([\w$]+)\(([\w$]+)\),context:e,links:"text"\}\)', _t)
-if _mm:
-    _md, _norm = _mm.group(1), _mm.group(2)
-    _t, _n1 = re.subn(r'(u=s\.length===0\?null:m\()([\w$]+),\{answered:', r'\1\2,{crtlCtx:e,answered:', _t, count=1)
-    _t, _n2 = re.subn(r'function ([\w$]+)\(\{answered:e\}\)\{return m\("div",\{className:([\w$]+)\.reviewBody',
-                      r'function \1({answered:e,crtlCtx:__cx}){return m("div",{className:\2.reviewBody', _t, count=1)
-    _t, _n3 = re.subn(r'description:a\.description,\.\.\.([\w$]+)\(t,a\.label\)\},l\)',
-        lambda g: ('description:a.description,...%s(t,a.label),children:typeof a.preview==="string"&&a.preview.trim()!==""&&'
-                   'm("details",{className:"crtl-ans-preview",open:%s(t,a.label).selected,onClick:(ev)=>ev.stopPropagation(),'
-                   'children:[m("summary",{children:"جدول"}),m("div",{children:m(%s,{content:%s(a.preview),context:__cx,links:"text"})})]})},l)'
-                   % (g.group(1), g.group(1), _md, _norm)), _t, count=1)
-    if _n1 and _n2 and _n3:
-        s = _t
+_mm = re.search(r'([\w$]+)\(([\w$]+),\{content:([\w$]+)\(([\w$]+)\),context:e,links:"text"\}\)', _t)
+_n0 = re.search(r'([\w$]+)\(([\w$]+),\{multiSelect:[\w$.]+,label:a\.label,description:a\.description,\.\.\.([\w$]+)\(t,a\.label\)\},l\)', _t)
+_n1 = re.search(r'([\w$]+)=([\w$]+)\.length===0\?null:([\w$]+)\(([\w$]+),\{answered:', _t)
+_n2 = re.search(r'function ([\w$]+)\(\{answered:e\}\)\{return ([\w$]+)\("div",\{className:([\w$]+)\.reviewBody', _t)
+if _mm and _n0 and _n1 and _n2:
+    _f = _n0.group(1)                     # factory داخلِ همان تابع
+    _md, _norm = _mm.group(2), _mm.group(3)
+    _tail = _t[_n0.start():_n0.end()]
+    _pre = _tail[:_tail.index('description:a.description')]
+    _t = _t[:_n0.start()] + _pre + (
+        'description:a.description,...%s(t,a.label),children:typeof a.preview==="string"&&a.preview.trim()!==""&&'
+        '%s("details",{className:"crtl-ans-preview",open:%s(t,a.label).selected,onClick:(ev)=>ev.stopPropagation(),'
+        'children:[%s("summary",{children:"جدول"}),%s("div",{children:%s(%s,{content:%s(a.preview),context:__cx,links:"text"})})]})},l)'
+        % (_n0.group(3), _f, _n0.group(3), _f, _f, _f, _md, _norm)) + _t[_n0.end():]
+    # این دو جایگزینی طولِ متن را عوض می‌کنند، پس باید بعد از برشِ بالا (که با اندیسِ
+    # _n0 کار می‌کند) انجام شوند.
+    _t = _t.replace(_n1.group(0), _n1.group(1) + '=' + _n1.group(2) + '.length===0?null:' + _n1.group(3) + '(' + _n1.group(4) + ',{crtlCtx:e,answered:')
+    _t = _t.replace(_n2.group(0), 'function ' + _n2.group(1) + '({answered:e,crtlCtx:__cx}){return ' + _n2.group(2) + '("div",{className:' + _n2.group(3) + '.reviewBody')
+    s = _t
 open(path, 'w', encoding='utf-8').write(s)
 PYEOF
                 if [ "$ide_name" = "VSCode" ] && [ -f "$HOME/.claude/dsh-history/workspaces.json" ]; then

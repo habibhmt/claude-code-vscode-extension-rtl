@@ -21,8 +21,11 @@ from pathlib import Path
 MARK = '/* project216-model-groups */'
 
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
+# children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
+# نامِ تابعِ ساختِ عنصر (`m` در ۲٫۱٫۳۲۸، `u` در ۲٫۱٫۳۳۲) جزءِ لنگر نیست: مینیفایِر
+# هر بیلد عوضش می‌کند و ۲۵ نوامبر ۲۰۲۶ لنگر با `m`ِ ثابت روی ۲٫۱٫۳۳۲ نخورد.
 MAP = re.compile(
-    r'children:(\w+)&&(\w+)\.map\(\((\w+),(\w+)\)=>m\((\w+),\{model:\3,id:(\w+)\(\4\),'
+    r'children:(\w+)&&(\w+)\.map\(\((\w+),(\w+)\)=>([\w$]+)\((\w+),\{model:\3,id:(\w+)\(\4\),'
     r'isUnavailable:(\w+)\.has\(\3\.value\),isActive:\3\.value===(\w+),isCurrent:(\w+)===\3\.value,'
     r'activeItemRef:(\w+),onHover:\(\)=>(\w+)\(\3\.value\),onPick:\(\)=>(\w+)\(\3\),check:(\w+)\},\3\.value\)\)'
 )
@@ -32,7 +35,7 @@ SECTION = re.compile(r'className:(\w+)\.sectionHeader,id:\w+,children:"Select a 
 
 
 def replacement(m):
-    (shown, rows, model, index, row, row_id, unavailable, current, active,
+    (shown, rows, model, index, el, row, row_id, unavailable, current, active,
      item_ref, hover, pick, check) = m.groups()
     css = replacement.css
     return (
@@ -40,11 +43,11 @@ def replacement(m):
         f'const __ccg1={model}.group&&({index}===0||{model}.group!=={rows}[{index}-1].group),'
         f'__ccg2={model}.familyLabel&&({index}===0||{model}.familyLabel!=={rows}[{index}-1].familyLabel);'
         f'return['
-        f'__ccg1?m("div",{{className:{css}.sectionHeader,style:{{paddingTop:{index}?8:2,fontWeight:600,opacity:.8}},'
+        f'__ccg1?{el}("div",{{className:{css}.sectionHeader,style:{{paddingTop:{index}?8:2,fontWeight:600,opacity:.8}},'
         f'children:{model}.group}},"ccgh"+{index}):null,'
-        f'__ccg2?m("div",{{className:{css}.sectionHeader,'
+        f'__ccg2?{el}("div",{{className:{css}.sectionHeader,'
         f'style:{{paddingInlineStart:18,fontSize:".86em",opacity:.55}},children:{model}.familyLabel}},"ccgf"+{index}):null,'
-        f'm({row},{{model:{model},id:{row_id}({index}),isUnavailable:{unavailable}.has({model}.value),'
+        f'{el}({row},{{model:{model},id:{row_id}({index}),isUnavailable:{unavailable}.has({model}.value),'
         f'isActive:{model}.value==={current},isCurrent:{active}==={model}.value,activeItemRef:{item_ref},'
         f'onHover:()=>{hover}({model}.value),onPick:()=>{pick}({model}),check:{check}}},{model}.value)]}})'
     )

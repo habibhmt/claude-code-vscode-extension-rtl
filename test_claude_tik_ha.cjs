@@ -61,11 +61,13 @@ function pythonPart() {
   assert.equal(f.ghalam.abzar.find((r) => r.n === 'Agent').on, false);
   assert.ok(f.ghalam.abzar.some((r) => r.n === 'Workflow'), 'a tool turned off still shows');
   assert.ok(!f.ghalam.abzar.some((r) => r.n === 'Task'), 'Agent and Task are one tick');
-  // a broken store never opens a chat
-  const ok = fs.readFileSync(STORE);
-  fs.writeFileSync(STORE, '{broken');
-  assert.throws(() => execFileSync('python3', [PY, 'settings', PX], { env, stdio: 'pipe' }), 'a broken store fails');
-  fs.writeFileSync(STORE, ok);
+  // a broken store never opens a chat — on its own file, not the shared store:
+  // a hook that answers during this window used to hit the broken store and
+  // throw the same Traceback as an assertion failure (ناظر-۱۳۶، ۲۵ نوامبر ۱۱:۲۶).
+  const brokenStore = path.join(tmp, 'tik_ha_broken.json');
+  fs.writeFileSync(brokenStore, '{broken');
+  assert.throws(() => execFileSync('python3', [PY, 'settings', PX],
+    { env: { ...env, TIK_HA: brokenStore }, stdio: 'pipe' }), 'a broken store fails');
   return 'python ok';
 }
 

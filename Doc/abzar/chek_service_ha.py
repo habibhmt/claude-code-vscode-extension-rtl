@@ -42,7 +42,12 @@ def parse(lst, dis):
     known = {r['label'] for r in rows}
     for label in sorted(off - known):
         if label.startswith('com.habib'):
-            rows.append({'label': label, 'pid': '-', 'exit': '-', 'disabled': True})
+            # بی‌پلیست = مرده: ثبتِ «disabled» از یک پلیستِ پاک‌شده باقی مانده و
+            # چیزی برای اجرا نیست (سنجیده ۲۵ نوامبر ۱۱:۲۰: پنج سرویسِ بی‌پلیست
+            # شمارندهٔ «تازه/غیرمجاز» را از ۰ به ۵ بردند و زنجیره بی‌سبب قرمز شد).
+            rows.append({'label': label, 'pid': '-', 'exit': '-', 'disabled': True,
+                         'biplist': not os.path.exists(
+                             os.path.expanduser(f'~/Library/LaunchAgents/{label}.plist'))})
     return rows
 
 
@@ -83,11 +88,18 @@ def main():
         lst, dis = az_launchctl()
     rows = parse(lst, dis)
     mz = mojaz()
-    off = [r['label'] for r in rows if r['disabled'] and r['label'] not in mz]
+    off = [r['label'] for r in rows if r['disabled'] and r['label'] not in mz
+           and not r.get('biplist')]
+    morde = [r['label'] for r in rows if r['disabled'] and r.get('biplist')]
     bad = [r['label'] for r in rows if r.get('exit') not in ('0', '-')]
     p = benevis(rows, mz)
     alloff = [r['label'] for r in rows if r['disabled']]
-    print(f'سرویس‌ها: {len(rows)} · disabled: {len(alloff)} (مجاز {len(alloff)-len(off)}) · تازه/غیرمجاز: {len(off)} · exit≠0: {len(bad)}')
+    # «مجازِ زنده» یعنی سرویس‌های disabled که **پلیست دارند** و در فهرستِ مجازند —
+    # برچسبِ قبلی («مجاز») بی‌پلیست‌ها را هم می‌شمرد و عدد گمراه می‌کرد (ناظر-۱۳۶، ۱۱:۳۷).
+    zende = len([r for r in rows if r['disabled'] and not r.get('biplist') and r['label'] in mz])
+    print(f'سرویس‌ها: {len(rows)} · disabled: {len(alloff)} (مجازِ زنده {zende} · بی‌پلیست {len(morde)}) · تازه/غیرمجاز: {len(off)} · exit≠0: {len(bad)}')
+    for l in morde:
+        print('  ⚪ بی‌پلیست (ثبتِ disabled از پلیستِ پاک‌شده، چیزی برای اجرا نیست):', l)
     for l in off:
         print('  🔴 disabled:', l)
     for l in bad:

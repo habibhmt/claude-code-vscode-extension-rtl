@@ -123,7 +123,19 @@ function extraChoices(filter, taken) {
 
 const GATEWAY_MERGED = path.join(ROOT, '.runtime/opencode-go/merged-models.json');
 const PICKER_CAPS = path.join(ROOT, 'claude-api/model-caps-picker.json');
+const PINS = path.join(ROOT, 'claude-api/model-pins.json');
 const PROVIDER_LABEL = { opencode: 'OpenCode Go', openrouter: 'OpenRouter' };
+const PINNED_GROUP = '★ سنجاق‌شده';
+
+/** مدل‌های سنجاق‌شده، به ترتیبِ خودِ فایل. حبیب ۲۶ نوامبر ۰۱:۲۹: «ستاره‌ای که
+ *  توپر بشه بره بالا» — هر ردیفِ سنجاق‌شده، از هر پرووایدری، بالای همه می‌آید.
+ *  فایلِ خراب/نبود یعنی «هیچ سنجاقی نیست»، نه منویِ خالی.
+ *  مسیر با `CCG_PINS` عوض می‌شود تا آزمون روی فایلِ موقت کار کند. */
+function readPins(file = process.env.CCG_PINS || PINS) {
+  const data = readJson(file);
+  const list = Array.isArray(data) ? data : data && Array.isArray(data.pins) ? data.pins : [];
+  return [...new Set(list.filter(id => typeof id === 'string' && id))];
+}
 
 /** Capability rows are evidence only — built by saz_model_caps_picker.py from the
  *  OpenRouter catalogue's own `reasoning` list and the old DeepSeek catalogue.
@@ -137,14 +149,24 @@ function pickerCaps() {
 // "DeepSeek V4.1 Flash 1017" -> "DeepSeek" · "AionLabs: Aion-2.0" -> "AionLabs".
 // A name that merely repeats its provider ("OpenRouter: Fusion") would draw the
 // same word twice; the part after the colon is used instead of lying twice.
+//
+// حبیب ۲۶ نوامبر ۰۲:۱۹: «تو نباید ریز مدل بزاری … mimo یه بار میاد و بعد بقیه
+// مدل‌های همون دسته زیرش». پس شمارهٔ نسخه از برچسبِ خانواده می‌رود: «MiMo-V2.6-Flash»
+// و «MiMo-V2.6-Pro» هر دو «MiMo» می‌شوند و یک سرتیتر می‌گیرند، بعد ردیف‌هایشان
+// زیرِ همان سرتیتر می‌آیند — نه یک سرتیتر برای هر مدل.
+function versionless(word) {
+  // «-V2.6-Flash»، «-2.5»، «-5.3» … از اولین بخشِ شماره‌دار به بعد حذف می‌شود.
+  return word.replace(/-?[A-Za-z]?\d[\w.\-]*$/, '').replace(/[-_]+$/, '') || word;
+}
+
 function gatewayFamilyLabel(name, group) {
   const parts = name.split(/[:·—]/);
   const head = parts[0].trim();
-  const label = head.split(/\s+/)[0] || head;
+  const label = versionless(head.split(/\s+/)[0] || head);
   if (label && label.toLowerCase() !== group.toLowerCase()) return label;
-  const tail = (parts[1] || '').trim().split(/\s+/)[0];
+  const tail = versionless((parts[1] || '').trim().split(/\s+/)[0] || '');
   if (tail) return tail;
-  return name.trim();
+  return head || name.trim();
 }
 
 // Providers stay in blocks, families stay contiguous inside each block; an open
@@ -206,7 +228,31 @@ function gatewayChoices() {
   }
   if (!out.length) return null;
   if (new Set(out.map(m => m.value)).size !== out.length) return null;
-  return byProviderAndFamily(out);
+  return withPins(byProviderAndFamily(out));
+}
+
+/** ردیف‌های سنجاق‌شده بالای همه می‌آیند، در یک بلوکِ «★ سنجاق‌شده» — فارغ از
+ *  اینکه از اوپن‌کد باشند یا اوپن‌روتر. ردیفِ اصلی سرِ جایش می‌ماند تا شناسهٔ
+ *  تکراری ساخته نشود؛ فقط بلوکِ سنجاق جلو می‌رود. */
+function withPins(rows) {
+  const pins = readPins();
+  if (!pins.length) return rows;
+  const byValue = new Map(rows.map(row => [row.value, row]));
+  const providerOrder = [...new Set(rows.map(row => row.group))];
+  const pinned = [];
+  for (const id of pins) {
+    const row = byValue.get(id);
+    if (row && !pinned.some(mine => mine.value === id)) {
+      // زیرسرتیترِ بلوکِ سنجاق = نامِ پرووایدر، تا معلوم باشد هر سنجاق از کجاست.
+      pinned.push({ ...row, group: PINNED_GROUP, family: 'pinned:' + row.family,
+                    familyLabel: row.group, pinned: true });
+    }
+  }
+  if (!pinned.length) return rows;
+  // به ترتیبِ پرووایدر مرتب می‌شوند تا زیرسرتیترها پیوسته بمانند.
+  pinned.sort((a, b) => providerOrder.indexOf(a.familyLabel) - providerOrder.indexOf(b.familyLabel));
+  const taken = new Set(pinned.map(row => row.value));
+  return [...pinned, ...rows.filter(row => !taken.has(row.value))];
 }
 
 function modelChoices(rows = readJson(catalog), options = {}) {
@@ -254,5 +300,5 @@ function modelChoices(rows = readJson(catalog), options = {}) {
   return choices;
 }
 
-module.exports = { modelChoices, familyKey, familyLabel, usedModels, readFilter,
+module.exports = { modelChoices, familyKey, familyLabel, gatewayFamilyLabel, usedModels, readFilter,
                    DEEPSEEK_GROUP, ANTHROPIC_GROUP, CONSOLE_GROUP };

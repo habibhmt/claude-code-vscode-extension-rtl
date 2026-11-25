@@ -239,6 +239,17 @@ else
 [class*=\"userMessage_\"].crtl-hovered [class*=\"content_\"]{-webkit-line-clamp:unset!important;display:block!important;max-height:none!important}"
 fi
 
+# ستارهٔ سنجاقِ منوی مدل (حبیب ۲۶ نوامبر ۲۰۲۶ ۰۱:۲۹: «ستاره‌ای که توپر بشه بره بالا …
+# یه چیزِ قشنگ کدل مک او اس»). ستاره را خودِ patch_model_groups داخلِ ردیف می‌گذارد؛
+# این‌جا فقط جا و رنگش است: تُهیِ خاکستری، توپرِ طلاییِ مک (همان زردِ Finder).
+# ستارهٔ سنجاق: اول ۱۳px بود، بعد ۳۹px (حبیب ۰۲:۰۵: «۳ برابرش کن»)، و حالا
+# حبیب ۰۲:۱۹: «فقط ستاره رو نصف کن اندازه‌اش» ⇒ ۲۰px. ستاره خودش شکلِ توپر/تُهی
+# دارد، پس با همان فونت خوانا می‌شود بی‌آنکه آیکونِ جدا لازم باشد.
+MODEL_STAR_CSS='[role="option"][id^="model-selector-list-option-"]{position:relative!important;padding-inline-end:48px!important}
+.ccg-star{position:absolute;inset-inline-end:16px;top:50%;transform:translateY(-50%);font-size:20px;line-height:1;height:1em;display:flex;align-items:center;justify-content:center;overflow:visible;cursor:pointer;color:rgba(142,142,147,.55);transition:color .15s ease,transform .15s ease;user-select:none;-webkit-user-select:none}
+.ccg-star:hover{color:rgba(174,174,178,1);transform:translateY(-50%) scale(1.1)}
+.ccg-star.is-pinned{color:#ffcc00;text-shadow:0 0 12px rgba(255,204,0,.55)}'
+
 # The button size is handed over as a CSS variable, not an !important rule:
 # the panel's own slider writes that same variable, and an !important
 # font-size here silently outranked it, so the slider did nothing.
@@ -321,9 +332,9 @@ hash_stdin() {
 # ندارد (هوک هر بار از دیسکِ همان پوشه می‌خواند).
 # خودِ پچِ سرتیترِ مدل‌پیکر هم بخشی از stamp است: ۲۶ نوامبر ۲۰۲۶ قاعدهٔ زیرسرتیتر
 # عوض شد اما stamp عیناً همان ماند و بدونِ --force نسخهٔ کهنه سرِ جایش نشست.
-stamp="$(printf '%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$UI_SIZE_CSS" \
+stamp="$(printf '%s%s%s%s%s%s%s' "$RTL_CSS" "$UI_COMPACT_CSS" "$MODEL_STAR_CSS" "$UI_SIZE_CSS" \
     "$(cat "$BUTTONS_JS" 2>/dev/null)$(cat "$HOST_HOOK_JS" 2>/dev/null)" "$(cat "$SIZES_FILE" 2>/dev/null)$(cat "$DOKME_FILE" 2>/dev/null)$(cat "$TANZIMAT_FA_FILE" 2>/dev/null)$(cat "$TANZIMAT_TOZIH_FILE" 2>/dev/null)" \
-    "$(cat "$REPO_DIR/abzar/darvaze/scripts/patch_model_groups.py" 2>/dev/null)" | hash_stdin)"
+    "$(cat "$REPO_DIR/abzar/darvaze/scripts/patch_model_groups.py" 2>/dev/null)$(cat "$REPO_DIR/abzar/darvaze/scripts/patch_model_pins.py" 2>/dev/null)" | hash_stdin)"
 
 # The buttons live inline in extension.js; older runs also appended them to
 # index.js, so accept either as proof that a webview folder is patched.
@@ -364,7 +375,7 @@ patch_ide() {
                 cp "$ext_dir/index.css" "$ext_dir/index.css.backup"
             fi
             # Apply RTL CSS + UI compaction
-            { echo "$RTL_CSS"; echo "$UI_COMPACT_CSS"; echo "$UI_SIZE_CSS"; cat "$ext_dir/index.css.backup"; } > "$ext_dir/index.css"
+            { echo "$RTL_CSS"; echo "$UI_COMPACT_CSS"; echo "$MODEL_STAR_CSS"; echo "$UI_SIZE_CSS"; cat "$ext_dir/index.css.backup"; } > "$ext_dir/index.css"
 
             # Inject the same CSS into extension.js's inline <style> as well.
             # The webview's index.css URL has no cache-buster, so VSCode serves a
@@ -377,7 +388,7 @@ patch_ide() {
                     cp "$ext_js" "$ext_js.backup"
                 fi
                 css_tmp="$TMP_DIR/crtl-css.$$"
-                printf '%s\n%s\n' "$RTL_CSS" "$UI_COMPACT_CSS" > "$css_tmp"
+                printf '%s\n%s\n%s\n' "$RTL_CSS" "$UI_COMPACT_CSS" "$MODEL_STAR_CSS" > "$css_tmp"
                 echo "$UI_SIZE_CSS" >> "$css_tmp"
                 # `|| py_ok=false` keeps `set -e` from killing the run mid-patch:
                 # a python failure must fall through to the rollback below.
@@ -690,6 +701,23 @@ if [ -f "$DEEPSEEK_MODEL_PATCH" ] && [ "$HAVE_PYTHON" = true ]; then
     done
     # Only a total failure means no installed extension got the model list.
     if [ "$selector_ok" -eq 0 ]; then exit 1; fi
+fi
+
+# ستارهٔ سنجاقِ منوی مدل: پیامِ webview را به فایلِ سنجاق‌ها می‌نویسد (حبیب ۲۶ نوامبر
+# ۰۱:۲۹). CSPِ webview هیچ connect-src ندارد، پس تنها راهِ نوشتن پیام به افزونه است.
+# لنگرش یکتاست؛ نسخهٔ کهنه (Devin ۲٫۱٫۳۲۱/۳۲۲) فقط WARN می‌گیرد، مثلِ بقیه.
+MODEL_PINS_PATCH="$REPO_DIR/abzar/darvaze/scripts/patch_model_pins.py"
+if [ -f "$MODEL_PINS_PATCH" ] && [ "$HAVE_PYTHON" = true ]; then
+    for pins_ext in "$HOME"/.vscode/extensions/anthropic.claude-code-*/extension.js \
+                    "$HOME"/.vscode-insiders/extensions/anthropic.claude-code-*/extension.js \
+                    "$HOME"/.cursor/extensions/anthropic.claude-code-*/extension.js \
+                    "$HOME"/.windsurf/extensions/anthropic.claude-code-*/extension.js \
+                    "$HOME"/.windsurf-next/extensions/anthropic.claude-code-*/extension.js \
+                    "$HOME"/.devin/extensions/anthropic.claude-code-*/extension.js; do
+        [ -f "$pins_ext" ] || continue
+        python3 "$MODEL_PINS_PATCH" "$pins_ext" || \
+            echo "[WARN] Could not install the model pin star in $pins_ext" >&2
+    done
 fi
 
 if [ $patched -eq 0 ] && [ $skipped -gt 0 ]; then

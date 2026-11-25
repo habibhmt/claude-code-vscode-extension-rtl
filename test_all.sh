@@ -96,6 +96,8 @@ run "lancher noskhe" python3 Doc/abzar/test_lancher_noskhe.py
 run "model groups" node abzar/darvaze/scripts/test_model_groups.cjs
 # خطِ مشخصاتِ زیرِ هر مدل: قیمت/کانتکست از دفترچهٔ رسمی، بی جملهٔ تبلیغاتی (۲۶ نوامبر)
 run "spec line" python3 Doc/abzar/test_spec_line.py
+# ستارهٔ سنجاق: پیامِ webview ⇒ فایلِ سنجاق‌ها، و بلوکِ «★ سنجاق‌شده» اولِ فهرست (۲۶ نوامبر ۰۱:۲۹)
+run "pin model" python3 Doc/abzar/test_pin_model.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
 

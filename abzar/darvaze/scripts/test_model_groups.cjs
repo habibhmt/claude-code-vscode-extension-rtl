@@ -8,7 +8,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
-const { modelChoices } = require('./vscode_model_catalog.cjs');
+// سنجاق‌های واقعیِ حبیب نباید این آزمون را بشکنند: مسیرِ فایلِ سنجاق به یک فایلِ
+// خالیِ موقت می‌رود. بلوکِ «★ سنجاق‌شده» جای خودش جدا سنجیده می‌شود (پایین‌تر).
+const pinsProbe = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccg-pins-')), 'pins.json');
+fs.writeFileSync(pinsProbe, '{"pins":[]}');
+process.env.CCG_PINS = pinsProbe;
+
+const { modelChoices, gatewayFamilyLabel } = require('./vscode_model_catalog.cjs');
 const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, '../claude-api/deepseek-models.json'), 'utf8'));
 const gatewayFile = path.join(__dirname, '../.runtime/opencode-go/merged-models.json');
 const capsFile = path.join(__dirname, '../claude-api/model-caps-picker.json');
@@ -64,6 +70,18 @@ for (const m of choices) {
     lastFamily = family;
   }
 }
+
+/* ---------- خانواده یک‌بار می‌آید، نه ریزِ هر مدل ---------- */
+// حبیب ۲۶ نوامبر ۰۲:۱۹: «تو نباید ریز مدل بزاری … mimo یه بار میاد و بعد بقیه
+// مدل‌های همون دسته زیرش». شمارهٔ نسخه از برچسب می‌رود تا یک خانواده یک سرتیتر بگیرد.
+assert.equal(gatewayFamilyLabel('MiMo-V2.6-Flash · OpenCode Go', 'OpenCode Go'), 'MiMo',
+  'the version is still part of the family label');
+assert.equal(gatewayFamilyLabel('MiMo-V2.6-Pro · OpenCode Go', 'OpenCode Go'), 'MiMo',
+  'two versions of one family draw two different labels');
+assert.equal(gatewayFamilyLabel('Kimi-K3.1-Pro · OpenCode Go', 'OpenCode Go'), 'Kimi');
+assert.equal(gatewayFamilyLabel('LongCat-2.5 · OpenCode Go', 'OpenCode Go'), 'LongCat');
+assert.deepEqual(choices.filter(m => /\d/.test(m.familyLabel)).map(m => m.familyLabel), [],
+  'a version number is still sitting in a family header');
 
 if (gatewayActive) {
   /* ---------- gateway mode: one block per provider, evidence-only effort ---------- */
@@ -236,7 +254,10 @@ const marker = bundle.indexOf('__ccg1');
 assert.ok(marker > 0, 'the header patch is not in the installed webview: run fix-rtl-claude.sh');
 const before = bundle.lastIndexOf('.map(', marker);
 assert.ok(before > 0, 'could not find the model list map in the picker render');
-const listVar = /([\w$]+)$/.exec(bundle.slice(0, before))[1];
+// فهرست دیگر مستقیم `.map` نمی‌شود؛ از دلِ `__ccgSort(...)` بیرون می‌آید، پس
+// پیش از `.map(` یک `)` است نه نامِ متغیر. نام فقط وقتی لازم است که مستقیم باشد.
+const listVarMatch = /([\w$]+)$/.exec(bundle.slice(0, before));
+const listVar = listVarMatch ? listVarMatch[1] : null;
 
 function balanced(text, openIndex) {
   let depth = 0;
@@ -266,11 +287,13 @@ function draw(models) {
   const make = (type, props) => { nodes.push({ type, props: props || {} }); return null; };
   const state = {
     u: make, g: make, jsx: make, jsxs: make, z3e: 'ROW',
-    [listVar]: models,
+    ...(listVar ? { [listVar]: models } : {}),
     mo: { sectionHeader: 'SH' },
     Q: new Set(), p: null, r: null, M: { current: null },
     f: () => {}, B: () => {}, c: null, nle: i => 'row-' + i,
   };
+  // ستونِ «ردیفِ قبلی» در باندل از `globalThis.__ccgR` می‌آید (نتیجهٔ مرتب‌سازی).
+  globalThis.__ccgR = models;
   const known = n => Object.prototype.hasOwnProperty.call(state, n);
   const names = freeNames.filter(known);
   const makeRow = new Function(...names, 'return ' + rowCallback + ';')(...names.map(n => state[n]));
@@ -349,6 +372,112 @@ assert.deepEqual(filter('BEAM'), { deep: 'none', beam: '', header: 'none' },
   'the search is case-sensitive or misses the second row');
 assert.deepEqual(filter(''), { deep: '', beam: '', header: '' },
   'clearing the search does not bring the list back');
+
+/* ---------- the pin star (ستارهٔ سنجاق) ---------- */
+
+// حبیب ۲۶ نوامبر ۰۱:۲۹: «ستاره که توپر بشه بره بالا … یه چیزِ قشنگ کدل مک او اس».
+// ستاره را `ref` ِ همان کادرِ جست‌وجو داخلِ ردیف‌ها می‌گذارد. با jsdom واقعاً
+// کلیک می‌شود: پیام باید به افزونه برود و ردیف باید برود بالای فهرست.
+const { JSDOM } = require('jsdom');
+const refAt = bundle.indexOf('ref:(node)=>{', searchAt);
+assert.ok(refAt > 0, 'the search box has no star mount: run fix-rtl-claude.sh');
+const refBody = braces(bundle, refAt + 'ref:(node)=>'.length);
+// دستگیرهٔ پیام باید از globalThis بیاید: متغیرِ محلیِ bootstrap در دامنهٔ رندرِ
+// منو نیست و ستاره با ReferenceErrorِ بی‌صدا پیام نمی‌فرستاد (۲۶ نوامبر ۰۱:۵۰).
+assert.ok(bundle.includes('globalThis.__ccgApi=acquireVsCodeApi()'),
+  'the vscode api handle is not exported to globalThis');
+assert.ok(refBody.includes('__ccgIds') && refBody.includes('globalThis.__ccgApi'),
+  'the star lost its id map or its message to the extension');
+globalThis.__ccgApi = { postMessage: message => sent.push(message) };
+
+const dom = new JSDOM('<!doctype html><body><div id="list"><input id="q">'
+  + '<div role="option" id="model-selector-list-option-0"><span>beam-free</span></div>'
+  + '<div role="option" id="model-selector-list-option-1"><span>deepseek</span></div>'
+  + '<div role="option" id="model-selector-list-option-2"><span>glm</span></div>'
+  + '</div></body>');
+const { document, MutationObserver, MouseEvent } = dom.window;
+const sent = [];
+
+globalThis.__ccgIds = { 0: 'beam-free', 1: 'deepseek-v4.1-flash', 2: 'glm-5.3' };
+globalThis.__ccgPinned = { 'deepseek-v4.1-flash': true };
+const mount = new Function('document', 'MutationObserver',
+  'return (node)=>{' + refBody + '};')(document, MutationObserver);
+const list = document.getElementById('list');
+const input = document.getElementById('q');
+const [beamRow, deepRow, glmRow] = list.querySelectorAll('[role="option"]');
+mount(input);
+
+const stars = list.querySelectorAll('.ccg-star');
+assert.equal(stars.length, 3, 'not every row got a star');
+assert.ok(deepRow.querySelector('.ccg-star').classList.contains('is-pinned'),
+  'a pinned model does not start with a filled star');
+assert.equal(deepRow.querySelector('.ccg-star').textContent, '★', 'a pinned star is not filled');
+assert.equal(beamRow.querySelector('.ccg-star').textContent, '☆', 'an unpinned star is not hollow');
+
+// کلیک روی ستارهٔ توپر: تُهی می‌شود و پیامِ بی‌سنجاق به افزونه می‌رود.
+deepRow.querySelector('.ccg-star').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+assert.deepEqual(sent, [{ type: 'ccg-pin', id: 'deepseek-v4.1-flash', pinned: false }],
+  'clicking a filled star does not send the unpin message');
+assert.ok(!deepRow.querySelector('.ccg-star').classList.contains('is-pinned'), 'a star did not empty out');
+
+// کلیک روی ستارهٔ تُهیِ ردیفِ *آخر*: توپر، پیامِ سنجاق، و کوچک‌ترین رتبه تا در
+// مرتب‌سازی بالای فهرست بنشیند. ردیف آخر عمداً انتخاب شده: ردیفی که از قبل اول
+// است «بالا رفتن» را ثابت نمی‌کند.
+glmRow.querySelector('.ccg-star').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+assert.deepEqual(sent.at(-1), { type: 'ccg-pin', id: 'glm-5.3', pinned: true },
+  'clicking an empty star does not send the pin message');
+assert.ok(glmRow.querySelector('.ccg-star').classList.contains('is-pinned'), 'a star did not fill in');
+const rank = globalThis.__ccgPinned;
+const others = Object.entries(rank).filter(([k]) => k !== 'glm-5.3').map(([, v]) => v);
+assert.ok(typeof rank['glm-5.3'] === 'number' && rank['glm-5.3'] < Math.min(...others),
+  'a newly pinned model did not get the smallest rank');
+
+// جابه‌جاییِ DOM حذف شد: ردیف‌های React را دستکاری می‌کرد و سرتیترها را قاطی
+// می‌کرد (۲۶ نوامبر ۰۲:۱۰). جای آن، خودِ تابعِ مرتب‌سازیِ داخلِ باندل روی داده
+// اجرا می‌شود و باید ردیفِ سنجاق‌شده را اول بیاورد — همان چیزی که منو می‌کشد.
+const sortAt = bundle.indexOf('globalThis.__ccgSort=');
+assert.ok(sortAt > 0, 'the picker has no pin ordering: run fix-rtl-claude.sh');
+const sortStart = bundle.indexOf('(__r)=>{', sortAt);
+assert.ok(sortStart > 0, 'the pin sort has an unexpected shape');
+const sort = new Function('__r', braces(bundle, sortStart + '(__r)=>'.length));
+const catalogRows = [
+  { value: 'beam-free', group: 'G' },
+  { value: 'deepseek-v4.1-flash', group: 'G', pinned: true },
+  { value: 'glm-5.3', group: 'G' },
+];
+// `deepseek` بالاتر بی‌سنجاق شده بود، پس جای دیگری جز بالا ندارد؛ ستارهٔ تازه
+// (glm) اول می‌آید و بقیه ترتیبِ اصلیِ خودشان را نگه می‌دارند.
+assert.deepEqual(sort(catalogRows).map(m => m.value),
+  ['glm-5.3', 'beam-free', 'deepseek-v4.1-flash'],
+  'the pin sort does not lift the pinned row above the rest');
+// و از حالتِ تازه: ردیفی که خودِ فهرست `pinned:true` داده بالای بقیه می‌نشیند.
+globalThis.__ccgPinned = {};
+globalThis.__ccgUnpinned = {};
+assert.deepEqual(sort(catalogRows).map(m => m.value),
+  ['deepseek-v4.1-flash', 'beam-free', 'glm-5.3'],
+  'a row the catalog marks as pinned does not start at the top');
+// هم شمارندهٔ کلیک، هم حضورش در وابستگی‌های useMemo لازم است: اگر فقط شمارنده
+// باشد، ناوبری پس از سنجاق با ترتیبِ کهنه می‌ماند.
+assert.ok(bundle.includes('globalThis.__ccgVer=(globalThis.__ccgVer||0)+1'),
+  'a pin does not bump the navigation version');
+assert.ok(bundle.includes(',globalThis.__ccgVer])'),
+  'the navigation array is not invalidated after a pin');
+assert.ok(bundle.includes('globalThis.__ccgSort(m)'),
+  'the arrow-key navigation does not follow the pinned order');
+
+// کلیکِ دوم همان ستاره: بی‌سنجاق، و از بالای فهرست برمی‌گردد.
+glmRow.querySelector('.ccg-star').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+assert.deepEqual(sent.at(-1), { type: 'ccg-pin', id: 'glm-5.3', pinned: false },
+  'a second click does not unpin');
+assert.equal(globalThis.__ccgPinned['glm-5.3'], undefined, 'the rank survived an unpin');
+assert.notEqual(sort(catalogRows)[0].value, 'glm-5.3',
+  'an unpinned row is still drawn at the top of the list');
+delete globalThis.__ccgIds;
+delete globalThis.__ccgPinned;
+delete globalThis.__ccgUnpinned;
+delete globalThis.__ccgSort;
+delete globalThis.__ccgApi;
+
 
 // Sabotage: strip the fields the headers depend on. A renderer that still
 // draws headers is reading a constant, not the catalog, and proves nothing.

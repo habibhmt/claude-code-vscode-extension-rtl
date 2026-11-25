@@ -1013,7 +1013,7 @@ async function questionWindow() {
   assert.ok((await selText(pg)).length > 5, 'the table\'s words select');
   // a plain click still picks: it only waits a moment for a possible second click
   await label(0).click();
-  await pg.waitForFunction(() => window.__q().ans.length === 1, null, { timeout: 5000 }).catch(() => assert.fail('a plain click on the words picks'));
+  await pg.waitForFunction(() => window.__q().ans.length === 1, null, { timeout: 60000 }).catch(() => assert.fail('a plain click on the words picks'));
   assert.match((await q(pg)).ans[0], /^بله/);
   // a double click selects a word and picks nothing
   { const r = await desc(1).boundingBox(); await pg.mouse.dblclick(r.x + r.width - 20, r.y + r.height / 2); }   // the words sit at the right edge

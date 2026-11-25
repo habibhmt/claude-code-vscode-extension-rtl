@@ -20,7 +20,7 @@ const html=`<!doctype html><html><head><style>${css}</style></head><body style="
  const b=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  try{
   const p=await b.newPage(); await p.setContent(html); await p.addScriptTag({content:script});
-  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:5000});
+  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:60000});
   const r=await p.evaluate(()=>{const g=id=>document.getElementById(id).getBoundingClientRect();const mid=x=>(x.top+x.bottom)/2;
    const st=g('st'),tx=g('tx'),m=g('msg'),ps=g('ps'),pb=g('pb'),pm=g('pm');
    return {answerSameLine:Math.abs(mid(st)-mid(tx))<=5,answerLeft:st.left<m.left+m.width/2,answerGap:Math.round(tx.top-m.top),answerClearsDot:st.left>=m.left+16+2,

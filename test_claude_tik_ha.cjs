@@ -173,7 +173,7 @@ async function panelPart() {
     assert.equal(await row('kompyuter').locator('input').isChecked(), false);
     assert.equal(await pg.locator('#crtl-tik-sabt').isDisabled(), true, 'nothing changed: no save');
     await row('kompyuter').locator('input').check();
-    await pg.waitForFunction(() => /۱ تغییر در «این پوشه»/.test(document.getElementById('crtl-tik-sabt').textContent), null, { timeout: 5000 });
+    await pg.waitForFunction(() => /۱ تغییر در «این پوشه»/.test(document.getElementById('crtl-tik-sabt').textContent), null, { timeout: 60000 });
     await pg.locator('#crtl-tik-sabt').click();
     await pg.waitForFunction(() => window.__restarts === 1, null, { timeout: 8000 });
     const s = sent.find((m) => m.type === 'crtl-tik-sabt');

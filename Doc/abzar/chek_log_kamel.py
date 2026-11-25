@@ -8,11 +8,17 @@
 
 اجرا:
   python3 Doc/abzar/chek_log_kamel.py                    # کلِ تاریخچه (میراثی + امروز)
-  python3 Doc/abzar/chek_log_kamel.py --az 2026-11-24T22:00:00Z   # حکم از برش
+  python3 Doc/abzar/chek_log_kamel.py --az <تاریخ>        # حکم از برش (پیش‌فرض: BRESH_PISHFARZ)
   python3 Doc/abzar/chek_log_kamel.py --rows F.jsonl      # آزمون/خرابکاری
+  python3 Doc/abzar/chek_log_kamel.py --gate بی_صاحب,بی_provider
+        # گیتِ سخت روی همین دو: اگر یکی > ۰ شد، قرمز. بقیه فقط گزارش.
   python3 Doc/abzar/chek_log_kamel.py --baseline F.json   # قرمز فقط اگر از خطِ پایه بالا رفت
+  python3 Doc/abzar/chek_log_kamel.py --report            # هیچ‌چیز قرمز نمی‌کند
   python3 Doc/abzar/chek_log_kamel.py --json
-کدِ خروج: ۰ صفر (یا از خطِ پایه بالا نرفت) · ۱ حکم رد شد · ۲ خطای استفاده
+کدِ خروج: ۰ پذیرفته · ۱ حکم/gate رد شد · ۲ خطای استفاده
+
+تاریخِ برش را از راهنما نخوان: مقدارش در `BRESH_PISHFARZ` است (UTC) و با عددِ
+دستی در دو جا از هم جدا می‌شود — همان چیزی که یک بار گیت را بی‌اثر کرد.
 """
 import json
 import os
@@ -113,6 +119,25 @@ def main():
         # همین خط و ردیفِ دفتر ۱۱۳ عدد را نگه می‌دارند.
         print('گزارشِ بدهیِ تعریف ۴۹ (گیت نیست): ' +
               ' · '.join(f'{n}={c}' for n, c in shomaresh))
+        return 0
+    if '--gate' in args:
+        # گیتِ سخت برای شمارنده‌هایی که امروز صفر شده‌اند (بی‌صاحب · بی‌provider):
+        # اگر برگردند، قرمزِ درست. بقیه (بی‌قیمت · بی‌usage) بدهیِ بازند و قرمزشان
+        # قرمزی است که کسی نگاهش نمی‌کند (ایرادِ ۷ ناظر-۱۳۶، ۲۵ نوامبر).
+        sakht = [n.strip() for n in args[args.index('--gate') + 1].split(',') if n.strip()]
+        nadorost = [n for n in sakht if n not in dict(shomaresh)]
+        if nadorost:
+            print('❌ اسمِ شمارندهٔ ناشناس در --gate: ' + ' · '.join(nadorost) +
+                  ' (درست‌ها: ' + ' · '.join(n for n, _ in shomaresh) + ')')
+            return 2
+        rad = [(n, c) for n, c in shomaresh if n in sakht and c]
+        garm = [(n, c) for n, c in shomaresh if n not in sakht and c]
+        if garm:
+            print('گزارشِ بدهیِ باز (گیت نیست): ' + ' · '.join(f'{n}={c}' for n, c in garm))
+        if rad:
+            print('❌ گیتِ سخت رد شد: ' + ' · '.join(f'{n}={c}' for n, c in rad))
+            return 1
+        print('✅ گیتِ سخت سبز: ' + ' · '.join(sakht))
         return 0
     kharab = [(n, c) for n, c in shomaresh if c]
     if '--json' in args:

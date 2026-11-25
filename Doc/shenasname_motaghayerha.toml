@@ -2522,7 +2522,7 @@ jaye = ["abzar/barge_saz.py:116"]
 
 [provider_jaygozin_harness_6]
 yani = "کجا: فهرستِ پرووایدرها · چیه: جایگزینِ هارنسِ ۶ — hermes · مثال: anthropic"
-meghdar = "anthropic"
+meghdar = "opencode"
 chera = "همان پنجرهٔ ۲۰:۱۳"
 noe = "sabet"
 ozv = "harness"
@@ -2543,6 +2543,42 @@ tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 khanandeha = []
 jaye = ["abzar/barge_saz.py:118"]
+
+[fekr_shenavar]
+yani = "کجا: claude-ui-buttons.js · چیه: لایهٔ شفافِ بالای کارتِ حدس که واژه‌های مود را یکی‌یکی نشان می‌دهد · مثال: شناسهٔ crtl-fekr-shenavar"
+meghdar = ""
+chera = "واژه‌های مود از کارت بیرون می‌آیند و روی شیشه خوانده می‌شوند، بی آنکه کلیک را بگیرند؛ حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱: «بزن»"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = ["radif_fekr_shenavar"]
+tarif = "44"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱"
+khanandeha = []
+jaye = ["claude-ui-buttons.js:372"]
+
+[radif_fekr_shenavar]
+yani = "کجا: claude-ui-buttons.js · چیه: سه ردیفی که در حالتِ تک‌دکمه داخلِ کارت پنهان می‌مانند و واژه‌هایشان به لایهٔ شناور می‌رود · مثال: کلاسِ crtl-fekr-radif"
+meghdar = ""
+chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱ («بزن») پس از آنکه دید این واژه‌ها کارتِ هاور ندارند"
+noe = "vaziat"
+ozv = "abzar"
+ba_motaghayerha = ["fekr_shenavar"]
+tarif = "44"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱"
+khanandeha = []
+jaye = ["claude-ui-buttons.js:3592"]
+
+[aval_byte_pasokh]
+yani = "کجا: ردیفِ usage.jsonl · چیه: ۶۰ بایتِ اولِ پاسخِ سرویس، تا معلوم شود آن ۲۱ بایتِ بی‌مصرف جواب بود یا خطا · مثال: دادهٔ ۲۱ بایتی در end_reason=usage_missing"
+meghdar = ""
+chera = "۲۱ بایت در هر ۵ نمونه یکسان بود و بی این فیلد نمی‌دانستیم جواب است یا خطا؛ حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۲۰: «اکیه بزنید»"
+noe = "dadeh"
+ozv = "abzar"
+ba_motaghayerha = ["end_reason", "stream_bytes"]
+tarif = "49"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۲۰"
+khanandeha = []
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:707"]
 
 [model]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
@@ -2602,7 +2638,7 @@ ba_motaghayerha = ["list_cost", "remaining"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:776"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:802"]
 
 [remaining]
 yani = "کجا: per_model · چیه: سقف منهای مصرف؛ کمتر از صفر ⇒ صفر · مثال: 193.18"
@@ -2614,7 +2650,7 @@ ba_motaghayerha = ["monthly_cap", "list_cost"]
 tarif = "00"
 tayid = "حبیب ۲۳ نوامبر ۲۰۲۶ ۱۵:۵۵ (همان)"
 khanandeha = []
-jaye = ["abzar/darvaze/scripts/opencode_gateway.py:777"]
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:803"]
 
 [request_bytes]
 yani = "کجا: ردیفِ مصرف · چیه: اندازهٔ بدنهٔ درخواست (بایت) · مثال: 280452"

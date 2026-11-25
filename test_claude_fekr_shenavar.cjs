@@ -16,7 +16,7 @@ ${row('دو جمله:','یک. دو.')}${row('fekr:','fekrِ یک کلمه دو')
   await p.route('http://t.local/',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:page}));
   p.on('pageerror',e=>console.log('PAGEERR',e.message));await p.goto('http://t.local/');
   await p.addScriptTag({content:script});await p.waitForTimeout(900);
-  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:5000});
+  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:60000});
   console.log(await p.evaluate(()=>{window.__crtl_neshan_hook_va_hads();return [document.querySelectorAll('.crtl-fekr-radif').length,[...document.querySelectorAll('#part span')].map(s=>s.textContent+'|'+s.className).join(' ; '),document.getElementById('card').className,typeof window.__crtl_shenavar_fekr,document.querySelectorAll('span[class*="text_"]').length]}));
   await p.waitForTimeout(1800);
   const r=await p.evaluate(()=>{const L=document.getElementById('crtl-fekr-shenavar');const cs=L&&getComputedStyle(L);

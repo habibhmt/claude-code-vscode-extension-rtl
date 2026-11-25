@@ -114,7 +114,7 @@ provider_jaygozin_harness_2 = 'openrouter'
 provider_jaygozin_harness_3 = 'openai'
 provider_jaygozin_harness_4 = 'deepseek (پیش‌فرض)'
 provider_jaygozin_harness_5 = 'openrouter'
-provider_jaygozin_harness_6 = 'anthropic'
+provider_jaygozin_harness_6 = 'opencode'
 provider_jaygozin_harness_7 = 'openai'
 
 HARNESS_CONFIG = [
@@ -126,7 +126,7 @@ HARNESS_CONFIG = [
     # openrouter در `.env` جداست و با همین یک نام دیده نمی‌شود — نقصِ بازِ م۳۴.
     ('provider_jaygozin_harness_4', '~/.dsh/.credentials.yaml', 'deepseek-account-platform', provider_jaygozin_harness_4),
     ('provider_jaygozin_harness_5', '~/.ori/config.json', 'loginMode', provider_jaygozin_harness_5),
-    ('provider_jaygozin_harness_6', '~/.hermes/config.yaml', 'provider: anthropic', provider_jaygozin_harness_6),
+    ('provider_jaygozin_harness_6', '~/.hermes/config.yaml', 'provider: opencode', provider_jaygozin_harness_6),
     ('provider_jaygozin_harness_7', '~/.cursor/cli-config.json', 'modelId', provider_jaygozin_harness_7),
 ]
 

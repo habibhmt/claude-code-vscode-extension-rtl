@@ -1897,6 +1897,36 @@ ba_motaghayerha = ["provider_pishfarz_kol", "provider"]
 tarif = "49"
 tayid = "حبیب ۲۴ نوامبر ۲۰۲۶ ۲۰:۱۳ («بله، هر هشت نام»)"
 
+[fekr_shenavar]
+yani = "کجا: claude-ui-buttons.js · چیه: لایهٔ شفافِ بالای کارتِ حدس که واژه‌های مود را یکی‌یکی نشان می‌دهد · مثال: شناسهٔ crtl-fekr-shenavar"
+chera = "واژه‌های مود از کارت بیرون می‌آیند و روی شیشه خوانده می‌شوند، بی آنکه کلیک را بگیرند؛ حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱: «بزن»"
+jaye = ["claude-ui-buttons.js:372"]
+ozv = "abzar"
+noe = "vaziat"
+ba_motaghayerha = ["radif_fekr_shenavar"]
+tarif = "44"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱"
+
+[radif_fekr_shenavar]
+yani = "کجا: claude-ui-buttons.js · چیه: سه ردیفی که در حالتِ تک‌دکمه داخلِ کارت پنهان می‌مانند و واژه‌هایشان به لایهٔ شناور می‌رود · مثال: کلاسِ crtl-fekr-radif"
+chera = "حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱ («بزن») پس از آنکه دید این واژه‌ها کارتِ هاور ندارند"
+jaye = ["claude-ui-buttons.js:3592"]
+ozv = "abzar"
+noe = "vaziat"
+ba_motaghayerha = ["fekr_shenavar"]
+tarif = "44"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۳۱"
+
+[aval_byte_pasokh]
+yani = "کجا: ردیفِ usage.jsonl · چیه: ۶۰ بایتِ اولِ پاسخِ سرویس، تا معلوم شود آن ۲۱ بایتِ بی‌مصرف جواب بود یا خطا · مثال: دادهٔ ۲۱ بایتی در end_reason=usage_missing"
+chera = "۲۱ بایت در هر ۵ نمونه یکسان بود و بی این فیلد نمی‌دانستیم جواب است یا خطا؛ حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۲۰: «اکیه بزنید»"
+jaye = ["abzar/darvaze/scripts/opencode_gateway.py:707"]
+ozv = "abzar"
+noe = "dadeh"
+ba_motaghayerha = ["end_reason", "stream_bytes"]
+tarif = "49"
+tayid = "بله — حبیب ۲۵ نوامبر ۲۰۲۶ ۰۵:۲۰"
+
 [model]
 yani = "کجا: ردیفِ مصرف · چیه: شناسه‌ای که دروازه واقعاً به سرویس فرستاد · مثال: deepseek-v4.1-flash"
 chera = "برای تفکیکِ هزینهٔ هر مدل"

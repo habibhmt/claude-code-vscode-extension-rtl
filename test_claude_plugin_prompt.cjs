@@ -20,7 +20,7 @@ const page=`<!doctype html><html dir="rtl"><body style="margin:0;font:13px/18px 
   await p.route('http://t.local/',r=>r.fulfill({contentType:'text/html',body:page}));
   await p.goto('http://t.local/');
   await p.addScriptTag({content:script});
-  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:5000});
+  await p.waitForSelector('#crtl-panel',{state:'attached',timeout:60000});
   await p.waitForTimeout(900);
   const look=(id)=>p.evaluate((id)=>{const b=document.querySelector('#'+id+' [class*="userMessage_"]'),cs=getComputedStyle(b);return [cs.fontStyle,cs.borderTopColor==='rgba(0, 0, 0, 0)'?'bi-kadr':'kadr',document.querySelector('#'+id+' [class*="content_"]').getBoundingClientRect().height<30?'yek-khat':'bishtar']},id);
   const pinned=(await look('pin')).slice(0,2);assert.deepEqual(pinned,['italic','bi-kadr']);

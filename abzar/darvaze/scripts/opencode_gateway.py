@@ -513,7 +513,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                   'provider': 'none', 'provider_reason': 'unknown_model',
                   'work_type': 'messages', 'model': None, 'requested': wanted,
-                  'status': 400, 'error': 'unknown_model',
+                  'status': 400, 'error': 'unknown_model', 'end_reason': 'unknown_model',
                   'session_id': session_id, 'session_source': session_source, 'request_bytes': size})
             payload = json.dumps({'type': 'error', 'error': {
                 'type': 'invalid_request_error',
@@ -533,7 +533,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 note({'time_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                       'provider': 'openrouter', 'work_type': 'messages',
                       'model': sent, 'requested': sent, 'status': 503,
-                      'error': 'proxy_state_missing'})
+                      'error': 'proxy_state_missing', 'end_reason': 'failed'})
                 return self.reply(503, json.dumps({'type': 'error', 'error': {
                     'type': 'api_error',
                     'message': 'پروکسیِ OpenRouter بالا نیست (فایلِ وضعیت نبود).'}},
@@ -565,7 +565,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                       'requested': original_model, 'status': 504,
                       'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                       'duration_ms': elapsed, 'attempts': 1,
-                      'error': 'timeout'})
+                      'error': 'timeout', 'end_reason': 'failed'})
                 set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
                 return self.reply(504, json.dumps({'type': 'error', 'error': {
                     'type': 'api_error',
@@ -577,7 +577,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                   'requested': original_model, 'status': 502,
                   'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                   'duration_ms': elapsed, 'attempts': 2,
-                  'error': 'transport_error: ' + str(error)[:180]})
+                  'error': 'transport_error: ' + str(error)[:180], 'end_reason': 'failed'})
             set_status(provider, 502, 'خطای انتقال به سرویس')
             return self.reply(502, json.dumps({'type': 'error', 'error': {
                 'type': 'api_error',
@@ -674,7 +674,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                   'requested': original_model, 'status': 504,
                   'session_id': session_id, 'session_source': session_source, 'request_bytes': size,
                   'duration_ms': elapsed, 'attempts': attempts,
-                  'error': 'first_byte_timeout'})
+                  'error': 'first_byte_timeout', 'end_reason': 'failed'})
             set_status(provider, 504, f'مدلِ «{sent}» تا {first_byte_cap} ثانیه بایتِ اول را نفرستاد')
             return self.reply(504, json.dumps({'type': 'error', 'error': {
                 'type': 'api_error',
@@ -697,6 +697,32 @@ class Handler(http.server.BaseHTTPRequestHandler):
                # «جمع = کل» واقعاً چیزی را بسنجد (خرابکاریِ اولش کور بود).
                'duration_ms': round((t_end - t0) * 1000),
                'attempts': attempts}
+        # تعریف ۴۹ حالتِ ۴: ردیفی که ۲۰۰ گرفت ولی مصرف ندارد، باید **علتِ صریح**
+        # داشته باشد، نه «نامعلوم». سه فیلد، همه اندازه‌گیری‌شده — نه حدس.
+        row['stream_bytes'] = len(whole)
+        row['first_byte_ms'] = wait_ms
+        # ۶۰ بایتِ اولِ پاسخ، تا ریشهٔ «۲۱ بایت و تمام» یک‌باره دیده شود
+        # (ناظر-۱۳۶، ۲۵ نوامبر ۰۵:۰۶). قابِ کنترلی است، نه متنِ کاربر.
+        if isinstance(whole, bytes) and whole:
+            row['aval_byte_pasokh'] = whole[:60].decode('utf-8', 'replace')
+        # تعریف ۴۹، حالتِ ۳ و ۵ — اول کدِ خطا، بعد شکلِ پاسخ (ناظر-۱۳۶، ۲۵ نوامبر
+        # ۰۵:۴۸). «۲۱ بایتِ بی‌مصرف» پاسخِ count_tokens بود، نه استریمِ خالی؛ و ردیفِ
+        # ۴۰۰ «failed» است، نه «usage_missing». شمارشِ توکن رایگان است ⇒ پولِ گم‌شده نبود.
+        if status != 200:
+            row['end_reason'] = 'failed'
+        elif (row.get('aval_byte_pasokh') or '').lstrip().startswith('{"input_tokens'):
+            row['end_reason'] = 'ok'
+            row['work_type'] = 'count_tokens'
+        elif stream_error:
+            row['end_reason'] = 'stream_error'
+        elif client_gone:
+            row['end_reason'] = 'client_gone'
+        elif isinstance(spend, dict) and spend.get('list_cost') is not None:
+            row['end_reason'] = 'ok'
+        elif len(whole) == 0:
+            row['end_reason'] = 'empty_stream'
+        else:
+            row['end_reason'] = 'usage_missing'
         if stream_error:
             row['stream_error'] = stream_error
         if client_gone:

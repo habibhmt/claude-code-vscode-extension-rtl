@@ -462,10 +462,11 @@ window. Automatic installation never reloads the IDE.
 
 The native root query uses the parameterized-query hook (`app-scope` export `c`)
 with `{hostId: 'local'}`; the host provider requires an options object.
-`node test_chatgpt_folder_query.cjs` runs the installed React and query-family
-implementation and the actual host provider with a fixture filesystem response.
-It separately restores the previous wrong signal hook and removes the host
-options, verifying that the own-chat check catches both empty-list regressions.
+The two tests that ran the installed React/query-family code
+(`test_chatgpt_folder_query.cjs` and `test_chatgpt_folder_query_new.cjs`) were
+removed on 26 Nov 2026: they need an installed ChatGPT extension and this machine
+has none, so they always skipped. What remains — `test_chatgpt_folder_patch.py`
+and `test_chatgpt_folder_filter.cjs` — covers the patch itself.
 
 Checks: `python3 test_chatgpt_folder_patch.py` uses a copy of the installed assets,
 executes both actual list providers with an isolated fake server, checks

@@ -8,7 +8,7 @@
 | ۱ | XSS اپ ۱۸۶ | moalagh ۱ | انجام | `esc()` در `apps/claude-usage/app/index.html`؛ `test_usage_xss.cjs` در مخزن؛ PASS | — |
 | ۲ | Thought با کلیک/فوکوس | چت | انجام | عکس نمایشگر ۲ (۲۱:۵۹): «Thought for 1s» با chevron؛ `claude-ui-buttons.js:600,839` | — |
 | ۳ | پچ ChatGPT: فایل/آداپتور/`--revert` | پلان ۰ | نیمه | فایل برگشت؛ ۵ تست OK | نصب واقعی روی افزونهٔ نصب‌شده |
-| ۴ | فیلتر پوشه/تب Codex روی `26.1111.21308` | moalagh ۲ | انجام | آداپتور `chatgpt-folder-patch.py` (شاخهٔ new)؛ `cwd` در هر دو `thread/list`؛ `test_chatgpt_folder_query_new.cjs` PASS؛ backup `out/extension.js.chatgpt-folder-backup` | بعد از آپدیت ChatGPT دوباره |
+| ۴ | فیلتر پوشه/تب Codex روی `26.1111.21308` | moalagh ۲ | انجام | آداپتور `chatgpt-folder-patch.py` (شاخهٔ new)؛ `cwd` در هر دو `thread/list`؛ `test_chatgpt_folder_query_new.cjs` PASS (این آزمون ۲۶ نوامبر ۲۰۲۶ حذف شد — افزونه نصب نیست، همیشه ۷۷)؛ backup `out/extension.js.chatgpt-folder-backup` | بعد از آپدیت ChatGPT دوباره |
 | ۵ | زنجیرهٔ تست و ۳۴ آزمون | پلان ۱ | انجام | `test_all.sh` ۳۴ خط `run "`؛ `Doc/tarif/test-all.log:162` = 33 passed, 1 skipped, 0 failed؛ XSS، نوسازی لیست تیک و Codex جدید هم بسته شد | — |
 | ۶ | آزمون Swift | moalagh ۱۰ | انجام | `run.sh` به `OpenRouter.swift`؛ O1–O7؛ خطای کامپایل حالا exit 1؛ ALL PASS | — |
 | ۷ | لاگ تماس/هزینه (`/v1`، SSE، پروکسی) | پلان ۲ | نیمه | `provider-attribution.jsonl`؛ پروکسی تازه؛ ۴۰۴ تازه صفر | آزمون مقایسهٔ هزینه با API با تلورانس و بازهٔ ته‌نشینی ۳۰۰ ثانیه (جمع پوشه‌ها با today اختلاف دارد: ۲٪ تا ۳۰٪ بسته به زمان) |

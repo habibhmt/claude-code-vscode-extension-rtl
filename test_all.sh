@@ -31,8 +31,9 @@ run "wezterm" node --no-warnings --experimental-strip-types mods/rtl-wezterm/tes
 run "chatgpt patch" python3 test_chatgpt_patch.py
 run "chatgpt folder patch" python3 test_chatgpt_folder_patch.py
 run "chatgpt folder filter" node test_chatgpt_folder_filter.cjs
-run "chatgpt folder query" node test_chatgpt_folder_query.cjs
-run "chatgpt folder query new" node test_chatgpt_folder_query_new.cjs
+# دو آزمونِ «chatgpt folder query» و «… query new» حذف شدند (۲۶ نوامبر ۲۰۲۶،
+# حبیب: «گزینه ۳ رو بزن»): هر دو کدِ *نصب‌شدهٔ* افزونهٔ ChatGPT را لازم دارند و آن
+# افزونه روی این مک در هیچ‌کدام از هفت پوشهٔ ادیتور نصب نیست ⇒ همیشه ۷۷ می‌دادند.
 run "chatgpt history click" node test_chatgpt_history_click.cjs
 run "chatgpt panel state" node test_chatgpt_panel_state.cjs
 run "chatgpt font spacing" node test_chatgpt_font_spacing.cjs

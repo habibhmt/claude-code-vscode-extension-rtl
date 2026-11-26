@@ -104,10 +104,14 @@ if (gatewayActive) {
   // Pinned by name, not just counted: a map and a picker that lose the same row
   // together would agree on the total and still take the slider away.
   const byValue = new Map(choices.map(m => [m.value, m]));
+  // حبیب ۲۶ نوامبر ۰۳:۳۹: «اداپتیو باشه و برای هر مدلی طبق همون چیزی که براش
+  // تعریف شده بیاد». این سه ردیف عمداً سه شکلِ مختلف دارند: یکی از دروازه سه سطح
+  // می‌گیرد، یکی پنج سطح از کاتالوگِ OpenRouter، و یکی (kimi-k3) فقط یک سطح.
   const pinned = {
     'aion-labs/aion-3.5': ['low', 'high', 'max'],
-    'deepseek-v4.1-flash': ['low', 'medium', 'high', 'max'],
+    'deepseek-v4.1-flash': ['low', 'high', 'max'],
     'openai/gpt-5.2': ['low', 'medium', 'high', 'xhigh'],
+    'kimi-k3': ['max'],
   };
   for (const [value, levels] of Object.entries(pinned)) {
     const row = byValue.get(value);
@@ -116,11 +120,31 @@ if (gatewayActive) {
   }
   // …and the other direction: a model whose vendor publishes no reasoning
   // levels must stay without a slider, not inherit one from its neighbours.
-  for (const value of ['beam-free', 'glm-5.3']) {
+  for (const value of ['gemini-decision-1', 'hungerg-free']) {
     const row = byValue.get(value);
     if (!row) continue;
     assert.ok(!row.supportsEffort, 'a model without published levels got an effort slider: ' + value);
   }
+
+  // قانونِ اداپتیو، برای *همهٔ* ردیف‌ها و از منبعِ خودشان: اگر دروازه برای مدل
+  // `effort` می‌دهد همان باید در منو باشد؛ وگرنه فهرستِ `reasoning` کاتالوگِ
+  // OpenRouter. هر اختلافی یعنی منو سطحی نشان می‌دهد که سرویس اعلام نکرده.
+  const ORDER = ['low', 'medium', 'high', 'xhigh', 'max'];
+  const norm = list => ORDER.filter(l => list.map(x => String(x).toLowerCase()).includes(l));
+  const mergedEffort = new Map(merged.filter(m => Array.isArray(m.effort) && m.effort.length)
+    .map(m => [m.id, m.effort]));
+  const catalogReasoning = new Map((JSON.parse(fs.readFileSync(
+    path.join(__dirname, '../claude-api/openrouter-catalog.json'), 'utf8')).models || [])
+    .filter(m => Array.isArray(m.reasoning)).map(m => [m.id, m.reasoning]));
+  let checked = 0;
+  for (const m of choices) {
+    const evidence = mergedEffort.get(m.value) || catalogReasoning.get(m.value);
+    const expected = evidence ? norm(evidence) : [];
+    assert.deepEqual(m.supportedEffortLevels ? [...m.supportedEffortLevels].sort() : [],
+      [...expected].sort(), 'the effort menu does not match what this model publishes: ' + m.value);
+    if (expected.length) checked += 1;
+  }
+  assert.ok(checked > 100, 'almost no model carries evidence — the adaptive check is vacuous');
   // هر ردیف همان چیزی را می‌گوید که دفترچهٔ رسمیِ خودِ سرویس می‌گوید — قیمتِ
   // ورودی/خروجی/کش بر میلیون، پنجرهٔ متن، سقفِ خروجی، ابزار و جنسِ ورودی
   // (حبیب ۲۶ نوامبر ۰۰:۵۶: «توضیحات مزخرف/چرت را بردار، فقط قیمت و کانتکست»).

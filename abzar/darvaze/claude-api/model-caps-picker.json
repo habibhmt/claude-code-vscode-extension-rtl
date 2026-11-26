@@ -1,11 +1,12 @@
 {
   "note": "ساختهٔ saz_model_caps_picker.py — دستی ویرایش نکن",
   "gateway_rows": 411,
-  "with_effort": 160,
+  "with_effort": 180,
   "sources": {
+    "gateway": 23,
     "openrouter_catalog": 157,
-    "old_catalog": 3,
-    "skipped_not_in_gateway": 6
+    "without_levels": 231,
+    "thinking_off": 6
   },
   "rows": {
     "aion-labs/aion-3.5": {
@@ -14,7 +15,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "aion-labs/aion-3.5-mini": {
       "supportsEffort": true,
@@ -22,7 +24,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-haiku-5.5": {
       "supportsEffort": true,
@@ -32,7 +35,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-opus-4.6": {
       "supportsEffort": true,
@@ -41,7 +45,8 @@
         "medium",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-opus-4.7": {
       "supportsEffort": true,
@@ -51,7 +56,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-opus-4.8": {
       "supportsEffort": true,
@@ -61,7 +67,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-opus-5": {
       "supportsEffort": true,
@@ -71,7 +78,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-opus-5.5": {
       "supportsEffort": true,
@@ -81,7 +89,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-sonnet-4.6": {
       "supportsEffort": true,
@@ -90,7 +99,8 @@
         "medium",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-sonnet-5": {
       "supportsEffort": true,
@@ -100,7 +110,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "anthropic/claude-sonnet-5.5": {
       "supportsEffort": true,
@@ -110,13 +121,15 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "baidu/ernie-5.5-flash-preview:free": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "baidu/ernie-light-dt-1.0-intl": {
       "supportsEffort": true,
@@ -124,7 +137,19 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "beam-free": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "source": "gateway"
     },
     "bytedance-seed/seed-2.0-lite": {
       "supportsEffort": true,
@@ -132,7 +157,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "bytedance-seed/seed-2.0-mini": {
       "supportsEffort": true,
@@ -140,7 +166,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "claude-haiku-5-5": {
       "supportsEffort": true,
@@ -151,6 +178,7 @@
         "xhigh",
         "max"
       ],
+      "source": "gateway",
       "supportsAdaptiveThinking": true,
       "supportsThinkingOff": true,
       "supportsAutoMode": true,
@@ -159,11 +187,10 @@
     "deepseek-v4-pro": {
       "supportsEffort": true,
       "supportedEffortLevels": [
-        "low",
-        "medium",
         "high",
         "max"
       ],
+      "source": "gateway",
       "supportsAdaptiveThinking": true,
       "supportsThinkingOff": true,
       "supportsAutoMode": true,
@@ -173,10 +200,10 @@
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
-        "medium",
         "high",
         "max"
       ],
+      "source": "gateway",
       "supportsAdaptiveThinking": true,
       "supportsThinkingOff": true,
       "supportsAutoMode": true,
@@ -187,7 +214,8 @@
       "supportedEffortLevels": [
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "deepseek/deepseek-v4-flash-0731": {
       "supportsEffort": true,
@@ -195,7 +223,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "deepseek/deepseek-v4-flash-vision-exp": {
       "supportsEffort": true,
@@ -203,14 +232,16 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "deepseek/deepseek-v4-pro": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "deepseek/deepseek-v4-pro-0813": {
       "supportsEffort": true,
@@ -218,7 +249,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "deepseek/deepseek-v4.1-flash": {
       "supportsEffort": true,
@@ -226,7 +258,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "deepseek/deepseek-v4.1-flash-1017": {
       "supportsEffort": true,
@@ -234,7 +267,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "fireworks/ember-1": {
       "supportsEffort": true,
@@ -242,7 +276,35 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "gemini-4-argon": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "source": "gateway"
+    },
+    "glm-5.3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ],
+      "source": "gateway"
+    },
+    "glm-5.3-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ],
+      "source": "gateway"
     },
     "google/gemini-3-flash-preview": {
       "supportsEffort": true,
@@ -250,19 +312,22 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-flash-image": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-flash-image-preview": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-flash-lite": {
       "supportsEffort": true,
@@ -270,13 +335,15 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-flash-lite-image": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-flash-lite-preview": {
       "supportsEffort": true,
@@ -284,7 +351,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-pro-preview": {
       "supportsEffort": true,
@@ -292,7 +360,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.1-pro-preview-customtools": {
       "supportsEffort": true,
@@ -300,7 +369,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.5-flash": {
       "supportsEffort": true,
@@ -308,7 +378,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.5-flash-lite": {
       "supportsEffort": true,
@@ -316,7 +387,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.6-flash": {
       "supportsEffort": true,
@@ -324,7 +396,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.7-flash": {
       "supportsEffort": true,
@@ -332,7 +405,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-3.8-flash": {
       "supportsEffort": true,
@@ -340,7 +414,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-4-argon": {
       "supportsEffort": true,
@@ -348,7 +423,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-4-carbon": {
       "supportsEffort": true,
@@ -356,7 +432,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-4-hydrogen": {
       "supportsEffort": true,
@@ -365,34 +442,122 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-nano-banana-2.1": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-omni-1.1-flash": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "google/gemini-omni-1.2-flash": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "gpt-5.6-luna": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "source": "gateway",
+      "supportsThinkingOff": true
+    },
+    "gpt-6-luna": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "source": "gateway",
+      "supportsThinkingOff": true
+    },
+    "grok-4.7": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "source": "gateway"
+    },
+    "hy3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high"
+      ],
+      "source": "gateway",
+      "supportsThinkingOff": true
+    },
+    "hy4": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ],
+      "source": "gateway",
+      "supportsThinkingOff": true
+    },
+    "hy4-flash-free": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ],
+      "source": "gateway",
+      "supportsThinkingOff": true
+    },
+    "hy4-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "high"
+      ],
+      "source": "gateway",
+      "supportsThinkingOff": true
     },
     "ibm-granite/granite-4.2-8b": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "kimi-k3": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "max"
+      ],
+      "source": "gateway"
+    },
+    "kimi-k3.1-pro": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "max"
+      ],
+      "source": "gateway"
     },
     "meta/muse-ember": {
       "supportsEffort": true,
@@ -402,7 +567,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-glimmer-30b": {
       "supportsEffort": true,
@@ -411,7 +577,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-spark-1.1": {
       "supportsEffort": true,
@@ -420,7 +587,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-spark-1.2": {
       "supportsEffort": true,
@@ -429,7 +597,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-spark-1.2-contributor": {
       "supportsEffort": true,
@@ -438,7 +607,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-spark-1.3": {
       "supportsEffort": true,
@@ -448,7 +618,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-spark-1.3-contributor": {
       "supportsEffort": true,
@@ -458,7 +629,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-spark-open": {
       "supportsEffort": true,
@@ -467,7 +639,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "meta/muse-wonder": {
       "supportsEffort": true,
@@ -477,7 +650,19 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "minimax-m3.1-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "source": "gateway"
     },
     "minimax/minimax-m3.1-flash": {
       "supportsEffort": true,
@@ -487,25 +672,29 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "mistralai/mistral-large-4-0": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "mistralai/mistral-medium-3-5": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "mistralai/mistral-small-2603": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "moonshotai/kimi-k3": {
       "supportsEffort": true,
@@ -513,7 +702,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "moonshotai/kimi-k3.1-pro": {
       "supportsEffort": true,
@@ -521,49 +711,76 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "muse-spark-1.2-contributor": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "source": "gateway"
+    },
+    "muse-spark-1.3-contributor": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "source": "gateway"
     },
     "nex-agi/nex-n2.5-mini": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "nex-agi/nex-n2.5-pro": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "nex-agi/nex-n2.6": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "nvidia/nemotron-3-super-120b-a12b": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "medium"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "nvidia/nemotron-3-ultra-550b-a55b": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "nvidia/nemotron-3-ultra-550b-a55b:free": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5": {
       "supportsEffort": true,
@@ -571,7 +788,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5-mini": {
       "supportsEffort": true,
@@ -579,7 +797,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5-nano": {
       "supportsEffort": true,
@@ -587,13 +806,15 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5-pro": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.1": {
       "supportsEffort": true,
@@ -601,7 +822,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.1-codex": {
       "supportsEffort": true,
@@ -609,7 +831,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.1-codex-max": {
       "supportsEffort": true,
@@ -618,7 +841,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.1-codex-mini": {
       "supportsEffort": true,
@@ -626,7 +850,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.2": {
       "supportsEffort": true,
@@ -635,7 +860,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.2-codex": {
       "supportsEffort": true,
@@ -644,7 +870,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.2-pro": {
       "supportsEffort": true,
@@ -652,7 +879,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.3-codex": {
       "supportsEffort": true,
@@ -661,7 +889,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.4": {
       "supportsEffort": true,
@@ -670,7 +899,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.4-image-2": {
       "supportsEffort": true,
@@ -679,7 +909,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.4-mini": {
       "supportsEffort": true,
@@ -688,7 +919,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.4-nano": {
       "supportsEffort": true,
@@ -697,7 +929,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.4-pro": {
       "supportsEffort": true,
@@ -705,7 +938,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.5": {
       "supportsEffort": true,
@@ -714,7 +948,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.5-pro": {
       "supportsEffort": true,
@@ -722,7 +957,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.6-luna": {
       "supportsEffort": true,
@@ -732,7 +968,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.6-luna-pro": {
       "supportsEffort": true,
@@ -742,7 +979,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.6-sol": {
       "supportsEffort": true,
@@ -752,7 +990,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.6-sol-pro": {
       "supportsEffort": true,
@@ -762,7 +1001,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.6-terra": {
       "supportsEffort": true,
@@ -772,7 +1012,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-5.6-terra-pro": {
       "supportsEffort": true,
@@ -782,7 +1023,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6-astra": {
       "supportsEffort": true,
@@ -792,7 +1034,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6-astra-pro": {
       "supportsEffort": true,
@@ -802,7 +1045,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6-luna": {
       "supportsEffort": true,
@@ -812,7 +1056,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6-luna-pro": {
       "supportsEffort": true,
@@ -822,7 +1067,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6-sol": {
       "supportsEffort": true,
@@ -832,7 +1078,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6-sol-pro": {
       "supportsEffort": true,
@@ -842,7 +1089,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.1-sol": {
       "supportsEffort": true,
@@ -852,7 +1100,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.1-sol-pro": {
       "supportsEffort": true,
@@ -862,7 +1111,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.1-terra": {
       "supportsEffort": true,
@@ -872,7 +1122,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.1-terra-pro": {
       "supportsEffort": true,
@@ -882,7 +1133,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.2-astra": {
       "supportsEffort": true,
@@ -892,7 +1144,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.2-astra-pro": {
       "supportsEffort": true,
@@ -902,7 +1155,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.2-sol": {
       "supportsEffort": true,
@@ -912,7 +1166,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-6.2-sol-pro": {
       "supportsEffort": true,
@@ -922,7 +1177,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-oss-120b": {
       "supportsEffort": true,
@@ -930,7 +1186,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "openai/gpt-oss-20b": {
       "supportsEffort": true,
@@ -938,7 +1195,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "particle-ai/particle-1": {
       "supportsEffort": true,
@@ -948,7 +1206,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "particle-ai/particle-1:free": {
       "supportsEffort": true,
@@ -958,7 +1217,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "perceptron/perceptron-mk1.5": {
       "supportsEffort": true,
@@ -966,14 +1226,16 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "prism-ml/ternary-bonsai-2-27b": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "medium",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "qwen/qwen3.8-2.4t-a95b": {
       "supportsEffort": true,
@@ -981,7 +1243,8 @@
         "low",
         "medium",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "qwen/qwen3.8-27b": {
       "supportsEffort": true,
@@ -989,7 +1252,8 @@
         "low",
         "medium",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "qwen/qwen3.8-max-0902": {
       "supportsEffort": true,
@@ -998,7 +1262,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "qwen/qwen3.8-max-prime": {
       "supportsEffort": true,
@@ -1007,7 +1272,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "qwen/qwen4-max": {
       "supportsEffort": true,
@@ -1015,7 +1281,35 @@
         "low",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "qwen3.8-flash": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "source": "gateway"
+    },
+    "qwen3.8-max": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "source": "gateway"
+    },
+    "qwen4-max": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "high",
+        "xhigh"
+      ],
+      "source": "gateway"
     },
     "reflection/beam-1.0-501b-a23b": {
       "supportsEffort": true,
@@ -1025,7 +1319,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "sakana/fugu-max": {
       "supportsEffort": true,
@@ -1033,7 +1328,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "sakana/fugu-ultra": {
       "supportsEffort": true,
@@ -1041,7 +1337,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "sakana/fugu-ultra-v2": {
       "supportsEffort": true,
@@ -1049,13 +1346,24 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "sakana/sakana-namazu": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
+    },
+    "step-5-preview": {
+      "supportsEffort": true,
+      "supportedEffortLevels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "source": "gateway"
     },
     "stepfun/step-3.7-flash": {
       "supportsEffort": true,
@@ -1063,7 +1371,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "stepfun/step-5-preview": {
       "supportsEffort": true,
@@ -1071,28 +1380,32 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "tencent/hy3": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "tencent/hy4": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "tencent/hy4-preview": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "low",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "thinkingmachines/inkling": {
       "supportsEffort": true,
@@ -1101,7 +1414,8 @@
         "medium",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "thinkingmachines/inkling-2-small": {
       "supportsEffort": true,
@@ -1110,7 +1424,8 @@
         "medium",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "thinkingmachines/inkling-small": {
       "supportsEffort": true,
@@ -1119,7 +1434,8 @@
         "medium",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "upstage/solar-mini4": {
       "supportsEffort": true,
@@ -1129,7 +1445,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "upstage/solar-pro4": {
       "supportsEffort": true,
@@ -1139,7 +1456,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "x-ai/grok-4.20-multi-agent": {
       "supportsEffort": true,
@@ -1148,7 +1466,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "x-ai/grok-4.3": {
       "supportsEffort": true,
@@ -1156,7 +1475,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "x-ai/grok-4.5": {
       "supportsEffort": true,
@@ -1164,7 +1484,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "x-ai/grok-4.6": {
       "supportsEffort": true,
@@ -1173,7 +1494,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "x-ai/grok-4.7": {
       "supportsEffort": true,
@@ -1182,14 +1504,16 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "z-ai/glm-5.2": {
       "supportsEffort": true,
       "supportedEffortLevels": [
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "z-ai/glm-5.3": {
       "supportsEffort": true,
@@ -1197,7 +1521,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "z-ai/glm-5.3-flash": {
       "supportsEffort": true,
@@ -1205,7 +1530,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "z-ai/glm-5.3-flashx": {
       "supportsEffort": true,
@@ -1213,7 +1539,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "z-ai/glm-5.3-flashx-legal": {
       "supportsEffort": true,
@@ -1221,7 +1548,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "z-ai/glm-5.3-prime": {
       "supportsEffort": true,
@@ -1229,7 +1557,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~anthropic/claude-haiku-latest": {
       "supportsEffort": true,
@@ -1239,7 +1568,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~anthropic/claude-opus-latest": {
       "supportsEffort": true,
@@ -1249,7 +1579,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~anthropic/claude-sonnet-latest": {
       "supportsEffort": true,
@@ -1259,7 +1590,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~deepseek/deepseek-flash-latest": {
       "supportsEffort": true,
@@ -1267,7 +1599,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~deepseek/deepseek-pro-latest": {
       "supportsEffort": true,
@@ -1275,7 +1608,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~deepseek/deepseek-v4-flash-latest": {
       "supportsEffort": true,
@@ -1283,7 +1617,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~google/gemini-flash-latest": {
       "supportsEffort": true,
@@ -1292,7 +1627,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~google/gemini-pro-latest": {
       "supportsEffort": true,
@@ -1300,7 +1636,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~moonshotai/kimi-latest": {
       "supportsEffort": true,
@@ -1308,7 +1645,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~openai/gpt-astra-latest": {
       "supportsEffort": true,
@@ -1318,7 +1656,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~openai/gpt-luna-latest": {
       "supportsEffort": true,
@@ -1328,7 +1667,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~openai/gpt-mini-latest": {
       "supportsEffort": true,
@@ -1337,7 +1677,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~openai/gpt-sol-latest": {
       "supportsEffort": true,
@@ -1347,7 +1688,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~openai/gpt-terra-latest": {
       "supportsEffort": true,
@@ -1357,7 +1699,8 @@
         "high",
         "xhigh",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~x-ai/grok-latest": {
       "supportsEffort": true,
@@ -1366,7 +1709,8 @@
         "medium",
         "high",
         "xhigh"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~z-ai/glm-flash-latest": {
       "supportsEffort": true,
@@ -1374,7 +1718,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     },
     "~z-ai/glm-latest": {
       "supportsEffort": true,
@@ -1382,7 +1727,8 @@
         "low",
         "high",
         "max"
-      ]
+      ],
+      "source": "openrouter_catalog"
     }
   }
 }

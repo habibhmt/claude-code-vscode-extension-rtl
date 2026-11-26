@@ -105,6 +105,7 @@ run "ide nasb" bash test_ide_nasb.sh
 # خط می‌سنجند که نسخهٔ نصب‌شده با مخزن یکی است و پلِ MCP سالم است (۲۶ نوامبر ۲۰۲۶).
 run "fork code nasb" bash abzar/code-mcp/nasb.sh --check
 run "fork code pool" node abzar/code-mcp/test_pool.mjs
+run "andaze codemode" python3 Doc/abzar/test_andaze_codemode.py
 
 printf '\n=== SUMMARY: %d passed, %d skipped, %d failed ===\n' "$pass" "$skip" "$fail"
 if [ "${#skipped[@]}" -gt 0 ]; then

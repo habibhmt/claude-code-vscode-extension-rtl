@@ -503,6 +503,44 @@ delete globalThis.__ccgSort;
 delete globalThis.__ccgApi;
 
 
+/* ---------- the thinking toggle (دکمهٔ فکر) ---------- */
+
+// حبیب ۲۶ نوامبر ۲۰۲۶: «اون دکمه خاموش روشن ثینکینگ رو هم پس بیاری توش».
+// افزونه خودش دستورِ `toggle-thinking` را در بخشِ «Model» منوی «/» ثبت می‌کند و
+// منوی مدل آن را نمی‌کشد؛ پچ ما همان دستور را داخلِ بخشِ افورت می‌گذارد. آزمون:
+// خودِ عبارتِ تزریق‌شده از باندل بیرون کشیده و با رجیستریِ ساختگی اجرا می‌شود.
+const thinkAt = bundle.indexOf('getCommand("toggle-thinking")', searchAt);
+assert.ok(thinkAt > 0, 'the model picker has no thinking row: run fix-rtl-claude.sh');
+assert.ok(bundle.includes('executeCommand("toggle-thinking")'),
+  'the thinking row does not run the extension command');
+const thinkStart = bundle.lastIndexOf('(()=>{', thinkAt);
+assert.ok(thinkStart > 0, 'the thinking row has an unexpected shape');
+const thinkBody = braces(bundle, thinkStart + 5);
+// نام‌های مینیفای‌شده در هر بیلد عوض می‌شوند؛ از خودِ عبارت خوانده می‌شوند تا
+// آزمون به نامِ یک نسخه گره نخورد.
+const thinkReg = /(\w+)&&\1\.getCommand\("toggle-thinking"\)/.exec(thinkBody);
+const thinkEl = /(\w+)\((\w+),\{command:/.exec(thinkBody);
+assert.ok(thinkReg && thinkEl, 'the thinking row does not read the command registry');
+const think = new Function(thinkReg[1], thinkEl[1], thinkEl[2],
+  'return (()=>{' + thinkBody + '})();');
+const called = [];
+const reg = { getCommand: id => (id === 'toggle-thinking' ? { id, label: 'Thinking' } : undefined),
+              executeCommand: id => called.push(id) };
+const el = (comp, props) => ({ comp, props });
+const row = think(reg, el, 'ROW');
+assert.ok(row && row.comp === 'ROW' && row.props.command.id === 'toggle-thinking',
+  'the thinking row is not drawn into the effort section');
+assert.equal(typeof row.props.onClick, 'function', 'the thinking row has no click handler');
+row.props.onClick();
+assert.deepEqual(called, ['toggle-thinking'],
+  'clicking the thinking row does not run the extension command');
+assert.equal(think({ getCommand: () => undefined }, el, 'ROW'), null,
+  'the thinking row is drawn even when the extension registered no such command');
+// سوییچِ روشن/خاموش را خودِ دستورِ افزونه می‌سازد (`trailingComponent`)، پس ردیفِ
+// ما نباید وضعیت را از خودش بسازد؛ نبودِ آن یعنی ردیف بی‌سوییچ است.
+assert.ok(bundle.includes('currentModelSupportsThinkingOff'),
+  'the extension no longer decides which models can turn thinking off');
+
 // Sabotage: strip the fields the headers depend on. A renderer that still
 // draws headers is reading a constant, not the catalog, and proves nothing.
 assert.equal(draw(choices.map(({ group, familyLabel, ...rest }) => rest)).filter(n => n.kind === 'header').length, 0,

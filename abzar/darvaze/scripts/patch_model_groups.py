@@ -18,7 +18,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-MARK = '/* project216-model-groups v3 */'
+MARK = '/* project216-model-groups v4 */'
 
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
 # children:z&&h.map((te,pe)=>m(YFn,{model:te,id:AFt(pe),...},te.value))
@@ -42,6 +42,58 @@ NAV_DEPS = re.compile(r'\],\[([\w$]+(?:,[\w$]+)*)\]\)')
 
 # let vscode=acquireVsCodeApi(); — نامِ متغیر در هر بیلد عوض می‌شود.
 API = re.compile(r'([\w$]+)\s*=\s*(?:window\.)?acquireVsCodeApi\(\)')
+
+# بخشِ پایینِ منو: y&&g("div",{ref:D,className:Or.effortSection,children:[…]}
+# ردیف‌های effort-level و ultracode از همین آرایه می‌آیند. ردیفِ «فکر» (Thinking)
+# هم آن‌جا می‌نشیند — همان دستوری که منوی «/» ِ خودِ افزونه ثبت می‌کند.
+EFFORT_SECTION = re.compile(
+    r'(\w+)&&(\w+)\("div",\{ref:(\w+),className:([\w$]+)\.effortSection,children:\[')
+EXEC_CMD = re.compile(r'(\w+)\?\.executeCommand\(')
+ROW_COMPONENT = re.compile(r'(\w+)\((\w+),\{ref:\w+===\w+\?\w+:null,command:')
+
+# حبیب ۲۶ نوامبر ۲۰۲۶: «اون دکمه خاموش روشن ثینکینگ رو هم پس بیاری توش».
+# افزونه خودش یک دستورِ `toggle-thinking` در بخشِ «Model» منوی «/» ثبت می‌کند
+# (`registerAction` با سوییچِ روشن/خاموش) — ولی منوی مدل آن را نمی‌کشد. این پچ
+# همان دستور را با همان کامپوننتِ ردیف (`bw`/معادلش) داخلِ بخشِ افورت می‌گذارد،
+# پس هیچ منطقِ تازه‌ای ساخته نمی‌شود: کلیک همان `executeCommand` ِ رسمی را می‌زند.
+THINKING = (
+    ',(()=>{const __c=__REG__&&__REG__.getCommand("toggle-thinking");'
+    'return __c?__EL__(__ROW__,{command:__c,active:!1,onMouseMove:()=>{},'
+    'onClick:()=>__REG__?.executeCommand("toggle-thinking")}):null})()'
+)
+
+
+def patch_thinking(text):
+    hits = list(EFFORT_SECTION.finditer(text))
+    if len(hits) != 1:
+        raise ValueError(f'model picker effort section changed (matched {len(hits)})')
+    hit = hits[0]
+    # انتهای آرایهٔ children از روی عمقِ کمان پیدا می‌شود، نه با لنگرِ ثابت.
+    start = hit.end() - 1
+    depth = 0
+    end = None
+    for i in range(start, min(len(text), start + 4000)):
+        if text[i] == '[':
+            depth += 1
+        elif text[i] == ']':
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    if end is None:
+        raise ValueError('model picker effort section is not closed')
+    region = text[start:end]
+    cmd = EXEC_CMD.search(region)
+    component = ROW_COMPONENT.search(region)
+    if cmd is None:
+        raise ValueError('model picker command registry not found in the effort section')
+    if component is None:
+        raise ValueError('model picker effort row component not found')
+    row = component.group(2)
+    insert = (THINKING.replace('__REG__', cmd.group(1))
+                     .replace('__EL__', component.group(1))
+                     .replace('__ROW__', component.group(2)))
+    return text[:end] + insert + text[end:]
 
 
 # جست‌وجو: یک ورودی بالای فهرست که ردیف‌ها را با style.display پنهان می‌کند. عمداً
@@ -182,6 +234,11 @@ def patch_text(text):
         raise ValueError(f'model picker render anchor changed (matched {len(hits)})')
     patched = text[:hits[0].start()] + replacement(hits[0]) + text[hits[0].end():]
     patched = patch_nav(patched)
+    patched = patch_thinking(patched)
+    # خودِ باندل چند ارجاع دارد (unregister، ترتیبِ منوی «Model»…)؛ فقط دو ارجاعِ
+    # تازه (getCommand و executeCommand) باید اضافه شده باشد، نه کمتر و نه بیشتر.
+    if patched.count('"toggle-thinking"') != text.count('"toggle-thinking"') + 2:
+        raise ValueError('thinking toggle row damaged')
     if patched.count('"ccgh"+') != 1 or patched.count('"ccgf"+') != 1:
         raise ValueError('model group overlay damaged')
     if patched.count('"ccg-search"') != 1:

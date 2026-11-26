@@ -151,11 +151,13 @@ function ahe(o){return ae()&&Fa(o)?P7t:o}
 
 | چیز | مقدار |
 |---|---|
-| فایل | `abzar/code-mcp/server.mjs` |
+| منبعِ حقیقت | `abzar/code-mcp/server.mjs` (داخلِ مخزن؛ اینجا ویرایش می‌شود) |
+| نسخهٔ اجراشده | `~/.claude/mcp/fork_code_mode/server.mjs` — **بیرونِ مخزن**، چون پوشهٔ ۱۳۶ روزشمار است و اگر عوض/رها شود، ابزار در همهٔ پروژه‌ها می‌مرد |
+| نصب/به‌روزرسانی | `bash abzar/code-mcp/nasb.sh` · سنجشِ یکی‌بودنِ دو نسخه: `bash abzar/code-mcp/nasb.sh --check` (در `test_all.sh` هست) |
 | نام | **`fork_code_mode`** (حبیب، ۲۶ نوامبر ۲۰۲۶: «اسمش رو بزار فورک کد مود کلاد») · ابزارِ درونش `code` |
 | ثبت | **سراسری** در `~/.claude.json` (`mcpServers.fork_code_mode`)، پس در همهٔ پروژه‌ها هست |
 | فراخوانی | `mcp__fork_code_mode__code` |
-| اجرا | `/opt/homebrew/bin/node abzar/code-mcp/server.mjs` |
+| اجرا | `/opt/homebrew/bin/node ~/.claude/mcp/fork_code_mode/server.mjs` |
 | جهانی‌ها | `$` (زنجیره‌ای: `.nothrow` `.throws` `.cwd` `.env` `.timeout` · خواننده: `.text()` `.lines()` `.json()`) · `read` · `write` · `edit` (تکی و دسته‌ای) · `file()` · `glob` · `grep` · `sleep` · `preview` · `log` · `console` · `atob`/`btoa` |
 | برگشت | آخرین عبارت، در `<result>`؛ خطاها در `<error>` |
 | سقف | ۶۰۰٬۰۰۰ ms اجرا · زمان‌سنجیِ هر فرمان تا ۷٬۲۰۰٬۰۰۰ ms |
@@ -176,7 +178,25 @@ function ahe(o){return ae()&&Fa(o)?P7t:o}
 
 **فرقِ باقی‌مانده با اصلی:** ابزارهای *درونیِ خودِ Claude Code* (‏Workflow، SendMessage، WebFetch) از داخلِ اسکریپت صدا زده نمی‌شوند — آن‌ها فقط داخلِ خودِ برنامه اجرا می‌شوند، نه در یک سرورِ MCP ِ جدا. هر MCP ِ ثبت‌شده اما از این پل در دسترس است.
 
-**وضعیت:** `claude mcp list` → `fork_code_mode: … ✔ Connected`.
+**آزمونِ نسخهٔ نصب‌شده (۲۶ نوامبر ۲۰۲۶، ۰۳:۴۰):**
+
+| آزمون | نتیجه |
+|---|---|
+| `bash abzar/code-mcp/nasb.sh --check` | ✅ `سبز: server.mjs یکی است` · `سبز: mcp_pool.mjs یکی است` |
+| خرابکاریِ عمدی: یک خط به نسخهٔ نصب‌شده اضافه شد | ✅ قرمز شد (`دو نسخهٔ server.mjs یکی نیستند`)، با `bash abzar/code-mcp/nasb.sh` برگشت و باز سبز شد |
+| اجرای سرور از مسیرِ نصب‌شده | ✅ `serverInfo {"name":"fork_code_mode","version":"1.2.0"}` و پل ۵ سرور را دید |
+| `node abzar/code-mcp/test_pool.mjs` روی **۴** نود (۱۸.۱۷ · ۲۲.۲۳ · ۲۴.۲۲ · ۲۵.۹) | ✅ هر چهار: ۶ آزمون سبز |
+
+**نودِ سرورِ کامپیوتر هم عوض شد (۲۶ نوامبر ۲۰۲۶):** مسیرش به `~/.nvm/versions/node/v22.23.2` گره خورده بود و روی این مک **دو** نسخهٔ nvm نصب است (۲۲ و ۲۴) ⇒ با نسخهٔ بعدی می‌مرد. حالا `/opt/homebrew/bin/node` (نسخهٔ ۲۵.۹). بکاپ: `~/.claude/backups/claude.json.bak-pish-az-nod-20261126-0336`.
+
+| آزمونِ جابه‌جاییِ نود | نتیجه |
+|---|---|
+| `sharp` واقعاً عکس ساخت (نه فقط `require`) زیرِ نودِ ۲۲ و ۲۵ | ✅ ۹۵ بایت خروجی |
+| `@nut-tree-fork/nut-js` زیرِ نودِ ۲۲ و ۲۵ | ✅ `keyboard` و `screen` هر دو |
+| معماریِ ماژولِ نیتیو | ✅ `libnut.node` یونیورسال: `x86_64` + `arm64` |
+| `claude mcp list` | ✅ `computer_use: /opt/homebrew/bin/node … ✔ Connected` · `fork_code_mode: /opt/homebrew/bin/node ~/.claude/mcp/fork_code_mode/server.mjs ✔ Connected` |
+
+**وضعیت:** `claude mcp list` → هر پنج سرور `✔ Connected`.
 
 ## ۷ · دفترِ استخراج — چه پیدا شد و چه نشد
 

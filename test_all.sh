@@ -100,6 +100,10 @@ run "spec line" python3 Doc/abzar/test_spec_line.py
 run "pin model" python3 Doc/abzar/test_pin_model.py
 run "shomare yekta" python3 Doc/abzar/chek_shomare.py
 run "ide nasb" bash test_ide_nasb.sh
+# فورکِ کد مود بیرونِ مخزن نصب می‌شود (پوشهٔ روزشمار ممکن است عوض شود)؛ این دو
+# خط می‌سنجند که نسخهٔ نصب‌شده با مخزن یکی است و پلِ MCP سالم است (۲۶ نوامبر ۲۰۲۶).
+run "fork code nasb" bash abzar/code-mcp/nasb.sh --check
+run "fork code pool" node abzar/code-mcp/test_pool.mjs
 
 printf '\n=== SUMMARY: %d passed, %d skipped, %d failed ===\n' "$pass" "$skip" "$fail"
 if [ "${#skipped[@]}" -gt 0 ]; then
